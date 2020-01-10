@@ -1,0 +1,86 @@
+---
+title: "Outflank yourself"
+author: "Antdrew D. Nguyen"
+date: "2017-04-03"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+### Installing packages and loading libraries    
+```{r packages}
+#install.packages("devtools")
+library(devtools)
+source("http://bioconductor.org/biocLite.R")
+biocLite("qvalue")
+#install_github("whitelock/OutFLANK")
+
+# load libraries
+#library(OutFLANK) #‘OutFLANK’ is not available (for R version 3.4.3)
+library(vcfR)
+library(adegenet)
+
+```
+
+### Loading in data     
+
+taking geno file and transposed
+```{r loading in data}
+#ssw.geno.in<-read.fwf("data/2017-04-03_Karl_outliertests/SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf.geno",width=rep(1,24))
+
+#has to be geno format
+ssw.geno.in<-read.fwf("../data/2017-04-03_Karl_outliertests/SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf.geno",width=rep(1,24))
+dim(ssw.geno.in)
+ssw.geno<-t(ssw.geno.in)
+dim(ssw.geno)
+
+#read in meta data
+#ssw_meta<-read.table("data/2017-04-03_Karl_outliertests/ssw_healthloc.txt",T)
+ssw_meta<-read.table("../data/2017-04-03_Karl_outliertests/ssw_healthloc.txt",T)
+
+# reorder the meta data by individual by numerical value
+ssw_meta2<-ssw_meta[order(ssw_meta$Individual),]
+
+ssw_meta2$Trajectory
+#ssw_meta3<-droplevels(subset(ssw_meta2,ssw_meta2$Trajectory!="MM"))
+ssw_meta2$Trajectory[which(ssw_meta2$Trajectory=="MM")] = NA
+ssw_meta2
+
+# now we can use outflank
+OF_SNPs<-MakeDiploidFSTMat(ssw.geno,locusNames=seq(1,dim(ssw.geno)[2],1),popNames=ssw_meta2$Trajectory)
+
+head(OF_SNPs)
+
+
+#let's llok at fst distribution
+hist(OF_SNPs$FST)
+
+OF_out<-OutFLANK(FstDataFrame = OF_SNPs,NumberOfSamples = 3,qthreshold=0.1)
+str(OF_out)  
+
+
+OutFLANKResultsPlotter(OF_out,withOutliers =T,NoCorr=T,Hmin=.1,binwidth=0.005)
+
+
+outliers<-which(OF_out$results$OutlierFlag=="TRUE")
+outliers
+```
+
+
+### Extract annotations   
+
+Goal: Extract info abou the outliers by reading in the cvf file and match outliers with annotations.    
+
+```{r}
+#vcf1<-read.vcfR("data/2017-04-03_Karl_outliertests/SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf")
+vcf1<-read.vcfR("../data/2017-04-03_Karl_outliertests/SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf") # read in vcf file
+
+vcfann<-as.data.frame(getFIX(vcf1)) # converting to data frame
+vcfann[outliers,] # matching the rows with outlier row IDs
+```
+
+### What's next
+
+1. Now that you have the ID's of the transcripts, locate them in the ".cds" file on the server   
+2. BLAST search it get an annotation (what the gene does)
+3. 

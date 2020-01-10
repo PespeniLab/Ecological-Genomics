@@ -1,0 +1,120 @@
+---
+title: "Population genomics part 4: Adegent"
+author: "Antdrew Nguyen"
+date: '2017-03-22'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### PCA
+
+```{r pca, eval=FALSE}
+# Set your working directory to where you downloaded your results files:
+#setwd("~/github/PBIO381_srkeller_labnotebook/data/SNP_data/")
+
+list.files() # Do you see your downloaded files there? If not, double check to make sure you've set your working directory to the right spot
+
+# We'll need to install 2 packages to work with the SNP data:
+#install.packages("vcfR") # reads in vcf files and proides tools for file conversion 
+#install.packages("adegenet") # pop-genetics package with some handy routines, including PCA and other multivariate methods (DAPC)
+
+# ...and load the libraries
+library(adegenet)
+library(vcfR)
+
+#Read the vcf SNP data into R
+download.file("https://raw.githubusercontent.com/stephenrkeller/PBIO381_srkeller_labnotebook/master/data/SNP_data/SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf",dest="test.vcf")
+
+vcf1<-read.vcfR("test.vcf")
+#vcf1 <- read.vcfR("SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf")
+
+# The adegenet package uses a highly efficient way of storing large SNP datasets in R called a "genlight" object. The following function creates a genlight object from your vcf:
+gl1 <- vcfR2genlight(vcf1)
+print(gl1) # Looks good! Right # of SNPs and individuals!
+
+# For info, try:
+gl1$ind.names
+gl1$loc.names[1:10]
+
+# Notice there's nothing in the field that says "pop"? Let's fix that...
+ssw_meta <- read.table("Tutorial/ssw_healthloc.txt", header=T) # read in the metadata
+ssw_meta <- ssw_meta[order(ssw_meta$Individual),] # sort it by Individual ID
+
+# Confirm the ID's are ordered the same in gl1 and ssw_meta:
+gl1$ind.names
+ssw_meta$Individual
+
+gl1$pop <- ssw_meta$Location # assign locality info
+gl1$other <- as.list(ssw_meta$Trajectory) # assign disease status
+
+
+# WE can explore the structure of our SNP data using the glPlot function, which gives us a sample x SNP view of the VCF file
+glPlot(gl1, posi="bottomleft")
+
+# Now, let's compute the PCA on the SNP genotypes and plot it:
+pca1 <- glPca(gl1, nf=4) # nf = number of PC axes to retain (here, 4)
+pca1 # prints summary
+
+# Plot the individuals in SNP-PCA space, with locality labels:
+plot(pca1$scores[,1], pca1$scores[,2], 
+     cex=2, pch=20, col=gl1$pop, 
+     xlab="Principal Component 1", 
+     ylab="Principal Component 2", 
+     main="PCA on SSW data (Freq missing=20%; 5317 SNPs)")
+legend("topleft", 
+       legend=unique(gl1$pop), 
+       pch=20, 
+       col=c("black", "red"))
+
+# Perhaps we want to show disease status instead of locality:
+plot(pca1$scores[,1], pca1$scores[,2], 
+     cex=2, pch=20, col=as.factor(unlist(gl1$other)), 
+     xlab="Principal Component 1", 
+     ylab="Principal Component 2", 
+     main="PCA on SSW data (Freq missing=20%; 5317 SNPs)")
+legend("topleft", 
+       legend=unique(as.factor(unlist(gl1$other))), 
+       pch=20, 
+       col=as.factor(unique(unlist(gl1$other))))
+
+# Which SNPs load most strongly on the 1st PC axis?
+loadingplot(abs(pca1$loadings[,1]),
+            threshold=quantile(abs(pca1$loadings), 0.999))
+# Get their locus names
+gl1$loc.names[which(quantile(abs(pca1$loadings))>0.999)]
+
+threshold<-quantile(abs(pca1$loadings),0.999)
+
+gl1$loc.names[which(abs(pca1$loadings)>threshold)]
+
+gl1$loc.names[which(quantile(abs(pca1$loadings),0.999)>0.0770)]
+
+```
+
+### DA PCA (Descriminant analysis of PCAs)
+```{r DAPCA,eval=FALSE}
+ 
+# Run the DAPC using disease status to group samples
+disease.dapc <- dapc(gl1, pop=as.factor(unlist(gl1$other)), n.pca=8, n.da=3,
+     var.loadings=T, pca.info=T)
+
+# Scatterplot of results
+scatter.dapc(disease.dapc, grp=as.factor(unlist(gl1$other)), legend=T)
+
+# Plot the posterior assignment probabilities to each group
+compoplot(disease.dapc)
+
+# Which loci contribute the most to distinguishing Healthy vs. Sick individuals?
+loadingplot(abs(disease.dapc$var.load), 
+            lab.jitter=1, 
+            threshold=quantile(abs(disease.dapc$var.load), probs=0.999))
+```
+
+
+### Admixture
+
+```{r ADMIXTURE, eval=FALSE}
+
+```
