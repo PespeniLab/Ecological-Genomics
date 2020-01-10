@@ -1,0 +1,55 @@
+---
+title: "Getting Started in Ecological Genomics"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    toc: TRUE
+fontsize: 18pt
+---
+
+[Back to main page](https://pespenilab.github.io/Ecological-Genomics/)
+
+### Things you'll need to download:
+1. [R](https://www.r-project.org/) and [Rstudio](https://www.rstudio.com/) (be sure to install and load the "knitr"" package)
+2. Create a [github](https://github.com/) account and download github [desktop](https://desktop.github.com/)
+
+
+### Logs research activities in your online notebook [template found here](https://github.com/PespeniLab/Ecological-Genomics/blob/master/GithubNotebookTemplate.Rmd).   
+
+### Common code you'll need to word process in (R)markdown  
+
+1. To embed a link, all you need is the URL, implemented in the following way:   
+```
+[hyperlinked words](URL)
+```
+
+2. To embed an image, you'll need a URL of the image, implemented similarly as above:
+```
+![](URL)
+```
+To get a URL in (R)markdown:
+    * go to your github repository and click **"Issues"**    
+    * Click **"New"**    
+    * Include a title (Pictures); click and drag any image you'd like into the comment section
+    * Click **"Submit New Issue"** 
+    * You will see the image, right click it and copy the URL.     
+
+3. To include a table, it is best if you format it first as a csv(comma separated values). (Note, if on a mac, make sure the file type is unicode and unix). With the knitr package, you can generate tables easily from the csv. Here is an example: 
+
+Grab a dataset real fast (in R)    
+
+```{r}
+#packages for reading in data
+library(data.table)
+#grab dataset online
+dat<-fread("https://raw.githubusercontent.com/adnguyen/HelmsCahan_CBP-partA_2016/master/Script_Analyses/Sampling_sites_table.csv")
+#making a table
+knitr::kable(dat[1:3])
+```
+
+
+
+### For a good option to use markdown for taking notes, try [Typora](https://typora.io/)
+
+
+[Back to main page](https://pespenilab.github.io/Ecological-Genomics/)
