@@ -10,21 +10,4 @@ fontsize: 18pt
 
 **List of Tutorials and scripts** 
 
-1. 2017-02-01:[Command-line UNIX tutorial](Tutorial/2017-02-01_Command_Line_Unix.html)
-2. 2017-02-06: [RNAseq Tutorial](Tutorial/2017-02-06_RNAseq_tutorial.html)
-3. 2017-02-13: [RNAseq Mapping](Tutorial/2017-02-13_RNAseq_Mapping.html)
-4. 2017-02-15: [RNAseq Mapping and Read Counts Extraction](Tutorial/2017-02-15_RNAseq_Map_Count.html)
-5. 2017-02-22: [RNAseq Differential Gene Expression Analysis](Tutorial/2017-2-22_RNAseqDGE.html)
-6. 2017-02-27: RNAseq Differential Gene Expression Analysis Continued - Get new script and data file from same directory as before (see updated directions in last tutorial)
-7. 2017-03-06: [Population Genomics part 1](Tutorial/2017-03-06_Tutorials_PopGenomics1.html)    
-8. 2017-03-08: [Population genomics part 2](Tutorial/2017-03-08_Tutorials_PopGenomics2.html)     
-9. 2017-03-20:[Population Genomics part 3](Tutorial/2017-03-20_Tutorials_PopGenomics3.html)    
-    * R script [follow along](Tutorial/2017-03-20_populationgenomics3_R.html)   
-10. 2017-03-22: [Population Genomics part 4](Tutorial/2017-03-22_Tutorials_PopulGenomics4.html)   
-    * R script [follow along](Tutorial/2017-03-22_pop4_followalong.html)   
-11. 2017-04-03: Population Genomics part 5: [OutFLANK](Tutorial/2017-04-03_Popgenomics5_outlier_annotations_DAPC_OutFLANK.html)
-    * R script [follow along:](Tutorial/2017-04-03_OUTFLANK-yourself.html)    
-    
-12. 2017-04-05: [Gene Annotation Tutorial](Tutorial/2017-04-05_annotation_tutorial3.html)    
-13. 2017-04-10: [Analyzing 16s AmipliconSeq Data](Tutorial/2017-04-10_16sAmipliconSeqData.html)   
-14. 2017-04-19: Metagnomics [Picrust](Tutorial/2017-04-19_picrust.html)
+1. 2020-01-22:[Command-line UNIX tutorial]()
