@@ -1,0 +1,33 @@
+---
+title: "2017-02-22_RNAseq_DGE"
+date: 'February 1, 2017'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+## Update on Making and Mapping to a new reference transcriptome
+
+1. Concatenated fastq files from 4 individuals (over 200M reads) both sick and healthy.
+2. Digital normalization by kmer to make a smaller file size (8.7% of original size).
+3. Ran Trinity with really low max-memory and CPUs so that it would complete without crashing
+4. Predicted ORFs with TransDecoder.pl script.
+5. Evaluated contig stats to find that they were fewer, longer contigs.
+6. Mapped reads to this new assembly.
+7. Extracted read counts
+8. Assembled read counts table.
+
+
+
+## Differential gene expression analyses using DESeq2
+
+1. Transfer the data files and the R scripts to your computer from the server. On Windows you can use WinSCP to drag and drop the files.  On a mac, from a terminal window on your computer, navigate to where you want to put the files:
+```
+cd /place/where/you/want/the/files/on/your/computer/
+scp youruserid@pbio381.uvm.edu:/data/project_data/DGE/* .   
+```
+The wildcard ("*") grabs everything in that directory on the server and moves it to the present directory (".").
+
+2. Let's work through the script **DESeq2_exploreSSW_trim.R** script together...
+
+3. [Here's a link to the DESeq2 tutorial](https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2_pdf.pdf)
