@@ -1,0 +1,149 @@
+---
+title: "RNA-seq tutorial"
+date: "2017-02-06"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+### fastq files, data assessment and cleaning###
+
+To work with RNA-seq data, we first need to assess then filter for quality and trim it for quality and any remaining adapter sequences.
+
+Let's take a look at our files:
+
+```
+zcat FILENAME | head
+```
+
+You could also make a smaller file to work with:
+
+```
+zcat FILENAME | head -n 1000 > ~/YOURDIRECTORY/FILENAME_250reads.fq.gz
+```
+
+#### What is this gibberish?####
+
+The fast file format has 4 lines for each read: the read identifier, the read sequence, "+", and a sequence of quality scores for each base.
+
+[Here's a useful reference for understanding Quality (Phred) scores](http://www.drive5.com/usearch/manual/quality_score.html).  If P is the error probability, then:
+
+
+$P =  10^{(–Q/10)}$
+
+$Q =  –10 * log10(P)$
+
+The Q score is translated to ASCII characters so that a two digit number can be represented by a single character.
+
+Typically, we accept bases with Q >= 30, which is equivelant to a 0.1% chance of error (40 is 0.01% error, 20 is 1% error, 10 is 10% error).  
+
+**Based on the ASCII code table linked above, what kind of characters do you want to see in your quality score?**
+
+Now how can we look at the quality more systematically for all reads in the file?  We can use [the program FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (also already installed in our `/data/popgen/` directory).
+
+Let's each pick a set of files to inspect and clean by counting of the filenames around the room.
+
+Now clean your file using the following command:
+
+```
+fastqc FILENAME.fq.gz
+```
+
+Move your .html file to your computer using the `scp`command from your machine (hint: open another terminal or putty window):
+
+```
+scp mpespeni@pbio381.uvm.edu:/data/project_data/fastq/38_6-24_S_5_R2_fastqc.html .
+```
+
+The dot means "to the present directory" or you can direct it somewhere else.
+
+**How does the quality look?**
+
+[Here's a link to the Trimmomatic program](http://www.usadellab.org/cms/index.php?page=trimmomatic) that we'll use to clean the reads for each file. The program is already installed in our `/data/popgen/` directory.
+
+There's an example script in the `/data/scripts/` directory.  Make a directory in your directory called "scripts" and copy the bash script over, edit in vim, make it executable, and run it!
+
+```
+cp /data/scripts/trim_example.sh ~/scripts/
+chmod u+x trim_example.sh
+./trim_example.sh  # or bash trim_example.sh
+```
+
+Now check the quality of one of your cleaned files using fastqc again.
+
+
+
+## Starting a de novo assembly using Trinity##
+
+[Here's a link to the Trinity website](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+
+Let's develop some assembly experiments...
+
+Here's the basic command:
+
+```
+Trinity --seqType fq --left reads_1.fq --right reads_2.fq --CPU 6 --max_memory 20G 
+```
+
+The reads need to be paired, and concatenated.
+
+Let's explore some some of the [assembly quality assessment tools that Trinity provides](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Assembly-Quality-Assessment).
+
+For now, we can use an assembly that Melanie did last week using the samples from one individual.  The file is located in `/data/project_data/assembly/`
+
+### Course notes: 
+
+**Edit Script**
+filenames and path:    
+
+* input (2)      
+    * /data/project_data/fastq/     
+* output(4)_also.fq       
+    * /data/project_data/fastq/cleanreads/     
+**Vim related**      
+* "i" = insert    
+* "w" = write     
+* "q" = quit
+```
+    $ /data/popgen/trinityrnaseq-Trinity-v2.3.2/util/TrinityStats.pl /data/project_data/assembly/Trinity.fasta 
+    
+    
+    ################################
+    ## Counts of transcripts, etc.
+    ################################
+    Total trinity 'genes':	68935
+    Total trinity transcripts:	73435
+    Percent GC: 40.89
+    
+    ########################################
+    Stats based on ALL transcript contigs:
+    ########################################
+    
+    	Contig N10: 1598
+    	Contig N20: 934
+    	Contig N30: 630
+    	Contig N40: 467
+    	Contig N50: 363
+    
+    	Median contig length: 230
+    	Average contig: 336.13
+    	Total assembled bases: 24683495
+    
+    
+    #####################################################
+    ## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+    #####################################################
+    
+    	Contig N10: 1305
+    	Contig N20: 785
+    	Contig N30: 553
+    	Contig N40: 420
+    	Contig N50: 334
+    
+    	Median contig length: 227
+    	Average contig: 318.61
+    	Total assembled bases: 21963260
+```
+

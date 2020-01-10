@@ -1,0 +1,209 @@
+# P/BIO381 Tutorials
+
+## Population Genomics 3: Finishing allele frequency and diversity calculations
+
+### March 20, 2017
+
+Today, we'll finish up our calculations of allele frequencies and nucleotide diversity in the SSW data, before moving on to testing if there's population structure (in the next session). 
+
+First, recall that our previous SNP vcf file had 22 of 24 individuals in it. I found the missing 2 individuals (!) and have now called SNPs for all 24 individuals using **reads2snps**. 
+
+**PATH TO THE FINAL VCF DATA (all 24 INDS):** 
+
+```
+/data/project_data/snps/reads2snps/SSW_by24inds.txt.vcf.gz
+```
+
+* *Use VCFTools to filter genotypes and save in your home directory in gzipped format:*
+
+```bash
+$ cd /data/project_data/snps/reads2snps
+$ vcftools --gzvcf SSW_by24inds.txt.vcf.gz --min-alleles 2 --max-alleles 2 --maf 0.02 --max-missing 0.8 --recode --out ~/SSW_all_biallelic.MAF0.02.Miss0.8  
+$ cd ~/
+$ gzip SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf
+```
+
+------------------------------
+
+## Estimate allele frequencies in H and S:##
+
+**Let's compare the SNP frequencies for all loci between Healthy and Sick animals**. Perhaps there are some loci that contribute to a difference in pathogen susceptibility, which could be identified this way? Let's take a look.
+
+First, we need to re-create our text files containing the individual ID's for just Sick (and separately, just Healthy) individuals. These meta-data are in the following file:
+
+```
+/data/project_data/snps/reads2snps/ssw_healthloc.txt
+```
+
+Remember how to parse this file on the command line to get *just the **healthy** individual IDs*? Here's the strategy:
+
+* Use **grep** to match rows of data for disease trajectory
+* Pipe the results to **cut** to grab just the 1st column (-f1) corresponding to sample ID's. 
+* Save the output to your home directory and name it: **"H_SampleIDs.txt"**
+
+```bash
+$ cd /data/project_data/snps/reads2snps/
+$ grep "HH" ssw_healthloc.txt | cut -f1 >~/H_SampleIDs.txt
+```
+
+* Confirm  that there are 8 individuals in your output file.
+* Do the same for Sick individuals, saving to your home directory as: **"S_SampleIDs.txt"**. The **grep** command here is a little different, since we want to match *either* HS *or* SS.  The "\\|" part of the match tells  **grep** to match HS *OR* SS
+
+```bash
+$ grep "HS\|SS" ssw_healthloc.txt | cut -f1 >~/S_SampleIDs.txt
+```
+
+* Confirm that there are 14 individuals in your output file
+
+
+
+Now call VCFtools on your filtered gzipped vcf file saved in your home directory to calculate allele frequencies for each group. This will require 2 separate calls to VCFtools.
+
+**Allele Frequencies between Healthy and Sick individuals:**
+
+```bash
+$ cd ~/<path to your filtered vcf file in your home directory>
+$ vcftools --gzvcf SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf.gz --freq2 --keep H_SampleIDs.txt --out H_AlleleFreqs
+```
+
+```bash
+$ vcftools --gzvcf SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf.gz --freq2 --keep S_SampleIDs.txt --out S_AlleleFreqs
+```
+
+
+
+Let's also calculate Wright's Fst between H and S groups, which standardizes allele frequency differences based on the mean frequencies within groups. 
+
+**Fst between Healthy and Sick individuals:**
+
+```bash
+$ vcftools --gzvcf SSW_all_biallelic.MAF0.02.Miss0.8.recode.vcf.gz --weir-fst-pop H_SampleIDs.txt --weir-fst-pop S_SampleIDs.txt --out HvS_Fst
+```
+
+
+
+Now, we can import these datasets into **R** and make some plots to examine how the diversity and differentiation varies in our dataset:
+
+1. Download all 3 new results files to your laptop using **scp** or **Fetch** [MacOS] or **WinScp** [PC]
+2. Open the **H_AlleleFreqs.frq** file in a text editor and edit the header line as follows:
+   1. DELETE:   {Freq}
+   2. REPLACE with:   H_REF <tab> H_ALT
+   3. Do the same for the **S_AlleleFreqs.frq** file...
+3. Open **R**, paste the following into an R script, and work through it:
+
+```R
+# Set your working directory to where you downloaded your results files:
+setwd("~/github/PBIO381_srkeller_labnotebook/results/")
+
+# List the files in this directory -- you should see your results output from VCFTools if the download was successful
+list.files()
+
+# Let's do the allele freq comparisons first:
+H_freq <- read.table("H_AlleleFreqs.frq", header=T)
+S_freq <- read.table("S_AlleleFreqs.frq", header=T)
+
+# Since these files have identical numbers of SNPs in the exact same order, we can concatenate them together into one large dataframe:
+All_freq <- merge(H_freq, S_freq, by=c("CHROM", "POS"))
+
+# Check the results of your merge to make sure things look OK
+str(All_freq) # shows the structure of the data
+head(All_freq)
+
+# Looks good, now let's calculate the difference in minor allele frequency at each SNP and plot as a histogram
+All_freq$diff <- (All_freq$H_ALT - All_freq$S_ALT)
+
+hist(All_freq$diff, breaks=50, col="red", main="Allele frequency difference (H-S)")
+
+# Looks like most loci show little difference (i.e., likely drift), but perhaps a few show very large differences between healthy and sick (drift or selection?)
+
+# How do these highly divergent frequenices compare to Fst at the same SNPs?
+fst <- read.table("HvS_Fst.weir.fst", header=T)
+
+All_freq.fst <- merge(All_freq, fst, by=c("CHROM", "POS"))
+
+plot(All_freq.fst$diff, All_freq.fst$WEIR_AND_COCKERHAM_FST, xlab="Allele frequency difference (H-S)", ylab="Fst", main="Healthy vs. Sick SNP divergence")
+
+# Which are the genes that are showing the highest divergence between Healthy and Sick?
+All_freq.fst[which(All_freq.fst$WEIR_AND_COCKERHAM_FST>0.2),]
+```
+
+
+
+------------------------------------------
+
+###Comparing Sea Star nucleotide diversity and piN/piS to the sample of metazoans that Romiguier et al. (2014) report.###
+
+Romiguier et al. report on some very intriguing associations between species life history traits, nucleotide diversity at synonymous sites (piS), and the ratio of piN/piS (where piN is nucleotide diversity at nonsynonymous site). 
+
+![Romiguier_Figure2](http://www.nature.com/nature/journal/v515/n7526/images/nature13685-f2.jpg)
+
+
+
+What do our sea star data have to say about this? Or more importantly: ***where do sea stars fall on the genomic diversity ~ life history continuum?***
+
+Estimating piS and piN on the entire dataset will take some time. Let's try and set this up at the end of the day and let it run. 
+
+We'll use the **piNpiS** script from Gayral et al. (2013) to run this. We only need a single input file, which is a FASTA formatted sequence file that is output from **reads2snps**, and we'll save the output to our home directories:
+
+```bash
+$ cd /data/project_data/snps/reads2snps
+$ /data/popgen/dNdSpiNpiS_1.0 -alignment_file=SSW_by24inds.txt.fas -ingroup=sp -out=~/dNdSpiNpiS_output
+```
+
+
+
+While we wait for that to chug along (it'll calculate confidence intervals from 10,000 bootstraps…which takes ~5 hours on our data), we can look at the summary output from the smaller VCF file run previously on just 1 sample library per individual:
+
+* ```bash
+  $ cat SSW_bamlist.txt.sum
+  ```
+
+* Record what we got for our sea stars:
+
+  * piS: _________
+  * piN: _________
+  * ave. piN/piS: _________
+
+To compare the mean values across genes to Romiguier's data, we need to get their estimates and combine them with our estimates. I've downloaded Romiguier's Table S3 to our server and saved as a common separated (.csv) file.
+
+```bash
+/data/project_data/snps/reads2snps/Romiguier_nature13685-s3.csv
+```
+
+Download this file to your laptop and then import it into **R**:
+
+```R
+# Set your working directory to where you downloaded your file:
+setwd("~/github/PBIO381_srkeller_labnotebook/data/")
+
+# List the files in this directory
+list.files()
+
+# Read in the Romiguier data:
+Rom <- read.csv("Romiguier_nature13685-s3.csv", header=T)
+
+# Import OK?
+str(Rom) 
+head(Rom)
+
+# Looks good!
+# Now let's look at how the strength of purifying selection (piN/piS) compares to the size of Ne (piS). We'll plot these on a log scale to linearize the relationship.
+plot(log(Rom$piS), log(Rom$piNpiS), pch=21, bg="blue", xlab="log Synonymous Nucleotide Diversity (piS)", ylab="log Ratio of Nonysn to Syn Diversity (piN/piS)", main="Purifying Selection vs. Effective Population Size")
+
+# Now let's add our SSW points to the existing plot and give them a different symbol
+points(log(0.00585312), log(0.264041), pch=24, cex=1.5, bg="red") 
+
+# We can also add a regression line to the plot to see how far off the SSW estimates are from expectation
+reg <- lm(log(Rom$piNpiS) ~ log(Rom$piS)) # Fits a linear regression
+abline(reg) # adds the regression line to the plot
+
+# It would be useful to highlight the other echinoderms in the dataset...do our seastars behave similarly?
+echino <- Rom[which(Rom$Phylum=="Echinodermata"),] # subsets the data
+points(log(echino$piS), log(echino$piNpiS), pch=21, bg="red") # adds the points
+
+# Lastly, let's add a legend:
+legend("bottomleft", cex=1, legend=c("Metazoans", "Echinoderms", "P. ochraceus"), pch=c(21,21,24), col=c("blue", "red", "red"))
+
+# Pisaster seems to be in a group with other echinoderms that have relaxed purifying selection (high piN/piS), given their Ne...Interesting! Can we hypothesize why this might be?
+```
+
