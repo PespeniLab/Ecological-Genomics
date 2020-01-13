@@ -21,7 +21,7 @@ chunk_output_type: console
 
 
 # Table of Contents:  
-  * [Entry 1: 2020-01-13, Monday](#id-section1)
+  * [Entry 1: 2020-01-13, Monday](#id-section1) First day of class
       * [Entry 2: 2020-01-14, Tuesday](#id-section2)
     * [Entry 3: 2020-01-15, Wednesday](#id-section3)
      * [Entry 4: 2020-01-16, Thursday](#id-section4)
@@ -112,7 +112,31 @@ chunk_output_type: console
 
 ### Entry 1: 2020-01-01, Wednesday.   
 
+#### Introductions
 
+#### What is ecological genomics?
+
+- Species interactions at the genomic level
+- Study of genes and relation to organisms in their environment
+- In the context of evolution
+
+#### Overlapping of fields
+
+**Popgen**: 1920/30s Wright, Fisher, Haldane 
+- Mathematical theory: based on a theoretical unchanging population
+- Fst population level differentiation
+- Selection: thinking in terms of the relative fitness of different genotypes
+
+**Molecular evolution**: Kimura Tajima
+- How does the DNA reveal the history of an organism/population/species
+- Can look at pos/neg selection by comparing nonsynonymous to synonymous changes in the DNA
+- Can look at the nucleotide diversity, processes of evolution can influence diversity stats
+
+Merge these two fields with ecology and NGS -> ecological genomics 
+
+#### Class structure
+Mondays: mini lectures/info updates and journal review
+Wednesdays: Computer lab 
 
 ------
 <div id='id-section2'/>   
