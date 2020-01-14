@@ -1,0 +1,510 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>&quot;Github Notebook Template&quot;</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857143; overflow-x: hidden; background-image: inherit; background-size: inherit; background-attachment: inherit; background-origin: inherit; background-clip: inherit; background-color: inherit; tab-size: 4; background-position: inherit inherit; background-repeat: inherit inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) { 
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-family: inherit; font-size: inherit; font-style: inherit; font-variant-caps: inherit; font-weight: inherit; font-stretch: inherit; line-height: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.701961); color: rgb(85, 85, 85); border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right-width: 0px; background-color: inherit; }
+.CodeMirror-linenumber { }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background-image: inherit; background-size: inherit; background-attachment: inherit; background-origin: inherit; background-clip: inherit; background-color: inherit; position: relative !important; background-position: inherit inherit; background-repeat: inherit inherit; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; background-position: 0px 0px; background-repeat: initial initial; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print { 
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid-page; break-before: avoid-page; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid-page; }
+  .typora-export #write::after { height: 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background-color: rgb(204, 204, 204); display: block; overflow-x: hidden; background-position: initial initial; background-repeat: initial initial; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) { 
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background-color: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; background-position: initial initial; background-repeat: initial initial; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; }
+a.md-print-anchor { white-space: pre !important; border: none !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; text-shadow: initial !important; background-position: 0px 0px !important; background-repeat: initial initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; margin-top: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom-width: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+svg[id^="mermaidChart"] { line-height: 1em; }
+mark { background-color: rgb(255, 255, 0); color: rgb(0, 0, 0); background-position: initial initial; background-repeat: initial initial; }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+mark .md-meta { color: rgb(0, 0, 0); opacity: 0.3 !important; }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    padding-bottom: .3em;
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+   padding-bottom: .3em;
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border-top: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table tr th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table tr td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table tr th:first-child,
+table tr td:first-child {
+    margin-top: 0;
+}
+table tr th:last-child,
+table tr td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    table,
+    pre {
+        page-break-inside: avoid;
+    }
+    pre {
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+.html-for-mac .context-menu {
+    --item-hover-bg-color: #E6F0FE;
+}
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+
+</style>
+</head>
+<body class='typora-export' >
+<div  id='write'  class = 'is-mac'><h2><a name="author-lauren-ashlock" class="md-header-anchor"></a><span>Author: Lauren Ashlock </span></h2><h3><a name="affiliation--uvm" class="md-header-anchor"></a><span>Affiliation:  UVM</span></h3><h3><a name="e-mail-contact-laurenashlockuvmedu" class="md-header-anchor"></a><span>E-mail contact: </span><a href='mailto:Lauren.Ashlock@uvm.edu' target='_blank' class='url'>Lauren.Ashlock@uvm.edu</a></h3><h3><a name="start-date-2020-01-13" class="md-header-anchor"></a><span>Start Date: 2020-01-13</span></h3><h3><a name="end-date-2020-05-08" class="md-header-anchor"></a><span>End Date: 2020-05-08</span></h3><h3><a name="project-descriptions-i-am-the-ta-for-ecological-genomics" class="md-header-anchor"></a><span>Project Descriptions: I am the TA for Ecological Genomics</span></h3><p>&nbsp;</p><p>&nbsp;</p><h1><a name="table-of-contents" class="md-header-anchor"></a><span>Table of Contents:  </span></h1><ul><li><p><a href='#id-section1'><span>Entry 1: 2020-01-13, Monday</span></a><span> First day of class</span></p><ul><li><p><a href='#id-section2'><span>Entry 2: 2020-01-14, Tuesday</span></a></p></li><li><p><a href='#id-section3'><span>Entry 3: 2020-01-15, Wednesday</span></a></p></li><li><p><a href='#id-section4'><span>Entry 4: 2020-01-16, Thursday</span></a></p><ul><li><a href='#id-section5'><span>Entry 5: 2020-01-17, Friday</span></a></li><li><a href='#id-section6'><span>Entry 6: 2020-01-20, Monday</span></a></li></ul></li><li><p><a href='#id-section7'><span>Entry 7: 2020-01-21, Tuesday</span></a></p></li><li><p><a href='#id-section8'><span>Entry 8: 2020-01-22, Wednesday</span></a></p></li><li><p><a href='#id-section9'><span>Entry 9: 2020-01-23, Thursday</span></a></p></li><li><p><a href='#id-section10'><span>Entry 10: 2020-01-24, Friday</span></a></p></li><li><p><a href='#id-section11'><span>Entry 11: 2020-01-27, Monday</span></a></p></li><li><p><a href='#id-section12'><span>Entry 12: 2020-01-28, Tuesday</span></a></p></li><li><p><a href='#id-section13'><span>Entry 13: 2020-01-29, Wednesday</span></a></p></li><li><p><a href='#id-section14'><span>Entry 14: 2020-01-30, Thursday</span></a></p></li><li><p><a href='#id-section15'><span>Entry 15: 2020-01-31, Friday</span></a></p></li><li><p><a href='#id-section16'><span>Entry 16: 2020-02-03, Monday</span></a></p></li><li><p><a href='#id-section17'><span>Entry 17: 2020-02-04, Tuesday</span></a></p></li><li><p><a href='#id-section18'><span>Entry 18: 2020-02-05, Wednesday</span></a></p></li><li><p><a href='#id-section19'><span>Entry 19: 2020-02-06, Thursday</span></a></p></li><li><p><a href='#id-section20'><span>Entry 20: 2020-02-07, Friday</span></a></p></li><li><p><a href='#id-section21'><span>Entry 21: 2020-02-10, Monday</span></a></p></li><li><p><a href='#id-section22'><span>Entry 22: 2020-02-11, Tuesday</span></a></p></li><li><p><a href='#id-section23'><span>Entry 23: 2020-02-12, Wednesday</span></a></p></li><li><p><a href='#id-section24'><span>Entry 24: 2020-02-13, Thursday</span></a></p></li><li><p><a href='#id-section25'><span>Entry 25: 2020-02-14, Friday</span></a></p></li><li><p><a href='#id-section26'><span>Entry 26: 2020-02-17, Monday</span></a></p></li><li><p><a href='#id-section27'><span>Entry 27: 2020-02-18, Tuesday</span></a></p></li><li><p><a href='#id-section28'><span>Entry 28: 2020-02-19, Wednesday</span></a></p></li><li><p><a href='#id-section29'><span>Entry 29: 2020-02-20, Thursday</span></a></p></li><li><p><a href='#id-section30'><span>Entry 30: 2020-02-21, Friday</span></a></p></li><li><p><a href='#id-section31'><span>Entry 31: 2020-02-24, Monday</span></a></p></li><li><p><a href='#id-section32'><span>Entry 32: 2020-02-25, Tuesday</span></a></p></li><li><p><a href='#id-section33'><span>Entry 33: 2020-02-26, Wednesday</span></a></p></li><li><p><a href='#id-section34'><span>Entry 34: 2020-02-27, Thursday</span></a></p></li><li><p><a href='#id-section35'><span>Entry 35: 2020-02-28, Friday</span></a></p></li><li><p><a href='#id-section36'><span>Entry 36: 2020-03-02, Monday</span></a></p></li><li><p><a href='#id-section37'><span>Entry 37: 2020-03-03, Tuesday</span></a></p></li><li><p><a href='#id-section38'><span>Entry 38: 2020-03-04, Wednesday</span></a></p></li><li><p><a href='#id-section39'><span>Entry 39: 2020-03-05, Thursday</span></a></p></li><li><p><a href='#id-section40'><span>Entry 40: 2020-03-06, Friday</span></a></p></li><li><p><a href='#id-section41'><span>Entry 41: 2020-03-09, Monday</span></a></p></li><li><p><a href='#id-section42'><span>Entry 42: 2020-03-10, Tuesday</span></a></p></li><li><p><a href='#id-section43'><span>Entry 43: 2020-03-11, Wednesday</span></a></p></li><li><p><a href='#id-section44'><span>Entry 44: 2020-03-12, Thursday</span></a></p></li><li><p><a href='#id-section45'><span>Entry 45: 2020-03-13, Friday</span></a></p></li><li><p><a href='#id-section46'><span>Entry 46: 2020-03-16, Monday</span></a></p></li><li><p><a href='#id-section47'><span>Entry 47: 2020-03-17, Tuesday</span></a></p></li><li><p><a href='#id-section48'><span>Entry 48: 2020-03-18, Wednesday</span></a></p></li><li><p><a href='#id-section49'><span>Entry 49: 2020-03-19, Thursday</span></a></p></li><li><p><a href='#id-section50'><span>Entry 50: 2020-03-20, Friday</span></a></p></li><li><p><a href='#id-section51'><span>Entry 51: 2020-03-23, Monday</span></a></p></li><li><p><a href='#id-section52'><span>Entry 52: 2020-03-24, Tuesday</span></a></p></li><li><p><a href='#id-section53'><span>Entry 53: 2020-03-25, Wednesday</span></a></p></li><li><p><a href='#id-section54'><span>Entry 54: 2020-03-26, Thursday</span></a></p></li><li><p><a href='#id-section55'><span>Entry 55: 2020-03-27, Friday</span></a></p></li><li><p><a href='#id-section56'><span>Entry 56: 2020-03-30, Monday</span></a></p></li><li><p><a href='#id-section57'><span>Entry 57: 2020-03-31, Tuesday</span></a></p></li><li><p><a href='#id-section58'><span>Entry 58: 2020-04-01, Wednesday</span></a></p></li><li><p><a href='#id-section59'><span>Entry 59: 2020-04-02, Thursday</span></a></p></li><li><p><a href='#id-section60'><span>Entry 60: 2020-04-03, Friday</span></a></p></li><li><p><a href='#id-section61'><span>Entry 61: 2020-04-06, Monday</span></a></p></li><li><p><a href='#id-section62'><span>Entry 62: 2020-04-07, Tuesday</span></a></p></li><li><p><a href='#id-section63'><span>Entry 63: 2020-04-08, Wednesday</span></a></p></li><li><p><a href='#id-section64'><span>Entry 64: 2020-04-09, Thursday</span></a></p></li><li><p><a href='#id-section65'><span>Entry 65: 2020-04-10, Friday</span></a></p></li><li><p><a href='#id-section66'><span>Entry 66: 2020-04-13, Monday</span></a></p></li><li><p><a href='#id-section67'><span>Entry 67: 2020-04-14, Tuesday</span></a></p></li><li><p><a href='#id-section68'><span>Entry 68: 2020-04-15, Wednesday</span></a></p></li><li><p><a href='#id-section69'><span>Entry 69: 2020-04-16, Thursday</span></a></p></li><li><p><a href='#id-section70'><span>Entry 70: 2020-04-17, Friday</span></a></p></li><li><p><a href='#id-section71'><span>Entry 71: 2020-04-20, Monday</span></a></p></li><li><p><a href='#id-section72'><span>Entry 72: 2020-04-21, Tuesday</span></a></p></li><li><p><a href='#id-section73'><span>Entry 73: 2020-04-22, Wednesday</span></a></p></li><li><p><a href='#id-section74'><span>Entry 74: 2020-04-23, Thursday</span></a></p></li><li><p><a href='#id-section75'><span>Entry 75: 2020-04-24, Friday</span></a></p></li><li><p><a href='#id-section76'><span>Entry 76: 2020-04-27, Monday</span></a></p></li><li><p><a href='#id-section77'><span>Entry 77: 2020-04-28, Tuesday</span></a></p></li><li><p><a href='#id-section78'><span>Entry 78: 2020-04-29, Wednesday</span></a></p></li><li><p><a href='#id-section79'><span>Entry 79: 2020-04-30, Thursday</span></a></p></li><li><p><a href='#id-section80'><span>Entry 80: 2020-05-01, Friday</span></a></p></li><li><p><a href='#id-section81'><span>Entry 81: 2020-05-04, Monday</span></a></p></li><li><p><a href='#id-section82'><span>Entry 82: 2020-05-05, Tuesday</span></a></p></li><li><p><a href='#id-section83'><span>Entry 83: 2020-05-06, Wednesday</span></a></p></li><li><p><a href='#id-section84'><span>Entry 84: 2020-05-07, Thursday</span></a></p></li><li><p><a href='#id-section85'><span>Entry 85: 2020-05-08, Friday</span></a></p></li></ul></li></ul><hr /><div id="id-section1">   </div><h3><a name="entry-1-2020-01-01-wednesday" class="md-header-anchor"></a><span>Entry 1: 2020-01-01, Wednesday.   </span></h3><h4><a name="introductions" class="md-header-anchor"></a><span>Introductions</span></h4><h4><a name="what-is-ecological-genomics" class="md-header-anchor"></a><span>What is ecological genomics?</span></h4><ul><li><span>Species interactions at the genomic level</span></li><li><span>Study of genes and relation to organisms in their environment</span></li><li><span>In the context of evolution</span></li></ul><h4><a name="overlapping-of-fields" class="md-header-anchor"></a><span>Overlapping of fields</span></h4><p><strong><span>Popgen</span></strong><span>: 1920/30s Wright, Fisher, Haldane </span></p><ul><li><span>Mathematical theory: based on a theoretical unchanging population</span></li><li><span>Fst population level differentiation</span></li><li><span>Selection: thinking in terms of the relative fitness of different genotypes</span></li></ul><p><strong><span>Molecular evolution</span></strong><span>: Kimura Tajima</span></p><ul><li><span>How does the DNA reveal the history of an organism/population/species</span></li><li><span>Can look at pos/neg selection by comparing nonsynonymous to synonymous changes in the DNA</span></li><li><span>Can look at the nucleotide diversity, processes of evolution can influence diversity stats</span></li></ul><p><span>Merge these two fields with ecology and NGS -&gt; ecological genomics </span></p><h4><a name="class-structure" class="md-header-anchor"></a><span>Class structure</span></h4><p><span>Mondays: mini lectures/info updates and journal review</span>
+<span>Wednesdays: Computer lab </span></p><hr /><div id="id-section2">   </div><h3><a name="entry-2-2020-01-02-thursday" class="md-header-anchor"></a><span>Entry 2: 2020-01-02, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section3">   </div><h3><a name="entry-3-2020-01-03-friday" class="md-header-anchor"></a><span>Entry 3: 2020-01-03, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section4">   </div><h3><a name="entry-4-2020-01-06-monday" class="md-header-anchor"></a><span>Entry 4: 2020-01-06, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section5">   </div><h3><a name="entry-5-2020-01-07-tuesday" class="md-header-anchor"></a><span>Entry 5: 2020-01-07, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section6">   </div><h3><a name="entry-6-2020-01-08-wednesday" class="md-header-anchor"></a><span>Entry 6: 2020-01-08, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section7">   </div><h3><a name="entry-7-2020-01-09-thursday" class="md-header-anchor"></a><span>Entry 7: 2020-01-09, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section8">   </div><h3><a name="entry-8-2020-01-10-friday" class="md-header-anchor"></a><span>Entry 8: 2020-01-10, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section9">   </div><h3><a name="entry-9-2020-01-13-monday" class="md-header-anchor"></a><span>Entry 9: 2020-01-13, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section10">   </div><h3><a name="entry-10-2020-01-14-tuesday" class="md-header-anchor"></a><span>Entry 10: 2020-01-14, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section11">   </div><h3><a name="entry-11-2020-01-15-wednesday" class="md-header-anchor"></a><span>Entry 11: 2020-01-15, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section12">   </div><h3><a name="entry-12-2020-01-16-thursday" class="md-header-anchor"></a><span>Entry 12: 2020-01-16, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section13">   </div><h3><a name="entry-13-2020-01-17-friday" class="md-header-anchor"></a><span>Entry 13: 2020-01-17, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section14">   </div><h3><a name="entry-14-2020-01-20-monday" class="md-header-anchor"></a><span>Entry 14: 2020-01-20, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section15">   </div><h3><a name="entry-15-2020-01-21-tuesday" class="md-header-anchor"></a><span>Entry 15: 2020-01-21, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section16">   </div><h3><a name="entry-16-2020-01-22-wednesday" class="md-header-anchor"></a><span>Entry 16: 2020-01-22, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section17">   </div><h3><a name="entry-17-2020-01-23-thursday" class="md-header-anchor"></a><span>Entry 17: 2020-01-23, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section18">   </div><h3><a name="entry-18-2020-01-24-friday" class="md-header-anchor"></a><span>Entry 18: 2020-01-24, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section19">   </div><h3><a name="entry-19-2020-01-27-monday" class="md-header-anchor"></a><span>Entry 19: 2020-01-27, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section20">   </div><h3><a name="entry-20-2020-01-28-tuesday" class="md-header-anchor"></a><span>Entry 20: 2020-01-28, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section21">   </div><h3><a name="entry-21-2020-01-29-wednesday" class="md-header-anchor"></a><span>Entry 21: 2020-01-29, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section22">   </div><h3><a name="entry-22-2020-01-30-thursday" class="md-header-anchor"></a><span>Entry 22: 2020-01-30, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section23">   </div><h3><a name="entry-23-2020-01-31-friday" class="md-header-anchor"></a><span>Entry 23: 2020-01-31, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section24">   </div><h3><a name="entry-24-2020-02-03-monday" class="md-header-anchor"></a><span>Entry 24: 2020-02-03, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section25">   </div><h3><a name="entry-25-2020-02-04-tuesday" class="md-header-anchor"></a><span>Entry 25: 2020-02-04, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section26">   </div><h3><a name="entry-26-2020-02-05-wednesday" class="md-header-anchor"></a><span>Entry 26: 2020-02-05, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section27">   </div><h3><a name="entry-27-2020-02-06-thursday" class="md-header-anchor"></a><span>Entry 27: 2020-02-06, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section28">   </div><h3><a name="entry-28-2020-02-07-friday" class="md-header-anchor"></a><span>Entry 28: 2020-02-07, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section29">   </div><h3><a name="entry-29-2020-02-10-monday" class="md-header-anchor"></a><span>Entry 29: 2020-02-10, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section30">   </div><h3><a name="entry-30-2020-02-11-tuesday" class="md-header-anchor"></a><span>Entry 30: 2020-02-11, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section31">   </div><h3><a name="entry-31-2020-02-12-wednesday" class="md-header-anchor"></a><span>Entry 31: 2020-02-12, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section32">   </div><h3><a name="entry-32-2020-02-13-thursday" class="md-header-anchor"></a><span>Entry 32: 2020-02-13, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section33">   </div><h3><a name="entry-33-2020-02-14-friday" class="md-header-anchor"></a><span>Entry 33: 2020-02-14, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section34">   </div><h3><a name="entry-34-2020-02-17-monday" class="md-header-anchor"></a><span>Entry 34: 2020-02-17, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section35">   </div><h3><a name="entry-35-2020-02-18-tuesday" class="md-header-anchor"></a><span>Entry 35: 2020-02-18, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section36">   </div><h3><a name="entry-36-2020-02-19-wednesday" class="md-header-anchor"></a><span>Entry 36: 2020-02-19, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section37">   </div><h3><a name="entry-37-2020-02-20-thursday" class="md-header-anchor"></a><span>Entry 37: 2020-02-20, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section38">   </div><h3><a name="entry-38-2020-02-21-friday" class="md-header-anchor"></a><span>Entry 38: 2020-02-21, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section39">   </div><h3><a name="entry-39-2020-02-24-monday" class="md-header-anchor"></a><span>Entry 39: 2020-02-24, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section40">   </div><h3><a name="entry-40-2020-02-25-tuesday" class="md-header-anchor"></a><span>Entry 40: 2020-02-25, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section41">   </div><h3><a name="entry-41-2020-02-26-wednesday" class="md-header-anchor"></a><span>Entry 41: 2020-02-26, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section42">   </div><h3><a name="entry-42-2020-02-27-thursday" class="md-header-anchor"></a><span>Entry 42: 2020-02-27, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section43">   </div><h3><a name="entry-43-2020-02-28-friday" class="md-header-anchor"></a><span>Entry 43: 2020-02-28, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section44">   </div><h3><a name="entry-44-2020-03-02-monday" class="md-header-anchor"></a><span>Entry 44: 2020-03-02, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section45">   </div><h3><a name="entry-45-2020-03-03-tuesday" class="md-header-anchor"></a><span>Entry 45: 2020-03-03, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section46">   </div><h3><a name="entry-46-2020-03-04-wednesday" class="md-header-anchor"></a><span>Entry 46: 2020-03-04, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section47">   </div><h3><a name="entry-47-2020-03-05-thursday" class="md-header-anchor"></a><span>Entry 47: 2020-03-05, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section48">   </div><h3><a name="entry-48-2020-03-06-friday" class="md-header-anchor"></a><span>Entry 48: 2020-03-06, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section49">   </div><h3><a name="entry-49-2020-03-09-monday" class="md-header-anchor"></a><span>Entry 49: 2020-03-09, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section50">   </div><h3><a name="entry-50-2020-03-10-tuesday" class="md-header-anchor"></a><span>Entry 50: 2020-03-10, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section51">   </div><h3><a name="entry-51-2020-03-11-wednesday" class="md-header-anchor"></a><span>Entry 51: 2020-03-11, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section52">   </div><h3><a name="entry-52-2020-03-12-thursday" class="md-header-anchor"></a><span>Entry 52: 2020-03-12, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section53">   </div><h3><a name="entry-53-2020-03-13-friday" class="md-header-anchor"></a><span>Entry 53: 2020-03-13, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section54">   </div><h3><a name="entry-54-2020-03-16-monday" class="md-header-anchor"></a><span>Entry 54: 2020-03-16, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section55">   </div><h3><a name="entry-55-2020-03-17-tuesday" class="md-header-anchor"></a><span>Entry 55: 2020-03-17, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section56">   </div><h3><a name="entry-56-2020-03-18-wednesday" class="md-header-anchor"></a><span>Entry 56: 2020-03-18, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section57">   </div><h3><a name="entry-57-2020-03-19-thursday" class="md-header-anchor"></a><span>Entry 57: 2020-03-19, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section58">   </div><h3><a name="entry-58-2020-03-20-friday" class="md-header-anchor"></a><span>Entry 58: 2020-03-20, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section59">   </div><h3><a name="entry-59-2020-03-23-monday" class="md-header-anchor"></a><span>Entry 59: 2020-03-23, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section60">   </div><h3><a name="entry-60-2020-03-24-tuesday" class="md-header-anchor"></a><span>Entry 60: 2020-03-24, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section61">   </div><h3><a name="entry-61-2020-03-25-wednesday" class="md-header-anchor"></a><span>Entry 61: 2020-03-25, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section62">   </div><h3><a name="entry-62-2020-03-26-thursday" class="md-header-anchor"></a><span>Entry 62: 2020-03-26, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section63">   </div><h3><a name="entry-63-2020-03-27-friday" class="md-header-anchor"></a><span>Entry 63: 2020-03-27, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section64">   </div><h3><a name="entry-64-2020-03-30-monday" class="md-header-anchor"></a><span>Entry 64: 2020-03-30, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section65">   </div><h3><a name="entry-65-2020-03-31-tuesday" class="md-header-anchor"></a><span>Entry 65: 2020-03-31, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section66">   </div><h3><a name="entry-66-2020-04-01-wednesday" class="md-header-anchor"></a><span>Entry 66: 2020-04-01, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section67">   </div><h3><a name="entry-67-2020-04-02-thursday" class="md-header-anchor"></a><span>Entry 67: 2020-04-02, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section68">   </div><h3><a name="entry-68-2020-04-03-friday" class="md-header-anchor"></a><span>Entry 68: 2020-04-03, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section69">   </div><h3><a name="entry-69-2020-04-06-monday" class="md-header-anchor"></a><span>Entry 69: 2020-04-06, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section70">   </div><h3><a name="entry-70-2020-04-07-tuesday" class="md-header-anchor"></a><span>Entry 70: 2020-04-07, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section71">   </div><h3><a name="entry-71-2020-04-08-wednesday" class="md-header-anchor"></a><span>Entry 71: 2020-04-08, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section72">   </div><h3><a name="entry-72-2020-04-09-thursday" class="md-header-anchor"></a><span>Entry 72: 2020-04-09, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section73">   </div><h3><a name="entry-73-2020-04-10-friday" class="md-header-anchor"></a><span>Entry 73: 2020-04-10, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section74">   </div><h3><a name="entry-74-2020-04-13-monday" class="md-header-anchor"></a><span>Entry 74: 2020-04-13, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section75">   </div><h3><a name="entry-75-2020-04-14-tuesday" class="md-header-anchor"></a><span>Entry 75: 2020-04-14, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section76">   </div><h3><a name="entry-76-2020-04-15-wednesday" class="md-header-anchor"></a><span>Entry 76: 2020-04-15, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section77">   </div><h3><a name="entry-77-2020-04-16-thursday" class="md-header-anchor"></a><span>Entry 77: 2020-04-16, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section78">   </div><h3><a name="entry-78-2020-04-17-friday" class="md-header-anchor"></a><span>Entry 78: 2020-04-17, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section79">   </div><h3><a name="entry-79-2020-04-20-monday" class="md-header-anchor"></a><span>Entry 79: 2020-04-20, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section80">   </div><h3><a name="entry-80-2020-04-21-tuesday" class="md-header-anchor"></a><span>Entry 80: 2020-04-21, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section81">   </div><h3><a name="entry-81-2020-04-22-wednesday" class="md-header-anchor"></a><span>Entry 81: 2020-04-22, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section82">   </div><h3><a name="entry-82-2020-04-23-thursday" class="md-header-anchor"></a><span>Entry 82: 2020-04-23, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section83">   </div><h3><a name="entry-83-2020-04-24-friday" class="md-header-anchor"></a><span>Entry 83: 2020-04-24, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section84">   </div><h3><a name="entry-84-2020-04-27-monday" class="md-header-anchor"></a><span>Entry 84: 2020-04-27, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section85">   </div><h3><a name="entry-85-2020-04-28-tuesday" class="md-header-anchor"></a><span>Entry 85: 2020-04-28, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section86">   </div><h3><a name="entry-86-2020-04-29-wednesday" class="md-header-anchor"></a><span>Entry 86: 2020-04-29, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section87">   </div><h3><a name="entry-87-2020-04-30-thursday" class="md-header-anchor"></a><span>Entry 87: 2020-04-30, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section88">   </div><h3><a name="entry-88-2020-05-01-friday" class="md-header-anchor"></a><span>Entry 88: 2020-05-01, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section89">   </div><h3><a name="entry-89-2020-05-04-monday" class="md-header-anchor"></a><span>Entry 89: 2020-05-04, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section90">   </div><h3><a name="entry-90-2020-05-05-tuesday" class="md-header-anchor"></a><span>Entry 90: 2020-05-05, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section91">   </div><h3><a name="entry-91-2020-05-06-wednesday" class="md-header-anchor"></a><span>Entry 91: 2020-05-06, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section92">   </div><h3><a name="entry-92-2020-05-07-thursday" class="md-header-anchor"></a><span>Entry 92: 2020-05-07, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section93">   </div><h3><a name="entry-93-2020-05-08-friday" class="md-header-anchor"></a><span>Entry 93: 2020-05-08, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section94">   </div><h3><a name="entry-94-2020-05-11-monday" class="md-header-anchor"></a><span>Entry 94: 2020-05-11, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section95">   </div><h3><a name="entry-95-2020-05-12-tuesday" class="md-header-anchor"></a><span>Entry 95: 2020-05-12, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section96">   </div><h3><a name="entry-96-2020-05-13-wednesday" class="md-header-anchor"></a><span>Entry 96: 2020-05-13, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section97">   </div><h3><a name="entry-97-2020-05-14-thursday" class="md-header-anchor"></a><span>Entry 97: 2020-05-14, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section98">   </div><h3><a name="entry-98-2020-05-15-friday" class="md-header-anchor"></a><span>Entry 98: 2020-05-15, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section99">   </div><h3><a name="entry-99-2020-05-18-monday" class="md-header-anchor"></a><span>Entry 99: 2020-05-18, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section100">   </div><h3><a name="entry-100-2020-05-19-tuesday" class="md-header-anchor"></a><span>Entry 100: 2020-05-19, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section101">   </div><h3><a name="entry-101-2020-05-20-wednesday" class="md-header-anchor"></a><span>Entry 101: 2020-05-20, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section102">   </div><h3><a name="entry-102-2020-05-21-thursday" class="md-header-anchor"></a><span>Entry 102: 2020-05-21, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section103">   </div><h3><a name="entry-103-2020-05-22-friday" class="md-header-anchor"></a><span>Entry 103: 2020-05-22, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section104">   </div><h3><a name="entry-104-2020-05-25-monday" class="md-header-anchor"></a><span>Entry 104: 2020-05-25, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section105">   </div><h3><a name="entry-105-2020-05-26-tuesday" class="md-header-anchor"></a><span>Entry 105: 2020-05-26, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section106">   </div><h3><a name="entry-106-2020-05-27-wednesday" class="md-header-anchor"></a><span>Entry 106: 2020-05-27, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section107">   </div><h3><a name="entry-107-2020-05-28-thursday" class="md-header-anchor"></a><span>Entry 107: 2020-05-28, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section108">   </div><h3><a name="entry-108-2020-05-29-friday" class="md-header-anchor"></a><span>Entry 108: 2020-05-29, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section109">   </div><h3><a name="entry-109-2020-06-01-monday" class="md-header-anchor"></a><span>Entry 109: 2020-06-01, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section110">   </div><h3><a name="entry-110-2020-06-02-tuesday" class="md-header-anchor"></a><span>Entry 110: 2020-06-02, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section111">   </div><h3><a name="entry-111-2020-06-03-wednesday" class="md-header-anchor"></a><span>Entry 111: 2020-06-03, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section112">   </div><h3><a name="entry-112-2020-06-04-thursday" class="md-header-anchor"></a><span>Entry 112: 2020-06-04, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section113">   </div><h3><a name="entry-113-2020-06-05-friday" class="md-header-anchor"></a><span>Entry 113: 2020-06-05, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section114">   </div><h3><a name="entry-114-2020-06-08-monday" class="md-header-anchor"></a><span>Entry 114: 2020-06-08, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section115">   </div><h3><a name="entry-115-2020-06-09-tuesday" class="md-header-anchor"></a><span>Entry 115: 2020-06-09, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section116">   </div><h3><a name="entry-116-2020-06-10-wednesday" class="md-header-anchor"></a><span>Entry 116: 2020-06-10, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section117">   </div><h3><a name="entry-117-2020-06-11-thursday" class="md-header-anchor"></a><span>Entry 117: 2020-06-11, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section118">   </div><h3><a name="entry-118-2020-06-12-friday" class="md-header-anchor"></a><span>Entry 118: 2020-06-12, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section119">   </div><h3><a name="entry-119-2020-06-15-monday" class="md-header-anchor"></a><span>Entry 119: 2020-06-15, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section120">   </div><h3><a name="entry-120-2020-06-16-tuesday" class="md-header-anchor"></a><span>Entry 120: 2020-06-16, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section121">   </div><h3><a name="entry-121-2020-06-17-wednesday" class="md-header-anchor"></a><span>Entry 121: 2020-06-17, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section122">   </div><h3><a name="entry-122-2020-06-18-thursday" class="md-header-anchor"></a><span>Entry 122: 2020-06-18, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section123">   </div><h3><a name="entry-123-2020-06-19-friday" class="md-header-anchor"></a><span>Entry 123: 2020-06-19, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section124">   </div><h3><a name="entry-124-2020-06-22-monday" class="md-header-anchor"></a><span>Entry 124: 2020-06-22, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section125">   </div><h3><a name="entry-125-2020-06-23-tuesday" class="md-header-anchor"></a><span>Entry 125: 2020-06-23, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section126">   </div><h3><a name="entry-126-2020-06-24-wednesday" class="md-header-anchor"></a><span>Entry 126: 2020-06-24, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section127">   </div><h3><a name="entry-127-2020-06-25-thursday" class="md-header-anchor"></a><span>Entry 127: 2020-06-25, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section128">   </div><h3><a name="entry-128-2020-06-26-friday" class="md-header-anchor"></a><span>Entry 128: 2020-06-26, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section129">   </div><h3><a name="entry-129-2020-06-29-monday" class="md-header-anchor"></a><span>Entry 129: 2020-06-29, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section130">   </div><h3><a name="entry-130-2020-06-30-tuesday" class="md-header-anchor"></a><span>Entry 130: 2020-06-30, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section131">   </div><h3><a name="entry-131-2020-07-01-wednesday" class="md-header-anchor"></a><span>Entry 131: 2020-07-01, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section132">   </div><h3><a name="entry-132-2020-07-02-thursday" class="md-header-anchor"></a><span>Entry 132: 2020-07-02, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section133">   </div><h3><a name="entry-133-2020-07-03-friday" class="md-header-anchor"></a><span>Entry 133: 2020-07-03, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section134">   </div><h3><a name="entry-134-2020-07-06-monday" class="md-header-anchor"></a><span>Entry 134: 2020-07-06, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section135">   </div><h3><a name="entry-135-2020-07-07-tuesday" class="md-header-anchor"></a><span>Entry 135: 2020-07-07, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section136">   </div><h3><a name="entry-136-2020-07-08-wednesday" class="md-header-anchor"></a><span>Entry 136: 2020-07-08, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section137">   </div><h3><a name="entry-137-2020-07-09-thursday" class="md-header-anchor"></a><span>Entry 137: 2020-07-09, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section138">   </div><h3><a name="entry-138-2020-07-10-friday" class="md-header-anchor"></a><span>Entry 138: 2020-07-10, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section139">   </div><h3><a name="entry-139-2020-07-13-monday" class="md-header-anchor"></a><span>Entry 139: 2020-07-13, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section140">   </div><h3><a name="entry-140-2020-07-14-tuesday" class="md-header-anchor"></a><span>Entry 140: 2020-07-14, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section141">   </div><h3><a name="entry-141-2020-07-15-wednesday" class="md-header-anchor"></a><span>Entry 141: 2020-07-15, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section142">   </div><h3><a name="entry-142-2020-07-16-thursday" class="md-header-anchor"></a><span>Entry 142: 2020-07-16, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section143">   </div><h3><a name="entry-143-2020-07-17-friday" class="md-header-anchor"></a><span>Entry 143: 2020-07-17, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section144">   </div><h3><a name="entry-144-2020-07-20-monday" class="md-header-anchor"></a><span>Entry 144: 2020-07-20, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section145">   </div><h3><a name="entry-145-2020-07-21-tuesday" class="md-header-anchor"></a><span>Entry 145: 2020-07-21, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section146">   </div><h3><a name="entry-146-2020-07-22-wednesday" class="md-header-anchor"></a><span>Entry 146: 2020-07-22, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section147">   </div><h3><a name="entry-147-2020-07-23-thursday" class="md-header-anchor"></a><span>Entry 147: 2020-07-23, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section148">   </div><h3><a name="entry-148-2020-07-24-friday" class="md-header-anchor"></a><span>Entry 148: 2020-07-24, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section149">   </div><h3><a name="entry-149-2020-07-27-monday" class="md-header-anchor"></a><span>Entry 149: 2020-07-27, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section150">   </div><h3><a name="entry-150-2020-07-28-tuesday" class="md-header-anchor"></a><span>Entry 150: 2020-07-28, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section151">   </div><h3><a name="entry-151-2020-07-29-wednesday" class="md-header-anchor"></a><span>Entry 151: 2020-07-29, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section152">   </div><h3><a name="entry-152-2020-07-30-thursday" class="md-header-anchor"></a><span>Entry 152: 2020-07-30, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section153">   </div><h3><a name="entry-153-2020-07-31-friday" class="md-header-anchor"></a><span>Entry 153: 2020-07-31, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section154">   </div><h3><a name="entry-154-2020-08-03-monday" class="md-header-anchor"></a><span>Entry 154: 2020-08-03, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section155">   </div><h3><a name="entry-155-2020-08-04-tuesday" class="md-header-anchor"></a><span>Entry 155: 2020-08-04, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section156">   </div><h3><a name="entry-156-2020-08-05-wednesday" class="md-header-anchor"></a><span>Entry 156: 2020-08-05, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section157">   </div><h3><a name="entry-157-2020-08-06-thursday" class="md-header-anchor"></a><span>Entry 157: 2020-08-06, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section158">   </div><h3><a name="entry-158-2020-08-07-friday" class="md-header-anchor"></a><span>Entry 158: 2020-08-07, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section159">   </div><h3><a name="entry-159-2020-08-10-monday" class="md-header-anchor"></a><span>Entry 159: 2020-08-10, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section160">   </div><h3><a name="entry-160-2020-08-11-tuesday" class="md-header-anchor"></a><span>Entry 160: 2020-08-11, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section161">   </div><h3><a name="entry-161-2020-08-12-wednesday" class="md-header-anchor"></a><span>Entry 161: 2020-08-12, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section162">   </div><h3><a name="entry-162-2020-08-13-thursday" class="md-header-anchor"></a><span>Entry 162: 2020-08-13, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section163">   </div><h3><a name="entry-163-2020-08-14-friday" class="md-header-anchor"></a><span>Entry 163: 2020-08-14, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section164">   </div><h3><a name="entry-164-2020-08-17-monday" class="md-header-anchor"></a><span>Entry 164: 2020-08-17, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section165">   </div><h3><a name="entry-165-2020-08-18-tuesday" class="md-header-anchor"></a><span>Entry 165: 2020-08-18, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section166">   </div><h3><a name="entry-166-2020-08-19-wednesday" class="md-header-anchor"></a><span>Entry 166: 2020-08-19, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section167">   </div><h3><a name="entry-167-2020-08-20-thursday" class="md-header-anchor"></a><span>Entry 167: 2020-08-20, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section168">   </div><h3><a name="entry-168-2020-08-21-friday" class="md-header-anchor"></a><span>Entry 168: 2020-08-21, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section169">   </div><h3><a name="entry-169-2020-08-24-monday" class="md-header-anchor"></a><span>Entry 169: 2020-08-24, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section170">   </div><h3><a name="entry-170-2020-08-25-tuesday" class="md-header-anchor"></a><span>Entry 170: 2020-08-25, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section171">   </div><h3><a name="entry-171-2020-08-26-wednesday" class="md-header-anchor"></a><span>Entry 171: 2020-08-26, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section172">   </div><h3><a name="entry-172-2020-08-27-thursday" class="md-header-anchor"></a><span>Entry 172: 2020-08-27, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section173">   </div><h3><a name="entry-173-2020-08-28-friday" class="md-header-anchor"></a><span>Entry 173: 2020-08-28, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section174">   </div><h3><a name="entry-174-2020-08-31-monday" class="md-header-anchor"></a><span>Entry 174: 2020-08-31, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section175">   </div><h3><a name="entry-175-2020-09-01-tuesday" class="md-header-anchor"></a><span>Entry 175: 2020-09-01, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section176">   </div><h3><a name="entry-176-2020-09-02-wednesday" class="md-header-anchor"></a><span>Entry 176: 2020-09-02, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section177">   </div><h3><a name="entry-177-2020-09-03-thursday" class="md-header-anchor"></a><span>Entry 177: 2020-09-03, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section178">   </div><h3><a name="entry-178-2020-09-04-friday" class="md-header-anchor"></a><span>Entry 178: 2020-09-04, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section179">   </div><h3><a name="entry-179-2020-09-07-monday" class="md-header-anchor"></a><span>Entry 179: 2020-09-07, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section180">   </div><h3><a name="entry-180-2020-09-08-tuesday" class="md-header-anchor"></a><span>Entry 180: 2020-09-08, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section181">   </div><h3><a name="entry-181-2020-09-09-wednesday" class="md-header-anchor"></a><span>Entry 181: 2020-09-09, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section182">   </div><h3><a name="entry-182-2020-09-10-thursday" class="md-header-anchor"></a><span>Entry 182: 2020-09-10, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section183">   </div><h3><a name="entry-183-2020-09-11-friday" class="md-header-anchor"></a><span>Entry 183: 2020-09-11, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section184">   </div><h3><a name="entry-184-2020-09-14-monday" class="md-header-anchor"></a><span>Entry 184: 2020-09-14, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section185">   </div><h3><a name="entry-185-2020-09-15-tuesday" class="md-header-anchor"></a><span>Entry 185: 2020-09-15, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section186">   </div><h3><a name="entry-186-2020-09-16-wednesday" class="md-header-anchor"></a><span>Entry 186: 2020-09-16, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section187">   </div><h3><a name="entry-187-2020-09-17-thursday" class="md-header-anchor"></a><span>Entry 187: 2020-09-17, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section188">   </div><h3><a name="entry-188-2020-09-18-friday" class="md-header-anchor"></a><span>Entry 188: 2020-09-18, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section189">   </div><h3><a name="entry-189-2020-09-21-monday" class="md-header-anchor"></a><span>Entry 189: 2020-09-21, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section190">   </div><h3><a name="entry-190-2020-09-22-tuesday" class="md-header-anchor"></a><span>Entry 190: 2020-09-22, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section191">   </div><h3><a name="entry-191-2020-09-23-wednesday" class="md-header-anchor"></a><span>Entry 191: 2020-09-23, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section192">   </div><h3><a name="entry-192-2020-09-24-thursday" class="md-header-anchor"></a><span>Entry 192: 2020-09-24, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section193">   </div><h3><a name="entry-193-2020-09-25-friday" class="md-header-anchor"></a><span>Entry 193: 2020-09-25, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section194">   </div><h3><a name="entry-194-2020-09-28-monday" class="md-header-anchor"></a><span>Entry 194: 2020-09-28, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section195">   </div><h3><a name="entry-195-2020-09-29-tuesday" class="md-header-anchor"></a><span>Entry 195: 2020-09-29, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section196">   </div><h3><a name="entry-196-2020-09-30-wednesday" class="md-header-anchor"></a><span>Entry 196: 2020-09-30, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section197">   </div><h3><a name="entry-197-2020-10-01-thursday" class="md-header-anchor"></a><span>Entry 197: 2020-10-01, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section198">   </div><h3><a name="entry-198-2020-10-02-friday" class="md-header-anchor"></a><span>Entry 198: 2020-10-02, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section199">   </div><h3><a name="entry-199-2020-10-05-monday" class="md-header-anchor"></a><span>Entry 199: 2020-10-05, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section200">   </div><h3><a name="entry-200-2020-10-06-tuesday" class="md-header-anchor"></a><span>Entry 200: 2020-10-06, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section201">   </div><h3><a name="entry-201-2020-10-07-wednesday" class="md-header-anchor"></a><span>Entry 201: 2020-10-07, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section202">   </div><h3><a name="entry-202-2020-10-08-thursday" class="md-header-anchor"></a><span>Entry 202: 2020-10-08, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section203">   </div><h3><a name="entry-203-2020-10-09-friday" class="md-header-anchor"></a><span>Entry 203: 2020-10-09, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section204">   </div><h3><a name="entry-204-2020-10-12-monday" class="md-header-anchor"></a><span>Entry 204: 2020-10-12, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section205">   </div><h3><a name="entry-205-2020-10-13-tuesday" class="md-header-anchor"></a><span>Entry 205: 2020-10-13, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section206">   </div><h3><a name="entry-206-2020-10-14-wednesday" class="md-header-anchor"></a><span>Entry 206: 2020-10-14, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section207">   </div><h3><a name="entry-207-2020-10-15-thursday" class="md-header-anchor"></a><span>Entry 207: 2020-10-15, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section208">   </div><h3><a name="entry-208-2020-10-16-friday" class="md-header-anchor"></a><span>Entry 208: 2020-10-16, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section209">   </div><h3><a name="entry-209-2020-10-19-monday" class="md-header-anchor"></a><span>Entry 209: 2020-10-19, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section210">   </div><h3><a name="entry-210-2020-10-20-tuesday" class="md-header-anchor"></a><span>Entry 210: 2020-10-20, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section211">   </div><h3><a name="entry-211-2020-10-21-wednesday" class="md-header-anchor"></a><span>Entry 211: 2020-10-21, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section212">   </div><h3><a name="entry-212-2020-10-22-thursday" class="md-header-anchor"></a><span>Entry 212: 2020-10-22, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section213">   </div><h3><a name="entry-213-2020-10-23-friday" class="md-header-anchor"></a><span>Entry 213: 2020-10-23, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section214">   </div><h3><a name="entry-214-2020-10-26-monday" class="md-header-anchor"></a><span>Entry 214: 2020-10-26, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section215">   </div><h3><a name="entry-215-2020-10-27-tuesday" class="md-header-anchor"></a><span>Entry 215: 2020-10-27, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section216">   </div><h3><a name="entry-216-2020-10-28-wednesday" class="md-header-anchor"></a><span>Entry 216: 2020-10-28, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section217">   </div><h3><a name="entry-217-2020-10-29-thursday" class="md-header-anchor"></a><span>Entry 217: 2020-10-29, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section218">   </div><h3><a name="entry-218-2020-10-30-friday" class="md-header-anchor"></a><span>Entry 218: 2020-10-30, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section219">   </div><h3><a name="entry-219-2020-11-02-monday" class="md-header-anchor"></a><span>Entry 219: 2020-11-02, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section220">   </div><h3><a name="entry-220-2020-11-03-tuesday" class="md-header-anchor"></a><span>Entry 220: 2020-11-03, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section221">   </div><h3><a name="entry-221-2020-11-04-wednesday" class="md-header-anchor"></a><span>Entry 221: 2020-11-04, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section222">   </div><h3><a name="entry-222-2020-11-05-thursday" class="md-header-anchor"></a><span>Entry 222: 2020-11-05, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section223">   </div><h3><a name="entry-223-2020-11-06-friday" class="md-header-anchor"></a><span>Entry 223: 2020-11-06, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section224">   </div><h3><a name="entry-224-2020-11-09-monday" class="md-header-anchor"></a><span>Entry 224: 2020-11-09, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section225">   </div><h3><a name="entry-225-2020-11-10-tuesday" class="md-header-anchor"></a><span>Entry 225: 2020-11-10, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section226">   </div><h3><a name="entry-226-2020-11-11-wednesday" class="md-header-anchor"></a><span>Entry 226: 2020-11-11, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section227">   </div><h3><a name="entry-227-2020-11-12-thursday" class="md-header-anchor"></a><span>Entry 227: 2020-11-12, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section228">   </div><h3><a name="entry-228-2020-11-13-friday" class="md-header-anchor"></a><span>Entry 228: 2020-11-13, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section229">   </div><h3><a name="entry-229-2020-11-16-monday" class="md-header-anchor"></a><span>Entry 229: 2020-11-16, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section230">   </div><h3><a name="entry-230-2020-11-17-tuesday" class="md-header-anchor"></a><span>Entry 230: 2020-11-17, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section231">   </div><h3><a name="entry-231-2020-11-18-wednesday" class="md-header-anchor"></a><span>Entry 231: 2020-11-18, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section232">   </div><h3><a name="entry-232-2020-11-19-thursday" class="md-header-anchor"></a><span>Entry 232: 2020-11-19, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section233">   </div><h3><a name="entry-233-2020-11-20-friday" class="md-header-anchor"></a><span>Entry 233: 2020-11-20, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section234">   </div><h3><a name="entry-234-2020-11-23-monday" class="md-header-anchor"></a><span>Entry 234: 2020-11-23, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section235">   </div><h3><a name="entry-235-2020-11-24-tuesday" class="md-header-anchor"></a><span>Entry 235: 2020-11-24, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section236">   </div><h3><a name="entry-236-2020-11-25-wednesday" class="md-header-anchor"></a><span>Entry 236: 2020-11-25, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section237">   </div><h3><a name="entry-237-2020-11-26-thursday" class="md-header-anchor"></a><span>Entry 237: 2020-11-26, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section238">   </div><h3><a name="entry-238-2020-11-27-friday" class="md-header-anchor"></a><span>Entry 238: 2020-11-27, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section239">   </div><h3><a name="entry-239-2020-11-30-monday" class="md-header-anchor"></a><span>Entry 239: 2020-11-30, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section240">   </div><h3><a name="entry-240-2020-12-01-tuesday" class="md-header-anchor"></a><span>Entry 240: 2020-12-01, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section241">   </div><h3><a name="entry-241-2020-12-02-wednesday" class="md-header-anchor"></a><span>Entry 241: 2020-12-02, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section242">   </div><h3><a name="entry-242-2020-12-03-thursday" class="md-header-anchor"></a><span>Entry 242: 2020-12-03, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section243">   </div><h3><a name="entry-243-2020-12-04-friday" class="md-header-anchor"></a><span>Entry 243: 2020-12-04, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section244">   </div><h3><a name="entry-244-2020-12-07-monday" class="md-header-anchor"></a><span>Entry 244: 2020-12-07, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section245">   </div><h3><a name="entry-245-2020-12-08-tuesday" class="md-header-anchor"></a><span>Entry 245: 2020-12-08, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section246">   </div><h3><a name="entry-246-2020-12-09-wednesday" class="md-header-anchor"></a><span>Entry 246: 2020-12-09, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section247">   </div><h3><a name="entry-247-2020-12-10-thursday" class="md-header-anchor"></a><span>Entry 247: 2020-12-10, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section248">   </div><h3><a name="entry-248-2020-12-11-friday" class="md-header-anchor"></a><span>Entry 248: 2020-12-11, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section249">   </div><h3><a name="entry-249-2020-12-14-monday" class="md-header-anchor"></a><span>Entry 249: 2020-12-14, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section250">   </div><h3><a name="entry-250-2020-12-15-tuesday" class="md-header-anchor"></a><span>Entry 250: 2020-12-15, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section251">   </div><h3><a name="entry-251-2020-12-16-wednesday" class="md-header-anchor"></a><span>Entry 251: 2020-12-16, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section252">   </div><h3><a name="entry-252-2020-12-17-thursday" class="md-header-anchor"></a><span>Entry 252: 2020-12-17, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section253">   </div><h3><a name="entry-253-2020-12-18-friday" class="md-header-anchor"></a><span>Entry 253: 2020-12-18, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section254">   </div><h3><a name="entry-254-2020-12-21-monday" class="md-header-anchor"></a><span>Entry 254: 2020-12-21, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section255">   </div><h3><a name="entry-255-2020-12-22-tuesday" class="md-header-anchor"></a><span>Entry 255: 2020-12-22, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section256">   </div><h3><a name="entry-256-2020-12-23-wednesday" class="md-header-anchor"></a><span>Entry 256: 2020-12-23, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section257">   </div><h3><a name="entry-257-2020-12-24-thursday" class="md-header-anchor"></a><span>Entry 257: 2020-12-24, Thursday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section258">   </div><h3><a name="entry-258-2020-12-25-friday" class="md-header-anchor"></a><span>Entry 258: 2020-12-25, Friday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section259">   </div><h3><a name="entry-259-2020-12-28-monday" class="md-header-anchor"></a><span>Entry 259: 2020-12-28, Monday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section260">   </div><h3><a name="entry-260-2020-12-29-tuesday" class="md-header-anchor"></a><span>Entry 260: 2020-12-29, Tuesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section261">   </div><h3><a name="entry-261-2020-12-30-wednesday" class="md-header-anchor"></a><span>Entry 261: 2020-12-30, Wednesday.   </span></h3><p>&nbsp;</p><hr /><div id="id-section262">   </div><h3><a name="entry-262-2020-12-31-thursday" class="md-header-anchor"></a><span>Entry 262: 2020-12-31, Thursday.   </span></h3></div>
+</body>
+</html>

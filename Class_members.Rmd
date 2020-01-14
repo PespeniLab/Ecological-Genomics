@@ -10,7 +10,7 @@ fontsize: 18pt
 
 **List of participants and their Github portfolio** 
 
-1. Lauren Ashlock, GTA: [Notebook on github](https://github.com/PespeniLab/Ecological-Genomics/blob/master/GithubNotebook_Ashlock.Rmd)  
+1. Lauren Ashlock, GTA: [Notebook on github](https://github.com/PespeniLab/Ecological-Genomics/blob/master/AshlockRenderedNotebook.md) or rendered into [webpage(html)](AshlockRenderedNotebook.html) with Typora. 
 2. [Bertrand Black]()   
 3. [Erika Bueno]()   
 4. [Kerria Burns]()    
