@@ -21,7 +21,7 @@ chunk_output_type: console
 
 # Table of Contents:  
   * [Entry 1: 2020-01-13, Monday](#id-section1) First day of class
-      * [Entry 2: 2020-01-14, Tuesday](#id-section2)
+      * [Entry 2: 2020-01-14, Tuesday](#id-section2) Second day of class Methods info update blitz and computer set-up
     * [Entry 3: 2020-01-15, Wednesday](#id-section3)
      * [Entry 4: 2020-01-16, Thursday](#id-section4)
        * [Entry 5: 2020-01-17, Friday](#id-section5)
@@ -139,6 +139,98 @@ Wednesdays: Computer lab
 ------
 <div id='id-section2'/>   
 ### Entry 2: 2020-01-02, Thursday.   
+
+#### How to pick a platform/method
+
+- Question
+- Organisms / sample (tissue type, environmental)
+  - Is there a reference genome? 
+  - Ploidy
+  - DNA/RNA/? 
+- Different library prep methods
+  - Whole genome sequencing
+  - RNAseq
+  - Exome capture
+  - GBS/Rad
+  - Amplicon
+  - Bisulfite/ATAC
+- Sequencing platforms
+  - Illumina
+  - Pacbio/nanopore
+
+#### Info updates
+
+##### Chege: Illumina
+
+[Video on Illumina platform](https://www.youtube.com/watch?v=fCd6B5HRaZ8#action=share)
+
+1. Library prep
+   1. Cut up DNA/RNA into pieces and attach adapters
+2. Cluster generation
+   1. Bind fragments of DNA to lawn of complementary sequences to adapters
+   2. Through PCR process our fragments are magnified, to facilitate sequencing 
+3. Sequencing by synthesis
+   1. Add fluorescent dNTPs 
+   2. As each base is read an image is stored
+4. Data analysis
+
+Why do we use this method?
+
+- MiSeq: 30mill bp /run
+- HiSeq: 3 bill /run
+- NovaSeq: 13 bill / run
+- Sanger: 400 /run 
+
+##### Csenge: PacBio/Nanopore
+
+- Two different approaches: SMRT or Synthetic
+- PacBio and Nanopore both use SMRT method
+  - PacBio
+    - Utilize special flow cell with a bunch of small wells
+    - Polymerase is fixed at the bottom of the well and the DNA passes across the wells
+    - Fluorescence is recorded as each nucleotide is incorporated
+  - Nanopore
+    - directly detects sequence of DNA
+    - Sequence moves through a pore and instead of looking at fluorescence of each base ... has unique sequence signal
+- These methods are less accurate than short read sequencing and more expensive
+- Can help with repetitive regions of DNA, get rid of potential gaps, helpful to identify alternative splicing
+
+
+
+##### Erika: RNAseq
+
+- Whole transcriptome shotgun sequencing
+- Uses high throughput NGS technology to characterize gene expression patterns and to identify novel transcripts/molecular markers of interest
+  - Can incorporate into your experimental framework
+- Advantage: gives functionally relevant information about what is being expressed at that time point. Can also allow you to detect differences among populations (both gene expression and SNP differences).
+- Limitations: some inherent error, RNA is a less stable molecule can introduce error/bias 
+  - Need to be mindful of expression level differences among tissue types, etc. 
+- Workflow: Sample collection (freeze/RNAlater), isolate RNA, quality assessment of RNA (gel or bioanalyzer or qubit), rRNA depletion (selecting for molecules with poly-A tail to enrich for mRNA), fragmentation, cDNA synthesis, adding adapters (amplification element, primary sequencing site, barcode for multiplexing), amplification using PCR, sequence on platform of choice
+
+
+
+##### Zoe: GBS/RADseq
+
+- Use restriction sites to fragment DNA 
+- Ligate adapters to each of your fragments with a barcode
+- Workflow: Extract genomic DNA from your samples, digest with a restriction enzyme, ligate adapters, multiplex individuals, clean up fragments, PCR, check fragment size, send for sequencing
+- Limitations: fragment bias for what gets amplified
+
+
+
+##### Ben: Bisulfite/ATAC seq
+
+- Bisulfite: used to identify methylated cytosine, which typically occurs in CG islands, typical of non-coding DNA or in promotors upstream of genes that aren't constantly expressed. 
+  - Workflow: Isolate DNA, treat with sodium bisulfite (converts meytholated Cs into Us), PCR, Sequence samples and compare treated vs untreated samples (these CG islands will differ in their sequence) so this allows you to identify methylated vs non-methylated regions of the genome
+- CHIPseq: acts at the level of histone modification, chromatin immunoprecipitation
+  - Workflow: introduce a fixative to the DNA, fragment the DNA, introduce an antibody that is specific to your protein of interest which allows your targeted fragments to be precipitated out, decouple sequence and protein, and then you sequence
+- ATACseq: looks at chromatin state
+  - Workflow: introduce transposons that fragment open chromatin, transposons add adapters to fragments, sequence fragments
+- HiC seq: identifies all regions where the DNA strand is interacting with itself and sequences them 
+
+
+
+
 
 
 
