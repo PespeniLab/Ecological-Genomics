@@ -22,7 +22,7 @@ chunk_output_type: console
 # Table of Contents:  
   * [Entry 1: 2020-01-13, Monday](#id-section1) First day of class
       * [Entry 2: 2020-01-14, Tuesday](#id-section2) Second day of class Methods info update blitz and computer set-up
-    * [Entry 3: 2020-01-15, Wednesday](#id-section3)
+    * [Entry 3: 2020-01-15, Wednesday](#id-section3) Additional sequencing info updates
      * [Entry 4: 2020-01-16, Thursday](#id-section4)
        * [Entry 5: 2020-01-17, Friday](#id-section5)
        * [Entry 6: 2020-01-20, Monday](#id-section6)
@@ -237,6 +237,58 @@ Why do we use this method?
 ------
 <div id='id-section3'/>   
 ### Entry 3: 2020-01-03, Friday.   
+
+##### Jorge: Amplicon Seq
+
+**Uses**: 
+- Genome targeting
+- Detection of hot-spots of mutation
+- Gene fusion
+- SNPs
+- Metagenomics
+
+**Workflow**: 
+1. Sample selection
+2. DNA or RNA extraction 
+3. Select amplicon that you will sequence: ITS, CO1, 16S
+4. Library prep
+  - PCR using primers to focus on amplicon of choice
+  - Optional purification step
+  - 2nd PCR to attach barcode 
+  - Size selection purification to isolate your amplicon
+  - Pool samples
+5. Sequence 
+6. Bioinformatic procedure
+  - Quality contreol
+  - trimming
+  - demultiplex
+  - generate your OTUs (operational taxonomic unit)
+
+##### Alison: Exon capture sequencing
+
+ **Exon**: protein coding region of the gene
+ **Exome**: portion of the genome that codes for genes
+  - Prevalent in biomedical field and in evolutionary biology
+  - More targeted approach than WGS
+**Biomedical uses**: 
+- disease causing variants are more likely to be found in the exome
+- especially interested for rare diseases
+
+**EcoEvo Uses**: 
+- Genetic mapping of phenotypic traits
+- Detect selection (particularly helpful for non-model organisms)
+- Used in phylogenetic reconstruction
+- Can also be used to analyze ancient DNA
+
+**Workflow**: 
+1. Sample collection & extraction
+2. Fragmentation of DNA
+3. Enriching library using probes
+ - PCR: need to have primers designed
+ - Denovo: create new probes, need some knowledge of transcriptome/RADseq/WGS
+ - Divergent annotated genome: probes based on relatively close relative, requires annotate genomes
+5. DNA purification
+6. Quality control
 
 
 
