@@ -10,4 +10,4 @@ fontsize: 18pt
 
 **List of Tutorials and scripts** 
 
-1. 2020-01-22:[Command-line UNIX tutorial]()
+1. 2020-01-22:[Command-line UNIX tutorial](Tutorial/2017-02-01_Command_Line_Unix.html)
