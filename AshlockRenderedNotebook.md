@@ -30,7 +30,7 @@ chunk_output_type: console
     * [Entry 8: 2020-01-22, Wednesday](#id-section8)
      * [Entry 9: 2020-01-23, Thursday](#id-section9)
     * [Entry 10: 2020-01-24, Friday](#id-section10)
-    * [Entry 11: 2020-01-27, Monday](#id-section11)
+    * [Entry 11: 2020-01-27, Monday](#id-section11) Population genomics and paper discussion
      * [Entry 12: 2020-01-28, Tuesday](#id-section12)
      * [Entry 13: 2020-01-29, Wednesday](#id-section13)
      * [Entry 14: 2020-01-30, Thursday](#id-section14)
