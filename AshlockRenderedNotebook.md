@@ -335,7 +335,15 @@ Why do we use this method?
 
 ### Entry 11: 2020-01-27, Monday.   
 
-Steve lecture on population genomics
+#####Steve lecture on population genomics
+
+- Missed the first part of lecture
+- With positive selection we expect to see a decrease in nucleotide diversity at the selected site. 
+- The linkage measured between sites will increase, particularly with sites close to the site under selection
+- The signature of this in the population looks similar to the signature of population expansion
+  - Happening locally, not globally across the genome
+- 
+
 
 
 
