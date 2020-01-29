@@ -11,3 +11,4 @@ fontsize: 18pt
 **List of Tutorials and scripts** 
 
 1. 2020-01-22:[Command-line UNIX tutorial](Tutorial/2020-01-22_Command_Line_Unix.html)
+2. 2020-01-29:[PopGen Day One](2020-01-29_PopGenomics_Day1.html)
