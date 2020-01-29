@@ -26,7 +26,7 @@
 * [Entry 10: 2020-01-24, Friday](#id-section10)
 * [Entry 11: 2020-01-27, Monday](#id-section11) Population genomics and paper discussion
 * [Entry 12: 2020-01-28, Tuesday](#id-section12)
-* [Entry 13: 2020-01-29, Wednesday](#id-section13)
+* [Entry 13: 2020-01-29, Wednesday](#id-section13) PopGen Coding Day One
 * [Entry 14: 2020-01-30, Thursday](#id-section14)
 * [Entry 15: 2020-01-31, Friday](#id-section15)
 * [Entry 16: 2020-02-03, Monday](#id-section16)
@@ -358,6 +358,109 @@ Why do we use this method?
 <div id='id-section13'/>   
 
 ### Entry 13: 2020-01-29, Wednesday.   
+
+PopGen Coding Day One
+
+##### Red spruce 
+
+- Northen high elevation
+- Southern populations form sky islands
+  - Isolated and vulnerable
+- Are there particular alleles in the fragmented populations that need to be preserved, since they are likely to go locally extinct
+- People care about spruce restoration, and have planted out thousands of spruce trees
+  - These restoration efforts aren't genetically informed
+  - Can we maximize evolutionary potential and look for populations that are most climate adapted based on our analyses of which region of the genome correspond to adaptation to climate change
+  - These results will translate directly to restoration efforts
+
+
+##### Pipeline
+
+1. Visualize the quality of the data using FastQC
+2. Trim your data using Trimmomatic
+3. Not a bad idea to visualize the post trimming results
+4. Map reads to reference genome (our reference in this case is white spruce) using BWA
+5. Use samtools and sambamba to do some post processing of the data. This converts alignment to binary form sam -> bam. Look for PCR duplicates. 
+
+**So first we are going to navigate to our fastq files**
+
+cd /data/project_data/RS_ExomeSeq/fastq/edge_fastq
+
+**To look at the file and access the file inside**
+**This shows us the first four lines**
+
+zcat AB_05_R1_fastq.gz | head -n 4
+
+**Header tells you info about the sequence. Then your sequence. Then an ascii representation of the quality of your sequence ... base by base. You can use these symbols to get your phred/q scores. This is a measure of how confident that there was a correct read of that base. What is loaded on the flow cell isn't necessarily the correct base though.** 
+
+**Fastqc assignment:** 
+- AB Steve
+- BFA Thomas
+- BRB Kate
+- CR
+- CRA Erika
+- DG
+- GFM Bertrand
+- HR
+- KOS Sandra
+- MRC Ben
+- MT
+- PRK Brendan
+- RP
+- WA Jorge
+- XCS Chege
+- XCV Csenge
+- XDS Lily
+- XFS Kerry
+- XGL Anoob
+- XPK Shervin
+- XSK Baxter
+- XWS Alison
+
+**Then relocate to your github directory on the terminal**
+cd ~/<repo name>/myresults
+
+**Then to make a new directory**
+
+vim
+I
+```bash
+#!/bin/bash
+cd ~/<repo name>/myresults #navigate to the directory where you want to make a new directory
+mkdir fastqc #make directory
+for file in /data/project_data/RS_ExomeSeq/fastq/edge_fastq/AB*fastq.gz 
+do
+fastqc ${file} -o fastqc/ #direct output to fastqc file 
+done
+``` 
+esc
+shift:wq fastqc.sh (writes the file gives it a name and then quits the file)
+enter
+ll
+
+**If you put the file in the wrong place*
+mv filename dir/
+
+**to change permissions**
+chmod u+x file name
+
+**This adds the permission to execute changes to a given file. Now you're ready to run the script** 
+
+bash fastqc.sh
+
+**Run fastqc on clean paired reads**
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
