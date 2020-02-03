@@ -24,7 +24,7 @@ fontsize: 18pt
 12. [Zoe Portlas]()    
 13. [Anoob Prakash](https://github.com/anoobvinu07/EcologicalGenomics/blob/master/EcoGen_notes.Rmd)   
 14. [Shervin Razavi](https://github.com/arazavi78/Ecological-Genomics/blob/master/Shervin's_Notebook.md)      
-15. [Jorge Ruizarocho]()
+15. [Jorge Ruizarocho](https://github.com/JorgeRuizArocho/Ecological_Genomics_2020/blob/master/Ecological%20Genomics%20Notebook.Rmd)
 16. [Lily Shapiro](https://github.com/lkshapir/Ecological-Genomics/blob/master/Notebook_EG_2020.md)
 17. [Baxter Worthing]()
 18. [Katelynn Warner](https://github.com/Katelynn62/Ecological_Genomics)
