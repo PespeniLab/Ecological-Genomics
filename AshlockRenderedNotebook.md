@@ -517,7 +517,104 @@ bash fastqc.sh
 
 ####Popgen Day Two
 
+1. **Can use wget function to download reference genome from internet**
+2. **Not mapping to the entire reference, just pulling out contigs that one or more of our probes are in**
 
+3. **Once we reduce our reference, we look at N50: size of contig that contains 50% of genome after sorting genome by contig size. This gives us an idea of quality of our data, especially in the context of assembly** 
+
+Writing bash script below .... saved as mypipeline.sh and save it in myscripts directory ... this is going to serve as our wrapper script
+
+```bash
+#!/bin/bash
+
+#We'll use this as a wrapper to run our different mapping scripts
+
+#define variable myrepo with path to repo on the server
+
+myrepo=""
+
+# My population:
+
+mypop=""
+
+#Directory to our cleaned and paired reads:
+
+input ="/data/project_data/RS_ExomeSeq/fastq/edge_fastq/pairedcleanreads/${mypop}" #Each student will add their own pop to the end of this path
+
+#Directory to store the outputs of our mapping
+
+output="/data/project_data/RS_ExomeSeq/mapping"
+
+#Run mapping.sh
+
+source ./mapping.sh
+
+#Run the post processing steps
+
+source ./process_bam.sh
+
+```
+
+To check to make sure this works we can copy and paste into terminal and then use the echo command and it should spit the variable back to us in curly brackets
+
+Now create a new bash script mapping.sh in the myscripts folder
+
+```bash
+#!bin/bash
+
+#This script will run the read mapping using bwa
+
+#create a variable that points to the reduced reference genome that we made earlier
+
+ref="data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa"
+
+#Write a loop to map each individual within my population
+
+for forward in $input*_R1.cl.pd.fq #initializes the forward read
+do
+  reverse=${forward/_R1.cl.pd.fq/_R2.cl.pd.fq} #defining reverse by swapping out extension
+  f=${forward/_R1.cl.pd.fq/} #this will give you everything without the extension
+  name=`basename ${f}` #using backtick for running bash command
+  bwa mem -t 1 -M ${ref} ${forward} ${reverse} > ${output}/BWA/${name}.sam
+done
+```
+
+We will be running bwa ... can type in program name in ternimal to get info on it
+
+Okayyyy... so new script process_bam.sh
+
+```bash
+#!/bin/bash
+# This is where we will convert sam files to bam files. Then we will sort the bam files, remove PCR duplicates, and index them.
+
+#First lets convert sam to bam; then we sort
+
+for f in ${output}/BWA/${mypop}*sam
+do 
+  out=${f/.sam/}
+  sambamba-0.7.1-linus-static view -S --format=bam ${f} -o ${out}.bam
+  samtools sort ${out}.bam -o ${out}.sorted.bam
+done
+
+#Now let's remove the PCR dupes
+
+for file in ${output}/BWA/${mypop}*.sorted.bam
+do
+  f=${file/.sorted.bam/}
+  sambamba-0.7.1-linus-static markdup -r -t 1 ${file} ${f}.sorted.rmdup.bam
+done
+
+#Now to finish, we'll index our files 
+
+for file in ${output}/BWA/${mypop}*.sorted.rmdup.bam
+
+do
+  samtools index ${file}
+done
+```
+
+
+  
 
 ------
 <div id='id-section19'/>   
