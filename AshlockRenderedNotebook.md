@@ -31,7 +31,7 @@
 * [Entry 15: 2020-01-31, Friday](#id-section15)
 * [Entry 16: 2020-02-03, Monday](#id-section16) Paper discussion
 * [Entry 17: 2020-02-04, Tuesday](#id-section17)
-* [Entry 18: 2020-02-05, Wednesday](#id-section18)
+* [Entry 18: 2020-02-05, Wednesday](#id-section18) Pop Gen Tutorial Day Two
 * [Entry 19: 2020-02-06, Thursday](#id-section19)
 * [Entry 20: 2020-02-07, Friday](#id-section20)
 * [Entry 21: 2020-02-10, Monday](#id-section21)
@@ -398,7 +398,7 @@ zcat AB_05_R1_fastq.gz | head -n 4
 - BRB Kate
 - CR
 - CRA Erika
-- DG
+- DG Zoe
 - GFM Bertrand
 - HR
 - KOS Sandra
@@ -514,6 +514,8 @@ bash fastqc.sh
 <div id='id-section18'/>   
 
 ### Entry 18: 2020-02-05, Wednesday.   
+
+####Popgen Day Two
 
 
 
