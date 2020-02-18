@@ -11,17 +11,17 @@ fontsize: 18pt
 **List of participants and their Github portfolio** 
 
 1. Lauren Ashlock, GTA: [Notebook on github](https://github.com/PespeniLab/Ecological-Genomics/blob/master/AshlockRenderedNotebook.md) or rendered into [webpage(html)](AshlockRenderedNotebook.html) with Typora. 
-2. [Bertrand Black]()   
+2. [Bertrand Black](https://github.com/bblack2019/Ecological-Genomics-2020/blob/master/Notebook.md)   
 3. [Erika Bueno](https://github.com/eribue/EcolGenomics/blob/master/EcolNotebook.Rmd)   
 4. [Kerria Burns](https://github.com/kmb057/EcologicalGenomics/blob/master/Burns_LabNotebook.Rmd)    
 5. [Ben Camber](https://github.com/bencamber/ecological-genomics/blob/master/notebook.Rmd)    
 6. [Brendan Case]()
-7. [Herman Chege](https://github.com/KenyanGeek/Genomics-Class/blob/master/genomic%20notebook.Rmd)    
+7. [Herman Chege](https://github.com/KenyanGeek/Genomics-Class/blob/master/genomic%20notebook.md)    
 8. [Alison Hall](https://github.com/aehall26/EcologicalGenomics/blob/master/EcologicalGenomicsNotebook)   
 9. [Sandra Nnadi](https://github.com/Sandra-ctrl/Ecological-Genomics-2020/blob/master/SandraPBIO381Notebook.md)   
 10. [Thomas O'Leary](https://tsoleary.github.io/eco_genomics/tso_eco_genomics.html)  
 11. [Csenge Petak](https://github.com/Cpetak/Ecological_genomics/blob/master/lab_notebook.md)  
-12. [Zoe Portlas]()    
+12. [Zoe Portlas](https://zportlas.github.io/Ecological-Genomics/notebook)    
 13. [Anoob Prakash](https://github.com/anoobvinu07/EcologicalGenomics/blob/master/EcoGen_notes.Rmd)   
 14. [Shervin Razavi](https://github.com/arazavi78/Ecological-Genomics/blob/master/Shervin's_Notebook.md)      
 15. [Jorge Ruizarocho](https://github.com/JorgeRuizArocho/Ecological_Genomics_2020/blob/master/Ecological%20Genomics%20Notebook.Rmd)
