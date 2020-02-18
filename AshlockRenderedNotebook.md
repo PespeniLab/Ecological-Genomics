@@ -36,7 +36,7 @@
 * [Entry 20: 2020-02-07, Friday](#id-section20)
 * [Entry 21: 2020-02-10, Monday](#id-section21)
 * [Entry 22: 2020-02-11, Tuesday](#id-section22)
-* [Entry 23: 2020-02-12, Wednesday](#id-section23)
+* [Entry 23: 2020-02-12, Wednesday](#id-section23) Out sick - looking through tutorial at home
 * [Entry 24: 2020-02-13, Thursday](#id-section24)
 * [Entry 25: 2020-02-14, Friday](#id-section25)
 * [Entry 26: 2020-02-17, Monday](#id-section26)
@@ -649,6 +649,85 @@ done
 
 ### Entry 23: 2020-02-12, Wednesday.   
 
+By now folks should have their SAM files for their pops in 
+
+/data/project_data/RS_ExomeSeq/mapping/BWA/
+
+
+Look at the SA file using head and tail
+
+```bash
+tail -n 100 FILENAME.sam
+```
+The SAM file contains lots of important info on the alignment of your sequence to the reference
+
+Can use the command flagstat to get a summary for how our mapping went
+
+```bash
+samtools flagstat FILENAME.sam
+```
+Time to write a new bash script called bam_stats.sh This script will show us read counts and depth of coverage
+
+```bash
+samtools flagstat file.sorted.rmdup.bam | awk 'NR>=6&&NR<=13 {print $1}' | column -x
+>> ${myrepo}/myresults/${mypop}.flagstats.txt
+samtools depth file.sorted.rmdup.bam | awk '{sum+=$3} END {print sum/NR}
+>> ${myrepo}/myresults/${mypop}.coverage.txt
+
+Now while thats running can look at the alignment files using tview
+
+```bash 
+samtools tview /data/project_data/RS_ExomeSeq/mapping/BWA/AB_05.sorted.rmdup.bam /data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa
+```
+Genotype free popgen using genotype likelihoods 
+- Growing movement in popgen analysis of NGS data is embracing the use of genotype likelihoods to calculate stats based on each individual having a likelihood of being each genotype
+
+- A genotype likelihood is the probablility of observing th sequence data given the genotype of the individual at that site
+  - We're going to use this approach with the program ANGSD 
+  - Can use this program and estimated genotype likelihoods to estimate SFS, nucleotide diversity, Fst, PCA
+  
+In your myscripts folder create a new file ANGSD_mypop.sh
+
+```bash
+myrepo="/users/s/r/srkeller/Ecological_Genomics/Spring_2020"
+
+mkdir ${myrepo}/myresults/ANGSD
+
+output="${myrepo}/myresults/ANGSD"
+
+mypop="AB"
+
+ls /data/project_data/RS_ExomeSeq/mapping/BWA/${mypop}_*sorted.rm*.bam >${output}/${mypop}_bam.list
+```
+Estimate your GLs and allele frquencies after filtering for depth, base and mapping quality
+
+```bash
+REF="/data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa"
+
+# Estimating GL's and allele frequencies for all sites with ANGSD
+
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \
+-skipTriallelic 1 \
+-GL 1 \
+-doCounts 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-doSaf 1 \
+-doHWE 1 \
+# -SNP_pval 1e-6
+```
 
 
 ------
