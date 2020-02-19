@@ -41,7 +41,7 @@
 * [Entry 25: 2020-02-14, Friday](#id-section25)
 * [Entry 26: 2020-02-17, Monday](#id-section26)
 * [Entry 27: 2020-02-18, Tuesday](#id-section27)
-* [Entry 28: 2020-02-19, Wednesday](#id-section28)
+* [Entry 28: 2020-02-19, Wednesday](#id-section28) Pop Gen Day Four
 * [Entry 29: 2020-02-20, Thursday](#id-section29)
 * [Entry 30: 2020-02-21, Friday](#id-section30)
 * [Entry 31: 2020-02-24, Monday](#id-section31)
@@ -727,7 +727,115 @@ ANGSD -b ${output}/${mypop}_bam.list \
 -doSaf 1 \
 -doHWE 1 \
 # -SNP_pval 1e-6
+
+#Now lets calculate the SFS for the folded minor allele spectra
+
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}folded_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \
+-skipTriallelic 1 \
+-GL 1 \
+-doCounts 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-doSaf 1 \
+-fold 1 \
+
+#Get a rough first estimate of the SFS, and then use as a prior for the next estimate
+
+realSFS ${output}/${mypop}_folded_allsites.saf.idx -maxIter 1000 -tole 1e-6 -P 1 > ${output}/${mypop}_outFold.sfs
+
+#Get a refined estimate of the SFS and doTheta
+
+ANGSD -b ${output}/${mypop}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${output}/${mypop}folded_allsites \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-setMinDepth 3 \
+-minInd 2 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 17 \
+-skipTriallelic 1 \
+-GL 1 \
+-doCounts 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-doSaf 1 \
+-fold 1 \
+-pest ${output}/${mypop}_outFold.sfs \
+-doThetas 1
+
+#Use the doTheta output from above to etimate nucleotide diversity
+
+thetaStat do_stat ${output}/${mypop}folded_allsites.thetas.idx
+
 ```
+
+1. Estimate the rough SFS ... then we are going to estimate our SFS again using our previous SFS as a prior
+2. doTheta - this will give us diversity stats
+3. theta_stats - this gives us readable diversity stats
+4. move to R environment to look at our results 
+
+Okay so now we are in R and looking at our results
+
+```{r}
+setwd("~/path to files")
+
+list.files()
+
+SFS <- scan("ABoutFold.sfs"")
+
+sumSFS <- sum(SFS)
+
+pctPoly = 100*1-(SFS[1]/sumSFS)
+
+plotSFS <- SFS[-c(l,length(SFS))]
+
+barplot(plotSFS)
+
+div <- read.table("AB_folded_allsites.thetas.idx.pestPG")
+
+colnames(div) = c("window","chrname","wincenter","tW","tP","tF","tH","tL","tajD","fulif","fuliD","fayH","zengsE","numSites")
+
+#Scale stats as persite estimates
+
+div$tWpersite = div$tW/div$numSites
+div$tPpersite = div$tW/div$numSites
+
+pdf("AB_diversity_stats.pdf")
+par(mfrow= c(2,2))
+
+hist(div$tWpersite, col="gray", xlab="Theta-W", main="")
+
+hist(div$tPpersite, col="gray", xlab="Theta-Pi", main="")
+
+hist(div$tajD, col="gray", xlab="Tajima's D", main="")
+
+barplot(plotSFS)
+
+dev.off()
+
+summary(div)
+
+#positive shift of TajD indicating bottleneck
+
+```
+
 
 
 ------
@@ -763,7 +871,7 @@ ANGSD -b ${output}/${mypop}_bam.list \
 
 ### Entry 28: 2020-02-19, Wednesday.   
 
-
+Continuing notes in last week's class entry 23
 
 ------
 <div id='id-section29'/>   
