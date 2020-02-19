@@ -14,3 +14,4 @@ fontsize: 18pt
 2. 2020-01-29:[PopGen Day One](2020-01-29_PopGenomics_Day1.html)
 3. 2020-02-05:[PopGen Day Two](2020-02-05_PopGenomics_Day2.html)
 4. 2020-02-12:[PopGen Day Three](2020-02-12_PopGenomics_Day3.html)
+5. 2020-02-19:[PopGen Day Four](2020-02-12_PopGenomics_Day4.html)
