@@ -17,7 +17,7 @@ fontsize: 18pt
 5. [Ben Camber](https://github.com/bencamber/ecological-genomics/blob/master/notebook.Rmd)    
 6. [Brendan Case](https://github.com/brendandaisy/ecological-genomics/blob/master/class-notes.md)
 7. [Herman Chege](https://github.com/KenyanGeek/Genomics-Class/blob/master/genomic%20notebook.md)    
-8. [Alison Hall](https://github.com/aehall26/EcologicalGenomics/blob/master/EcologicalGenomicsNotebook)   
+8. [Alison Hall](https://github.com/aehall26/EcologicalGenomics/blob/master/EcologicalGenomicsNotebook.md)   
 9. [Sandra Nnadi](https://github.com/Sandra-ctrl/Ecological-Genomics-2020/blob/master/SandraPBIO381Notebook.md)   
 10. [Thomas O'Leary](https://tsoleary.github.io/eco_genomics/tso_eco_genomics.html)  
 11. [Csenge Petak](https://github.com/Cpetak/Ecological_genomics/blob/master/lab_notebook.md)  
