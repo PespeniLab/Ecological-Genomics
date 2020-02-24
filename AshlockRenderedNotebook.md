@@ -44,7 +44,7 @@
 * [Entry 28: 2020-02-19, Wednesday](#id-section28) Pop Gen Day Four
 * [Entry 29: 2020-02-20, Thursday](#id-section29)
 * [Entry 30: 2020-02-21, Friday](#id-section30)
-* [Entry 31: 2020-02-24, Monday](#id-section31)
+* [Entry 31: 2020-02-24, Monday](#id-section31) Transcriptomics Day One
 * [Entry 32: 2020-02-25, Tuesday](#id-section32)
 * [Entry 33: 2020-02-26, Wednesday](#id-section33)
 * [Entry 34: 2020-02-27, Thursday](#id-section34)
@@ -893,6 +893,41 @@ Continuing notes in last week's class entry 23
 ### Entry 31: 2020-02-24, Monday.   
 
 
+#### Transcriptomics Day One
+
+- **Transcriptomics**: allows for you to experimentally control environmental conditions constant to reveal genetically controlled differences of phenotypes at the molecular level
+
+- **Phenotypes**: Observable characteristics of an organism
+
+- **Reverse Ecology**: Looking at influence of environment on transcription
+- Genetic diversity at the DNA level can impact phenotype
+  - Mutations in the coding region resulting in aa changes
+  - Splice site variation
+  - Regulatory regions could impact levels of expression and the onset of expression and tissue type where the gene is expressed
+  - Post translational modifications 
+  - epigenetic modifications
+  
+- **Why transcriptomics**?
+  - Active picture of what is being expressed
+  - Global/unbiased
+  - Cheap
+  - Don't need prior resources
+  
+- **Factors of consideration (Should be question driven)**: 
+  - Common garden
+  - Treatments/conditions
+  - Populations
+  - Tissue/cell
+  - Life history stage
+  - Transgenerational effects
+  - Sex and reproductive stage
+- **Workflow**: 
+  1. Careful experimental design
+  2. Experiment
+  3. Tissue/individual/pool Sampling
+  4. Extract and sequence RNA
+  5. Process and analyze sequence data
+  6. Integrate: GO enrichment, Network analyses, SNPs, diversity stats, microbiome, epigenetic data, proteomics, environmental data 
 
 ------
 <div id='id-section32'/>   
