@@ -46,7 +46,7 @@
 * [Entry 30: 2020-02-21, Friday](#id-section30)
 * [Entry 31: 2020-02-24, Monday](#id-section31) Transcriptomics Day One
 * [Entry 32: 2020-02-25, Tuesday](#id-section32)
-* [Entry 33: 2020-02-26, Wednesday](#id-section33)
+* [Entry 33: 2020-02-26, Wednesday](#id-section33) Transcriptomics first coding session
 * [Entry 34: 2020-02-27, Thursday](#id-section34)
 * [Entry 35: 2020-02-28, Friday](#id-section35)
 * [Entry 36: 2020-03-02, Monday](#id-section36)
@@ -941,7 +941,100 @@ Continuing notes in last week's class entry 23
 
 ### Entry 33: 2020-02-26, Wednesday.   
 
+#### First Transcriptomics coding session
 
+Pop assignments
+
+ASC_C: Csenge
+ASC_D: Csenge
+ASC_H: Brendan
+
+BRU_C: Brendan
+BRU_D: Alison
+BRU_H: Alison
+
+CAM_C: Ben
+CAM_D: Ben
+CAM_H: Thomas
+
+ESC_C: Thomas
+ESC_D: Bertrand
+ESC_H: Bertrand
+
+JAY_C: Kate
+JAY_D: Kate
+JAY_H: Sandra
+
+KAN_C: Sandra
+KAN_D: Jorge
+KAN_H: Jorge
+
+LOL_C: Kerry
+LOL_D: Kerry
+LOL_H: Erika
+
+MMF_C: Erika
+MMF_D: Chege
+MMF_H: Chege
+
+NOR_C: Zoe
+NOR_D: Zoe
+NOR_H: Shervin
+
+XBM_C: Shervin
+XBM_D: Anoob
+XBM_H: Anoob
+
+Run FastQC on on populations
+
+```bash
+
+mkdir ~/<myrepo>/myresults/RNA_fastqc
+
+for file in AB*fastq.gz
+
+do
+
+ fastqc ${file} -o ~/<myrepo>/myresults/RNA_fastqc
+
+done
+```
+
+For issues with git push/pull 
+
+```bash
+vim .gitignore
+myresults/ANGSD/*
+```
+```bash
+git pull
+git add -A
+git commit -m ""
+git push
+```
+
+This should allow you to ignore the big ANGSD files that are preventing people from updating their github
+
+Next we want to run fastqc on the cleaned reads
+
+```bash
+cp OldFileName.sh NewFileName.sh
+```
+
+Then you can vim into that new file and update to run fastqc on the cleaned reads
+
+```bash
+
+mkdir ~/<myrepo>/myresults/RNA_fastqcClean
+
+for file in AB*fastq.gz
+
+do
+
+ fastqc ${file} -o ~/<myrepo>/myresults/RNA_fastqcClean
+
+done
+```
 
 ------
 <div id='id-section34'/>   
