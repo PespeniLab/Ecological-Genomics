@@ -49,7 +49,7 @@
 * [Entry 33: 2020-02-26, Wednesday](#id-section33) Transcriptomics first coding session
 * [Entry 34: 2020-02-27, Thursday](#id-section34)
 * [Entry 35: 2020-02-28, Friday](#id-section35)
-* [Entry 36: 2020-03-02, Monday](#id-section36)
+* [Entry 36: 2020-03-02, Monday](#id-section36) DGE info update Sea cucumbers and hydrostatic pressure
 * [Entry 37: 2020-03-03, Tuesday](#id-section37)
 * [Entry 38: 2020-03-04, Wednesday](#id-section38)
 * [Entry 39: 2020-03-05, Thursday](#id-section39)
@@ -1054,6 +1054,73 @@ done
 <div id='id-section36'/>   
 
 ### Entry 36: 2020-03-02, Monday.   
+
+#### Differential Gene Expression info update
+
+##### What is DGE?
+- Differences in transcript abundance between groups
+- Tracking how expression in specific genes are changing 
+
+##### Normalization
+- So you have your counts data matrix 
+ - Genes in each row, samples in each column, counts in each cell
+- Normalization addresses two different problems
+  - Depth 
+  - Library composition (differential read depth from gene to gene)
+- Normalization procedures
+  - Counts per million
+   - only accounts for sequencing depth
+  - Transcripts/fragments per kb million
+   - Account for depth and gene length 
+    - longer genes will disproportionately map successfully
+  - EdgeR
+   - accounts for depth, gene size, and library composition
+  - DESeq2
+   - accounts for depth and composition 
+
+##### Differential expression
+- We need to account for multiple testing 
+ - One way to manage that is by decreasing the number of tests that you are doing
+  - DESeq does this with independent filtering by some sort of cut-off
+ - Correction for multiple tests (adjusted p-value) to control number of false positives
+- DESeq2 uses GLM and negative binomial distribution and wald test to determine differences in counts between "genes"
+
+##### Visualization
+- Sequencing summary statistics
+- PCA to look at the differential expression at the level of the transcriptome
+- Heat maps
+- Venn diagrams
+- Volcano plots
+- MA plots
+- LFC scatter plot
+ - shared things along the 1/1 line
+- Individual gene treatment response curves
+
+##### Enrichment analyses
+- Comparing differentially expressed genes to gene sets (GO, KEGG, etc)
+- Over representation analysis: you are looking at whether or not differential expression is concentrated in certain functional areas of the genome more so than they would by chance
+- Rank based method (log fold change)
+ - Are genes within a set clustered towards one end or another of the rank list 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
