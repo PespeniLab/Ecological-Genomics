@@ -51,7 +51,7 @@
 * [Entry 35: 2020-02-28, Friday](#id-section35)
 * [Entry 36: 2020-03-02, Monday](#id-section36) DGE info update Sea cucumbers and hydrostatic pressure
 * [Entry 37: 2020-03-03, Tuesday](#id-section37)
-* [Entry 38: 2020-03-04, Wednesday](#id-section38)
+* [Entry 38: 2020-03-04, Wednesday](#id-section38) Transcriptomics Day Two Mapping with Salmon and then differential expression in R
 * [Entry 39: 2020-03-05, Thursday](#id-section39)
 * [Entry 40: 2020-03-06, Friday](#id-section40)
 * [Entry 41: 2020-03-09, Monday](#id-section41)
@@ -1136,6 +1136,77 @@ done
 
 ### Entry 38: 2020-03-04, Wednesday.   
 
+The first step is to index into the transcriptome (Melissa already did this)
+
+```bash
+cd /data/project_data/RS_RNAseq/ReferenceTrancriptome/
+salmon index -t Pabies1.0-all-cds.fna.gz -i Pabies_cds_index --decoys decoys.txt -k 31
+```
+
+Next step is to run quantification with Salmon
+
+The first thing we need to do is write a bash script to run the quantification
+
+```bash
+!/bin/bash
+
+cd/data/project_data/RS_RNASeq/fastq/cleanreads
+
+for file in ESC_01_D*.R1.cl.fq
+
+do salmon quant -i /data/project_data/RS_RNASeq/ReferenceTranscriptome/Pabies_HC27_index -l A -r /data/project_data/RS_RNASeq/fastq/cleanreads/${file} --validateMappings -o /data/project_data/RS_RNASeq/salmon/cleanedreads/${file}
+done
+```
+Now we want to look at our mapping rates... look at this within the cleanreads directory
+
+```bash
+grep -r --include \*.log -e 'Mapping rate'
+```
+Not getting great mapping... so going to try a different index
+
+```bash
+!/bin/bash
+
+cd/data/project_data/RS_RNASeq/fastq/cleanreads
+
+for file in ESC_01_D*.R1.cl.fq
+
+do salmon quant -i /data/project_data/RS_RNASeq/ReferenceTranscriptome/Pabies_cds_index -l A -r /data/project_data/RS_RNASeq/fastq/cleanreads/${file} --validateMappings -p 1 --seqBias -o /data/project_data/RS_RNASeq/salmon/HCmapping/${file}
+done
+```
+
+Melissa ran code below in class to grab quant.sf files
+
+```r
+library(tximportData)
+library(tximport)
+
+#locate the directory containing the files. 
+dir <- "/data/project_data/RS_RNASeq/salmon/"
+list.files(dir)
+
+# read in table with sample ids
+samples <- read.table("/data/project_data/RS_RNASeq/salmon/RS_samples.txt", header=TRUE)
+
+# now point to quant files
+all_files <- file.path(dir, samples$sample, "quant.sf")
+names(all_files) <- samples$sample
+
+# what would be used if linked transcripts to genes
+#txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+# to be able to run without tx2gene
+txi <- tximport(all_files, type = "salmon", txOut=TRUE)  
+names(txi)
+
+head(txi$counts)
+
+countsMatrix <- txi$counts
+dim(countsMatrix)
+#[1] 66069    76
+
+# To write out
+write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names = T, quote = F) 
+```
 
 
 ------
