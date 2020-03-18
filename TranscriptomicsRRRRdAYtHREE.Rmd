@@ -1,0 +1,310 @@
+---
+title: "Transcriptomics Day Three"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Import the libraries that we're likely to need in this session ... use commented code to install vsn package
+```{r}
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)  ### First: BiocManager::install("vsn") AND BiocManager::install("hexbin")
+```
+
+Import the counts matrix
+```{r}
+countsTable <- read.table("RS_cds2kb_countsMatrix.txt", header=TRUE, row.names=1)
+head(countsTable)
+dim(countsTable) #66,408 transcripts mapped and 76 samples... way to check that we are working with the right table
+countsTableRound <- round(countsTable) # Need to round because DESeq wants only integers
+head(countsTableRound)
+```
+
+Rows are transcripts and columns are samples ... cell values number of reads that mapped to each transcript for each sample
+
+```{r}
+## Import the samples description table - links each sample to factors of the experimental design.
+# Need the colClasses otherwise imports "day" as numeric which DESeq doesn't like, coula altneratively change to d0, d5, d10
+conds <- read.delim("RS_samples.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1, colClasses=c('factor', 'factor', 'factor', 'factor'))
+head(conds)
+dim(conds)
+
+
+## Let's see how many reads we have from each sample:
+colSums(countsTableRound)
+mean(colSums(countsTableRound))
+barplot(colSums(countsTableRound), las=3, cex.names=0.5,names.arg = substring(colnames(countsTableRound),1,13))
+abline(h=mean(colSums(countsTableRound)), col="blue", lwd =2)
+```
+
+This is to look at the variation in number of reads mapped... also to see if there are any overarching patterns in how well samples mapped
+
+50-60% mapping
+
+Mapping rates are lower than desired... first time sequencing red spruce and mapping to a divergent reference so this might have something to do with that.....
+
+Whats the average number of counts per gene
+```{r}
+rowSums(countsTableRound)
+mean(rowSums(countsTableRound)) #3000
+median(rowSums(countsTableRound)) #24
+```
+
+Mean is being driven up by some super highly expressed gene... this shows dispersion across genes, differences in magnitude of expression
+
+Whats the average number of counts per gene per sample
+```{r}
+apply(countsTableRound,2,mean)
+```
+
+average is 30-50 counts per gene
+
+Now our next step is to import the data into DeSeq ... here we will define the experimental design
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData = conds, design = ~pop + day + treatment)
+dim(dds)
+```
+[1] 66408    76
+
+
+Filter out genes with few reads
+```{r}
+dds <- dds[rowSums(counts(dds)) > 76]
+dim(dds)
+```
+[1] 23887    76
+
+This is filtering to sum of 76 reads across all samples (one read per sample)
+
+```{r}
+dds <- dds[rowSums(counts(dds)) > 760]
+dim(dds)
+```
+[1] 7884   76
+
+Filtering by 10 reads per sample
+
+Okay so we are deciding to filter by one read per sample
+```{r}
+dds <- dds[rowSums(counts(dds)) > 76]
+dim(dds)
+```
+
+Run the DESeq model to test for differential gene expression: 1) estimate size factors (per sample), 2) estimate dispersion (per gene), 3) run negative binomial glm
+
+```{r}
+dds <- DESeq(dds)
+```
+
+List the results you've generated
+```{r}
+resultsNames(dds)
+```
+ [1] "Intercept"            "pop_BRU_05_vs_ASC_06"
+ [3] "pop_CAM_02_vs_ASC_06" "pop_ESC_01_vs_ASC_06"
+ [5] "pop_JAY_02_vs_ASC_06" "pop_KAN_04_vs_ASC_06"
+ [7] "pop_LOL_02_vs_ASC_06" "pop_MMF_13_vs_ASC_06"
+ [9] "pop_NOR_02_vs_ASC_06" "pop_XBM_07_vs_ASC_06"
+[11] "day_10_vs_0"          "day_5_vs_0"          
+[13] "treatment_D_vs_C"     "treatment_H_vs_C"  
+
+
+Now lets look at climate instead of population
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData = conds, design = ~climate + day + treatment)
+dim(dds)
+```
+[1] 66408    76
+
+
+Filter out genes with few reads
+```{r}
+dds <- dds[rowSums(counts(dds)) > 76]
+dim(dds)
+```
+[1] 23887    76
+
+Run the DESeq model to test for differential gene expression: 1) estimate size factors (per sample), 2) estimate dispersion (per gene), 3) run negative binomial glm
+
+```{r}
+dds <- DESeq(dds)
+```
+
+List the results you've generated
+```{r}
+resultsNames(dds)
+```
+[1] "Intercept"        "climate_HD_vs_CW" "day_10_vs_0"     
+[4] "day_5_vs_0"       "treatment_D_vs_C" "treatment_H_vs_C"
+
+
+ Order and list and summarize results from specific contrasts
+ Here you set your adjusted p-value cutoff, can make summary tables of the number of genes differentially expressed (up- or down-regulated) for each contrast
+
+```{r}
+res <- results(dds,alpha = 0.05)
+res <- res[order(res$padj),]
+head(res)
+```
+ baseMean log2FoldChange     lfcSE      stat
+                 <numeric>      <numeric> <numeric> <numeric>
+MA_172878g0010   15.854887       2.268992 0.4406545  5.149141
+MA_107783g0020    6.608212      -1.968244 0.3940423 -4.995007
+MA_28973g0010    18.881375      -1.966467 0.4123334 -4.769119
+MA_10434037g0010  5.611769       2.185361 0.4967169  4.399610
+MA_10426002g0010 10.898075      -1.207677 0.2831324 -4.265415
+MA_10429525g0010 60.593765       1.171701 0.2815058  4.162262
+                       pvalue        padj
+                    <numeric>   <numeric>
+MA_172878g0010   2.616825e-07 0.002492788
+MA_107783g0020   5.883351e-07 0.002802240
+MA_28973g0010    1.850330e-06 0.005875416
+MA_10434037g0010 1.084457e-05 0.025826354
+MA_10426002g0010 1.995311e-05 0.035752263
+MA_10429525g0010 3.151101e-05 0.035752263
+
+
+```{r}
+summary(res)
+```
+
+out of 23887 with nonzero total read count
+adjusted p-value < 0.05
+LFC > 0 (up - in hot)     : 16, 0.067% 
+LFC < 0 (down)   : 3, 0.013% 
+outliers [1]     : 61, 0.26% 
+low counts [2]   : 14300, 60% - could do some upstream filtering to improve this number
+(mean count < 6)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results
+
+
+So what is our top hit anyways???
+ copy MA_172878g0010 into congenie
+ 
+Histone Isoform 1
+
+Now let's compare hot and dry vs control
+```{r}
+res_treatCD <- results(dds, name = 'treatment_D_vs_C',alpha = 0.05)
+res_treatCD  <- res_treatCD [order(res_treatCD $padj),]
+head(res_treatCD )
+```
+
+Look up top hit in congenie... unknown!
+
+```{r}
+summary(res_treatCD )
+```
+
+out of 23887 with nonzero total read count
+adjusted p-value < 0.05
+LFC > 0 (up)     : 678, 2.8% 
+LFC < 0 (down)   : 424, 1.8% 
+outliers [1]     : 61, 0.26% 
+low counts [2]   : 7367, 31% 
+(mean count < 2)
+
+Seeing much stronger response here... makes sense because this treatment is hot and dry ... and the last one just had heat
+
+Now onto data visualization
+
+MA plot
+```{r}
+plotMA(res_treatCD,ylim=c(-3,3))
+```
+
+Overall range of expression is fairly low
+
+relatively few reads per gene, but we are picking up genes as being differentially expressed
+
+Could sequence more to get more power and get a stronger signature
+
+Let's now do a PCA
+```{r}
+vsd <- vst(dds,blind=FALSE) #can modify nsub
+
+data <- plotPCA(vsd,intgroup=c('climate','treatment','day'),returnData=TRUE) 
+
+#Can also use ntop in pca ... to adjust the number of genes you are looking at
+
+percentVar <- round(100*attr(data,'percentVar'))
+
+data$treatment <- factor(data$treatment, levels=c("C","H","D"), labels = c("C","H","D"))
+
+data$day <- factor(data$day, levels=c("0","5","10"), labels = c("0","5","10"))
+
+ggplot(data, aes(PC1, PC2, color=climate, shape=treatment)) +
+  geom_point(size=4, alpha=0.85) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  theme_minimal()
+
+```
+
+Lets take a look at individual genes
+Important step in validating normalization and ensure that your model is working
+```{r}
+d <-plotCounts(dds, gene="MA_10426407g0030", intgroup = (c("treatment","climate")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=climate, y=count, shape=climate, colour = treatment)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.3,h=0), size=3) +
+  scale_x_discrete(limits=c("CW","HD"))
+p
+
+p <-ggplot(d, aes(x=treatment, y=count, shape=climate)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p
+```
+
+
+Now let's plot a heat map
+```{r}
+library(pheatmap)
+topgenes <- head(rownames(res_treatCD),20)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds)[,c("treatment","climate")])
+pheatmap(mat, annotation_col=df)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -61,7 +61,7 @@
 * [Entry 45: 2020-03-13, Friday](#id-section45)
 * [Entry 46: 2020-03-16, Monday](#id-section46)
 * [Entry 47: 2020-03-17, Tuesday](#id-section47)
-* [Entry 48: 2020-03-18, Wednesday](#id-section48)
+* [Entry 48: 2020-03-18, Wednesday](#id-section48) First day of remote classes transcriptomics day 3
 * [Entry 49: 2020-03-19, Thursday](#id-section49)
 * [Entry 50: 2020-03-20, Friday](#id-section50)
 * [Entry 51: 2020-03-23, Monday](#id-section51)
@@ -1277,6 +1277,9 @@ write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names
 
 ### Entry 48: 2020-03-18, Wednesday.   
 
+#### Transcriptomics Day Three
+
+[Link to Rmd file](TranscriptomicsRRRRdAYtHREE.html)
 
 
 ------
