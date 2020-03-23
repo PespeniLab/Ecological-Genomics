@@ -64,7 +64,7 @@
 * [Entry 48: 2020-03-18, Wednesday](#id-section48) First day of remote classes transcriptomics day 3
 * [Entry 49: 2020-03-19, Thursday](#id-section49)
 * [Entry 50: 2020-03-20, Friday](#id-section50)
-* [Entry 51: 2020-03-23, Monday](#id-section51)
+* [Entry 51: 2020-03-23, Monday](#id-section51) Info Update and Discussion Baxter and Brendan
 * [Entry 52: 2020-03-24, Tuesday](#id-section52)
 * [Entry 53: 2020-03-25, Wednesday](#id-section53)
 * [Entry 54: 2020-03-26, Thursday](#id-section54)
@@ -1301,7 +1301,58 @@ write.table(countsMatrix, file = "RS_countsMatrix.txt", col.names = T, row.names
 
 ### Entry 51: 2020-03-23, Monday.   
 
+Info Update and Discussion Baxter and Brendan
 
+Integrating different types of biological data
+- Gene expression 
+  - Counts
+- Sequence data
+  - Fastq, SNPs, QTLs
+- Environmental data
+  - stress exposure, temperature
+  - Could be discrete, continuous, or ordered
+- Gene copy number
+  - Form of duplication/deletion
+  - Alignment depth
+  - Relative counts to a reference genome
+  - Common to remove short or overly widespread CNVs (probably just an actual divergence from the reference)
+- Can use functional enrichment
+    - GO 
+- Chromatin state
+  - Could be binary (accessible or not)
+  - Or specific histone modifications
+  
+So... what types of interactions are we typically interested in exploring with these different data types
+
+- Expression counts with discrete factors (typical experimental design or environmental manipulation)
+- Expression vs continuous factors (pop diversity, or an environmental gradient like elevation)
+  - Requires acceptance of a model for missing observations
+- Expression vs GO terms 
+  - Useful for detecting over/under representation of certain genes
+  - Helps detangle causal relationships in gene expression data
+- Gene-phenotype mapping
+  - Change in a gene or a set of genes causes a change in a given trait. 
+    - QTL -> trait mapping 
+    - Gene regulatory network
+    - Genotype networks
+      - Mapping genotype space that connects to a stable phenotype
+
+
+Analysis
+- Expression vs Discrete factors
+  - Reaction norms
+  - 2 way ANOVA
+  - ANCOVA
+    - add nuisance variable (allowed to be a covariate in your analysis)
+- Expression vs continuous
+  - Correlations
+  - Linear or higher order regression
+    - Canalization
+- Geno-pheno mapping
+  - Modularity
+    - Pleiotropic effects within the modules
+    - Independence between trait sets
+  
 
 ------
 <div id='id-section52'/>   
