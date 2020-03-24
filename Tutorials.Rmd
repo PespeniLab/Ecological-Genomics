@@ -18,3 +18,4 @@ fontsize: 18pt
 6. 2020-02-26:[Transcriptomics Day One](2020-02-26_RNA-seq_Day1.html)
 7. 2020-03-04:[Transcriptomics Day Two](2020-03-044_RNA-seq_Day2.html)
 8. 2020-03-18:[Transcriptomics Day Three](2020-03-17_RNA-seq_Day3.html)
+9. 2020-03-25:[Epigenetics Day One](2020-03-25_Epigenetics_Day_1.html)
