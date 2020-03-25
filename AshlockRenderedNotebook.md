@@ -1366,7 +1366,108 @@ Analysis
 
 ### Entry 53: 2020-03-25, Wednesday.   
 
+#### Epigenetics info update
 
+- Traditionally... changes to gene expression that arent due to changes in DNA sequence
+- Anything that influences transcriptional potential of the cell
+  - Doesn't necessarily need to be heritable
+  - Stable long-term alterations in the transcriptional potential of a cell
+- **Why do we care about epigenetics?**
+  - We are interested in phenotypic variation
+    - Epigenetics plays a role here
+    - Persistence under environmental change
+      - acclimation/adaptation
+- **Mechanisms of epigenetics**
+  - Phosphorylation
+  - non-coding RNAs (microRNAs)
+  - Small interfering RNAs
+  - Histone modifications
+    - This is what ATACseq looks at
+  - DNA methylation
+    - Easiest to quantify and important in regulating gene expression and histone modifications
+    - This will be our focus
+  
+- **DNA methylation**
+  - Can result in mutations in the genome
+    - Defecit of C's in the genome (uncorrectable mutations due to methylation)
+    - There is clearly a cost here... so there should be an inherent benefit
+- **Functional consequences of methylation**
+  - Promoters/enhancers
+    - High methylation = repression of expression
+    - Inhibits binding of transcription factors
+    - Impacts chromatin structure (formation of heterochromatin - functionally silencing genes)
+  - Intergenic regions
+    - Silencing transposable elements
+  - Gene body
+    - High methylation translates to high expression
+    - The hypothesis is that methylation inhibits spurious transcription
+    - Genes with low methylation levels are more responsive to the environment
+- **Methylation differs between species** 
+  - There is a difference in reliance on methylation between species... so mechanistically there must be something different going on here
+  - Often you see a dip in methylation in promoter region and increase in methylation in genic regions
+- **Bisulfite sequencing**
+  - Strategy for identifying patterns of methylation
+  - Can be a continuous gradient of percent methylation in inverts... in vertebrates it is usually either on or off
+  
+#### Introducing copepod epigenetic dataset
+ - RRBS: reduced representation bisulfite sequencing
+   - Focusing around CPG sites (show high levels of methylation)
+   - Process is similar to RADseq (cuts at recognition sites)
+   
+   **Want to go back to recording and take better notes here ... ~2:45 I think**
+- Epigenetic data look different...
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
