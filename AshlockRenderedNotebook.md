@@ -1414,8 +1414,11 @@ Analysis
    - Focusing around CPG sites (show high levels of methylation)
    - Process is similar to RADseq (cuts at recognition sites)
    
-   **Want to go back to recording and take better notes here ... ~2:45 I think**
-- Epigenetic data look different...
+- Epigenetic data look different 
+  - T enriched and low Cs
+    - Due to bisulfite conversion ... this gets rid of all unmethylated Cs and changes them to Ts
+    - These converge at the end due to adapter contamination
+  - Once we trim and quality filter the adapter contamination is gone
    
     
     
