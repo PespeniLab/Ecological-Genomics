@@ -1419,56 +1419,6 @@ Analysis
     - Due to bisulfite conversion ... this gets rid of all unmethylated Cs and changes them to Ts
     - These converge at the end due to adapter contamination
   - Once we trim and quality filter the adapter contamination is gone
-   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
 
@@ -1493,7 +1443,25 @@ Analysis
 
 ### Entry 56: 2020-03-30, Monday.   
 
-
+#### Analysis of epigenetic data
+- Sandra posted powerpoint in teams 
+- AFLP (restriction enzyme based process)
+  - Selective amplification
+  - Often analysis looks at differences in banding pattern from PAGE gel, but you can extract product from gel and sequence
+  - quick, and requires small amounts of starting template
+  - reproducible
+  - sensitive for determing dna sequence polymorphism
+  - can help assess genetic diversity
+- Methylation Sensitive Amplification Polymorphism (MSAP)
+  - restriction enzymes are methylation sensitive
+    - Can show different methylation conditions
+      - Fragments are present in both profiles, indicating an unmethylated state
+      - Fragments are present only in EcoR1/Mspl profiles indicatine hemi or methylated at internal cytosine
+      - External cytosine is methylated or cuts
+      - methylation at both cytosines ... no fragments in profiles
+        - This could also be due to a mutation
+      - This can really only show presence absence of methylation at different sites
+      
 
 ------
 <div id='id-section57'/>   
