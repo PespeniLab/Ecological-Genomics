@@ -1475,6 +1475,206 @@ Analysis
 
 ### Entry 58: 2020-04-01, Wednesday.   
 
+Epigenetics Coding session
+
+- More DNA improves mapping rate 
+- Interesting... mapping success reduces through time
+  - Could indicate carry over of maybe algae etc.
+  - Can blast things that don't map to see what it is
+- Take home: some libraries are way worse than others
+  - Go back and separate paired ends that don't map and re-mapping them as single ends
+- Reid had us download methylation files
+  - Methylation extraction reports
+    - Shows mapping rate
+    - Methylation bias plot
+      - Should be even cpg methylation rates across a read
+      - Our samples have higher methylation at the start of a read... we can cut these out of our analysis
+      - Mechanism behind this bias is unclear and inconsistent
+      - This is a relatively new analysis method... so a lot of this is still unknown
+- Now we can read data into R
+
+```r
+library(methylKit)
+library(tidyverse)
+library(ggplot2)
+library(pheatmap)
+
+# first, we want to read in the raw methylation calls with methylkit
+
+# set directory with absolute path (why is this necessary? I have no idea, but gz files wont work with relative paths)
+
+dir <- "/Users/laurenashlock/Documents/GitHub/Ecological-Genomics"
+
+# read in the sample ids
+
+samples <- read.table(sample_id.txt, header=FALSE)
+
+# now point to coverage files
+files <- file.path(dir,samples$V1)
+all(file.exists(files))
+#this is to check that all files are in the correct location
+
+# convert to list
+file.list <- as.list(files)
+
+# get the names only for naming our samples
+nmlist <- as.list(gsub("_1_bismark_bt2_pe.bismark.cov.gz","",samples$V1))
+#Getting rid of file path in sample names so that it is just the sample IDs 
+
+# use methRead to read in the coverage files
+
+myobj <- methRead(location= file.list,
+        sample.id =   nmlist,
+                      assembly = "atonsa", # this is just a string. no actual database
+                      dbtype = "tabix",
+                      context = "CpG",
+                      resolution = "base",
+                      mincov = 20,
+                      treatment = 
+                              c(0,0,0,0,
+                                1,1,1,1,
+                                2,2,2,2,
+                                3,3,3,3,
+                                4,4,4,4),
+                      pipeline = "bismarkCoverage",
+                      dbdir = "~/Documents/UVM/Ecological_genomics_teaching/data/")
+
+######
+# visualize coverage and filter
+######
+
+# We can look at the coverage for individual samples with getCoverageStats()
+getCoverageStats(myobj[[1]],plot=TRUE)
+#High coverage sites are not trustworthy... so we will filter them
+
+# filter samples by depth with filterByCoverage()
+filtered.myobj <- filterByCoverage(myobj,
+                  lo.count=20, lo.perc=NULL,
+                  hi.count=NULL, hi.perc=97.5)
+
+######
+# merge samples
+######
+
+#Note! This takes a while and we're skipping it
+
+# use unite() to merge all the samples. We will require sites to be present in each sample or else will drop it
+
+meth <- unite(filtered.myobj,mc.cores=3,suffix="united",db.dir= "/Users/laurenashlock/Documents/GitHub/Ecological-Genomics")
+
+meth <- methylKit:::readMethylBaseDB(
+                      dbpath = "~/Users/laurenashlock/Documents/GitHub/Ecological-Genomics/methylBase_united.txt.bgz",
+                            dbtype = "tabix",
+                            sample.id =   unlist(nmlist),
+                            assembly = "atonsa", # this is just a string. no actual database
+                            context = "CpG",
+                            resolution = "base",
+                            treatment = c(0,0,0,0,
+                              1,1,1,1,
+                              2,2,2,2,
+                              3,3,3,3,
+                              4,4,4,4),
+                            destrand = FALSE)
+
+# percMethylation() calculates the percent methylation for each site and sample
+
+pm <- percMethylation(meth)
+
+#plot methylation histograms
+ggplot(ggplot(gather(as.data.frame(pm)), aes(value)) + 
+    geom_histogram(bins = 10, color="black", fill="grey") + 
+    facet_wrap(~key))
+
+# calculate and plot mean methylation
+sp.means <- colMeans(pm)
+
+p.df <- data.frame(sample=names(sp.means),
+          group = substr(names(sp.means), 1,6),
+          methylation = sp.means)
+ggplot(p.df, aes(x=group, y=methylation, color=group)) + 
+    stat_summary(color="black") + geom_jitter(width=0.1, size=3) 
+
+# sample clustering
+clusterSamples(meth, dist="correlation",method="ward.D",plot=TRUE)
+
+# PCA
+PCASamples()
+#We skipped this in class
+
+# subset with reorganize()
+#subset down to two conditions to see some of our results
+
+meth_sub <- reorganize(meth,
+                sample.ids =c("AA_F00_1","AA_F00_2","AA_F00_3", "AA_F00_4",
+                              "HH_F25_1","HH_F25_2","HH_F25_3","HH_F25_4"),
+                treatment = c(0,0,0,0,1,1,1,1),
+                save.db=FALSE)
+                             
+# calculate differential methylation
+#Takes into account your treatment variable and will look at differences between your two treatments
+#Fitting two logistic regressions, and seeing if treatment adds to the model
+
+myDiff <- calculateDiffMeth(meth_sub,
+          overdispersion="MN",
+          mc.cores=1,
+          suffix="AA_HH",
+          adjust="qvalue",
+          test="Chisq")
+
+# get all differentially methylated bases
+
+myDiff <- getMethylDiff(myDiff,qvalue=0.05,difference=10)
+
+# we can visualize the changes in methylation frequencies quickly.
+hist(getData(myDiff)$meth.diff)
+
+#Higher methylation in our treatment group
+
+# get hyper methylated bases
+
+# get hypo methylated bases
+
+#heatmaps first
+
+pm <- percMethylation(meth_sub)
+# make a dataframe with snp id's, methylation, etc.
+sig.in <- as.numeric(row.names(myDiff))
+pm.sig <- pm[sig.in,]
+
+ 
+
+# add snp, chr, start, stop
+
+ 
+
+din <- getData(myDiff)[,1:3]
+df.out <- cbind(paste(getData(myDiff)$chr, getData(myDiff)$start, sep=":"), din, pm.sig)
+colnames(df.out) <- c("snp", colnames(din), colnames(df.out[5:ncol(df.out)]))
+df.out <- (cbind(df.out,getData(myDiff)[,5:7]))
+
+
+
+# we can also normalize 
+
+
+
+#####
+#let's look at methylation of specific snps
+####
+
+# convert data frame to long form
+
+## write bed file for intersection with genome annotation
+
+
+
+
+
+
+
+
+
+
 
 
 ------
