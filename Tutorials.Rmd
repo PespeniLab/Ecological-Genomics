@@ -10,14 +10,5 @@ fontsize: 18pt
 
 **List of Tutorials and scripts** 
 
-1. 2020-01-22:[Command-line UNIX tutorial](Tutorial/2020-01-22_Command_Line_Unix.html)
-2. 2020-01-29:[PopGen Day One](2020-01-29_PopGenomics_Day1.html)
-3. 2020-02-05:[PopGen Day Two](2020-02-05_PopGenomics_Day2.html)
-4. 2020-02-12:[PopGen Day Three](2020-02-12_PopGenomics_Day3.html)
-5. 2020-02-19:[PopGen Day Four](2020-02-12_PopGenomics_Day4 (1).html)
-6. 2020-02-26:[Transcriptomics Day One](2020-02-26_RNA-seq_Day1.html)
-7. 2020-03-04:[Transcriptomics Day Two](2020-03-044_RNA-seq_Day2.html)
-8. 2020-03-18:[Transcriptomics Day Three](2020-03-17_RNA-seq_Day3.html)
-9. 2020-03-25:[Epigenetics Day One](2020-03-25_Epigenetics_Day_1.html)
-10. 2020-04-01:[Epigenetics Day Two](2020-04-01_Epigenetics_Day_2 (1).html)
-11. 2020-04-01:[Additional Notes - Epigenetics Day Two](2020-04-01_Epigenetics_Day_2_with_Details.html)
+1. 2021-09-01:[Github Tutorial](GithubTutorial.html)
+2. 2021-09-08:[Command-line UNIX tutorial](Tutorial/2020-01-22_Command_Line_Unix.html)
