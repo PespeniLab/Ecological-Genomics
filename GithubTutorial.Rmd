@@ -7,7 +7,7 @@ output: html_document
 Create a [github](https://github.com/) account and download github [desktop](https://desktop.github.com/)
 
 
-### Common code you'll need to word process in (R)markdown  
+### Clone Repository  
 
 1. To embed a link, all you need is the URL, implemented in the following way:   
 ```
