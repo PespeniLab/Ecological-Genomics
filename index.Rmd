@@ -10,5 +10,5 @@ fontsize: 18pt
 
 1. [Getting Started](Getting_started.html)     
 2. [Tutorials and scripts](Tutorials.html)     
-3. [Class member page](Class_members.html)
+
 

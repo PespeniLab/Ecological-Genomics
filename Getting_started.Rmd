@@ -14,8 +14,6 @@ fontsize: 18pt
 2. Create a [github](https://github.com/) account and download github [desktop](https://desktop.github.com/)
 
 
-### Logs research activities in your online notebook [template found here](https://github.com/PespeniLab/Ecological-Genomics/blob/master/UpdatedGithubNotebookTemplate.md).   
-
 ### Common code you'll need to word process in (R)markdown  
 
 1. To embed a link, all you need is the URL, implemented in the following way:   
