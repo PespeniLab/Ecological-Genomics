@@ -3,13 +3,12 @@ title: "GitHub Tutorial"
 output: html_document
 ---
 
-### Create a github account:
+### 1. Create a github account:
 Create a [github](https://github.com/) account and download github [desktop](https://desktop.github.com/)
 
 
-### Clone Repository  
+### 2. Create a repository  
 
-1. To embed a link, all you need is the URL, implemented in the following way:   
 ```
 [hyperlinked words](URL)
 ```

@@ -10,5 +10,5 @@ fontsize: 18pt
 
 **List of Tutorials and scripts** 
 
-1. 2021-09-01:[Github Tutorial](GithubTutorial.html)
-2. 2021-09-08:[Command-line UNIX tutorial](Tutorial/2020-01-22_Command_Line_Unix.html)
+1. 2021-09-08:[Command-line UNIX tutorial](Tutorial/2020-01-22_Command_Line_Unix.html)
+
