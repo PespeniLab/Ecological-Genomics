@@ -77,14 +77,25 @@
 <div id="lets-work-in-groups-of-three-students-to-analyze" class="section level2">
 <h2>Let’s work in groups of three students to analyze</h2>
 <p>One person can be the navigator, one person can be the note-taker, and one person can be the back-seat driver. And you can rotate positions.</p>
-<ol style="list-style-type: decimal">
+<ol start="0" style="list-style-type: decimal">
+<li>Set up your work station. We suggest you have three programs/windows open: 1) terminal or PuTTy, 2) R studio for taking notes, and 3) the tutorial webpage.</li>
 <li>Sign in to the server.</li>
 <li>Navigate from your home directory (~) to: <code>cd /data/project_data/16S</code></li>
 <li>Check out the manifest or metadata file about our samples: <code>less pyc_subset_manifest</code>. Type <code>q</code> to quit out of the file.</li>
 <li>Navigate back to your home directory where you will be working from and storing your results files: <code>cd ~</code></li>
 <li>Make a directory to keep your results <code>mkdir myresults</code></li>
 <li>Navigate into that directory: <code>cd myresults</code></li>
+<li>Set up conda and qiime2 to work from your server spaces:</li>
 </ol>
+<ul>
+<li><code>/data/popgen/miniconda3/bin/conda activate qiime2-2021.8</code></li>
+<li><code>/data/popgen/miniconda3/bin/conda init bash</code></li>
+<li>Close terminal/PuTTy</li>
+<li>Type <code>conda activate qiime2-2021.8</code> to see if you conda is working for you to access qiime
+<ul>
+<li>Your prompt should look like <code>(qiime2-2021.8) [mpespeni@pbio381 16S]$</code> if you’re in, and no “not found” errors.</li>
+</ul></li>
+</ul>
 </div>
 <div id="import-the-.fq.gz-data-files-into-qiime" class="section level2">
 <h2>Import the .fq.gz data files into Qiime</h2>
