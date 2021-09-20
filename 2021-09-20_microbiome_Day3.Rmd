@@ -84,11 +84,16 @@ The features produced by denoising methods are often called “amplicon sequence
 
 Note: the step below is important, big, and takes a long time. Run with a `screen`. Screen is a linux program that allows a long-running task to continue running on a remote machine. See more info [here](https://linuxize.com/post/how-to-use-linux-screen/).
 
-`screen` to initiate the screen session.
+`screen` to initiate the screen session. Once you are within screen, it's like a new terminal session so you will need to re-lauch Qiime2 and re-export the TMPDIR path.
 ```
+conda activate qiime2-2021.8
+
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+echo $TMPDIR
+
 qiime dada2 denoise-paired \
   --i-demultiplexed-seqs demux-paired-end.qza \
-  --p-n-threads 4 \
+  --p-n-threads 1 \
   --p-trim-left-f 16 \
   --p-trim-left-r 0 \
   --p-trunc-len-f 289 \
@@ -99,16 +104,18 @@ qiime dada2 denoise-paired \
   
 ```
 `cntl` + `a` + `d` to detach from a `screen`
+
 `screen -r` to reattach
+
 ### Breakdown of the code above:
 - qiime dada2 denoise-paired \                       # the command
-    - i-demultiplexed-seqs demux-paired-end.qza \    # you input file
-    - p-n-threads 4 \                                # how many threads or cores to use. We have 24 on the server, so each group can use 4 cores
+    - i-demultiplexed-seqs demux-paired-end.qza \    # your input file (CHECK FILENAME)
+    - p-n-threads 1 \                                # how many threads or cores to use. We have 24 on the server, so each person can use 1 core
     - p-trim-left-f 16 \                             # how many base pairs to trim from the left of the forward, then reverse reads
     - p-trim-left-r 0 \
     - p-trunc-len-f 289 \                            # which base pair to truncate to at the end of the forward and then reverse reads
     - p-trunc-len-r 257 \
-    - o-table table.qza \                            # name your output table
+    - o-table table.qza \                            # name your output table (these can be whatever you want! Just keep track)
     - o-representative-sequences rep-seqs.qza \      # name your output representative sequences 
     - o-denoising-stats denoising-stats.qza          # name your stats output file.
 
@@ -130,9 +137,9 @@ qiime metadata tabulate \
 ```
 
 ## 4. How are you keeping track of what you're doing on the server? Let's share on systems and "best practices."
-  Some best practices from a [2015 "Ten Simple Rules" PLoS Comp. Bio. paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385) and more recent and general advice on [Science](https://www.science.org/careers/2019/09/how-keep-lab-notebook) and [NIH](https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf).
-  Use a text editor like [Atom](https://atom.io/) or an R markdown file in R studio.
-  Integrate/post to your github.
+- Some best practices from a [2015 "Ten Simple Rules" PLoS Comp. Bio. paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385) and more recent and general advice on [Science](https://www.science.org/careers/2019/09/how-keep-lab-notebook) and [NIH](https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf).
+- Use a text editor like [Atom](https://atom.io/) or [Typora](https://typora.io/) or [BBEdit](https://www.barebones.com/products/bbedit/) or an R markdown file in R studio.
+- Integrate/post to your github.
 
 ## 5. What questions can we ask/address with these data?
 1.
@@ -179,7 +186,7 @@ qiime diversity core-metrics-phylogenetic \
   --i-phylogeny rooted-tree.qza \
   --i-table table.qza \
   --p-sampling-depth 13000 \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --output-dir core-metrics-results
 ```
 
@@ -188,12 +195,12 @@ Test for associations between categorical metadata columns and alpha diversity d
 ```
 qiime diversity alpha-group-significance \
   --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --o-visualization core-metrics-results/faith-pd-group-significance.qzv
 
 qiime diversity alpha-group-significance \
   --i-alpha-diversity core-metrics-results/evenness_vector.qza \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --o-visualization core-metrics-results/evenness-group-significance.qzv
 ```
 ### Copy the `.qzv` files to your local machine to be able to view the results using [Qiime2view](https://view.qiime2.org/)!

@@ -123,10 +123,15 @@ echo $TMPDIR </code></pre>
 <p>“Denoising” using <a href="https://pubmed.ncbi.nlm.nih.gov/27214047/">DADA2</a> is a method to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences.</p>
 <p>The features produced by denoising methods are often called “amplicon sequence variant” (ASV). Read this <a href="https://www.nature.com/articles/ismej2017119">paper</a> and this <a href="https://www.zymoresearch.com/blogs/blog/microbiome-informatics-otu-vs-asv">blog</a> for a comparison of OTU (operational taxonomic unit) vs. ASV.</p>
 <p>Note: the step below is important, big, and takes a long time. Run with a <code>screen</code>. Screen is a linux program that allows a long-running task to continue running on a remote machine. See more info <a href="https://linuxize.com/post/how-to-use-linux-screen/">here</a>.</p>
-<p><code>screen</code> to initiate the screen session.</p>
-<pre><code>qiime dada2 denoise-paired \
+<p><code>screen</code> to initiate the screen session. Once you are within screen, it’s like a new terminal session so you will need to re-lauch Qiime2 and re-export the TMPDIR path.</p>
+<pre><code>conda activate qiime2-2021.8
+
+export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
+echo $TMPDIR
+
+qiime dada2 denoise-paired \
   --i-demultiplexed-seqs demux-paired-end.qza \
-  --p-n-threads 4 \
+  --p-n-threads 1 \
   --p-trim-left-f 16 \
   --p-trim-left-r 0 \
   --p-trunc-len-f 289 \
@@ -135,9 +140,26 @@ echo $TMPDIR </code></pre>
   --o-representative-sequences rep-seqs.qza \
   --o-denoising-stats denoising-stats.qza
   </code></pre>
-<p><code>cntl</code> + <code>a</code> + <code>d</code> to detach from a <code>screen</code> <code>screen -r</code> to reattach ### Breakdown of the code above: - qiime dada2 denoise-paired   # the command - i-demultiplexed-seqs demux-paired-end.qza   # you input file - p-n-threads 4   # how many threads or cores to use. We have 24 on the server, so each group can use 4 cores - p-trim-left-f 16   # how many base pairs to trim from the left of the forward, then reverse reads - p-trim-left-r 0<br />
-- p-trunc-len-f 289   # which base pair to truncate to at the end of the forward and then reverse reads - p-trunc-len-r 257<br />
-- o-table table.qza   # name your output table - o-representative-sequences rep-seqs.qza   # name your output representative sequences - o-denoising-stats denoising-stats.qza # name your stats output file.</p>
+<p><code>cntl</code> + <code>a</code> + <code>d</code> to detach from a <code>screen</code></p>
+<p><code>screen -r</code> to reattach</p>
+<div id="breakdown-of-the-code-above-1" class="section level3">
+<h3>Breakdown of the code above:</h3>
+<ul>
+<li>qiime dada2 denoise-paired   # the command
+<ul>
+<li>i-demultiplexed-seqs demux-paired-end.qza   # your input file (CHECK FILENAME)</li>
+<li>p-n-threads 1   # how many threads or cores to use. We have 24 on the server, so each person can use 1 core</li>
+<li>p-trim-left-f 16   # how many base pairs to trim from the left of the forward, then reverse reads</li>
+<li>p-trim-left-r 0<br />
+</li>
+<li>p-trunc-len-f 289   # which base pair to truncate to at the end of the forward and then reverse reads</li>
+<li>p-trunc-len-r 257<br />
+</li>
+<li>o-table table.qza   # name your output table (these can be whatever you want! Just keep track)</li>
+<li>o-representative-sequences rep-seqs.qza   # name your output representative sequences</li>
+<li>o-denoising-stats denoising-stats.qza # name your stats output file.</li>
+</ul></li>
+</ul>
 <p>DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. The following code generates summaries of these files.</p>
 <pre><code>qiime feature-table summarize \
   --i-table table.qza \
@@ -152,9 +174,14 @@ qiime metadata tabulate \
   --m-input-file denoising-stats.qza \
   --o-visualization denoising-stats.qzv</code></pre>
 </div>
+</div>
 <div id="how-are-you-keeping-track-of-what-youre-doing-on-the-server-lets-share-on-systems-and-best-practices." class="section level2">
 <h2>4. How are you keeping track of what you’re doing on the server? Let’s share on systems and “best practices.”</h2>
-<p>Some best practices from a <a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385">2015 “Ten Simple Rules” PLoS Comp. Bio. paper</a> and more recent and general advice on <a href="https://www.science.org/careers/2019/09/how-keep-lab-notebook">Science</a> and <a href="https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf">NIH</a>. Use a text editor like <a href="https://atom.io/">Atom</a> or an R markdown file in R studio. Integrate/post to your github.</p>
+<ul>
+<li>Some best practices from a <a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385">2015 “Ten Simple Rules” PLoS Comp. Bio. paper</a> and more recent and general advice on <a href="https://www.science.org/careers/2019/09/how-keep-lab-notebook">Science</a> and <a href="https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf">NIH</a>.</li>
+<li>Use a text editor like <a href="https://atom.io/">Atom</a> or <a href="https://typora.io/">Typora</a> or <a href="https://www.barebones.com/products/bbedit/">BBEdit</a> or an R markdown file in R studio.</li>
+<li>Integrate/post to your github.</li>
+</ul>
 </div>
 <div id="what-questions-can-we-askaddress-with-these-data" class="section level2">
 <h2>5. What questions can we ask/address with these data?</h2>
@@ -204,17 +231,17 @@ qiime metadata tabulate \
   --i-phylogeny rooted-tree.qza \
   --i-table table.qza \
   --p-sampling-depth 13000 \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --output-dir core-metrics-results</code></pre>
 <p>Test for associations between categorical metadata columns and alpha diversity data. We’ll do that here for the Faith Phylogenetic Diversity (a measure of community richness) and evenness metrics.</p>
 <pre><code>qiime diversity alpha-group-significance \
   --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --o-visualization core-metrics-results/faith-pd-group-significance.qzv
 
 qiime diversity alpha-group-significance \
   --i-alpha-diversity core-metrics-results/evenness_vector.qza \
-  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-file pyc_manifest \
   --o-visualization core-metrics-results/evenness-group-significance.qzv</code></pre>
 <div id="copy-the-.qzv-files-to-your-local-machine-to-be-able-to-view-the-results-using-qiime2view" class="section level3">
 <h3>Copy the <code>.qzv</code> files to your local machine to be able to view the results using <a href="https://view.qiime2.org/">Qiime2view</a>!</h3>
