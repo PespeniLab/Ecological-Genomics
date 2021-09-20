@@ -125,7 +125,7 @@ DADA2 makes artifacts containing the feature table, corresponding feature sequen
 qiime feature-table summarize \
   --i-table table.qza \
   --o-visualization table.qzv \
-  --m-sample-metadata-file pyc_subset_manifest
+  --m-sample-metadata-file pyc_manifest
 
 qiime feature-table tabulate-seqs \
   --i-data rep-seqs.qza \
