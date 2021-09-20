@@ -136,6 +136,8 @@ qiime metadata tabulate \
   --o-visualization denoising-stats.qzv
 ```
 
+### Copy the `.qzv` files to your local machine to be able to view the results using [Qiime2view](https://view.qiime2.org/)!
+
 ## 4. How are you keeping track of what you're doing on the server? Let's share on systems and "best practices."
 - Some best practices from a [2015 "Ten Simple Rules" PLoS Comp. Bio. paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385) and more recent and general advice on [Science](https://www.science.org/careers/2019/09/how-keep-lab-notebook) and [NIH](https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf).
 - Use a text editor like [Atom](https://atom.io/) or [Typora](https://typora.io/) or [BBEdit](https://www.barebones.com/products/bbedit/) or an R markdown file in R studio.
