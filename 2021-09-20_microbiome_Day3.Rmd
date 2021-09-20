@@ -1,0 +1,208 @@
+---
+title: "P/BIO381 Tutorials: Working with 16S microbiome data"
+date: 'September 20, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Learning Objectives for today and to be continued over the course of the microbiome module
+
+1. Make sure everyone can run qiime, i.e., wrap up troubleshooting from last coding session ("initiate" conda and changed permissions on `tmptmpdir`).
+2. Import `*.fq.gz` files into the [Qiime2](https://docs.qiime2.org/2021.8/) microbiome analysis package to visualize quality, determine filtering parameters, filter, visualize.
+3. Create the feature table! (this step takes a while, so while it runs we will do the next two steps)
+4. Share on systems for keeping well-annotated code or an electronic lab notebook. (e.g., use a text editor like [Atom](https://atom.io/) or R studio) .
+5. Articulate the questions we can address and hypotheses we can test with this experimental design.
+6. Run analyses test hypotheses about sunflower sea star microbial diversity!
+
+## 1. Let's work in groups of three students to analyze 
+One person can be the navigator, one person can be the note-taker, and one person can be the back-seat driver. And you can rotate positions.
+
+0. Set up your work station. We suggest you have three programs/windows open: 1) terminal or PuTTy, 2) R studio for taking notes, and 3) the tutorial webpage.
+1. Sign in to the server.
+2. Set up conda and qiime2 to work from your server spaces:
+  - ```/data/popgen/miniconda3/bin/conda activate qiime2-2021.8```
+  - ```/data/popgen/miniconda3/bin/conda init bash```
+  - Close terminal/PuTTy
+  - Type ```conda activate qiime2-2021.8``` to see if you conda is working for you to access qiime
+    - Your prompt should look like ```(qiime2-2021.8) [mpespeni@pbio381 16S]$``` if you're in, and no "not found" errors.
+
+## 2. Import the .fq.gz data files into Qiime
+Make the qiime "artifact" .qza file 
+Whenever you start a new terminal session you need to activate qiime with this command:
+```
+conda activate qiime2-2021.8
+```
+First, redirect the temporary directory because the /tmp directory on the server is too small. This file should be filling with the program is running, and empty at the end.
+```
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+echo $TMPDIR 
+```
+
+```
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path /data/project_data/16S/pyc_manifest \
+  --input-format PairedEndFastqManifestPhred33V2 \
+  --output-path demux-paired-end_full.qza
+```
+### Breakdown of the code above
+- qiime tools import \                                            # this is the command for importing data, note the slash means the line or command continues on the next line
+    - type 'SampleData[PairedEndSequencesWithQuality]' \          # this specifies the file type, can list options
+    - input-path /data/project_data/16S/pyc_subset_manifest \     # this provides the path to the input metadata file (CHOOSE WHICH YOU WANT TO USE!)
+    - input-format PairedEndFastqManifestPhred33V2 \              # this specifies the format of the data, can list options
+    - output-path demux-paired-end.qza                            # this names the output file that this command will generate, it can be anything, but you will need to use it for future inputs
+  
+### Generate summary plots on the data quality!
+```
+qiime demux summarize \
+  --i-data demux-paired-end.qza \         
+  --o-visualization demux-pyc-sub.qzv      
+```
+  - i = input file name (FROM PREVIOUS COMMAND!)
+  - o = output file name (can be whatever you want!), you can also specify a different path/directory if you want to keep all your vis .qzv files in a folder of their own.
+  
+Move the visualization file you just generated (*.qzv) file to your local machine/computer to be able to view online at [https://view.qiime2.org/](https://view.qiime2.org/).
+
+From terminal, WinSCP, or Fetch or another file transfer platform on your local machine, you can pull data from the server onto your machine. For example, with scp on another window of terminal or PuTTy:
+```
+scp YOURUSERNAME@pbio381.uvm.edu:~/myresults/*.qzv .
+```
+`scp` is the program "secure copy". There are two inputs needed for scp: a path to the file you want and a location to put it. Note the server address followed by a colon, the use of the wildcard `*` to grab all files that end in `.qzv`, and the `.` means in the present working directory.
+
+### Use [Qiime2view](https://view.qiime2.org/), the web-based viewer, and interactive plots to determine any trimming needed.
+
+### How many base pairs should we trim from the beginning and end of the forward and reverse reads? 4 decisions to be made!
+With decsions made, move on to the next step, a big one! Cleaning, assembling, and making the feature or OTU table!
+
+## 3. Filtering data by quality - Denoise the data with DADA2
+
+"Denoising" using [DADA2](https://pubmed.ncbi.nlm.nih.gov/27214047/) is a method to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences.
+
+The features produced by denoising methods are often called “amplicon sequence variant” (ASV). Read this [paper](https://www.nature.com/articles/ismej2017119) and this [blog](https://www.zymoresearch.com/blogs/blog/microbiome-informatics-otu-vs-asv) for a comparison of OTU (operational taxonomic unit) vs. ASV.
+
+Note: the step below is important, big, and takes a long time. Run with a `screen`. Screen is a linux program that allows a long-running task to continue running on a remote machine. See more info [here](https://linuxize.com/post/how-to-use-linux-screen/).
+
+`screen` to initiate the screen session.
+```
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-paired-end.qza \
+  --p-n-threads 4 \
+  --p-trim-left-f 16 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 289 \
+  --p-trunc-len-r 257 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+  
+```
+`cntl` + `a` + `d` to detach from a `screen`
+`screen -r` to reattach
+### Breakdown of the code above:
+- qiime dada2 denoise-paired \                       # the command
+    - i-demultiplexed-seqs demux-paired-end.qza \    # you input file
+    - p-n-threads 4 \                                # how many threads or cores to use. We have 24 on the server, so each group can use 4 cores
+    - p-trim-left-f 16 \                             # how many base pairs to trim from the left of the forward, then reverse reads
+    - p-trim-left-r 0 \
+    - p-trunc-len-f 289 \                            # which base pair to truncate to at the end of the forward and then reverse reads
+    - p-trunc-len-r 257 \
+    - o-table table.qza \                            # name your output table
+    - o-representative-sequences rep-seqs.qza \      # name your output representative sequences 
+    - o-denoising-stats denoising-stats.qza          # name your stats output file.
+
+DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. The following code generates summaries of these files.
+
+```
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file pyc_subset_manifest
+
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
+
+qiime metadata tabulate \
+  --m-input-file denoising-stats.qza \
+  --o-visualization denoising-stats.qzv
+```
+
+## 4. How are you keeping track of what you're doing on the server? Let's share on systems and "best practices."
+  Some best practices from a [2015 "Ten Simple Rules" PLoS Comp. Bio. paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385) and more recent and general advice on [Science](https://www.science.org/careers/2019/09/how-keep-lab-notebook) and [NIH](https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf).
+  Use a text editor like [Atom](https://atom.io/) or an R markdown file in R studio.
+  Integrate/post to your github.
+
+## 5. What questions can we ask/address with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+## 6. Calculate alpha and beta diversity and more data analyses!
+1. The first step is to **build a phylogentic tree** among all the identified taxa in our samples using `qiime phylogeny align-to-tree-mafft-fasttree`. This step is not visualized, but the output files will be used to calculate diversity metrics.
+
+```
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs.qza \
+  --o-alignment aligned-rep-seqs.qza \
+  --o-masked-alignment masked-aligned-rep-seqs.qza \
+  --o-tree unrooted-tree.qza \
+  --o-rooted-tree rooted-tree.qza
+```
+
+2. **Calculate core diversity metrics:** Qiime2 will calculate a wide range of diversity metrics with one command `qiime diversity core-metrics-phylogenetic`. But we need to make one important decision first - how far down to we want to rarify or subsample our data to set our `--p-sampling-depth`. To make this decision, let's look at the feature counts in the "interactive sample detail" tab of the `table.qzv` using [Qiime2view](https://view.qiime2.org/).
+
+- Alpha diversity - "within-sample" diversity
+  - Shannon’s diversity index (a quantitative measure of community richness)
+  - Observed Features (a qualitative measure of community richness)
+  - Faith’s Phylogenetic Diversity (a qualitiative measure of community richness that **incorporates phylogenetic relationships** between the features)
+  - Evenness (or Pielou’s Evenness; a measure of community evenness)
+  
+  - Test for differences in alpha diversity among groups, correlations with factors.
+
+- Beta diversity - "between-sample" diversity - dissimilarity
+  - Jaccard distance (a qualitative measure of community dissimilarity)
+  - Bray-Curtis distance (a quantitative measure of community dissimilarity)
+  - unweighted UniFrac distance (a qualitative measure of community dissimilarity that incorporates phylogenetic relationships between the features)
+  - weighted UniFrac distance (a quantitative measure of community dissimilarity that incorporates phylogenetic relationships between the features) - *weighted* means it takes into account the abundance of each sequence
+  
+  - Perform beta diversity ordination using PCoA
+  - Test for differences in beta diversity among groups, correlations with factors.
+
+The next command calculates a whole suite of alpha and beta-diversity metrics!
+```
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 13000 \
+  --m-metadata-file pyc_subset_manifest \
+  --output-dir core-metrics-results
+```
+
+Test for associations between categorical metadata columns and alpha diversity data. We’ll do that here for the Faith Phylogenetic Diversity (a measure of community richness) and evenness metrics.
+
+```
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/evenness_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/evenness-group-significance.qzv
+```
+### Copy the `.qzv` files to your local machine to be able to view the results using [Qiime2view](https://view.qiime2.org/)!
+
+For more ideas and 'how tos', there are excellent tutorials that can be found [here (more general)](https://docs.qiime2.org/2021.8/tutorials/moving-pictures/) and [here (with example data)](https://docs.qiime2.org/2021.8/tutorials/atacama-soils/).
+ 
+3. **Assign taxonomies** - who's there?
+
+4. **Test for differential abundance** using ANCOM or gneiss
+
+5. **Export and make pretty plots in R using ggplot2**
+
