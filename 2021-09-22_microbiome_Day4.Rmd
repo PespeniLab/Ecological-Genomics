@@ -7,7 +7,7 @@ output:
 fontsize: 18pt
 ---
 
-### Learning Objectives for today and to be continued over the course of the microbiome module
+### Learning Objectives for today!
 
 0. Make sure everyone was able to create the feature table. 
 1. Share on systems for keeping well-annotated code or an electronic lab notebook.
