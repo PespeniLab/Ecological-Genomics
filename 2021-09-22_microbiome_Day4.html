@@ -12,8 +12,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
+<meta name="date" content="2021-09-22" />
 
-<title>Tutorials and Scripts</title>
+<title>P/BIO381 Tutorials: Working with 16S microbiome data</title>
 
 
 
@@ -35,20 +36,198 @@
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">P/BIO381 Tutorials: Working with 16S microbiome data</h1>
+<h4 class="date project-date">September 22, 2021</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<p><strong>List of Tutorials and scripts</strong></p>
-<ol style="list-style-type: decimal">
-<li>2021-09-13: <a href="2021-09-13_microbiome_Day1.html">Microbiome tutorial day one</a></li>
-<li>2021-09-15: <a href="2021-09-15_microbiome_Day2.html">Microbiome tutorial day two</a></li>
-<li>2021-09-20: <a href="2021-09-20_microbiome_Day3.html">Microbiome tutorial day three</a></li>
-<li>2021-09-22: <a href="2021-09-22_microbiome_Day4.html">Microbiome tutorial day four</a></li>
+<div id="learning-objectives-for-today-and-to-be-continued-over-the-course-of-the-microbiome-module" class="section level3">
+<h3>Learning Objectives for today and to be continued over the course of the microbiome module</h3>
+<ol start="0" style="list-style-type: decimal">
+<li>Make sure everyone was able to create the feature table.</li>
+<li>Share on systems for keeping well-annotated code or an electronic lab notebook.</li>
+<li>Articulate the questions we can address and hypotheses we can test with this experimental design.</li>
+<li>Run analyses, explore the data, and test hypotheses about sunflower sea star microbial diversity!</li>
 </ol>
+</div>
+<div id="run-dada2---filter-and-denoise-data-create-feature-table." class="section level2">
+<h2>0. Run DADA2 - Filter and denoise data, create feature table.</h2>
+<p>“Denoising” using <a href="https://pubmed.ncbi.nlm.nih.gov/27214047/">DADA2</a> is a method to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences.</p>
+<p>The features produced by denoising methods are often called “amplicon sequence variant” (ASV). Read this <a href="https://www.nature.com/articles/ismej2017119">paper</a> and this <a href="https://www.zymoresearch.com/blogs/blog/microbiome-informatics-otu-vs-asv">blog</a> for a comparison of OTU (operational taxonomic unit) vs. ASV.</p>
+<p>Note: the step below is important, big, and takes a long time. Run with a <code>screen</code>. Screen is a linux program that allows a long-running task to continue running on a remote machine. See more info <a href="https://linuxize.com/post/how-to-use-linux-screen/">here</a>.</p>
+<p><code>screen</code> to initiate the screen session. Once you are within screen, it’s like a new terminal session so you will need to re-lauch Qiime2 and re-export the TMPDIR path.</p>
+<pre><code>conda activate qiime2-2021.8
+
+export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
+echo $TMPDIR
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-paired-end.qza \
+  --p-n-threads 1 \
+  --p-trim-left-f 16 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 289 \
+  --p-trunc-len-r 257 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+  </code></pre>
+<p><code>cntl</code> + <code>a</code> + <code>d</code> to detach from a <code>screen</code></p>
+<p><code>screen -r</code> to reattach</p>
+<div id="breakdown-of-the-code-above" class="section level3">
+<h3>Breakdown of the code above:</h3>
+<ul>
+<li>qiime dada2 denoise-paired   # the command
+<ul>
+<li>i-demultiplexed-seqs demux-paired-end.qza   # your input file (CHECK FILENAME)</li>
+<li>p-n-threads 1   # how many threads or cores to use. We have 24 on the server, so each person can use 1 core</li>
+<li>p-trim-left-f 16   # how many base pairs to trim from the left of the forward, then reverse reads</li>
+<li>p-trim-left-r 0<br />
+</li>
+<li>p-trunc-len-f 289   # which base pair to truncate to at the end of the forward and then reverse reads</li>
+<li>p-trunc-len-r 257<br />
+</li>
+<li>o-table table.qza   # name your output table (these can be whatever you want! Just keep track)</li>
+<li>o-representative-sequences rep-seqs.qza   # name your output representative sequences</li>
+<li>o-denoising-stats denoising-stats.qza # name your stats output file.</li>
+</ul></li>
+</ul>
+<p>DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. The following code generates summaries of these files.</p>
+<p>Let’s try writing a script (here, simply a file with a series of commands) to carry out the commands sequentially.</p>
+<p>Open and name your script, e.g.: <code>dada_vis.sh</code></p>
+<pre><code>#!/bin/bash      # tells the computer which language to use
+
+cd ~/myresults   # navigate to where qiime will be able to find the input files below
+
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file pyc_manifest
+
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
+
+qiime metadata tabulate \
+  --m-input-file denoising-stats.qza \
+  --o-visualization denoising-stats.qzv</code></pre>
+</div>
+<div id="copy-the-.qzv-files-to-your-local-machine-to-be-able-to-view-the-results-using-qiime2view" class="section level3">
+<h3>Copy the <code>.qzv</code> files to your local machine to be able to view the results using <a href="https://view.qiime2.org/">Qiime2view</a>!</h3>
+</div>
+</div>
+<div id="how-are-you-keeping-track-of-what-youre-doing-on-the-server-lets-share-on-systems-and-best-practices." class="section level2">
+<h2>1. How are you keeping track of what you’re doing on the server? Let’s share on systems and “best practices.”</h2>
+<ul>
+<li>Some best practices from a <a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385">2015 “Ten Simple Rules” PLoS Comp. Bio. paper</a> and more recent and general advice on <a href="https://www.science.org/careers/2019/09/how-keep-lab-notebook">Science</a> and <a href="https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf">NIH</a>.</li>
+<li>Use a text editor like <a href="https://atom.io/">Atom</a> or <a href="https://typora.io/">Typora</a> or <a href="https://www.barebones.com/products/bbedit/">BBEdit</a> or an R markdown file in R studio.</li>
+<li>Integrate/post to your github.</li>
+</ul>
+</div>
+<div id="what-questions-can-we-askaddress-with-these-data" class="section level2">
+<h2>2. What questions can we ask/address with these data?</h2>
+<ol style="list-style-type: decimal">
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li>…</li>
+</ol>
+</div>
+<div id="calculate-alpha-and-beta-diversity-and-more-data-analyses" class="section level2">
+<h2>3. Calculate alpha and beta diversity and more data analyses!</h2>
+<ol style="list-style-type: decimal">
+<li>The first step is to <strong>build a phylogentic tree</strong> among all the identified taxa in our samples using <code>qiime phylogeny align-to-tree-mafft-fasttree</code>. This step is not visualized, but the output files will be used to calculate diversity metrics.</li>
+</ol>
+<pre><code>qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs.qza \
+  --o-alignment aligned-rep-seqs.qza \
+  --o-masked-alignment masked-aligned-rep-seqs.qza \
+  --o-tree unrooted-tree.qza \
+  --o-rooted-tree rooted-tree.qza</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Calculate core diversity metrics:</strong> Qiime2 will calculate a wide range of diversity metrics with one command <code>qiime diversity core-metrics-phylogenetic</code>.</li>
+</ol>
+<ul>
+<li><strong>But… we need to make one important decision first</strong> - how far down to we want to rarify or subsample our data to set our <code>--p-sampling-depth</code>.</li>
+<li>To make this decision, let’s look at the feature counts in the “interactive sample detail” tab of the <code>table.qzv</code> using <a href="https://view.qiime2.org/">Qiime2view</a>.
+<ul>
+<li>At what depth would we start loosing samples? Play with changing the “Metadata category” and drag the “Sampling Depth” bar to see when samples drop off.</li>
+</ul></li>
+</ul>
+<div id="descriptions-of-diversity-metrics-calculated" class="section level3">
+<h3>Descriptions of diversity metrics calculated:</h3>
+<ul>
+<li>Alpha diversity - “within-sample” diversity
+<ul>
+<li>Shannon’s diversity index (a quantitative measure of community richness)</li>
+<li>Observed Features (a qualitative measure of community richness)</li>
+<li>Faith’s Phylogenetic Diversity (a qualitiative measure of community richness that <strong>incorporates phylogenetic relationships</strong> between the features)</li>
+<li><p>Evenness (or Pielou’s Evenness; a measure of community evenness)</p></li>
+<li><p>Test for differences in alpha diversity among groups, correlations with factors.</p></li>
+</ul></li>
+<li>Beta diversity - “between-sample” diversity - dissimilarity
+<ul>
+<li>Jaccard distance (a qualitative measure of community dissimilarity)</li>
+<li>Bray-Curtis distance (a quantitative measure of community dissimilarity)</li>
+<li>unweighted UniFrac distance (a qualitative measure of community dissimilarity that incorporates phylogenetic relationships between the features)</li>
+<li><p>weighted UniFrac distance (a quantitative measure of community dissimilarity that incorporates phylogenetic relationships between the features) - <em>weighted</em> means it takes into account the abundance of each sequence</p></li>
+<li>Perform beta diversity ordination using PCoA</li>
+<li><p>Test for differences in beta diversity among groups, correlations with factors.</p></li>
+</ul></li>
+</ul>
+<p>The next command calculates a whole suite of alpha and beta-diversity metrics!</p>
+<pre><code>qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 13000 \
+  --m-metadata-file pyc_manifest \
+  --output-dir core-metrics-results</code></pre>
+<p>An additional beta-diversity statistic that would be worth exploring is the Generalized UniFrac.</p>
+<p>Test for associations between categorical metadata columns and alpha diversity data. We’ll do that here for the Faith Phylogenetic Diversity (a measure of community richness) and evenness metrics.</p>
+<pre><code>qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/evenness_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/evenness-group-significance.qzv</code></pre>
+<p>Test for differences in beta diversity between groups:</p>
+<pre><code>qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-column site-animal-health \
+  --o-visualization core-metrics-results/weighted-unifrac-site-animal-health-significance.qzv \
+  --p-pairwise
+
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-column site-status \
+  --o-visualization core-metrics-results/weighted-unifrac-site-status-group-significance.qzv \
+  --p-pairwise</code></pre>
+<p>Let’s make an Alpha diversity rarefaction plot! Did we over do the sequencing effort?</p>
+<pre><code>qiime diversity alpha-rarefaction \
+  --i-table table.qza \
+  --i-phylogeny rooted-tree.qza \
+  --p-max-depth 100000 \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization alpha-rarefaction.qzv</code></pre>
+</div>
+<div id="copy-the-.qzv-files-to-your-local-machine-to-be-able-to-view-the-results-using-qiime2view-1" class="section level3">
+<h3>Copy the <code>.qzv</code> files to your local machine to be able to view the results using <a href="https://view.qiime2.org/">Qiime2view</a>!</h3>
+<p>For more ideas and ‘how tos’, there are excellent tutorials that can be found <a href="https://docs.qiime2.org/2021.8/tutorials/moving-pictures/">here (more general)</a> and <a href="https://docs.qiime2.org/2021.8/tutorials/atacama-soils/">here (with example data)</a>.</p>
+<ol start="3" style="list-style-type: decimal">
+<li><p><strong>Assign taxonomies</strong> - who’s there?</p></li>
+<li><p><strong>Test for differential abundance</strong> using ANCOM or gneiss</p></li>
+<li><p><strong>Export and make pretty plots in R using ggplot2</strong></p></li>
+</ol>
+</div>
+</div>
 </section>
 
 

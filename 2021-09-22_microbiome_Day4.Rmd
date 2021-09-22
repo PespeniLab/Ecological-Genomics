@@ -1,0 +1,197 @@
+---
+title: "P/BIO381 Tutorials: Working with 16S microbiome data"
+date: 'September 22, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Learning Objectives for today and to be continued over the course of the microbiome module
+
+0. Make sure everyone was able to create the feature table. 
+1. Share on systems for keeping well-annotated code or an electronic lab notebook.
+2. Articulate the questions we can address and hypotheses we can test with this experimental design.
+3. Run analyses, explore the data, and test hypotheses about sunflower sea star microbial diversity!
+
+## 0. Run DADA2 - Filter and denoise data, create feature table.
+
+"Denoising" using [DADA2](https://pubmed.ncbi.nlm.nih.gov/27214047/) is a method to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences.
+
+The features produced by denoising methods are often called “amplicon sequence variant” (ASV). Read this [paper](https://www.nature.com/articles/ismej2017119) and this [blog](https://www.zymoresearch.com/blogs/blog/microbiome-informatics-otu-vs-asv) for a comparison of OTU (operational taxonomic unit) vs. ASV.
+
+Note: the step below is important, big, and takes a long time. Run with a `screen`. Screen is a linux program that allows a long-running task to continue running on a remote machine. See more info [here](https://linuxize.com/post/how-to-use-linux-screen/).
+
+`screen` to initiate the screen session. Once you are within screen, it's like a new terminal session so you will need to re-lauch Qiime2 and re-export the TMPDIR path.
+```
+conda activate qiime2-2021.8
+
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+echo $TMPDIR
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-paired-end.qza \
+  --p-n-threads 1 \
+  --p-trim-left-f 16 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 289 \
+  --p-trunc-len-r 257 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+  
+```
+`cntl` + `a` + `d` to detach from a `screen`
+
+`screen -r` to reattach
+
+### Breakdown of the code above:
+- qiime dada2 denoise-paired \                       # the command
+    - i-demultiplexed-seqs demux-paired-end.qza \    # your input file (CHECK FILENAME)
+    - p-n-threads 1 \                                # how many threads or cores to use. We have 24 on the server, so each person can use 1 core
+    - p-trim-left-f 16 \                             # how many base pairs to trim from the left of the forward, then reverse reads
+    - p-trim-left-r 0 \
+    - p-trunc-len-f 289 \                            # which base pair to truncate to at the end of the forward and then reverse reads
+    - p-trunc-len-r 257 \
+    - o-table table.qza \                            # name your output table (these can be whatever you want! Just keep track)
+    - o-representative-sequences rep-seqs.qza \      # name your output representative sequences 
+    - o-denoising-stats denoising-stats.qza          # name your stats output file.
+
+DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. The following code generates summaries of these files.
+
+Let's try writing a script (here, simply a file with a series of commands) to carry out the commands sequentially.
+
+Open and name your script, e.g.: `dada_vis.sh`
+
+```
+#!/bin/bash      # tells the computer which language to use
+
+cd ~/myresults   # navigate to where qiime will be able to find the input files below
+
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file pyc_manifest
+
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
+
+qiime metadata tabulate \
+  --m-input-file denoising-stats.qza \
+  --o-visualization denoising-stats.qzv
+```
+
+### Copy the `.qzv` files to your local machine to be able to view the results using [Qiime2view](https://view.qiime2.org/)!
+
+## 1. How are you keeping track of what you're doing on the server? Let's share on systems and "best practices."
+- Some best practices from a [2015 "Ten Simple Rules" PLoS Comp. Bio. paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004385) and more recent and general advice on [Science](https://www.science.org/careers/2019/09/how-keep-lab-notebook) and [NIH](https://www.training.nih.gov/assets/Lab_Notebook_508_(new).pdf).
+- Use a text editor like [Atom](https://atom.io/) or [Typora](https://typora.io/) or [BBEdit](https://www.barebones.com/products/bbedit/) or an R markdown file in R studio.
+- Integrate/post to your github.
+
+## 2. What questions can we ask/address with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+## 3. Calculate alpha and beta diversity and more data analyses!
+1. The first step is to **build a phylogentic tree** among all the identified taxa in our samples using `qiime phylogeny align-to-tree-mafft-fasttree`. This step is not visualized, but the output files will be used to calculate diversity metrics.
+
+```
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs.qza \
+  --o-alignment aligned-rep-seqs.qza \
+  --o-masked-alignment masked-aligned-rep-seqs.qza \
+  --o-tree unrooted-tree.qza \
+  --o-rooted-tree rooted-tree.qza
+```
+
+2. **Calculate core diversity metrics:** Qiime2 will calculate a wide range of diversity metrics with one command `qiime diversity core-metrics-phylogenetic`. 
+- **But... we need to make one important decision first** - how far down to we want to rarify or subsample our data to set our `--p-sampling-depth`. 
+- To make this decision, let's look at the feature counts in the "interactive sample detail" tab of the `table.qzv` using [Qiime2view](https://view.qiime2.org/).
+  - At what depth would we start loosing samples? Play with changing the "Metadata category" and drag the "Sampling Depth" bar to see when samples drop off.
+
+### Descriptions of diversity metrics calculated:
+- Alpha diversity - "within-sample" diversity
+  - Shannon’s diversity index (a quantitative measure of community richness)
+  - Observed Features (a qualitative measure of community richness)
+  - Faith’s Phylogenetic Diversity (a qualitiative measure of community richness that **incorporates phylogenetic relationships** between the features)
+  - Evenness (or Pielou’s Evenness; a measure of community evenness)
+  
+  - Test for differences in alpha diversity among groups, correlations with factors.
+
+- Beta diversity - "between-sample" diversity - dissimilarity
+  - Jaccard distance (a qualitative measure of community dissimilarity)
+  - Bray-Curtis distance (a quantitative measure of community dissimilarity)
+  - unweighted UniFrac distance (a qualitative measure of community dissimilarity that incorporates phylogenetic relationships between the features)
+  - weighted UniFrac distance (a quantitative measure of community dissimilarity that incorporates phylogenetic relationships between the features) - *weighted* means it takes into account the abundance of each sequence
+  
+  - Perform beta diversity ordination using PCoA
+  - Test for differences in beta diversity among groups, correlations with factors.
+
+The next command calculates a whole suite of alpha and beta-diversity metrics!
+```
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 13000 \
+  --m-metadata-file pyc_manifest \
+  --output-dir core-metrics-results
+```
+An additional beta-diversity statistic that would be worth exploring is the Generalized UniFrac.
+
+Test for associations between categorical metadata columns and alpha diversity data. We’ll do that here for the Faith Phylogenetic Diversity (a measure of community richness) and evenness metrics.
+
+```
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/evenness_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/evenness-group-significance.qzv
+```
+
+Test for differences in beta diversity between groups:
+```
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-column site-animal-health \
+  --o-visualization core-metrics-results/weighted-unifrac-site-animal-health-significance.qzv \
+  --p-pairwise
+
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-column site-status \
+  --o-visualization core-metrics-results/weighted-unifrac-site-status-group-significance.qzv \
+  --p-pairwise
+```
+
+Let's make an Alpha diversity rarefaction plot! Did we over do the sequencing effort?
+
+```
+qiime diversity alpha-rarefaction \
+  --i-table table.qza \
+  --i-phylogeny rooted-tree.qza \
+  --p-max-depth 100000 \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization alpha-rarefaction.qzv
+```
+
+### Copy the `.qzv` files to your local machine to be able to view the results using [Qiime2view](https://view.qiime2.org/)!
+
+For more ideas and 'how tos', there are excellent tutorials that can be found [here (more general)](https://docs.qiime2.org/2021.8/tutorials/moving-pictures/) and [here (with example data)](https://docs.qiime2.org/2021.8/tutorials/atacama-soils/).
+ 
+3. **Assign taxonomies** - who's there?
+
+4. **Test for differential abundance** using ANCOM or gneiss
+
+5. **Export and make pretty plots in R using ggplot2**
+
