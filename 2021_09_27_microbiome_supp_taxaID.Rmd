@@ -67,7 +67,7 @@ qiime feature-classifier fit-classifier-naive-bayes \
   --o-classifier classifier.qza
 ``` 
 
-# Test the classifier
+# Test the classifier -START HERE WHEN USING A DIFFERENT SUBSET OF THE DATA
 Now we verify that the classifier worked by classifying our representative sequences from our sunflower data and visualizing the resulting taxonomic assignments.
 ```
 cd DIRECTORYWHEREYOUWANT/TO/RUN
