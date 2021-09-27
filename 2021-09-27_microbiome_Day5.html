@@ -79,9 +79,11 @@
 <p>At this point ANCOM-BC isn’t natively installed with Qiime2, but I did follow a Qiime developer’s installation instructions on <a href="https://github.com/mortonjt/q2-ancombc">github</a>. For directions on running ANCOMBC from within R, see brief tutorial <a href="https://rdrr.io/github/FrederickHuangLin/ANCOMBC/man/ancombc.html">here</a>. On our class server, you should not need to redo the installation.</p>
 <div id="heres-code-for-using-ancom-to-test-for-differences-in-abundance." class="section level3">
 <h3>Here’s code for using <code>ancom</code> to test for differences in abundance.</h3>
-<p>It seems to take a long time, so start a screen!</p>
+<p>The ancom function seems to take a long time, so start a screen!</p>
 <pre><code>screen
 cd /data/project_data/16S/mprun/taxa
+conda activate qiime2-2021.8
+export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
 
 qiime composition add-pseudocount \
   --i-table /data/project_data/16S/mprun/table.qza \
@@ -94,7 +96,7 @@ qiime composition ancom \
   --o-visualization ancom-site-animal-health.qzv </code></pre>
 </div>
 <div id="heres-code-for-using-gneiss-to-test-for-differences-in-abundance." class="section level3">
-<h3>Here’s code for using gneiss to test for differences in abundance.</h3>
+<h3>Here’s code for using <code>gneiss</code> to test for differences in abundance.</h3>
 <pre><code>qiime gneiss correlation-clustering \
   --i-table table.qza \
   --o-clustering gneiss_corr_clust_hierarchy.qza</code></pre>

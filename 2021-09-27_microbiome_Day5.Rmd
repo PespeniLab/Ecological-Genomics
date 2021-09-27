@@ -45,11 +45,13 @@ Alternatively, the data can be exported and analyzed in other programs, such as 
 At this point ANCOM-BC isn't natively installed with Qiime2, but I did follow a Qiime developer's installation instructions on [github](https://github.com/mortonjt/q2-ancombc). For directions on running ANCOMBC from within R, see brief tutorial [here](https://rdrr.io/github/FrederickHuangLin/ANCOMBC/man/ancombc.html). On our class server, you should not need to redo the installation.
 
 ### Here's code for using `ancom` to test for differences in abundance.
-It seems to take a long time, so start a screen!
+The ancom function seems to take a long time, so start a screen!
 
 ```
 screen
 cd /data/project_data/16S/mprun/taxa
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
 
 qiime composition add-pseudocount \
   --i-table /data/project_data/16S/mprun/table.qza \
@@ -62,7 +64,7 @@ qiime composition ancom \
   --o-visualization ancom-site-animal-health.qzv 
 ```
   
-### Here's code for using gneiss to test for differences in abundance.
+### Here's code for using `gneiss` to test for differences in abundance.
 ```
 qiime gneiss correlation-clustering \
   --i-table table.qza \
