@@ -1,0 +1,81 @@
+---
+title: "Identify taxonomic groups"
+date: 'September 27, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+## Training feature classifiers with q2-feature-classifier
+The work below is based on the Qiime tutorial [here](https://docs.qiime2.org/2021.8/tutorials/feature-classifier/).
+
+### Obtaining and importing reference data sets
+```
+mkdir training-feature-classifiers
+cd training-feature-classifiers
+wget ftp://greengenes.microbio.me/greengenes_release/gg_13_5/gg_13_8_otus.tar.gz
+gunzip gg_13_8_otus.tar.gz
+tar -xvf gg_13_8_otus.tar
+```
+The files needed are 1) the fasta in `rep_sep` directory, the file with reference sequences clustered at 99% sequence similarity and 2) the corresponding taxonomy file in the `taxonomy` directory
+`/data/project_data/16S/training-feature-classifiers/gg_13_8_otus/rep_set/99_otus.fasta`
+
+`/data/project_data/16S/training-feature-classifiers/gg_13_8_otus/taxonomy/99_otu_taxonomy.txt`
+
+Import into qiime artifact:
+```
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+
+qiime tools import \
+  --type 'FeatureData[Sequence]' \
+  --input-path /data/project_data/16S/training-feature-classifiers/gg_13_8_otus/rep_set/99_otus.fasta \
+  --output-path /data/project_data/16S/training-feature-classifiers/99_otus.qza
+
+qiime tools import \
+  --type 'FeatureData[Taxonomy]' \
+  --input-format HeaderlessTSVTaxonomyFormat \
+  --input-path /data/project_data/16S/training-feature-classifiers/gg_13_8_otus/taxonomy/99_otu_taxonomy.txt \
+  --output-path /data/project_data/16S/training-feature-classifiers/ref-taxonomy.qza
+```
+
+The V3–V4 region was amplified using the S-D-Bact-0341-b-S-17 (5′- 3')
+CCTACGGGNGGCWGCAG
+
+and S-D-Bact-0785-a-A-21 (5′-3')
+GACTACHVGGGTATCTAATCC
+
+```
+qiime feature-classifier extract-reads \
+  --i-sequences 99_otus.qza \
+  --p-f-primer CCTACGGGNGGCWGCAG \
+  --p-r-primer GACTACHVGGGTATCTAATCC \
+  --p-min-length 100 \
+  --p-max-length 500 \
+  --o-reads ref-seqs.qza
+  ```
+  
+Removed `--p-trunc-len` command as it's not appropriate for the variable lengths of paired-end, joined reads. Set `--p-max-length` based on amplicon size of ~465 base pairs so that no off-target larger regions are identified and `p-min-length` to include smaller trimmed fragments that may offer taxonomic resolution.
+  
+# Train the classifier
+Now we can train a Naive Bayes classifier by using the reference reads and taxonomy that we just created.
+```
+qiime feature-classifier fit-classifier-naive-bayes \
+  --i-reference-reads ref-seqs.qza \
+  --i-reference-taxonomy ref-taxonomy.qza \
+  --o-classifier classifier.qza
+``` 
+
+# Test the classifier
+Now we verify that the classifier worked by classifying our representative sequences from our sunflower data and visualizing the resulting taxonomic assignments.
+```
+qiime feature-classifier classify-sklearn \
+  --i-classifier classifier.qza \
+  --i-reads /data/project_data/16S/mprun/rep-seqs.qza \
+  --o-classification taxonomy.qza
+
+qiime metadata tabulate \
+  --m-input-file taxonomy.qza \
+  --o-visualization taxonomy.qzv 
+```

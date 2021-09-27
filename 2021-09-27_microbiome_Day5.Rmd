@@ -1,0 +1,103 @@
+---
+title: "P/BIO381 Tutorials: Working with 16S microbiome data"
+date: 'September 27, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Learning Objectives for today!
+
+1. Make sure everyone was able to create the feature table and run the core diversity statistics. 
+2. Review additional analyses you can run in Qiime to test for differences in abundance of taxonomic groups.
+3. Review Homework Assignment #1!
+
+## 1. Catch up or troubleshooting of DADA2, diversity calculations, and testing for significant differences in diversity.
+See the [Day 4 tutorial](2021-09-22_microbiome_Day4.html) for details!
+
+## 2. Who's there?! Testing for differential abundances of specific taxa between groups.
+We've just started to have fun with our alpha and beta diversity plots and tests for differences in these diversity metrics between groups. However, one of the greatest opportunities with 16S data is the ability to test for differences in abundances of _specific_ taxa among our groups. It's also really tricky because of all of our estimates of "abundance" are relative to the amount of sequences per sample! There are a number of statistical methods that attempt to surmount this challenge that we'll review below. 
+
+Before getting to test for differences in abundance, we need to associate our features with bactrial taxa. We do this using a database of identified taxa and sequency homology. We use the Greengenes 16S database clustered at 99% sequence similarity for our project. We trim the database based on our amplified region, V3-V4. Then we run the classifier to make the `taxonomy.qza` file!
+
+These steps only need to be done once and I have carried out the steps and documented the work [here](2021_09_27_microbiome_supp_taxaID.html). However, the steps may need to be repeated using your table.qza and metadata files (i.e., you may have more taxa identified with the full rather than subset dataset).
+
+## Make bar plots of taxa!
+Now we can view the taxonomic composition of our samples by making interactive bar plots! Make the .qzv file as shown below, then move it to your local machine to open the file in Qiime2view (scp, WinSCP, or Fetch).
+```
+qiime taxa barplot \
+  --i-table /data/project_data/16S/mprun/table.qza \
+  --i-taxonomy /data/project_data/16S/training-feature-classifiers/taxonomy.qza \
+  --m-metadata-file /data/project_data/16S/mprun/pyc_subset_manifest \
+  --o-visualization /data/project_data/16S/mprun/taxa/taxa-bar-plots.qzv
+```
+
+Now we can choose what taxonomic level to show - let's start with Level 6, genus, for this study, and sort the samples by the metadata of interest! What do you notice?!
+
+# Test for differences in abundance
+Testing for differences in the abundance of taxa in microbiome data is tricky because microbiome data is all ***relative**; recall the rareifying that we did to "normalize" our data based on the sequencing effort (i.e., amount of data generated per sample). There are two main ways that Qiime has built in to test for differences that take into account this challenge, ANCOM and gneiss. 
+
+ANCOM stands for [Analysis of composition of microbiomes](https://pubmed.ncbi.nlm.nih.gov/26028277/). A Qiime tutorial warns that ANCOM assumes <25% of the taxa are changing in abundance. We could expect more than 25% of our taxa to be changing between sample groups. However, [a recent review](https://www.nature.com/articles/s41522-020-00160-w) compares many different normalization and differential abundance analysis programs. This review/analysis finds ANCOM and ANCOM-BC among the best performing in terms of False Discovery Rate (FDR), power, and confidence intervals. I have ANCOM-BC installed on Qiime on our server, but I'm still troubleshooting getting it to run models to test for differences in abundance.
+
+Alternatively, the data can be exported and analyzed in other programs, such as DESeq2 as we did in the Lloyd and Pespeni 2018 paper. DESeq2 was designed for analyzing RNAseq gene expression data and assumes the data have a negative binomial distribution where the variance is greater than the mean, which is true for gene expression data, but not usually true for microbiome composition data [Lin & Peddada](https://www.nature.com/articles/s41522-020-00160-w). 
+
+At this point ANCOM-BC isn't natively installed with Qiime2, but I did follow a Qiime developer's installation instructions on [github](https://github.com/mortonjt/q2-ancombc). For directions on running ANCOMBC from within R, see brief tutorial [here](https://rdrr.io/github/FrederickHuangLin/ANCOMBC/man/ancombc.html). On our class server, you should not need to redo the installation.
+
+Below is code for testing for differences in taxonomic abundances based on "site-animal-health", but it's still giving errors.
+```
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+
+qiime ancombc ancombc \
+    --i-table /data/project_data/16S/mprun/table.qza \
+    --m-metadata-file /data/project_data/16S/pyc_subset_manifest_ancombc \
+    --p-formula "site-animal-health" \
+    --o-differentials ancombc_differentials_an-health.qza
+    
+qiime metadata tabulate \
+ --i-input-file differentials.qza 
+ --i-input-file taxonomy.qza \
+ --o-visualization differentials.qzv
+```
+### Here's code for using `ancom` to test for differences in abundance.
+It seems to take a long time, so start a screen!
+
+```
+screen
+cd /data/project_data/16S/mprun/taxa
+
+qiime composition add-pseudocount \
+  --i-table /data/project_data/16S/mprun/table.qza \
+  --o-composition-table comp-table.qza
+ 
+qiime composition ancom \
+  --i-table comp-table.qza \
+  --m-metadata-file /data/project_data/16S/pyc_subset_manifest \
+  --m-metadata-column site-animal-health \
+  --o-visualization ancom-site-animal-health.qzv 
+```
+  
+### Here's code for using gneiss to test for differences in abundance.
+```
+qiime gneiss correlation-clustering \
+  --i-table table.qza \
+  --o-clustering gneiss_corr_clust_hierarchy.qza
+```
+To visualize the above clustering, choose a factor from our metadata table 
+```
+qiime gneiss dendrogram-heatmap \
+  --i-table table.qza \
+  --i-tree gneiss_corr_clust_hierarchy.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --m-metadata-column site-animal-health \
+  --p-color-map seismic \
+  --o-visualization heatmap.qzv
+```
+
+## Filtering the data/samples to run other analyses or test specific hypotheses
+View the [filtering tutorial on the Qiime2 website](https://docs.qiime2.org/2021.8/tutorials/filtering/). For example see the filtering based on metadata section; there are many ways that the data can be filtered or subset explored in the Qiime tutorial.
+
+## Move data into R for better plotting
+Here's [a package and tutorial for linking Qiime and R](https://forum.qiime2.org/t/tutorial-integrating-qiime2-and-r-for-data-visualization-and-analysis-using-qiime2r/4121).
+There are other methods, too; e.g., one by one downloading from each .qzv of interest.
