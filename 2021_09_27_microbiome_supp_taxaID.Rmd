@@ -70,9 +70,14 @@ qiime feature-classifier fit-classifier-naive-bayes \
 # Test the classifier
 Now we verify that the classifier worked by classifying our representative sequences from our sunflower data and visualizing the resulting taxonomic assignments.
 ```
+cd DIRECTORYWHEREYOUWANT/TO/RUN
+
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+
 qiime feature-classifier classify-sklearn \
-  --i-classifier classifier.qza \
-  --i-reads /data/project_data/16S/mprun/rep-seqs.qza \
+  --i-classifier /data/project_data/16S/training-feature-classifiers/classifier.qza \
+  --i-reads ~/myresults/PATHTOYOURFILE/rep-seqs.qza \
   --o-classification taxonomy.qza
 
 qiime metadata tabulate \

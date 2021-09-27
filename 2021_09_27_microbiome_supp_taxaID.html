@@ -92,9 +92,14 @@ qiime tools import \
 <div id="test-the-classifier" class="section level1">
 <h1>Test the classifier</h1>
 <p>Now we verify that the classifier worked by classifying our representative sequences from our sunflower data and visualizing the resulting taxonomic assignments.</p>
-<pre><code>qiime feature-classifier classify-sklearn \
-  --i-classifier classifier.qza \
-  --i-reads /data/project_data/16S/mprun/rep-seqs.qza \
+<pre><code>cd DIRECTORYWHEREYOUWANT/TO/RUN
+
+conda activate qiime2-2021.8
+export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
+
+qiime feature-classifier classify-sklearn \
+  --i-classifier /data/project_data/16S/training-feature-classifiers/classifier.qza \
+  --i-reads ~/myresults/PATHTOYOURFILE/rep-seqs.qza \
   --o-classification taxonomy.qza
 
 qiime metadata tabulate \
