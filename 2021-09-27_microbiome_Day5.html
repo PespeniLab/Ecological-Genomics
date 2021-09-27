@@ -77,20 +77,6 @@
 <p>ANCOM stands for <a href="https://pubmed.ncbi.nlm.nih.gov/26028277/">Analysis of composition of microbiomes</a>. A Qiime tutorial warns that ANCOM assumes &lt;25% of the taxa are changing in abundance. We could expect more than 25% of our taxa to be changing between sample groups. However, <a href="https://www.nature.com/articles/s41522-020-00160-w">a recent review</a> compares many different normalization and differential abundance analysis programs. This review/analysis finds ANCOM and ANCOM-BC among the best performing in terms of False Discovery Rate (FDR), power, and confidence intervals. I have ANCOM-BC installed on Qiime on our server, but I’m still troubleshooting getting it to run models to test for differences in abundance.</p>
 <p>Alternatively, the data can be exported and analyzed in other programs, such as DESeq2 as we did in the Lloyd and Pespeni 2018 paper. DESeq2 was designed for analyzing RNAseq gene expression data and assumes the data have a negative binomial distribution where the variance is greater than the mean, which is true for gene expression data, but not usually true for microbiome composition data <a href="https://www.nature.com/articles/s41522-020-00160-w">Lin &amp; Peddada</a>.</p>
 <p>At this point ANCOM-BC isn’t natively installed with Qiime2, but I did follow a Qiime developer’s installation instructions on <a href="https://github.com/mortonjt/q2-ancombc">github</a>. For directions on running ANCOMBC from within R, see brief tutorial <a href="https://rdrr.io/github/FrederickHuangLin/ANCOMBC/man/ancombc.html">here</a>. On our class server, you should not need to redo the installation.</p>
-<p>Below is code for testing for differences in taxonomic abundances based on “site-animal-health”, but it’s still giving errors.</p>
-<pre><code>conda activate qiime2-2021.8
-export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
-
-qiime ancombc ancombc \
-    --i-table /data/project_data/16S/mprun/table.qza \
-    --m-metadata-file /data/project_data/16S/pyc_subset_manifest_ancombc \
-    --p-formula &quot;site-animal-health&quot; \
-    --o-differentials ancombc_differentials_an-health.qza
-    
-qiime metadata tabulate \
- --i-input-file differentials.qza 
- --i-input-file taxonomy.qza \
- --o-visualization differentials.qzv</code></pre>
 <div id="heres-code-for-using-ancom-to-test-for-differences-in-abundance." class="section level3">
 <h3>Here’s code for using <code>ancom</code> to test for differences in abundance.</h3>
 <p>It seems to take a long time, so start a screen!</p>
@@ -120,6 +106,23 @@ qiime composition ancom \
   --m-metadata-column site-animal-health \
   --p-color-map seismic \
   --o-visualization heatmap.qzv</code></pre>
+</div>
+<div id="heres-code-for-using-ancom-bc-to-test-for-differences-in-abundance." class="section level3">
+<h3>Here’s code for using ANCOM-BC to test for differences in abundance.</h3>
+<p>Below is code for testing for differences in taxonomic abundances based on “site-animal-health”, but it’s still giving errors.</p>
+<pre><code>conda activate qiime2-2021.8
+export TMPDIR=&quot;/data/project_data/16S/tmptmpdir&quot;
+
+qiime ancombc ancombc \
+    --i-table /data/project_data/16S/mprun/table.qza \
+    --m-metadata-file /data/project_data/16S/pyc_subset_manifest_ancombc \
+    --p-formula &quot;site-animal-health&quot; \
+    --o-differentials ancombc_differentials_an-health.qza
+    
+qiime metadata tabulate \
+ --i-input-file differentials.qza 
+ --i-input-file taxonomy.qza \
+ --o-visualization differentials.qzv</code></pre>
 </div>
 <div id="filtering-the-datasamples-to-run-other-analyses-or-test-specific-hypotheses" class="section level2">
 <h2>Filtering the data/samples to run other analyses or test specific hypotheses</h2>

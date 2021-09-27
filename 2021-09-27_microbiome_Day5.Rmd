@@ -44,22 +44,6 @@ Alternatively, the data can be exported and analyzed in other programs, such as 
 
 At this point ANCOM-BC isn't natively installed with Qiime2, but I did follow a Qiime developer's installation instructions on [github](https://github.com/mortonjt/q2-ancombc). For directions on running ANCOMBC from within R, see brief tutorial [here](https://rdrr.io/github/FrederickHuangLin/ANCOMBC/man/ancombc.html). On our class server, you should not need to redo the installation.
 
-Below is code for testing for differences in taxonomic abundances based on "site-animal-health", but it's still giving errors.
-```
-conda activate qiime2-2021.8
-export TMPDIR="/data/project_data/16S/tmptmpdir"
-
-qiime ancombc ancombc \
-    --i-table /data/project_data/16S/mprun/table.qza \
-    --m-metadata-file /data/project_data/16S/pyc_subset_manifest_ancombc \
-    --p-formula "site-animal-health" \
-    --o-differentials ancombc_differentials_an-health.qza
-    
-qiime metadata tabulate \
- --i-input-file differentials.qza 
- --i-input-file taxonomy.qza \
- --o-visualization differentials.qzv
-```
 ### Here's code for using `ancom` to test for differences in abundance.
 It seems to take a long time, so start a screen!
 
@@ -93,6 +77,23 @@ qiime gneiss dendrogram-heatmap \
   --m-metadata-column site-animal-health \
   --p-color-map seismic \
   --o-visualization heatmap.qzv
+```
+### Here's code for using ANCOM-BC to test for differences in abundance.
+Below is code for testing for differences in taxonomic abundances based on "site-animal-health", but it's still giving errors.
+```
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+
+qiime ancombc ancombc \
+    --i-table /data/project_data/16S/mprun/table.qza \
+    --m-metadata-file /data/project_data/16S/pyc_subset_manifest_ancombc \
+    --p-formula "site-animal-health" \
+    --o-differentials ancombc_differentials_an-health.qza
+    
+qiime metadata tabulate \
+ --i-input-file differentials.qza 
+ --i-input-file taxonomy.qza \
+ --o-visualization differentials.qzv
 ```
 
 ## Filtering the data/samples to run other analyses or test specific hypotheses
