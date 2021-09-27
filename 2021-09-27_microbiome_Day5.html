@@ -63,12 +63,17 @@
 </div>
 <div id="make-bar-plots-of-taxa" class="section level2">
 <h2>Make bar plots of taxa!</h2>
-<p>Now we can view the taxonomic composition of our samples by making interactive bar plots! Make the .qzv file as shown below, then move it to your local machine to open the file in Qiime2view (scp, WinSCP, or Fetch).</p>
+<p>Now we can view the taxonomic composition of our samples by making interactive bar plots! Make the .qzv file as shown below.</p>
+<p><strong>NOTE:</strong> Take care to update the code below to provide the paths to your specific input files (the <code>table.qza</code> you made with DADA2 and the <code>taxonomy.qza</code> file you just made), and to your correct manifest file. The manifest file can be found in <code>/data/project_data/16S/</code> or in your home directory if you copied <code>cp</code>d the file into your home <code>~</code> directory.</p>
+<ul>
+<li>For the output, you can not provide a path and the output will be generated into whichever directory you were in when you ran the command, or if you might like to put it into another directory, you can provide the path and the name of your file. As before, you can name it anything you want, just keep track.</li>
+</ul>
 <pre><code>qiime taxa barplot \
-  --i-table /data/project_data/16S/mprun/table.qza \
-  --i-taxonomy /data/project_data/16S/training-feature-classifiers/taxonomy.qza \
-  --m-metadata-file /data/project_data/16S/mprun/pyc_subset_manifest \
-  --o-visualization /data/project_data/16S/mprun/taxa/taxa-bar-plots.qzv</code></pre>
+  --i-table ~/PATHTOYOURFILE/table.qza \
+  --i-taxonomy ~/PATHTOYOURFILE/taxonomy.qza \
+  --m-metadata-file /data/project_data/16S/pyc_manifest \
+  --o-visualization ~/PATHTO/OUTPUT/DIRECTORY/OFYOURCHOICE/taxa-bar-plots.qzv</code></pre>
+<p>Once you’ve made your <code>taxa-bar-plots.qzv</code> file, then move it to your local machine to open the file in Qiime2view (scp, WinSCP, or Fetch).</p>
 <p>Now we can choose what taxonomic level to show - let’s start with Level 6, genus, for this study, and sort the samples by the metadata of interest! What do you notice?!</p>
 </div>
 <div id="test-for-differences-in-abundance" class="section level1">
