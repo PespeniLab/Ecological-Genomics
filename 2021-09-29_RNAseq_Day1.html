@@ -12,11 +12,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
+<meta name="date" content="2021-09-29" />
 
-<title>Tutorials and Scripts</title>
+<title>P/BIO381 Tutorials: Working with RNA-seq data</title>
 
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+/* A workaround for https://github.com/jgm/pandoc/issues/4278 */
+a.sourceLine {
+  pointer-events: auto;
+}
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -35,27 +127,221 @@
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">P/BIO381 Tutorials: Working with RNA-seq data</h1>
+<h4 class="date project-date">September 29, 2021</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Microbiome Module</strong></p>
+<div id="learning-objectives-for-today-and-for-the-rest-of-the-rnaseq-module" class="section level1">
+<h1>Learning Objectives for today (and for the rest of the RNAseq module!)</h1>
 <ol style="list-style-type: decimal">
-<li>2021-09-13: <a href="2021-09-13_microbiome_Day1.html">Microbiome tutorial day one</a></li>
-<li>2021-09-15: <a href="2021-09-15_microbiome_Day2.html">Microbiome tutorial day two</a></li>
-<li>2021-09-20: <a href="2021-09-20_microbiome_Day3.html">Microbiome tutorial day three</a></li>
-<li>2021-09-22: <a href="2021-09-22_microbiome_Day4.html">Microbiome tutorial day four</a></li>
-<li>2021-09-27: <a href="2021-09-27_microbiome_Day5.html">Microbiome tutorial day five</a>, plus supplemental code for <a href="2021_09_27_microbiome_supp_taxaID.html">taxonomic identification</a>.</li>
+<li>Review <em>Acartia husdonica</em> ecology and biogeography and the experimental evolution/transcriptomics experimental design.</li>
+<li>Articulate the questions we can address and hypotheses we can test with this experimental design.</li>
+<li>Understand the general work flow or “pipeline” for processing and analyzing RNAseq data.</li>
+<li>Learn how to make/write a bash script and how write a script to process files in batches.</li>
+<li>Visualize and interpret Illumina data quality (Run FastQC on raw and cleaned reads).</li>
+<li>Start <em>de novo</em> transcriptome assembly using Trinity.</li>
+<li>Start mapping reads and quantifying abundance simultaneously using <a href="https://www.nature.com/articles/nmeth.4197">Salmon</a>.</li>
+<li>Import quant.sf files generated by Salmon into DESeq2 for analysis and visualization.</li>
+<li>Start mapping reads for single nucleotide polymorphism (SNP) identification.</li>
+<li>Estimate allele frequencies and test for genetic differention.</li>
+<li>Add to your growing list of bioinformatics tricks (take notes!).</li>
 </ol>
-<p><strong>RNAseq Module</strong></p>
-<ol start="6" style="list-style-type: decimal">
-<li>2021-09-29: <a href="2021-09-29_RNAseq_Day1.html">RNAseq tutorial day one</a></li>
+<div id="acartia-hudsonica-experimental-evolution-rnaseq-experiment" class="section level2">
+<h2>1. Acartia hudsonica experimental evolution RNAseq experiment</h2>
+<p><em>Acartia hudsonica</em> is a calanoid copepod and is the cold-water-adapted sister species to <em>Acartia tonsa</em>, the copepod we read about this week in <a href="https://www.biorxiv.org/content/10.1101/2020.01.29.925396v3">Brennan et al.</a>. It is an estuarine and near-shore coastal species and is most abundant along the New England coast (ME, NH, MA, RI, CT), generally not further south than the Chesapeake Bay and not further north than Laborador/Newfoundland, Canada. Both Acartiid species play critical roles in ecosystem functioning at the base of the food chain as a primary consumers of phytoplankton and as a main prey item for many larval fish, including economically important fisheries. Not surprisingly, given faster development rates in warmer temperatures, studies have found a trend of body sizes decreases over the 70 years (<a href="https://link.springer.com/article/10.1007%2Fs12237-014-9770-0">Rice, Dam &amp; Stewart (2015)</a>).</p>
+<p>In the present study, we experimentally evolved <em>Acartia hudsonica</em> to four sets of conditions: 1. ocean acidification (1000 micro-atm pCO2, ambient temperature, 13 degrees C) 2. ocean warming (15 degrees C, 400 micro-atm pCO2) 3. combined ocean acidification and warming (1000 micro-atm pCO2, 15 degrees C) 4. ambient (13 degrees C, 400 micro-atm pCO2)</p>
+<p>Animals were collected from the Long Island Sound, CT and reared in the lab for 3 generations before the start of the experiment. For each treatment, there were three replicate vessels with ~4,000 individuals per vessel. To sample for RNA, pools of 50 adults were taken at the end of the F0, F2, F4, and F11 generations. Water was removed and animals were flash frozen in liquid nitrogen. RNA was extracted using a modified TRIzol extraction protocol. Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols. Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Novoseq 6000 platform (Illumina’s next greatest sequencer after the HiSeq 4000) with &gt;6 Gb (gigabase pairs, equivalent to &gt;6 billion base pairs) per sample.</p>
+<div id="realized-sample-replication-after-sequencing-n38-x-2-76-left-and-right-reads" class="section level3">
+<h3>Realized sample replication after sequencing: N=38 x 2 = 76 (left and right reads)</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Trt</th>
+<th>Generation</th>
+<th>Nreps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ambient (AA)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Ambient (AA)</td>
+<td>F2</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>Ambient (AA)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Ambient (AA)</td>
+<td>F11</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification (AH)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Acidification (AH)</td>
+<td>F2</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification (AH)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Warming (HA)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Warming (HA)</td>
+<td>F2</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Warming (HA)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification+Warming (HH)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Acidification+Warming (HH)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification+Warming (HH)</td>
+<td>F11</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>———–</td>
+<td>————-</td>
+<td>——-</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td></td>
+<td>38</td>
+</tr>
+</tbody>
+</table>
+<p>In <code>/data/project_data/RNAseq/rawdata/</code>, there should be 76 files: N=38 x 2 = 76 (left and right reads, <code>_1.fq.gz</code>, <code>_2.fq.gz</code>)</p>
+</div>
+</div>
+<div id="what-questions-can-we-ask-or-hypotheses-can-we-test-with-this-experimental-design-with-these-data" class="section level2">
+<h2>What questions can we ask or hypotheses can we test with this experimental design, with these data?</h2>
+<ol style="list-style-type: decimal">
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li>…</li>
 </ol>
+</div>
+<div id="data-processing-pipeline" class="section level2">
+<h2>Data Processing Pipeline:</h2>
+<ul>
+<li>FastQC on raw reads –&gt; Trimmomatic (trim based on base pair quality scores and clip adapter sequences) –&gt; FastQC on cleaned reads</li>
+<li>Generate a reference transcriptome assembly using <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a></li>
+<li>Evaluate transcriptome assembly for quality (length and completeness); Collapse isoforms to make a reference transcriptome.</li>
+<li><strong>For gene expression analyses:</strong>
+<ul>
+<li>Use <a href="https://salmon.readthedocs.io/en/latest/salmon.html">Salmon</a> to simulateously map reads to reference transcriptome and quantify abundance.</li>
+<li><a href="https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#3%E2%80%99_tagged_rna-seq">Import</a> the data into <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a> in R for data normalization, visualization, and statistical tests for differential gene expression.</li>
+</ul></li>
+<li><strong>For allele frequency analyses:</strong>
+<ul>
+<li>Map cleaned reads to reference transcriptome using BWAmem</li>
+<li>Identify sequence variants (SNPs) using VarScan; filter for quality, MAF, biallelic, coverage.</li>
+<li>Visualize variation with PCA.</li>
+<li>Identify alleles with consistent changes in allele frequency between groups using CMH statistic.</li>
+</ul></li>
+</ul>
+<div id="choose-samples-to-visualize-for-quality-fastqc-and-clean-trimmomatic" class="section level3">
+<h3>Choose samples to visualize for quality (FastQC) and clean (Trimmomatic)</h3>
+<p>There are 13 groups of samples (based on the table above, 13 treatment x generation combinations). If every student takes one group to process, that should work out… This time we need to trim using the same specifications.</p>
+</div>
+<div id="fastqc" class="section level3">
+<h3>FastQC</h3>
+<p>Recall that .fastq (or .fq) files are sequence data files that include quality scores for each base pair. We checked out the reads from our 16S data using <code>zcat FILENAME.fq.gz | head -n 4</code>. Recall that letters early in the alphabet indicate good quality on the ASCII score (<a href="2021-09-13_microbiome_Day1.html">see Day 1 microbiome tutorial</a>). How can we look at the quality more systematically for all reads in the file? We can use <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">the program FastQC</a> (also already installed in our <code>/data/popgen/</code> directory and available to run from any directory).</p>
+<p>FastQC will accept multiple file names as input, so figure out which letters in the filename plus a wildcard (*) will capture just the files of your group of samples.</p>
+<pre><code>fastqc FILENAME*.fq.gz --outdir=/data/project_data/RNAseq/fastqc/</code></pre>
+<p>Now move the .html files to your local machine using your favorite file transfer method (WinSCP, Fetch, scp, etc.). Open the html file by double clicking and you should see your FastQC report! (one for each file)</p>
+</div>
+<div id="clean-the-reads-with-trimmomatic-already-done-this-time" class="section level3">
+<h3>Clean the reads with Trimmomatic (ALREADY DONE THIS TIME)</h3>
+<p><a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">Here’s a link to the Trimmomatic program</a> that we’ll use to clean the reads for each file. The program is already installed in our <code>/data/popgen/</code> directory.</p>
+<p>Already done, but for your reference, let’s walk through the script:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode trim_loop.sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">#!/bin/bash   </span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"> </a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># Below is a script to loop through the files in the /rawdata directory, identify matches,  </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># and clean the fastq files, and direct output to /cleandata </span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"> </a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="bu">cd</span> /data/project_data/RNAseq/rawdata</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"> </a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="kw">for</span> <span class="ex">f1</span> in *_1.fq.gz  </a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"> </a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw">do</span> </a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"> </a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"> <span class="va">f2=${f1%%</span>_1.fq.gz<span class="va">}</span><span class="st">&quot;_2.fq.gz&quot;</span>  </a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"> </a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="ex">java</span> -classpath /data/popgen/Trimmomatic-0.39/trimmomatic-0.39.jar org.usadellab.trimmomatic.TrimmomaticPE \</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15">        -threads 10 \</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">        -phred33 \</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">         <span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span> \</a>
+<a class="sourceLine" id="cb2-18" data-line-number="18">         <span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span> \</a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span>_left_clean_paired.fq \</a>
+<a class="sourceLine" id="cb2-20" data-line-number="20">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span>_left_clean_unpaired.fq \</a>
+<a class="sourceLine" id="cb2-21" data-line-number="21">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span>_right_clean_paired.fq \</a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span>_right_clean_unpaired.fq \</a>
+<a class="sourceLine" id="cb2-23" data-line-number="23">        ILLUMINACLIP:/data/popgen/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \</a>
+<a class="sourceLine" id="cb2-24" data-line-number="24">        LEADING:20 \</a>
+<a class="sourceLine" id="cb2-25" data-line-number="25">        TRAILING:20 \</a>
+<a class="sourceLine" id="cb2-26" data-line-number="26">        SLIDINGWINDOW:6:20 \</a>
+<a class="sourceLine" id="cb2-27" data-line-number="27">        MINLEN:36 </a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="op">&gt;&gt;</span> <span class="ex">log.txt</span></a>
+<a class="sourceLine" id="cb2-29" data-line-number="29"> </a>
+<a class="sourceLine" id="cb2-30" data-line-number="30"><span class="kw">done</span> </a></code></pre></div>
+</div>
+<div id="run-fastqc-on-the-clean-reads-to-confirm-improvement" class="section level3">
+<h3>Run FastQC on the clean reads to confirm improvement</h3>
+<ul>
+<li>What do we look for in this second run?</li>
+<li><a href="https://multiqc.info/docs/">MULTIQC</a> is a tool to generate a single summary html report file from all the fastqc reports generated.</li>
+</ul>
+</div>
+</div>
+<div id="start-de-novo-transcriptome-assembly-using-trinity" class="section level2">
+<h2>Start de novo transcriptome assembly using Trinity</h2>
+<p>Okay! Now that we know we have good quality, cleaned data to work with, we can move into making a de novo transcriptome assembly, which we will “map” to twice! - once to measure gene expression and once to identify genetic variants! This is a critical step for any species without a reference genome or transcriptome and is quite easy with the trinity package. The hardest parts come after the assembly: 1) settling on a final assembly - selecting a representative sequence among isoforms and 2) annotating the genes - figuring out what they are based on homology using BLAST.</p>
+<p>Trinity has remained at the “top of the market” for de novo transcriptome assemblers for the last 10 years. A <a href="https://academic.oup.com/gigascience/article/8/5/giz039/5488105">recent review</a> finds this assembler performs consistently well across their (somewhat limited) range of datasets.</p>
+<p><a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Here’s a link to the Trinity website</a></p>
+<p>Here’s the basic command to run Trinity: <code>Trinity --seqType fq --left reads_1.fq --right reads_2.fq --CPU 6 --max_memory 20G</code></p>
+<p>Specifically, for our data: (BUT WE DON’T ALL NEED TO DO THIS!)</p>
+<pre><code>/data/popgen/trinityrnaseq-v2.13.2/Trinity --seqType fq \
+--left AA_F0_Rep1_2_right_clean_paired.fq,AA_F0_Rep2_2_right_clean_paired.fq,AA_F0_Rep3_2_right_clean_paired.fq,AA_F11_Rep1_2_right_clean_paired.fq,AA_F11_Rep2_2_right_clean_paired.fq,AA_F11_Rep3_2_right_clean_paired.fq,AA_F2_Rep2_2_right_clean_paired.fq,AA_F2_Rep3_2_right_clean_paired.fq,AA_F4_Rep1_2_right_clean_paired.fq,AA_F4_Rep2_2_right_clean_paired.fq,AA_F4_Rep3_2_right_clean_paired.fq,AH_F0_Rep1_2_right_clean_paired.fq,AH_F0_Rep2_2_right_clean_paired.fq,AH_F0_Rep3_2_right_clean_paired.fq,AH_F2_Rep1_2_right_clean_paired.fq,AH_F2_Rep2_2_right_clean_paired.fq,AH_F2_Rep3_2_right_clean_paired.fq,AH_F4_Rep1_2_right_clean_paired.fq,AH_F4_Rep2_2_right_clean_paired.fq,AH_F4_Rep3_2_right_clean_paired.fq,HA_F0_Rep1_2_right_clean_paired.fq,HA_F0_Rep2_2_right_clean_paired.fq,HA_F0_Rep3_2_right_clean_paired.fq,HA_F2_Rep1_2_right_clean_paired.fq,HA_F2_Rep2_2_right_clean_paired.fq,HA_F2_Rep3_2_right_clean_paired.fq,HA_F4_Rep1_2_right_clean_paired.fq,HA_F4_Rep2_2_right_clean_paired.fq,HA_F4_Rep3_2_right_clean_paired.fq,HH_F0_Rep1_2_right_clean_paired.fq,HH_F0_Rep2_2_right_clean_paired.fq,HH_F0_Rep3_2_right_clean_paired.fq,HH_F11_Rep1_2_right_clean_paired.fq,HH_F11_Rep2_2_right_clean_paired.fq,HH_F11_Rep3_2_right_clean_paired.fq,HH_F4_Rep1_2_right_clean_paired.fq,HH_F4_Rep2_2_right_clean_paired.fq,HH_F4_Rep3_2_right_clean_paired.fq \
+--right AA_F0_Rep1_1_left_clean_paired.fq,AA_F0_Rep2_1_left_clean_paired.fq,AA_F0_Rep3_1_left_clean_paired.fq,AA_F11_Rep1_1_left_clean_paired.fq,AA_F11_Rep2_1_left_clean_paired.fq,AA_F11_Rep3_1_left_clean_paired.fq,AA_F2_Rep2_1_left_clean_paired.fq,AA_F2_Rep3_1_left_clean_paired.fq,AA_F4_Rep1_1_left_clean_paired.fq,AA_F4_Rep2_1_left_clean_paired.fq,AA_F4_Rep3_1_left_clean_paired.fq,AH_F0_Rep1_1_left_clean_paired.fq,AH_F0_Rep2_1_left_clean_paired.fq,AH_F0_Rep3_1_left_clean_paired.fq,AH_F2_Rep1_1_left_clean_paired.fq,AH_F2_Rep2_1_left_clean_paired.fq,AH_F2_Rep3_1_left_clean_paired.fq,AH_F4_Rep1_1_left_clean_paired.fq,AH_F4_Rep2_1_left_clean_paired.fq,AH_F4_Rep3_1_left_clean_paired.fq,HA_F0_Rep1_1_left_clean_paired.fq,HA_F0_Rep2_1_left_clean_paired.fq,HA_F0_Rep3_1_left_clean_paired.fq,HA_F2_Rep1_1_left_clean_paired.fq,HA_F2_Rep2_1_left_clean_paired.fq,HA_F2_Rep3_1_left_clean_paired.fq,HA_F4_Rep1_1_left_clean_paired.fq,HA_F4_Rep2_1_left_clean_paired.fq,HA_F4_Rep3_1_left_clean_paired.fq,HH_F0_Rep1_1_left_clean_paired.fq,HH_F0_Rep2_1_left_clean_paired.fq,HH_F0_Rep3_1_left_clean_paired.fq,HH_F11_Rep1_1_left_clean_paired.fq,HH_F11_Rep2_1_left_clean_paired.fq,HH_F11_Rep3_1_left_clean_paired.fq,HH_F4_Rep1_1_left_clean_paired.fq,HH_F4_Rep2_1_left_clean_paired.fq,HH_F4_Rep3_1_left_clean_paired.fq \
+--CPU 10 --max_memory 20G </code></pre>
+<p>Note: We’ll provide the path to the latest version of Trinity just out this month (Sept 2021) and installed, just to make sure we’re using the latest version. It’s a little “messier”, but it also helps us keep track of what version of the program we used.</p>
+<p>Let’s explore some some of the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Assembly-Quality-Assessment">assembly quality assessment tools that Trinity provides</a>.</p>
+</div>
 </div>
 </section>
 
