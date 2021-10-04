@@ -10,7 +10,7 @@ fontsize: 18pt
 
 # Learning Objectives for today (and for the rest of the RNAseq module!)
 
-1. Review _Acartia husdonica_ ecology and biogeography and the experimental evolution/transcriptomics experimental design.
+1. Review _Acartia hudsonica_ ecology and biogeography and the experimental evolution/transcriptomics experimental design.
 2. Articulate the questions we can address and hypotheses we can test with this experimental design.
 3. Understand the general work flow or "pipeline" for processing and analyzing RNAseq data.
 4. Visualize and interpret Illumina data quality (Run FastQC on raw and cleaned reads).
@@ -163,12 +163,14 @@ Trinity --seqType fq --left reads_1.fq --right reads_2.fq --CPU 6 --max_memory 2
 
 Specifically, for our data: (BUT WE DON'T ALL NEED TO DO THIS!)
 ```
+screen
 /data/popgen/trinityrnaseq-v2.13.2/Trinity --seqType fq \
---left AA_F0_Rep1_2_right_clean_paired.fq,AA_F0_Rep2_2_right_clean_paired.fq,AA_F0_Rep3_2_right_clean_paired.fq,AA_F11_Rep1_2_right_clean_paired.fq,AA_F11_Rep2_2_right_clean_paired.fq,AA_F11_Rep3_2_right_clean_paired.fq,AA_F2_Rep2_2_right_clean_paired.fq,AA_F2_Rep3_2_right_clean_paired.fq,AA_F4_Rep1_2_right_clean_paired.fq,AA_F4_Rep2_2_right_clean_paired.fq,AA_F4_Rep3_2_right_clean_paired.fq,AH_F0_Rep1_2_right_clean_paired.fq,AH_F0_Rep2_2_right_clean_paired.fq,AH_F0_Rep3_2_right_clean_paired.fq,AH_F2_Rep1_2_right_clean_paired.fq,AH_F2_Rep2_2_right_clean_paired.fq,AH_F2_Rep3_2_right_clean_paired.fq,AH_F4_Rep1_2_right_clean_paired.fq,AH_F4_Rep2_2_right_clean_paired.fq,AH_F4_Rep3_2_right_clean_paired.fq,HA_F0_Rep1_2_right_clean_paired.fq,HA_F0_Rep2_2_right_clean_paired.fq,HA_F0_Rep3_2_right_clean_paired.fq,HA_F2_Rep1_2_right_clean_paired.fq,HA_F2_Rep2_2_right_clean_paired.fq,HA_F2_Rep3_2_right_clean_paired.fq,HA_F4_Rep1_2_right_clean_paired.fq,HA_F4_Rep2_2_right_clean_paired.fq,HA_F4_Rep3_2_right_clean_paired.fq,HH_F0_Rep1_2_right_clean_paired.fq,HH_F0_Rep2_2_right_clean_paired.fq,HH_F0_Rep3_2_right_clean_paired.fq,HH_F11_Rep1_2_right_clean_paired.fq,HH_F11_Rep2_2_right_clean_paired.fq,HH_F11_Rep3_2_right_clean_paired.fq,HH_F4_Rep1_2_right_clean_paired.fq,HH_F4_Rep2_2_right_clean_paired.fq,HH_F4_Rep3_2_right_clean_paired.fq \
---right AA_F0_Rep1_1_left_clean_paired.fq,AA_F0_Rep2_1_left_clean_paired.fq,AA_F0_Rep3_1_left_clean_paired.fq,AA_F11_Rep1_1_left_clean_paired.fq,AA_F11_Rep2_1_left_clean_paired.fq,AA_F11_Rep3_1_left_clean_paired.fq,AA_F2_Rep2_1_left_clean_paired.fq,AA_F2_Rep3_1_left_clean_paired.fq,AA_F4_Rep1_1_left_clean_paired.fq,AA_F4_Rep2_1_left_clean_paired.fq,AA_F4_Rep3_1_left_clean_paired.fq,AH_F0_Rep1_1_left_clean_paired.fq,AH_F0_Rep2_1_left_clean_paired.fq,AH_F0_Rep3_1_left_clean_paired.fq,AH_F2_Rep1_1_left_clean_paired.fq,AH_F2_Rep2_1_left_clean_paired.fq,AH_F2_Rep3_1_left_clean_paired.fq,AH_F4_Rep1_1_left_clean_paired.fq,AH_F4_Rep2_1_left_clean_paired.fq,AH_F4_Rep3_1_left_clean_paired.fq,HA_F0_Rep1_1_left_clean_paired.fq,HA_F0_Rep2_1_left_clean_paired.fq,HA_F0_Rep3_1_left_clean_paired.fq,HA_F2_Rep1_1_left_clean_paired.fq,HA_F2_Rep2_1_left_clean_paired.fq,HA_F2_Rep3_1_left_clean_paired.fq,HA_F4_Rep1_1_left_clean_paired.fq,HA_F4_Rep2_1_left_clean_paired.fq,HA_F4_Rep3_1_left_clean_paired.fq,HH_F0_Rep1_1_left_clean_paired.fq,HH_F0_Rep2_1_left_clean_paired.fq,HH_F0_Rep3_1_left_clean_paired.fq,HH_F11_Rep1_1_left_clean_paired.fq,HH_F11_Rep2_1_left_clean_paired.fq,HH_F11_Rep3_1_left_clean_paired.fq,HH_F4_Rep1_1_left_clean_paired.fq,HH_F4_Rep2_1_left_clean_paired.fq,HH_F4_Rep3_1_left_clean_paired.fq \
---CPU 10 --max_memory 20G 
+--samples_file /data/project_data/RNAseq/assembly/ahud_samples.txt \
+--CPU 16 --max_memory 50G --bflyCalculateCPU --min_kmer_cov 2 > run.log 2>&1 &
 ```
 Note: We'll provide the path to the latest version of Trinity just out this month (Sept 2021) and installed, just to make sure we're using the latest version. It's a little "messier", but it also helps us keep track of what version of the program we used.
+
+Another path note: In the ahud_samples.txt file, we need to provide the full path to all the samples. Check out the file with `vim`.
 
 
 Let's explore some some of the [assembly quality assessment tools that Trinity provides](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Assembly-Quality-Assessment).

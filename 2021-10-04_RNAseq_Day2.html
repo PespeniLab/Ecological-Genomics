@@ -12,11 +12,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
+<meta name="date" content="2021-09-29" />
 
-<title>Tutorials and Scripts</title>
+<title>P/BIO381 Tutorials: Working with RNA-seq data</title>
 
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+/* A workaround for https://github.com/jgm/pandoc/issues/4278 */
+a.sourceLine {
+  pointer-events: auto;
+}
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -35,28 +127,267 @@
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">P/BIO381 Tutorials: Working with RNA-seq data</h1>
+<h3 class="subtitle project-tagline">RNAseq Day 2</h3>
+<h4 class="date project-date">September 29, 2021</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Microbiome Module</strong></p>
+<div id="learning-objectives-for-today" class="section level1">
+<h1>Learning Objectives for today</h1>
 <ol style="list-style-type: decimal">
-<li>2021-09-13: <a href="2021-09-13_microbiome_Day1.html">Microbiome tutorial day one</a></li>
-<li>2021-09-15: <a href="2021-09-15_microbiome_Day2.html">Microbiome tutorial day two</a></li>
-<li>2021-09-20: <a href="2021-09-20_microbiome_Day3.html">Microbiome tutorial day three</a></li>
-<li>2021-09-22: <a href="2021-09-22_microbiome_Day4.html">Microbiome tutorial day four</a></li>
-<li>2021-09-27: <a href="2021-09-27_microbiome_Day5.html">Microbiome tutorial day five</a>, plus supplemental code for <a href="2021_09_27_microbiome_supp_taxaID.html">taxonomic identification</a>.</li>
+<li>Refresh on activities from the last coding session (experimental design, hypotheses, RNAseq pipeline, ran FastQC to check quality).</li>
+<li>Check Run FastQC on raw and cleaned reads.</li>
+<li>Start to map reads (to an existing reference transcriptome) and quantify abundance simultaneously using <a href="https://www.nature.com/articles/nmeth.4197">Salmon</a>.</li>
+<li>Import quant.sf files generated by Salmon into <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a> for analysis and visualization.</li>
 </ol>
-<p><strong>RNAseq Module</strong></p>
-<ol start="6" style="list-style-type: decimal">
-<li>2021-09-29: <a href="2021-09-29_RNAseq_Day1.html">RNAseq tutorial day one</a></li>
-<li>2021-10-04: <a href="2021-10-04_RNAseq_Day2.html">RNAseq tutorial day two</a></li>
+<div id="acartia-hudsonica-experimental-evolution-rnaseq-experiment" class="section level2">
+<h2>1. Acartia hudsonica experimental evolution RNAseq experiment</h2>
+<div id="realized-sample-replication-after-sequencing-n38-x-2-76-left-and-right-reads" class="section level3">
+<h3>Realized sample replication after sequencing: N=38 x 2 = 76 (left and right reads)</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Trt</th>
+<th>Generation</th>
+<th>Nreps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ambient (AA)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Ambient (AA)</td>
+<td>F2</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>Ambient (AA)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Ambient (AA)</td>
+<td>F11</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification (AH)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Acidification (AH)</td>
+<td>F2</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification (AH)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Warming (HA)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Warming (HA)</td>
+<td>F2</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Warming (HA)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification+Warming (HH)</td>
+<td>F0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>Acidification+Warming (HH)</td>
+<td>F4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>Acidification+Warming (HH)</td>
+<td>F11</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>———–</td>
+<td>————-</td>
+<td>——-</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td></td>
+<td>38</td>
+</tr>
+</tbody>
+</table>
+<p>In <code>/data/project_data/RNAseq/rawdata/</code>, there should be 76 files: N=38 x 2 = 76 (left and right reads, <code>_1.fq.gz</code>, <code>_2.fq.gz</code>)</p>
+</div>
+</div>
+<div id="questions-can-we-ask-with-this-experimental-design-and-these-data" class="section level2">
+<h2>Questions can we ask with this experimental design and these data</h2>
+<ol style="list-style-type: decimal">
+<li>Additive impact of acidification and warming? Do these result in similar changes in gene expression?</li>
+<li>How does gene expression change across generations? How much of this is heritable? Could only do this across all 4 at F4 generation</li>
+<li>How does gene expression change across time? Basically a time course to see if allele frequency and/or gene expression are headed in the same direction.</li>
+<li>What is the rate at which the alleles become fixed?</li>
+<li>How does expression of specific gene classes change across time? This would be cool with multiple graphs for each gene class</li>
+<li>Plasticity in response for each treatment. We can compare the treatments to the ambient to figure this out and see if changes are maintained across generations.</li>
+<li>Check completeness of the transcriptome based on a set of housekeeping/core genes for eukaryotes. Isn’t taxa specific.</li>
 </ol>
+</div>
+<div id="compare-quality-using-fastqc-of-raw-and-cleaned-trimmomatic-reads" class="section level2">
+<h2>2. Compare quality using FastQC of raw and cleaned (Trimmomatic) reads</h2>
+<div id="fastqc" class="section level3">
+<h3>FastQC</h3>
+<p>To visualize the quality more systematically for all reads in the file, we can use <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">the program FastQC</a>.</p>
+<p>FastQC will accept multiple file names as input, so figure out which letters in the filename plus a wildcard (*) will capture just the files of your group of samples.</p>
+<p><strong>From last time:</strong></p>
+<pre><code>cd /data/project_data/RNAseq/rawdata
+fastqc FILENAME*.fq.gz --outdir=/data/project_data/RNAseq/fastqc/</code></pre>
+<p>One of us can also run <code>multiqc</code> to make one summary file for all of our .html fastQC files (really handy instead of flipping through 76 files!). Navigate to the directory with our fastqc .html files and simply run <code>multiqc .</code>, which means use all the <code>.html</code> files in this <code>.</code> directory!</p>
+<p>Now move the .html files to your local machine using your favorite file transfer method (WinSCP, Fetch, scp, etc.). Open the html files by double clicking and you should see your FastQC and multiqc reports! (one fastqc for each file and one multiqc for the whole dataset)</p>
+</div>
+<div id="clean-the-reads-with-trimmomatic-already-done-this-time" class="section level3">
+<h3>Clean the reads with Trimmomatic (ALREADY DONE THIS TIME)</h3>
+<p><a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">Here’s a link to the Trimmomatic program</a> that we’ll use to clean the reads for each file. The program is already installed in our <code>/data/popgen/</code> directory.</p>
+<p>Already done, but for your reference, let’s walk through the script:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode trim_loop.sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">#!/bin/bash   </span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"> </a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># Below is a script to loop through the files in the /rawdata directory, identify matches,  </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># and clean the fastq files, and direct output to /cleandata </span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"> </a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="bu">cd</span> /data/project_data/RNAseq/rawdata</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"> </a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="kw">for</span> <span class="ex">f1</span> in *_1.fq.gz  </a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"> </a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw">do</span> </a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"> <span class="va">f2=${f1%%</span>_1.fq.gz<span class="va">}</span><span class="st">&quot;_2.fq.gz&quot;</span>  </a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"> </a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="ex">java</span> -classpath /data/popgen/Trimmomatic-0.39/trimmomatic-0.39.jar org.usadellab.trimmomatic.TrimmomaticPE \</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15">        -threads 10 \</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">        -phred33 \</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">         <span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span> \</a>
+<a class="sourceLine" id="cb2-18" data-line-number="18">         <span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span> \</a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span>_left_clean_paired.fq \</a>
+<a class="sourceLine" id="cb2-20" data-line-number="20">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f1</span><span class="st">&quot;</span>_left_clean_unpaired.fq \</a>
+<a class="sourceLine" id="cb2-21" data-line-number="21">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span>_right_clean_paired.fq \</a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">         /data/project_data/RNAseq/cleandata/<span class="st">&quot;</span><span class="va">$f2</span><span class="st">&quot;</span>_right_clean_unpaired.fq \</a>
+<a class="sourceLine" id="cb2-23" data-line-number="23">        ILLUMINACLIP:/data/popgen/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \</a>
+<a class="sourceLine" id="cb2-24" data-line-number="24">        LEADING:20 \</a>
+<a class="sourceLine" id="cb2-25" data-line-number="25">        TRAILING:20 \</a>
+<a class="sourceLine" id="cb2-26" data-line-number="26">        SLIDINGWINDOW:6:20 \</a>
+<a class="sourceLine" id="cb2-27" data-line-number="27">        MINLEN:36 </a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="op">&gt;&gt;</span> <span class="ex">log.txt</span></a>
+<a class="sourceLine" id="cb2-29" data-line-number="29"> </a>
+<a class="sourceLine" id="cb2-30" data-line-number="30"><span class="kw">done</span> </a></code></pre></div>
+</div>
+<div id="run-fastqc-on-the-clean-reads-to-confirm-improvement" class="section level3">
+<h3>Run FastQC on the clean reads to confirm improvement</h3>
+<ul>
+<li>What do we look for in this second run?</li>
+<li><a href="https://multiqc.info/docs/">MULTIQC</a> is a tool to generate a single summary html report file from all the fastqc reports generated.</li>
+</ul>
+<p>Recall, use the letters in the filename plus a wildcard (*) that will capture just the files of your group of samples (use the same group of files as last time).</p>
+<pre><code>cd /data/project_data/RNAseq/cleandata
+fastqc FILENAME*.fq.gz --outdir=/data/project_data/RNAseq/fastqc/clean</code></pre>
+<p>Again, someone can run <code>multiqc .</code> once all of the fastqc files have been generated.</p>
+<p>We can move these (or just the multiqc.html) file/s to our local machines to see the .html output summary on the quality of our cleaned data.</p>
+</div>
+</div>
+<div id="use-salmon-to-quantify-transcript-abundance" class="section level2">
+<h2>3. Use Salmon to quantify transcript abundance</h2>
+<ol style="list-style-type: decimal">
+<li>First step: Index the reference transcriptome. This only needs to be done once and has been done already, but here’s the code:</li>
+</ol>
+<pre><code>cd /data/project_data/RNAseq/assembly/
+conda activate salmon
+
+salmon index -t Bridger.fasta -i hudsonica_index -p 8</code></pre>
+<p><code>-p</code> says how many threads to use</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Second step: Start quantification! Below is the basic command for running the quantification from the documentation, <a href="https://salmon.readthedocs.io/en/latest/salmon.html">Salmon tutorial</a></li>
+</ol>
+<pre><code>screen
+conda activate salmon
+cd /data/project_data/RNAseq/cleandata
+salmon quant -i /data/project_data/RNAseq/assembly/hudsonica_index -l A \
+  -1 AA_F0_Rep1_1.qc.fq.gz AA_F4_Rep3_1.qc.fq.gz HA_F0_Rep1_1.qc.fq.gz HH_F0_Rep2_1.qc.fq.gz AA_F0_Rep2_1.qc.fq.gz AH_F0_Rep1_1.qc.fq.gz HA_F0_Rep2_1.qc.fq.gz HH_F0_Rep3_1.qc.fq.gz AA_F0_Rep3_1.qc.fq.gz AH_F0_Rep2_1.qc.fq.gz HA_F0_Rep3_1.qc.fq.gz HH_F11_Rep1_1.qc.fq.gz AA_F11_Rep1_1.qc.fq.gz AH_F0_Rep3_1.qc.fq.gz HA_F2_Rep1_1.qc.fq.gz HH_F11_Rep2_1.qc.fq.gz AA_F11_Rep2_1.qc.fq.gz AH_F2_Rep1_1.qc.fq.gz HA_F2_Rep2_1.qc.fq.gz HH_F11_Rep3_1.qc.fq.gz AA_F11_Rep3_1.qc.fq.gz AH_F2_Rep2_1.qc.fq.gz HA_F2_Rep3_1.qc.fq.gz HH_F4_Rep1_1.qc.fq.gz AA_F2_Rep2_1.qc.fq.gz AH_F2_Rep3_1.qc.fq.gz HA_F4_Rep1_1.qc.fq.gz HH_F4_Rep2_1.qc.fq.gz AA_F2_Rep3_1.qc.fq.gz AH_F4_Rep1_1.qc.fq.gz HA_F4_Rep2_1.qc.fq.gz HH_F4_Rep3_1.qc.fq.gz AA_F4_Rep1_1.qc.fq.gz AH_F4_Rep2_1.qc.fq.gz HA_F4_Rep3_1.qc.fq.gz AA_F4_Rep2_1.qc.fq.gz AH_F4_Rep3_1.qc.fq.gz HH_F0_Rep1_1.qc.fq.gz \
+  -2 AA_F0_Rep1_2.qc.fq.gz AA_F4_Rep3_2.qc.fq.gz HA_F0_Rep1_2.qc.fq.gz HH_F0_Rep2_2.qc.fq.gz AA_F0_Rep2_2.qc.fq.gz AH_F0_Rep1_2.qc.fq.gz HA_F0_Rep2_2.qc.fq.gz HH_F0_Rep3_2.qc.fq.gz AA_F0_Rep3_2.qc.fq.gz AH_F0_Rep2_2.qc.fq.gz HA_F0_Rep3_2.qc.fq.gz HH_F11_Rep1_2.qc.fq.gz AA_F11_Rep1_2.qc.fq.gz AH_F0_Rep3_2.qc.fq.gz HA_F2_Rep1_2.qc.fq.gz HH_F11_Rep2_2.qc.fq.gz AA_F11_Rep2_2.qc.fq.gz AH_F2_Rep1_2.qc.fq.gz HA_F2_Rep2_2.qc.fq.gz HH_F11_Rep3_2.qc.fq.gz AA_F11_Rep3_2.qc.fq.gz AH_F2_Rep2_2.qc.fq.gz HA_F2_Rep3_2.qc.fq.gz HH_F4_Rep1_2.qc.fq.gz AA_F2_Rep2_2.qc.fq.gz AH_F2_Rep3_2.qc.fq.gz HA_F4_Rep1_2.qc.fq.gz HH_F4_Rep2_2.qc.fq.gz AA_F2_Rep3_2.qc.fq.gz AH_F4_Rep1_2.qc.fq.gz HA_F4_Rep2_2.qc.fq.gz HH_F4_Rep3_2.qc.fq.gz AA_F4_Rep1_2.qc.fq.gz AH_F4_Rep2_2.qc.fq.gz HA_F4_Rep3_2.qc.fq.gz AA_F4_Rep2_2.qc.fq.gz AH_F4_Rep3_2.qc.fq.gz HH_F0_Rep1_2.qc.fq.gz \
+  --validateMappings -o /data/project_data/RNAseq/salmon/transcripts_quant</code></pre>
+<p>The descriptions of all of the options can be found on the <a href="https://salmon.readthedocs.io/en/latest/salmon.html#description-of-important-options">Salmon github page</a> and by using the command <code>salmon quant -h</code>.</p>
+</div>
+<div id="explore-mapping-rate" class="section level2">
+<h2>Explore mapping rate</h2>
+<p>For each sample mapped, you now have a directory with several output files including a log of the run. In that log, the mapping rate (% of reads mapped with sufficient quality) is reported. We can view the contents of the file using <code>cat</code>. We can also use <code>grep</code> (i.e., regular expressions) to pull out the mapping rate for all the samples. Though there’s probably a more elegant solution, here is one:</p>
+<pre><code>grep -r --include \*.log -e 'Mapping rate'</code></pre>
+<ul>
+<li>How could we save this output?</li>
+<li>What is our mapping rate? Is this good/enough? What factors could affect mapping rate?</li>
+</ul>
+</div>
+<div id="combine-individual-quant.sf-files-from-their-respective-directories-into-a-counts-data-matrix-with-all-38-samples-in-one-table" class="section level2">
+<h2>Combine individual <code>quant.sf</code> files from their respective directories into a counts data matrix with all 38 samples in one table</h2>
+<p>To do this, we’ll use the R package <code>tximport</code> on our class server. Here’s a <code>tximport</code> <a href="https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#salmon">tutorial</a> by the creators of the two programs, Salmon and DESeq2. Unless we decide to use multiple rounds of mapping (changing references, etc), only one person needs to make this compiled matrix. Here’s an example of how it can be done. First start <code>R</code> on the server by typing capital <code>R</code> and enter. Exciting! Right? Load the libraries we need (already installed).</p>
+<pre><code>library(tximportData)
+library(tximport)
+
+#locate the directory containing the files. 
+dir &lt;- &quot;/data/project_data/RNASeq/salmon/&quot;
+list.files(dir)
+
+# read in table with sample ids
+samples &lt;- read.table(&quot;/data/project_data/RNASeq/salmon/hudsonica_samples.txt&quot;, header=TRUE)
+
+# now point to quant files
+all_files &lt;- file.path(dir, samples$sample, &quot;quant.sf&quot;)
+names(all_files) &lt;- samples$sample
+
+# what would be used if linked transcripts to genes
+#txi &lt;- tximport(files, type = &quot;salmon&quot;, tx2gene = tx2gene)
+# to be able to run without tx2gene
+txi &lt;- tximport(all_files, type = &quot;salmon&quot;, txOut=TRUE)  
+names(txi)
+
+head(txi$counts)
+
+countsMatrix &lt;- txi$counts
+dim(countsMatrix)
+# should be about 51,000 by 38
+
+# To write out
+write.table(countsMatrix, file = &quot;AH_countsMatrix.txt&quot;, col.names = T, row.names = T, quote = F) </code></pre>
+<p>Now we can move this counts data matrix to your individual machines using your perferred ftp (fetch, Winscp, scp). Also move the <code>hudsonica_samples.txt</code> file to your machine. This file is a table that associates each of our samples with their conditions (treatment, generation, replicate).</p>
+</div>
+<div id="import-counts-matrix-and-sample-id-tables-into-r-and-deseq2-on-your-local-machine" class="section level2">
+<h2>Import Counts Matrix and Sample ID tables into R and DESeq2 on your local machine!</h2>
+<p>Now we will work in R on our individual machines, each of us working with the complete data set (n=38, not just a subset of samples).</p>
+<p>To get set up for next time:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">## Import or install the libraries that we're likely to need</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">library</span>(DESeq2)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="kw">library</span>(scales)</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">library</span>(ggpubr)</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="kw">library</span>(wesanderson)</a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="kw">library</span>(vsn)  <span class="co">### First: BiocManager::install(&quot;vsn&quot;) AND BiocManager::install(&quot;hexbin&quot;)</span></a></code></pre></div>
+<p><code>Tools</code> -&gt; <code>Install packages</code> -&gt; Search for the library of interest; Install including dependencies.</p>
+</div>
 </div>
 </section>
 
