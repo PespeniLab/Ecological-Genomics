@@ -16,7 +16,7 @@ fontsize: 18pt
 
 
 ## 1. Download the data onto your local machine from our server.
-Copy the files from `/data/project_data/RNAseq/tonsa_play` onto your local machine (scp, Winscp, Fetch, etc.)
+Copy the two files from `/data/project_data/RNAseq/tonsa_play` onto your local machine (scp, Winscp, Fetch, etc.)
 
 
 ## 2 and 3. Import Counts Matrix and Sample ID tables into R and DESeq2 on your local machine!
