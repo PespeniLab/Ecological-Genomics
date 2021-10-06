@@ -1,0 +1,41 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data"
+subtitle: "RNAseq Day 3"
+date: 'October 6, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today
+
+1. Play with _Acartia tonsa_ reciprocal transplant gene expression data (from the Brennan et al paper we read!)!
+2. Gain comfort and familarity working in R.
+3. Gain comfort and familarity working with [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) for analysis and visualization.
+
+
+## 1. Download the data onto your local machine from our server.
+Copy the files from `/data/project_data/RNAseq/tonsa_play` onto your local machine (scp, Winscp, Fetch, etc.)
+
+
+## 2 and 3. Import Counts Matrix and Sample ID tables into R and DESeq2 on your local machine!
+
+Now we will work in R on our individual machines.
+
+To get set up:
+```R
+
+## Import or install the libraries that we're likely to need
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)  ### First: BiocManager::install("vsn") AND BiocManager::install("hexbin")
+```
+`Tools` -> `Install packages` -> Search for the library of interest; Install including dependencies.
+
+From here, we'll do live coding together... nothing to copy and paste! =)

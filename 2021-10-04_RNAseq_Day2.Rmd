@@ -1,7 +1,7 @@
 ---
 title: "P/BIO381 Tutorials: Working with RNA-seq data"
 subtitle: "RNAseq Day 2"
-date: 'September 29, 2021'
+date: 'October 4, 2021'
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -140,12 +140,49 @@ Below is the basic command for running the quantification from the documentation
 ```
 screen
 conda activate salmon
-cd /data/project_data/RNAseq/cleandata
-salmon quant -i /data/project_data/RNAseq/assembly/hudsonica_index -l A \
-  -1 AA_F0_Rep1_1.qc.fq.gz AA_F4_Rep3_1.qc.fq.gz HA_F0_Rep1_1.qc.fq.gz HH_F0_Rep2_1.qc.fq.gz AA_F0_Rep2_1.qc.fq.gz AH_F0_Rep1_1.qc.fq.gz HA_F0_Rep2_1.qc.fq.gz HH_F0_Rep3_1.qc.fq.gz AA_F0_Rep3_1.qc.fq.gz AH_F0_Rep2_1.qc.fq.gz HA_F0_Rep3_1.qc.fq.gz HH_F11_Rep1_1.qc.fq.gz AA_F11_Rep1_1.qc.fq.gz AH_F0_Rep3_1.qc.fq.gz HA_F2_Rep1_1.qc.fq.gz HH_F11_Rep2_1.qc.fq.gz AA_F11_Rep2_1.qc.fq.gz AH_F2_Rep1_1.qc.fq.gz HA_F2_Rep2_1.qc.fq.gz HH_F11_Rep3_1.qc.fq.gz AA_F11_Rep3_1.qc.fq.gz AH_F2_Rep2_1.qc.fq.gz HA_F2_Rep3_1.qc.fq.gz HH_F4_Rep1_1.qc.fq.gz AA_F2_Rep2_1.qc.fq.gz AH_F2_Rep3_1.qc.fq.gz HA_F4_Rep1_1.qc.fq.gz HH_F4_Rep2_1.qc.fq.gz AA_F2_Rep3_1.qc.fq.gz AH_F4_Rep1_1.qc.fq.gz HA_F4_Rep2_1.qc.fq.gz HH_F4_Rep3_1.qc.fq.gz AA_F4_Rep1_1.qc.fq.gz AH_F4_Rep2_1.qc.fq.gz HA_F4_Rep3_1.qc.fq.gz AA_F4_Rep2_1.qc.fq.gz AH_F4_Rep3_1.qc.fq.gz HH_F0_Rep1_1.qc.fq.gz \
-  -2 AA_F0_Rep1_2.qc.fq.gz AA_F4_Rep3_2.qc.fq.gz HA_F0_Rep1_2.qc.fq.gz HH_F0_Rep2_2.qc.fq.gz AA_F0_Rep2_2.qc.fq.gz AH_F0_Rep1_2.qc.fq.gz HA_F0_Rep2_2.qc.fq.gz HH_F0_Rep3_2.qc.fq.gz AA_F0_Rep3_2.qc.fq.gz AH_F0_Rep2_2.qc.fq.gz HA_F0_Rep3_2.qc.fq.gz HH_F11_Rep1_2.qc.fq.gz AA_F11_Rep1_2.qc.fq.gz AH_F0_Rep3_2.qc.fq.gz HA_F2_Rep1_2.qc.fq.gz HH_F11_Rep2_2.qc.fq.gz AA_F11_Rep2_2.qc.fq.gz AH_F2_Rep1_2.qc.fq.gz HA_F2_Rep2_2.qc.fq.gz HH_F11_Rep3_2.qc.fq.gz AA_F11_Rep3_2.qc.fq.gz AH_F2_Rep2_2.qc.fq.gz HA_F2_Rep3_2.qc.fq.gz HH_F4_Rep1_2.qc.fq.gz AA_F2_Rep2_2.qc.fq.gz AH_F2_Rep3_2.qc.fq.gz HA_F4_Rep1_2.qc.fq.gz HH_F4_Rep2_2.qc.fq.gz AA_F2_Rep3_2.qc.fq.gz AH_F4_Rep1_2.qc.fq.gz HA_F4_Rep2_2.qc.fq.gz HH_F4_Rep3_2.qc.fq.gz AA_F4_Rep1_2.qc.fq.gz AH_F4_Rep2_2.qc.fq.gz HA_F4_Rep3_2.qc.fq.gz AA_F4_Rep2_2.qc.fq.gz AH_F4_Rep3_2.qc.fq.gz HH_F0_Rep1_2.qc.fq.gz \
-  --validateMappings -o /data/project_data/RNAseq/salmon/transcripts_quant
 ```
+
+```
+#!/bin/bash
+######
+#
+# quantify each sample with salmon
+#
+#######
+
+# -i points to the index files already created
+# -l A tells salmon that it should automatically determine the library type of the sequencing reads (e.g. stranded vs. unstranded etc.)
+# -p 8 says uses 8 threads
+# -o indicates the directory and name of output
+# seqbias corrects for random hexamer priming
+# gcbias corrects for gcbias, but only when present.
+
+conda activate salmon
+
+for i in $(ls /data/project_data/RNAseq/cleandata | grep '.fq.gz' | cut -f 1-3 -d "_"| uniq);
+do
+
+    echo "starting sample ${i}"
+    #starting with only name of rep. need to pull out files
+
+    read1=$(ls /data/project_data/RNAseq/cleandata | grep ${i} | grep '_1.qc.fq.gz')
+    read2=$(ls /data/project_data/RNAseq/cleandata | grep ${i} | grep '_2.qc.fq.gz')
+
+    salmon quant -i /data/project_data/RNAseq/assembly/hudsonica_index \
+        -l A \
+         -1 /data/project_data/RNAseq/cleandata/${read1} \
+         -2 /data/project_data/RNAseq/cleandata/${read2} \
+         -p 8  \
+         --softclip \
+         --seqBias \
+         --gcBias \
+         -o /data/project_data/RNAseq/salmon/transcripts_quant/${i}
+
+    echo "sample ${i} done"
+
+done
+```
+
 
 The descriptions of all of the options can be found on the [Salmon github page](https://salmon.readthedocs.io/en/latest/salmon.html#description-of-important-options) and by using the command `salmon quant -h`.
 

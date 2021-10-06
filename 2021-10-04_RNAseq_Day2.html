@@ -12,7 +12,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-<meta name="date" content="2021-09-29" />
+<meta name="date" content="2021-10-04" />
 
 <title>P/BIO381 Tutorials: Working with RNA-seq data</title>
 
@@ -129,7 +129,7 @@ a.sourceLine {
 <section class="page-header">
 <h1 class="title toc-ignore project-name">P/BIO381 Tutorials: Working with RNA-seq data</h1>
 <h3 class="subtitle project-tagline">RNAseq Day 2</h3>
-<h4 class="date project-date">September 29, 2021</h4>
+<h4 class="date project-date">October 4, 2021</h4>
 </section>
 
 
@@ -322,12 +322,45 @@ salmon index -t Bridger.fasta -i hudsonica_index -p 8</code></pre>
 <li>Second step: Start quantification! Below is the basic command for running the quantification from the documentation, <a href="https://salmon.readthedocs.io/en/latest/salmon.html">Salmon tutorial</a></li>
 </ol>
 <pre><code>screen
+conda activate salmon</code></pre>
+<pre><code>#!/bin/bash
+######
+#
+# quantify each sample with salmon
+#
+#######
+
+# -i points to the index files already created
+# -l A tells salmon that it should automatically determine the library type of the sequencing reads (e.g. stranded vs. unstranded etc.)
+# -p 8 says uses 8 threads
+# -o indicates the directory and name of output
+# seqbias corrects for random hexamer priming
+# gcbias corrects for gcbias, but only when present.
+
 conda activate salmon
-cd /data/project_data/RNAseq/cleandata
-salmon quant -i /data/project_data/RNAseq/assembly/hudsonica_index -l A \
-  -1 AA_F0_Rep1_1.qc.fq.gz AA_F4_Rep3_1.qc.fq.gz HA_F0_Rep1_1.qc.fq.gz HH_F0_Rep2_1.qc.fq.gz AA_F0_Rep2_1.qc.fq.gz AH_F0_Rep1_1.qc.fq.gz HA_F0_Rep2_1.qc.fq.gz HH_F0_Rep3_1.qc.fq.gz AA_F0_Rep3_1.qc.fq.gz AH_F0_Rep2_1.qc.fq.gz HA_F0_Rep3_1.qc.fq.gz HH_F11_Rep1_1.qc.fq.gz AA_F11_Rep1_1.qc.fq.gz AH_F0_Rep3_1.qc.fq.gz HA_F2_Rep1_1.qc.fq.gz HH_F11_Rep2_1.qc.fq.gz AA_F11_Rep2_1.qc.fq.gz AH_F2_Rep1_1.qc.fq.gz HA_F2_Rep2_1.qc.fq.gz HH_F11_Rep3_1.qc.fq.gz AA_F11_Rep3_1.qc.fq.gz AH_F2_Rep2_1.qc.fq.gz HA_F2_Rep3_1.qc.fq.gz HH_F4_Rep1_1.qc.fq.gz AA_F2_Rep2_1.qc.fq.gz AH_F2_Rep3_1.qc.fq.gz HA_F4_Rep1_1.qc.fq.gz HH_F4_Rep2_1.qc.fq.gz AA_F2_Rep3_1.qc.fq.gz AH_F4_Rep1_1.qc.fq.gz HA_F4_Rep2_1.qc.fq.gz HH_F4_Rep3_1.qc.fq.gz AA_F4_Rep1_1.qc.fq.gz AH_F4_Rep2_1.qc.fq.gz HA_F4_Rep3_1.qc.fq.gz AA_F4_Rep2_1.qc.fq.gz AH_F4_Rep3_1.qc.fq.gz HH_F0_Rep1_1.qc.fq.gz \
-  -2 AA_F0_Rep1_2.qc.fq.gz AA_F4_Rep3_2.qc.fq.gz HA_F0_Rep1_2.qc.fq.gz HH_F0_Rep2_2.qc.fq.gz AA_F0_Rep2_2.qc.fq.gz AH_F0_Rep1_2.qc.fq.gz HA_F0_Rep2_2.qc.fq.gz HH_F0_Rep3_2.qc.fq.gz AA_F0_Rep3_2.qc.fq.gz AH_F0_Rep2_2.qc.fq.gz HA_F0_Rep3_2.qc.fq.gz HH_F11_Rep1_2.qc.fq.gz AA_F11_Rep1_2.qc.fq.gz AH_F0_Rep3_2.qc.fq.gz HA_F2_Rep1_2.qc.fq.gz HH_F11_Rep2_2.qc.fq.gz AA_F11_Rep2_2.qc.fq.gz AH_F2_Rep1_2.qc.fq.gz HA_F2_Rep2_2.qc.fq.gz HH_F11_Rep3_2.qc.fq.gz AA_F11_Rep3_2.qc.fq.gz AH_F2_Rep2_2.qc.fq.gz HA_F2_Rep3_2.qc.fq.gz HH_F4_Rep1_2.qc.fq.gz AA_F2_Rep2_2.qc.fq.gz AH_F2_Rep3_2.qc.fq.gz HA_F4_Rep1_2.qc.fq.gz HH_F4_Rep2_2.qc.fq.gz AA_F2_Rep3_2.qc.fq.gz AH_F4_Rep1_2.qc.fq.gz HA_F4_Rep2_2.qc.fq.gz HH_F4_Rep3_2.qc.fq.gz AA_F4_Rep1_2.qc.fq.gz AH_F4_Rep2_2.qc.fq.gz HA_F4_Rep3_2.qc.fq.gz AA_F4_Rep2_2.qc.fq.gz AH_F4_Rep3_2.qc.fq.gz HH_F0_Rep1_2.qc.fq.gz \
-  --validateMappings -o /data/project_data/RNAseq/salmon/transcripts_quant</code></pre>
+
+for i in $(ls /data/project_data/RNAseq/cleandata | grep '.fq.gz' | cut -f 1-3 -d &quot;_&quot;| uniq);
+do
+
+    echo &quot;starting sample ${i}&quot;
+    #starting with only name of rep. need to pull out files
+
+    read1=$(ls /data/project_data/RNAseq/cleandata | grep ${i} | grep '_1.qc.fq.gz')
+    read2=$(ls /data/project_data/RNAseq/cleandata | grep ${i} | grep '_2.qc.fq.gz')
+
+    salmon quant -i /data/project_data/RNAseq/assembly/hudsonica_index \
+        -l A \
+         -1 /data/project_data/RNAseq/cleandata/${read1} \
+         -2 /data/project_data/RNAseq/cleandata/${read2} \
+         -p 8  \
+         --softclip \
+         --seqBias \
+         --gcBias \
+         -o /data/project_data/RNAseq/salmon/transcripts_quant/${i}
+
+    echo &quot;sample ${i} done&quot;
+
+done</code></pre>
 <p>The descriptions of all of the options can be found on the <a href="https://salmon.readthedocs.io/en/latest/salmon.html#description-of-important-options">Salmon github page</a> and by using the command <code>salmon quant -h</code>.</p>
 </div>
 <div id="explore-mapping-rate" class="section level2">
@@ -376,16 +409,16 @@ write.table(countsMatrix, file = &quot;AH_countsMatrix.txt&quot;, col.names = T,
 <h2>Import Counts Matrix and Sample ID tables into R and DESeq2 on your local machine!</h2>
 <p>Now we will work in R on our individual machines, each of us working with the complete data set (n=38, not just a subset of samples).</p>
 <p>To get set up for next time:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">## Import or install the libraries that we're likely to need</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">library</span>(DESeq2)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">library</span>(dplyr)</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="kw">library</span>(scales)</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">library</span>(ggpubr)</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="kw">library</span>(wesanderson)</a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="kw">library</span>(vsn)  <span class="co">### First: BiocManager::install(&quot;vsn&quot;) AND BiocManager::install(&quot;hexbin&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co">## Import or install the libraries that we're likely to need</span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="kw">library</span>(DESeq2)</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="kw">library</span>(scales)</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="kw">library</span>(ggpubr)</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="kw">library</span>(wesanderson)</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="kw">library</span>(vsn)  <span class="co">### First: BiocManager::install(&quot;vsn&quot;) AND BiocManager::install(&quot;hexbin&quot;)</span></a></code></pre></div>
 <p><code>Tools</code> -&gt; <code>Install packages</code> -&gt; Search for the library of interest; Install including dependencies.</p>
 </div>
 </div>
