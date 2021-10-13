@@ -23,3 +23,6 @@ fontsize: 18pt
 6. 2021-09-29: [RNAseq tutorial day one](2021-09-29_RNAseq_Day1.html)
 7. 2021-10-04: [RNAseq tutorial day two](2021-10-04_RNAseq_Day2.html)
 8. 2021-10-06: [RNAseq tutorial day three](2021-10-06_RNAseq_Day3.html)
+
+9-10. 2021-10-12: [RNAseq tutorial days four and five](2021-10-11_RNAseq_Day4.html)
+
