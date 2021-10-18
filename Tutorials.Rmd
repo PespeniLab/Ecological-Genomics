@@ -26,3 +26,7 @@ fontsize: 18pt
 
 9-10. 2021-10-12: [RNAseq tutorial days four and five](2021-10-11_RNAseq_Day4.html)
 
+**Population Genomics**
+
+11. 2021-10-18: [PopGen Day 1](2021-10-18_PopGenomics_Day1.html)
+
