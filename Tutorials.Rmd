@@ -30,3 +30,4 @@ fontsize: 18pt
 
 11. 2021-10-18: [PopGen Day 1](2021-10-18_PopGenomics_Day1.html)
 12. 2021-10-20: [PopGen Day 2](2021-10-20_PopGenomics_Day2.html)
+13. 2021-10-25: [PopGen Day 3](2021-10-25_PopGenomics_Day3.html)
