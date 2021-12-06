@@ -1,0 +1,339 @@
+---
+title: "P/BIO381 Tutorials: Working with 16S microbiome data"
+date: 'September 13, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today and over the course of the microbiome module
+
+1. Recount and describe the types of nucleic acids that can be sequenced and why each material would be sequenced.
+2. Learn about [_Pycnopodia helianthoides_](https://www.centralcoastbiodiversity.org/sunflower-star-bull-pycnopodia-helianthoides.html) and the experimental design.
+3. Articulate the questions we can address and hypotheses we can test with this experimental design.
+4. Learn the general work flow or "pipeline" for processing and analyzing 16S microbiome data.
+5. Review how to make/write a bash script and develop a system for keeping well-annotated code or an electronic lab notebook.
+6. Visualize and interpret Illumina data quality (view .fastq files).
+7. Become familiar with and start using the [Qiime2](https://docs.qiime2.org/2021.8/) microbiome analysis package.
+8. Import *.fq.gz files into Qiime to visualize quality, determine filtering parameters, filter, visualize.
+9. Develop and test hypotheses about sunflower sea star microbial diversity!
+10. Add to your growing list of bioinformatics tricks (take notes!).
+
+
+## Sampling the sunflower star as Sea Star Wasting Disease first reached Alaska.
+
+The sunflower star, _Pycnopodia helianthoides_, is the largest sea star with over 20 arms, weighing over 10 lbs, and a 2.5 foot diameter. Not surprisingly, they're the fastest sea star using their 15,000 tubefeet to cruise at a rate of 6 ft/min to overcome their prey - urchins, abalone, anything that is not faster than them. They live from the cold waters of Alaska to the warmer waters of Baja California, Mexico. They play a critical role in ecosystem functioning as a predator of urchins they are guardians of kelp forests, which in turn are important nurseries for fish. 
+
+In July 2016, Kyle Hebert, Alask Department of Fish & Game, was reading his UVM alum newsletter and came across our work on Sea Star Wasting Disease (*Note: the importance of communicating about your science!). He volunteerd to collect samples for us in AK! My former postdoc, Melanie Lloyd was able to join them on the research vessel leaving out of Juneau to cruise around the islands Southeast Alaska!
+
+### "Experimental Design":
+
+In the summer of 2016, sea stars in Alaska were just beginning to show signs of Wasting Disease even though the epidemic started further south in 2013/2014. Some sites in SE Alaska had been impacted, some sites were naive. Our ideal design was to have epidermal biopsy samples from twenty individuals from both naive and impacted sites. At impacted sites, samples would ideally include biopsies from both healthy and sick individuals. See table below for actual samples.
+
+1. Seven sites total; five impacted, two naive.
+
+2. Sea star health status: Healthy, sick
+  
+### Realized number of pycnopodia samples collected and sequenced:  N=85
+
+|Site num. | Site state  |Star health    |Num. ind.  |
+|-----------|-------------|-------|-------|
+|Site 01    |Naive      | healthy     |23      |
+|Site 02    |Naive      | healthy     |24      |
+|Site 08    |Impacted   | healthy    |0      |
+|Site 08    |Impacted   | sick     |2      |
+|Site 12    |Impacted   | healthy     |4      |
+|Site 12    |Impacted   | sick    |2      |
+|Site 13    |Impacted    | healthy     |6      |
+|Site 13     |Impacted   | sick     |4      |
+|Site 14     |Impacted   | healthy    |0      |
+|Site 14    |Impacted    | sick     |2      |
+|Site 15   |Impacted    | healthy     |10      |
+|Site 15    |Impacted   | sick    |8      |
+|-----------|-------------|-------|-------|
+|Total      |             |       |85     |
+
+### GPS coordinates of collection sites:
+|Site num. | Lat./Long.   |
+|-----------|-----------|
+|Site 01    |58.4926	-134.7912	      | 
+|Site 02    |58.4929	-134.7894      | 
+|Site 08    |57.8090	-134.9527	   | 
+|Site 12    |57.8887	-135.1344   | 
+|Site 13    |57.9218	-135.176	   | 
+|Site 14    |57.9354	-135.1663	   | 
+|Site 15    |57.9065	-135.0762   | 
+
+### Library prep and sequencing
+
+* Biopsies of aboral epidermal tissue (size of a grain of rice) were saved in RNAlater (and ethanol). For stars with signs of wasting, biopsy was taken at the edge of a lesion.
+* RNA was extracted using TRIzol and assessed for quality by gel electrophoresis and Bioanalyzer.
+* cDNA was made by reverse transcription; V3-V4 region of 16S ribosomal RNA was amplified.
+* Sequencing libraries were prepared using the Illumina 16S metagenomic sequencing library preparation kit and protocol.
+* Libraries were sent to RapidGenomics (FL) for sequencing on an Illumina MiSeq to generate 2 x 300 bp overlapping paired-end (PE) reads 
+
+## What questions can we ask/address with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+
+## Data Processing Pipeline:
+
+Become familiar with [Qiime2](https://docs.qiime2.org/2021.8/) and the extensive web-based resources.
+
+* Install miniconda and Qiime on server.
+* Transfer data to server.
+* Create a metadata file (called "manifest" in Qiime2)
+* Import the data into Qiime to make an "artifact".
+* Visualize the quality using [Qiime2view](https://view.qiime2.org/).
+* Based on visualization, decide how to filter and trim reads.
+* "Denoise" the data using [DADA2](https://pubmed.ncbi.nlm.nih.gov/27214047/) within Qiime2 to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences. DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. 
+
+Excellent tutorials can be found here [general](https://docs.qiime2.org/2021.8/tutorials/moving-pictures/) and here [with example data](https://docs.qiime2.org/2021.8/tutorials/atacama-soils/).
+
+Tips/notes: 
+* Filenames that end in `.qza` are 'artifact' files the hold a lot of information; filenames that end in `.qzv` are 'visualization' files that can be viewed in [Qiime2view](https://view.qiime2.org/). Since Qiim2view is a web-based application, you must transfer these .qzv files to your local machine (your computer) to be able to view them using a web browser.
+* Commands usually require input files called for with `--i` and generate output files that you name with `--o`.
+
+### Check out Illumina data! Explore the .fastq (or .fq) file type
+
+Let's take a peak into a file and learn something about what a .fastq file is:
+
+```bash
+$ zcat SS15_08_R2.fq.gz | head -n4
+@M05470:16:000000000-B6H2P:1:1101:11929:1133 2:N:0:NGAGGCTG+NTAAGGAG
+GACTACTAGGGTATCTAATCCTGTTCGCTCCCCACGCTTTCGTGCCTCAGCGTCAGTTACAGTCTGGCAAGCTGCCTTCGCTATCGGTGTNCTGTGTTATATCTAAGCATTTCACCGCTACACAACNCATTCCGCCTGCCTCGTCTGTACTCAAGCTCTACAGTTTCAATAGCACGTNCGAAGTTGAGCTTCGAGATTTCACTACTGACTTTNNNNNCCGCCTACGCACCCTTTAAACCCAATAANACCGGATAACGCTTGAATCCTCCGTATTACCGCGACTGCTAGGACGGAGTTACCC
++
+CCCCCGGGGGGGGGGGGFGGGGGGGGGGGGEFFFGGGGGGGGGFGGGGF@FGGGGFFFFGGGGGCFGGGGGGGGGGGGFFGGGGGGFFGG#:A<A<FGGGGGGGGFGGGGGGGGGGGGDEEGFFF:#:B<FEFFEGGGGFEFCGEFGGGGFCDDEF88;FDFGGGGGFFGFGGGGGG#36++=+3,,5?FGGGGE@)@CGFC+7@DCCFFG+#####48/8<)-7AD=2>C*,=*@9*-5:A(5;#((8/=>*:8*,1*3/6;5E34.2-2(,.66<:09(-(-16))(.),((2-,-)).
+```
+
+```bash
+$ zcat SS15_08_R1.fq.gz | head -n4
+@M05470:16:000000000-B6H2P:1:1101:11929:1133 1:N:0:NGAGGCTG+NTAAGGAG
+NCTACGGGGGGCAGCAGTGAGGAATATTGGTCAATGGTCGAAAGACTGAACCAGCCATGTCGCGTGAAGGATGACGGCCCTATGGGTTGTAAACTTCTTTTGTATGGGAAGAAAAGCAGTTACGTGTAACTGTCTGCNGGTACCATACGAATAAGGATCGGCTAACTCCGTGCCAGCAGCCGCGGTAATACGGAGGATTCAAGCGTTATCCGGATTGATTGGGTTTAAAGGGTGCGTAGGCGGCTCTATAAGGCAGTANTNNANNNNCGAAGCTCAACTTCGAACGTGNNNNTGAAACTGT
++
+#8ACCGEFFF08888CFCFFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGFFEFFFGGGGFFGGGGGGFGGGGGGGGGGFGGGGGG:CFGGCFFGGGGGGGGFGGGGEFCGFGGGGCFFGG>FGGCCFGGGGGG#6=CFGGGGGGGFFFCFGEFBEBCEFFGGGEGGGGGFGGCFCEFGGGG8>CGFGGECEECFGG7:F,>EC5>?FCGE*1,,<AAGG*AC8<FFFB8C/?*C5C4C;>*:09:?4C+788:)#*##-####*)-2;:<77<:C<,28C591:####(--A>CFF+
+```
+
+*Note:* `zcat` lets us open a .gz (gzipped) file like `cat`; we then "pipe" `|` this output from `zcat` to the `head` command and print just the top 4 lines `-n4`
+
+The fastq file format** has 4 lines for each read: 
+
+| Line | Description                              |
+| ---- | ---------------------------------------- |
+| 1    | Always begins with '@' and then information about the read |
+| 2    | The actual DNA sequence                  |
+| 3    | Always begins with a '+' and sometimes the same info in line 1 |
+| 4    | A string of characters which represent the **quality** scores; always has same number of characters as line 2 |
+
+Line 1 breakdown:
+```
+@<instrument>:<run number>:<flowcell ID>:<lane>:<tile>:<x-pos>:<y-pos> <read>:<is filtered>:<control number>:<sample barcode>
+```
+
+[Here's a useful reference for understanding Quality (Phred) scores](https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/QualityScoreEncoding_swBS.htm).  If P is the probability that a base call is an error, then:
+
+P = 10^(–Q/10)
+
+Q = –10 log10(P)
+
+So:
+
+| Phred Quality Score | Probability of incorrect base call | Base call accuracy |
+| ------------------- | ---------------------------------- | ------------------ |
+| 10                  | 1 in 10                            | 90%                |
+| 20                  | 1 in 100                           | 99%                |
+| 30                  | 1 in 1000                          | 99.9%              |
+| 40                  | 1 in 10,000                        | 99.99%             |
+
+***The Phred Q score is translated to ASCII characters so that a two digit number can be represented by a single character.*** So clever! 
+
+```
+ Quality encoding: !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHI
+                   |         |         |         |         |
+    Quality score: 0........10........20........30........40   
+```
+
+*What kinds of characters do you want to see in your quality score?* 
+
+## Microbial diversity data analyses
+1. The first step is to **build a phylogentic tree** among all the identified taxa in our samples using `qiime phylogeny align-to-tree-mafft-fasttree`. This step is not visualized, but the output files will be used to calculate diversity metrics.
+
+2. **Calculate core diversity metrics:** Qiime2 will calculate a wide range of diversity metrics with one command `qiime diversity core-metrics-phylogenetic`. But we need to make one important decision first - how far down to we want to rarify or subsample our data to set our `--p-sampling-depth`. To make this decision, let's look at the feature counts in the "interactive sample detail" tab of the `table.qzv` using [Qiime2view](https://view.qiime2.org/).
+
+- Alpha diversity - "within-sample" diversity
+  - Shannon’s diversity index (a quantitative measure of community richness)
+  - Observed Features (a qualitative measure of community richness)
+  - Faith’s Phylogenetic Diversity (a qualitiative measure of community richness that **incorporates phylogenetic relationships** between the features)
+  - Evenness (or Pielou’s Evenness; a measure of community evenness)
+  
+  - Test for differences in alpha diversity among groups, correlations with factors.
+
+- Beta diversity - "between-sample" diversity - dissimilarity
+  - Jaccard distance (a qualitative measure of community dissimilarity)
+  - Bray-Curtis distance (a quantitative measure of community dissimilarity)
+  - unweighted UniFrac distance (a qualitative measure of community dissimilarity that incorporates phylogenetic relationships between the features)
+  - weighted UniFrac distance (a quantitative measure of community dissimilarity that incorporates phylogenetic relationships between the features) - *weighted* means it takes into account the abundance of each sequence
+  
+  - Perform beta diversity ordination using PCoA
+  - Test for differences in beta diversity among groups, correlations with factors.
+  
+3. **Assign taxonomies** - who's there?
+
+4. **Test for differential abundance** using ANCOM or gneiss
+
+5. **Export and make pretty plots in R using ggplot2**
+
+
+# Data processing commands
+## Install Qiime
+Instructions [here](https://docs.qiime2.org/2021.8/install/)
+
+1. First, install miniconda
+`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.10.3-Linux-x86_64.sh`
+`./conda update conda`
+
+Close and reopen terminal for conda to be found in $PATH
+
+2. Install qiime
+Follow instructions [here](https://docs.qiime2.org/2021.8/install/)
+
+
+## Importing data to Qiime
+Make the qiime "artifact" .qza file 
+```
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path pyc_subset_manifest \
+  --input-format PairedEndFastqManifestPhred33V2 \
+  --output-path demux-paired-end.qza
+```
+Make a file to visualize the metadata (not necessary)
+```
+qiime metadata tabulate \
+  --m-input-file pyc_subset_manifest \
+  --o-visualization tabulated-pyc_sub-metadata.qzv
+
+```
+Generate quality summary plots
+```
+qiime demux summarize \
+  --i-data demux-paired-end.qza \
+  --o-visualization demux-pyc-sub.qzv
+```
+
+From my machine, move vis (.qzv) file to my computer to be able to view online at [https://view.qiime2.org/](https://view.qiime2.org/).
+```
+scp mpespeni@pbio381.uvm.edu:/data/project_data/tabulated-pyc_sub-metadata.qzv .
+scp mpespeni@pbio381.uvm.edu:/data/project_data/demux-pyc-sub.qzv .
+
+```
+Use the web-based viewer and interactive plots to determine any trimming needed.
+PE 300bp sequencing on Illumina MiSeq of amplified V3-V4 regions of 16S rRNA
+On the forward reads, trim 16 from beginning, 13 from end (base 289).
+On the reverse reads, trim 0 from beginning, 45 from end (base 257).
+
+## Filtering data by quality - Denoise the data with DADA2
+
+"Denoising" using [DADA2](https://pubmed.ncbi.nlm.nih.gov/27214047/) is a method to filter out noisy sequences, correct errors in marginal sequences, remove chimeric sequences, remove singletons, join denoised paired-end reads, and then dereplicate those sequences.
+
+The features produced by denoising methods are often called “amplicon sequence variant” (ASV).
+
+Note: the step below is important, big, and takes a long time. Run with a `screen`.
+
+```
+conda activate qiime2-2021.8
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux-paired-end.qza \
+  --p-n-threads 20 \
+  --p-trim-left-f 16 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 289 \
+  --p-trunc-len-r 257 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+  
+```
+Above got an error (see below). May be permissions, since I made another directory or CPUs or not enough space in the tmp directory.
+```
+1) Filtering Error in writeFastq(fqF, fout[[1]], "a", compress = compress) :
+  failed to write record 10224
+Execution halted
+```
+```
+cat /proc/cpuinfo # see how many cores our server has (24!)
+lscpu
+```
+
+Make a "tmp" directory for temporary files within /data/ because the /tmp directory is too small. Necessary for running DADA2 (and perhaps importing all files into qiime would work with this new tmpdir).
+```
+cd /data/project_data/16S
+mkdir tmptmpdir
+export TMPDIR="/data/project_data/16S/tmptmpdir"
+```
+
+
+
+DADA2 makes artifacts containing the feature table, corresponding feature sequences, and DADA2 denoising stats. The following code generates summaries of these files.
+
+```
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file pyc_subset_manifest
+
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
+
+qiime metadata tabulate \
+  --m-input-file denoising-stats.qza \
+  --o-visualization denoising-stats.qzv
+```
+
+Looking at the table.qzv, the sample with the fewest feature counts in SS15_03 with 13547 features.
+
+Need to generate a phylogentic tree among all the identified taxa in our samples using `qiime phylogeny align-to-tree-mafft-fasttree`. This step is not visualized, but the output files will be used to calculate diversity metrics.
+
+```
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs.qza \
+  --o-alignment aligned-rep-seqs.qza \
+  --o-masked-alignment masked-aligned-rep-seqs.qza \
+  --o-tree unrooted-tree.qza \
+  --o-rooted-tree rooted-tree.qza
+```
+
+```
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 13000 \
+  --m-metadata-file pyc_subset_manifest \
+  --output-dir core-metrics-results
+```
+Move over the .qzv files to check out the results on Qiime2view!
+```
+scp mpespeni@pbio381.uvm.edu:/data/project_data/16S/core-metrics-results/*.qzv .
+```
+
+Test for associations between categorical metadata columns and alpha diversity data. We’ll do that here for the Faith Phylogenetic Diversity (a measure of community richness) and evenness metrics.
+
+```
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/evenness_vector.qza \
+  --m-metadata-file pyc_subset_manifest \
+  --o-visualization core-metrics-results/evenness-group-significance.qzv
+```
