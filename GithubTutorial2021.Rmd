@@ -1,0 +1,52 @@
+---
+title: "Github Tutorial"
+output: html_document
+---
+Note: you can choose to use github on your browser, or your desktop through the app. You do not need to do both.
+If you've already made a repository you can skip *Making a Github Repository* and go to the last step of *Adding additional files to your repo*
+
+Make a github account [here](https://github.com/) and download github desktop [here](https://desktop.github.com/)
+
+## Making a Github Repository
+
+
+### On your browser
+1. Navigate to your profile
+2. Click the Repositories link at the top of the page
+3. Select the green *New* button in the top right corner of your screen
+4. Name your repository and select the green *Create Repository* button at the bottom of the screen
+
+### Add to the desktop app
+1. In the blue box titled "Quick setup" click the *setup in desktop* button
+2. This should prompt your Github Desktop to open. Select the button on the pop-up that says *clone repository*
+3. The repository should show up in the left panel on the desktop app. To find the path to where this repository was made on your local machine, right click and select *show in finder*.
+4. You may want to move your repository to a more convenient location (possibly where all your Ecological Genomics files live)
+
+
+## Uploading initial files
+
+### On your browser
+1. In the blue quick setup box, select the *uploading an existing file* link
+2. Select files to add to your repository <br /> 
+3.Click the green *commit changes* button
+
+### On the desktop app 
+1. Move files to your github repository folder on your desktop (The file should show up in the left panel of your app)
+2. Add a description of the file you're adding next to your github icon
+3. Select the *commit to master* button
+4. Click the *publish branch* button
+5. Adding additional files is done the same way, but the button will say *push to origin*
+
+## Adding additional files to your repo
+
+### On your browser
+1. At the top of your repository page, select the *add file* button
+2. Select files to add to your repository <br /> 
+3.Click the green *commit changes* button
+
+### On the desktop app 
+1. Move files to your github repository folder on your desktop (The file should show up in the left panel of your app)
+2. Add a description of the file you're adding next to your github icon
+3. Select the blue *commit to master* button <br />
+4.Select the *push to origin* button at the top of your screen
+
