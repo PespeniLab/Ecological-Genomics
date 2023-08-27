@@ -9,6 +9,8 @@ fontsize: 18pt
 **This webpage serves as a reference and resource for the Ecological Genomics course at the University of Vermont** 
 
 1. [Getting Started](Getting_started.html)
-2. [Tutorials and scripts](Tutorials.html)     
+2. [Tutorials and scripts](Tutorials.html) 
+3. [Student github repos](Class_members.html)
+
 
 

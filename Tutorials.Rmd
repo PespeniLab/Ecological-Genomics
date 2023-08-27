@@ -10,31 +10,13 @@ fontsize: 18pt
 
 # List of Tutorials and scripts
 
-1. 2021-12-16: [Github Tutorial](GithubTutorial2021.html)
+**Intro**
 
-**Microbiome Module**
+1. 2023-08-30: [Github Tutorial](GithubTutorial.html)
 
-1. 2021-09-13: [Microbiome tutorial day one](2021-09-13_microbiome_Day1.html)
-2. 2021-09-15: [Microbiome tutorial day two](2021-09-15_microbiome_Day2.html)
-3. 2021-09-20: [Microbiome tutorial day three](2021-09-20_microbiome_Day3.html)
-4. 2021-09-22: [Microbiome tutorial day four](2021-09-22_microbiome_Day4.html)
-5. 2021-09-27: [Microbiome tutorial day five](2021-09-27_microbiome_Day5.html), plus supplemental code for [taxonomic identification](2021_09_27_microbiome_supp_taxaID.html).
+**Population & Landscape Genomics Module**
 
-**RNAseq Module**
+**Transcriptomics Module**
 
-6. 2021-09-29: [RNAseq tutorial day one](2021-09-29_RNAseq_Day1.html)
-7. 2021-10-04: [RNAseq tutorial day two](2021-10-04_RNAseq_Day2.html)
-8. 2021-10-06: [RNAseq tutorial day three](2021-10-06_RNAseq_Day3.html)
+**Metagenomics/Microbiome Module**
 
-9-10. 2021-10-12: [RNAseq tutorial days four and five](2021-10-11_RNAseq_Day4.html)
-
-**Population Genomics**
-
-11. 2021-10-18: [PopGen Day 1](2021-10-18_PopGenomics_Day1.html)
-12. 2021-10-20: [PopGen Day 2](2021-10-20_PopGenomics_Day2.html)
-13. 2021-10-25: [PopGen Day 3](2021-10-25_PopGenomics_Day3.html)
-14. 2021-10-27: [PopGen Day 4](2021-10-27_PopGenomics_Day4.html)
-15. 2021-11-01: [PopGen Day 5](2021-11-01_PopGenomics_Day5.html)
-16. 2021-11-03: [PopGen Day 6](2021-11-03_PopGenomics_Day6 (1).html)
-17. 2021-11-08: [PopGen Day 7](2021-11-08_PopGenomics_Day7 (1).html)
-18. 2021-11-10: [PopGen Day 8](2021-11-010_PopGenomics_Day8.html)
