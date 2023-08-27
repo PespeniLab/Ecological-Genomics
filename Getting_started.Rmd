@@ -3,7 +3,6 @@ title: "Getting Started in Ecological Genomics"
 output:
   prettydoc::html_pretty:
     theme: cayman
-    toc: TRUE
 fontsize: 18pt
 ---
 

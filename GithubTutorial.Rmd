@@ -1,6 +1,9 @@
 ---
 title: "Github Tutorial"
-output: html_document
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
 ---
 Note: you can choose to use github on your browser, or your desktop through the app. You do not need to do both.
 If you've already made a repository you can skip *Making a Github Repository* and go to the last step of *Adding additional files to your repo*
