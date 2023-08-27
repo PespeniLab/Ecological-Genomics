@@ -1,0 +1,141 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 1: Intro to SNP and Genotype Calling"
+date: 'Feb 26, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Goals:
+* Take sequence alignment files (sam) and extract mapping stats & read depth coverage
+* Convert sam to binary (bam) format, and use samtools/bcftools for SNP detection
+* Learn Variant Call Format (vcf) for storing SNP genotypes
+* Begin to evaluate filtering strategies for determining high-quality SNPs for downstream analyses
+
+
+We're going to first call SNPs using the widely used program '**Samtools**'. Manual can be found [here](http://www.htslib.org/doc/samtools.html)
+
+Samtools is a powerful tool for manipulating sam files (and their binary equivalent, bam), and for "piling up" all those reads across our sample individuals to call SNPs and genotypes
+
+
+Let's practice our bash writing code by working with each of our individual sam files from the RNASeq mapping, and using samtools to:
+
+  1. Convert from sam >> bam
+  2. Check mapping stats
+  3. Fix reads that are no longer mated (paired)
+  4. Remove duplicates (takes awhile)
+  5. Index for computational efficiency
+  6. Use the companion program [bcftools](https://samtools.github.io/bcftools/bcftools.html) to call SNPs and genotypes
+  
+Another cool feature of samtools is that it has an internal aligment viewer called 'tview'. Let's use tview to look at your bam alignments after indexing. There's also a lot of information in our alignments that will be important for analyzing the SNP data downstream. 
+
+*These are things like:*
+
+- **Position**: Where is the SNP located within a contig or chromosome of the reference assembly?
+- **Alleles**: What are the alleles present at a given SNP? Are there only 2, or are there more? Are they single-nucleotide differences? Which SNPs are seqeuncing errors and which are real?
+- **Depth**: How many reads cover a given SNP? How many reads were observed for each allele?
+- **Genotype Quality (GQ):**  How confident are we that we're calling the correct genotype (ex., AA, AT, or TT)? How can we tell a heterozygote from sequencing error?
+
+------
+
+## Variant Call Format (VCF) for SNP data ## 
+
+After SNP calling is done, we generally store just the polymorphic sites in a new file.
+
+As usual, the community has converged on a common standard to represent these large and sometimes complex SNP data files. It is known as the Variant Call Format, or VCF. Here's a link to the description of what each field in a VCF file means:  [VCF version 4.3 file definition](https://github.com/samtools/hts-specs/blob/master/VCFv4.3.pdf)
+
+We'll be working with vcf files a lot as we conduct the population genomics section of the course. The first step in learning how to work with these files is to use a program called **VCFTools** for parsing your data file into just those samples and sites of interest, and to calculate diversity stats on these.
+
+The manual page for VCFtools is an excellent resource! [The latest version is here.](https://vcftools.github.io/man_latest.html) 
+
+
+We're going to use VCFtools to examine the effects of different filtering strategies on the number of SNPs we get and their quality. The first step is seeing if VCFtools likes our file format, and getting some basic info on the # of SNPs and samples.
+
+```bash
+$ vcftools --vcf filename.vcf
+```
+
+This will return some basic info that should match of general expectations of sample size. 
+
+​	*Did it detect the correct number of individuals?* 
+
+​	*How many SNPs do we have?*
+
+
+
+Now, let's try filtering out positions that are likely to be errors in the sequencing or genotyping process. For now, let's just identify how many SNPs would pass each filter without actually changing the datafile at all. Then, we can decide what combination of filters we may want to implement.
+
+### Record for each of the following steps the number of SNPs (aka sites) that would be make it through each filter:###
+
+####* *Biallelic vs. multi-allelic SNPs:*  Keep only sites with 2 alleles. ####
+  * Rationale: When looking at diversity within species, it's very rare to have mutations occur at the same position. So, SNPs with >2 alleles probably reflect sequence or mapping errors. We also want to get rid of SNPs showing <2 alleles.
+
+```bash
+$ vcftools --vcf filename.vcf --min-alleles 2 --max-alleles 2
+```
+
+####* *Genotype Quality (GQ):*  Treat genotypes below a certain (phred-scaled) likelihood threshold as 'missing' ####
+  * Rationale: Even when average read depth is low, the GQ scores provide useful information on the multinomial likelihood that the called genotype is correct. Remember, these are expressed in phred-scaled quantities (GQ = -10 x Log10(Probability of G)). Let's start by setting a GQ threshold of 10 (=90% confidence)*
+
+```bash
+$ vcftools --vcf filename.vcf --minGQ 10
+```
+
+####* *Missing data across individuals:* Get rid of sites where  fewer than 50% of our samples have data. ####
+  - Rationale: Missing data is a problem for any analysis, and population genetic statistics can behave oddly (i.e.. become biased) when a lot of individuals are missing data for a given SNP. 
+
+```bash
+$ vcftools --vcf filename.vcf --max-missing 0.5
+```
+
+
+####* *Minor allele count (MAC):* Gets rid of very rare SNPs (based on a user-defined threshold).####
+  * Rationale: Sequencing errors are relatively common, but they tend to happen randomly and affect only 1 read at a time. Thus, if we have a SNP that is only seen very rarely, it may be a sequencing error, and should be discarded. For us, the most liberal filters would be having a minimum of 2 copies of the minor allele present out of the total 2N copies.
+
+```bash
+$ vcftools --vcf filename.vcf --mac 2
+```
+
+
+
+### Combining filters: ###
+
+We can combine filters instead of applying them one at a time:
+
+```bash
+$ vcftools --vcf filename.vcf --min-alleles 2 --max-alleles 2 --minGQ 10 --max-missing 0.5 --mac 2 
+```
+
+
+## Evaluating the influence of genotype uncertainty on inferences of genetic diversity
+
+VCFtools also can provide output in the form of many useful summary stats on a vcf file. We'd like to know how sensitive our inferences of diversity are to the range of GQ values present among SNP sites, which directly relates to how much confidence we have that a genotype has been called correctly. 
+
+We can write a bash script with a do-loop to run vcftools iteratively for each of a range of GQ values. Unix will take a continous range of a variable and process it in a loop using curly brackets, like {10..25}, or for a fixed set of values like 10 15 20 25.
+
+Let's look at the influence of GQ filtering on the homozygosity inferred for each individual (also known as *F*).Vcftools let's us quickly calculate that using the '--het' option. Let's put that into a loop and let our bash script do the work for us.
+
+You can then bring the outputs into R to plot how diversity relates to the stringency of your filters.
+
+
+### Comparing between SNP callers:
+
+In addition, as a comparison to the 'samtools' SNP caller, I also called SNPs using the method implemented in Gayral et al. (2014) that we read today called '**reads2snp**'. It will be interesting to compare how the to programs agree (or not).
+
+During SNP calling, **reads2snps** applied the following criteria when calling SNPs:
+
+
+* Minimum depth to call a genotype = 5 reads
+* Minimum genotype posterior probability = 0.90
+
+
+Any SNPs that didn't meet that criteria were flagged as **unres** (=unresolved) and set to missing data in the vcf file. Similarly, loci that show evidence of paralogy were flagged as **para**.
+
+  *How could we quickly find out how many SNPs were flagged as unresolved?*
+
+	 *What about the number affected by paralogy?*
+
+ 
+
+

@@ -1,0 +1,132 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 7: Analyzing Fst outlier (Bayescan) results"
+date: 'Mar 26, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+## Goals:
+
+* **Discuss** Markov Chain Monte Carlo (mcmc) approach used by 'Bayescan' to estimate model parameters
+
+* **Assess** convergence of our mcmc runs in 'Bayescan' and the effects of different thinning internvals within the chains
+
+* **Compare** the sensitivity of outlier loci from 'Bayescan' runs assuming different prior odds of selection
+
+* **Annotate** our results to determine the functional roles of our outliers
+
+------------------------------
+
+### Plotting and Interpreting Results
+
+So, you've got some output from Bayescan now....what does it all mean?
+
+First, let's talk a little about What markov chain monte carlo (mcmc) is, and how it generated Bayesian estimates of your selection model...
+
+The job that Bayescan and other evolutionary genetic models have is tough -- they are trying to estimate complex models often with many parameters.
+
+Oftentimes, we don't know what the distribution should look like for these set of parameters, so we approximate the likelihood by sampling the space most consistent with the data. That's where mcmc comes in. It's a search strategy for finding regions of high likelihood, and using this to compute your posterior parameters:
+
+![](https://user-images.githubusercontent.com/12184909/37878045-317858da-3031-11e8-9b7f-9ebd174bbd86.png)
+
+
+###Issues you need to be aware of when using mcmc programs:
+
+1. **Burn-in:** The initial start of the chain can bias your estimates if you include these values. People generally discard the first several thousand iterations as "burn-in". 
+
+2. **Thinning:** Saving iterations that are too close together in the chain generates autocorrelation in your estimates, which can also bias your parameters. 
+
+3. **Convergence:** Is there a trend in the likelihood or parameter values across the length of the chain? Or has it reached a stable convergence of sampling around likely values? 
+
+**Most importantly -- do not blindly trust the output of ANY program. You have to look at your data and results to ensure things are OK.**
+
+---------------------
+
+###Hands-on Analysis
+
+####On the Server:
+
+Log-in to the server and cd to your Bayescan results.
+
+You'll notice there are a couple of different files in your output. They should looks something like this:
+
+```
+[srkeller@pbio381 subset]$ ll
+total 1216
+-rw-r--r--. 1 srkeller users    601 Oct 27 20:59 example.recode.baye_AccRte.txt
+-rw-r--r--. 1 srkeller users 262301 Oct 27 21:02 example.recode.baye_fst.txt
+-rw-r--r--. 1 srkeller users 249247 Oct 27 15:16 example.recode.bayescan
+-rw-r--r--. 1 srkeller users 272641 Oct 27 21:02 example.recode.baye.sel
+-rw-r--r--. 1 srkeller users 445749 Oct 27 15:18 example.recode.baye_Verif.txt
+[srkeller@pbio381 subset]$ 
+```
+
+Here's what's in these files:
+
+  * **AccRte.txt:**    This contains information on the acceptance rate for updates during the mcmc chain.
+  * **fst.txt:**       This a row for each SNP site, and contains the probability that it's under selection, the log10 Posterior Odds that the locus is selected vs. neutral, the value of alpha, the corresponding qvalue indicating the probability of a false discovery, and lastly, the Fst for that locus
+  * **.sel:**           This contains the output from the mcmc chain; can be useful for plotting and ensuring your run converged (look at logL)
+  * **Verif.txt:**     This is essentially a log file that contains information on your run and how the commands were interpreted by Bayescan.
+
+The most important files are the "_fst.txt" with your selection results, and the ".sel" with the info on how the likelihood varied across your run.
+
+  * Download these to our local machine for plotting in R. 
+
+  * Download the SNP ID information (CHROM and POS) so you can re-associate that with your Bayescan results in R. You can generate this file with **vcftools** using the `--kept-sites` option.
+
+-------------
+
+####On your local laptop
+
+Here's our workflow:
+
+1. Copy the files to your local machine. You remember how, right?
+  
+2. Read your results files into R and make plots of the change in log(Likelihood) across the run to assess convergence. Was the burn-in long enough? 
+  
+3. Also in R, determine if there are loci that exhibit significant evidence of selection, assuming a False Discovery Rate of 0.1
+  
+4. Make a 4 panel plot of (a) a histogram of alpha, (b) a histogram of Fst, (c) a bi-plot of alpha vs. Fst across loci, and (d) a plot of alpha vs. the -log10(q-value).
+  
+5. Create a list of candidate loci that show evidence of selection. Export from R as a tab-delimited text file for further analysis.
+  
+6. Copy your file of candidate loci back to the server: `~/myresults/`
+
+----------
+
+###On the server:
+So, now we have candidate SNPs for selection. What genes are they in? What is their functional annotation?
+
+**Finding your candidates in the reference genome annotation**
+
+Try using the 'grep' function to find the candidates within the reference annotation files. 
+
+`/data/project_data/beetles/annotation/`
+
+Here are the files:
+
+```
+[srkeller@pbio381 annotation]$ ll
+total 1402640
+-rw-r--r--. 1 srkeller users 1403349292 Jun 25  2014 OTAU.Analysis.gff3
+-rw-r--r--. 1 srkeller users    5356308 Nov  1 21:26 otau_blastP_uniprot_GO.txt
+-rw-r--r--. 1 srkeller users    7339884 Jun 25  2014 OTAU.faa
+-rw-r--r--. 1 srkeller users   20251147 Jun 25  2014 OTAU.Models.gff3
+[srkeller@pbio381 annotation]$ 
+```
+
+There are 2 files of interest: the OTAU.Models.gff3 file contains the gene names and protein family ontologies associated with each transcript. The "otau_blastp_uniprot.txt" file contains results of the best hits from BLAST searching the translated proteins against the UniProt database.
+
+You can search within these files for your candidate genes by using the following commands. Note, in your candidate snp list you'll first need to isolate just the column containing the transcript ID's and not the positions! You can use 'cut -f1' for this.
+
+```
+grep -f bayescan_candsnps.txt /data/project_data/annotation/OTAU.Models.gff3 >bayescan_candsnps.gff3
+```
+
+You'll notice this grabs ALL the info for a given match from the gff file, including multiple rows for the same transcript. Here we can whittle this down to just the mRNA transcript and the pfam categories:
+
+```
+grep 'mRNA' bayescan_candsnps.gff3 | egrep -o 'OTAU[[:alnum:]]{6}-RA|Pfam:PF[[:alnum:]]{5}' >bayescan_candsnps_pfam.out
+```
+

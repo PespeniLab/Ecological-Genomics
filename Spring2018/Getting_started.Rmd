@@ -1,0 +1,59 @@
+---
+title: "Getting Started in Ecological Genomics"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    toc: TRUE
+fontsize: 18pt
+---
+
+[Back to main page](https://stephenrkeller.github.io/2018_Ecological_Genomics/)
+
+### Things you'll need to download:
+1. [R](https://www.r-project.org/) and [Rstudio](https://www.rstudio.com/) (be sure to install and load the "knitr"" package)
+2. Create a [github](https://github.com/) account and download github [desktop](https://desktop.github.com/)
+
+
+### Logs research activities in your online notebook [template found here](https://github.com/stephenrkeller/2018_Ecological_Genomics/blob/master/Template_online_notebook.Rmd).   
+
+### Common code you'll need to word process in (R)markdown  
+
+1. To embed a link, all you need is the URL, implemented in the following way:   
+```
+[hyperlinked words](URL)
+```
+
+2. To embed an image, you'll need a URL of the image, implemented similarly as above:
+```
+![](URL)
+```
+To get a URL in (R)markdown:
+    * go to your github repository and click **"Issues"**    
+    * Click **"New"**    
+    * Include a title (Pictures); click and drag any image you'd like into the comment section
+    * Click **"Submit New Issue"** 
+    * You will see the image, right click it and copy the URL.     
+
+3. To include a table, it is best if you format it first as a csv(comma separated values). (Note, if on a mac, make sure the file type is unicode and unix). With the knitr package, you can generate tables easily from the csv. Here is an example: 
+
+Grab an example dataset (in R)    
+
+```{r}
+#package for reading in data
+library(data.table)
+
+#grab dataset online from Steve's github
+dat<-fread("https://raw.githubusercontent.com/stephenrkeller/2018_Ecological_Genomics/master/data/Example_data.csv")
+
+#making a table
+knitr::kable(dat)
+```
+
+
+4. Useful cheatsheets for (R)markdown editing
+
+  * [Simple md cheatsheet](https://beegit.com/markdown-cheat-sheet)
+  * [Detailed Rmd cheatsheet for RStudio](http://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
+
+
+[Back to main page](https://stephenrkeller.github.io/2018_Ecological_Genomics/)

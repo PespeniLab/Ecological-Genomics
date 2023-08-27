@@ -1,0 +1,40 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 5: Admixture and Population Structure Continued"
+date: 'Mar 19, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+## Goals (finishing up from Day 4):
+* Plot our ancestry assignments from ADMIXTURE analysis for different levels of K
+* Compare ADMIXTURE results to multivariate ordination techniques such as PCA to detect population structure
+
+--------
+
+##Here's our pipeline:
+
+###In UNIX:
+####1. Convert vcf to .geno format in preparation for ADMIXTURE
+  a. edit PGDSpider settings (.spid) file
+  b. edit bash script (vcf2geno.sh) 
+  c. run conversion vcf --> geno
+
+####2. Run ADMIXTURE
+  a. write ADMIX.sh bash script to loop the ADMIXTURE analysis from K=1 to 10
+  b. look at cross-validation (cv) values to find evidence for K
+  c. download *.Q files to local desktop for R-processing
+  d. download metadata "cols_data.txt" to local desktop for R-processing
+  e. download thinned vcf file to local desktop for R-processing
+
+###In R (local machine):
+####1. Plot ADMIXTURE Q-values
+  a. use 'pophelper' package to plot ancestry coefficients by pop
+  b. compare ancestry values across levels of K
+  
+####2. Compare ADMIXTURE results to Principal Components Analysis (PCA)
+  a. use 'vcfR' to read in vcf file to R
+  b. use 'adegenet' to compute PCA on SNP data
+  c. how many genetic groups does PCA suggest? Does it agree with ADMIXTURE?
+

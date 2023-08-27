@@ -1,0 +1,129 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data - Day 2"
+date: 'January 31, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for 1/31/18
+
+1. To reinforce our understanding of the general work flow or "pipeline" for processing and analyzing RNAseq data.
+2. To learn how data to download data from a website to a server (though you won't need to do it now).
+3. To start mapping (a.k.a. aligning) each set of cleaned reads to a reference transcriptome (Program: bwa; Input: .fastq; Output: .sam).
+4. To extract read count data from .sam files (i.e. the number of reads that map (align) to each "gene")
+
+## (If you needed to) Download the reference transcriptome
+
+The *Onthophagus* genome resources can be found [here](https://i5k.nal.usda.gov/Onthophagus_taurus).
+
+You don't actually need to do this because we already have the file in the directory below.  But for future reference `wget` is a useful command.
+
+```bash
+cd /data/project_data/beetles/reference/
+wget https://i5k.nal.usda.gov/data/Arthropoda/onttau-%28Onthophagus_taurus%29/Current%20Genome%20Assembly/2.Official%20or%20Primary%20Gene%20Set/BCM_version_0.5.3/consensus_gene_set/OTAU.fna
+```
+
+## Map your reads to the reference transcriptome
+
+We'll use the program `bwa` to map our reads to the reference transcriptome.  The manual can be found [here](http://bio-bwa.sourceforge.net/bwa.shtml).
+
+The first step is to index the reference transcriptome, but that only needs to be done once.  So we've done this step already, but here's the command.
+
+```bash
+$ bwa index /data/project_data/beetles/reference/OTAU.fna
+```
+
+This fill generate 5 indexing files that all start with OTAU.fna in the ```/data/project_data/beetles/reference/``` directory.  You'll need this path to the reference index files in the mapping command below.
+
+Your first step is to map your cleaned reads using the `bwa mem` command.
+
+```bash
+bwa mem <ref.fa> <read1.fq> <read2.fq> > <aln-pe.sam> # you fill in the inputs and outputs!
+```
+
+Hint: Don't forget the PATHs to your files!
+
+
+## You’ve made a Sequence AlignMent (SAM) file!
+
+### Let's take a look!  Try `head` and `tail`.
+
+```bash
+tail -n 100 YOURFILENAME.sam > tail.sam
+vim tail.sam
+
+:set nowrap
+```
+A SAM file is a tab delimited text file that stores information about the alignment of reads in a FASTQ file to a reference genome or transcriptome. For each read in a FASTQ file, there’s a line in the SAM file that includes
+
+- the read, aka. query, name,
+- a FLAG (number with information about mapping success and orientation and whether the read is the left or right read),
+- the reference sequence name to which the read mapped
+- the leftmost position in the reference where the read mapped
+- the mapping quality (Phred-scaled)
+- a CIGAR string that gives alignment information (how many bases Match (M), where there’s an Insertion (I) or Deletion (D))
+- an ‘=’, mate position, inferred insert size (columns 7,8,9),
+- the query sequence and Phred-scaled quality from the FASTQ file (columns 10 and 11),
+- then Lots of good information in TAGS at the end, if the read mapped, including whether it is a unique read (XT:A:U), the number of best hits (X0:i:1), the number of suboptimal hits (X1:i:0).
+
+The left (R1) and right (R2) reads alternate through the file. SAM files usually have a header section with general information where each line starts with the ‘@’ symbol. SAM and BAM files contain the same information; SAM is human readable and BAM is in binary code and therefore has a smaller file size.
+
+Find the official Sequence AlignMent file documentation can be found [here](http://samtools.github.io/hts-specs/SAMv1.pdf).
+
+[This BWA man page](http://bio-bwa.sourceforge.net/bwa.shtml) also discusses SAM alignment format and BWA specific optional fields.
+
+- [Some FLAGs to know](http://seqanswers.com/forums/showthread.php?t=17314) - for example what do the numbers in the second column of data mean? [Here’s a SAM FLAG decoder](https://broadinstitute.github.io/picard/explain-flags.html) by the Broad Institute.
+- What about the map quality score, MapQ? That’s important! [Here’s a reference](http://www.acgt.me/blog/2014/12/16/understanding-mapq-scores-in-sam-files-does-37-42).
+
+#### How can we get a summary of how well our reads mapped to the reference? 
+
+```bash
+samtools flagstat *.sam
+```
+
+#### Let’s see how many of our reads map uniquely.
+
+Why is it important to consider whether a read maps uniquely (i.e., to one place in the transcriptome) for gene expression studies?
+
+```
+$ grep -c XT:A:U YOURFILENAME.sam 
+1177827
+
+$ grep -c X0:i:1 YOURFILENAME.sam
+1182952
+```
+
+You can check a number of other elements, total number of reads, search for the various flags…
+
+## Extract read counts from the .sam file from each sample
+
+We will use a custom python script (by my friend Dan Barshis and published with the Simple Fool’s Guide to Population Genomics) called **countxpression.py**. This script will take any number of input *.sam files and, for each .sam file, extract the number of reads that map to each gene (i.e. the “counts”). It will also generate a summary output of useful information including proportion of quality read alignments. The script requires 4 input variables: mapqualitythreshold, lengththreshold, outputstatsfilename, anynumberofinputfiles.
+
+```
+cd /data/scripts
+cp countxpression_pe.py ~/scripts      #or copy to your directory with the .sam file
+
+python countxpression_pe.py 20 35 countstatssummary.txt YOURFILENAME.sam
+```
+
+This python script will generate two files: a .txt file you named (3rd argument you passed the script) and a counts .txt file that includes the number of uniquely mapped reads to each gene in our transcriptome.
+
+Below is what the ```*_counts.txt```  should look like:
+
+```
+$ head NC_AD4_M3_bwaaln_counts.txt
+ContigName  UniqueTotReads  MultiTotReads   totalreadsgoodmapped
+OTAU000001-RA   11  207 218
+OTAU000002-RA   982 49  1031
+OTAU000003-RA   867 0   867
+OTAU000004-RA   338 0   338
+OTAU000005-RA   154 0   154
+OTAU000006-RA   26  0   26
+OTAU000007-RA   17  0   17
+OTAU000008-RA   1017    55  1072
+OTAU000009-RA   1984    0   1984
+```
+
+Once we have all the read counts extracted from each .sam file and in one directory, we can stitch them together with some bash scripting!  Then we'll have a data matrix that we can use to analyze global gene expression patterns!

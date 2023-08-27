@@ -1,0 +1,77 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 6: Testing selection using Fst outlier analysis"
+date: 'Mar 21, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+## Goals:
+
+* **Understand** how local adaptation may lead to elevated allele frequency divergence among populations, estimated using Fst
+
+* **Appreciate** the complications of population deomgraphy on using Fst as a selection statistic
+
+* **Apply** a recent method (OutFLANK) that detects the signature of local adaptation as elevated Fst at loci beyond the expected neutral distribution
+
+------------------------------
+
+### Challenges for finding Fst outliers:
+
+As we've discussed in class, positive directional selection **acting differently across popuations** is expected to elevate genetic differentiation between groups (Fst). 
+
+* Fst measures the degree of allele frequency differences between 2 or more groups. 
+* BUT, neutral demographic history (drift, bottlenecks, range expansions) can inflate Fst, leading to false positives in scans for selective sweeps. 
+
+A [recently published method by Mike Whitlock and Katie Lotterhos](http://www.journals.uchicago.edu/doi/abs/10.1086/682949), called 'OutFLANK', uses the **expected neutral distribution of Fst** to identify observed loci that exceed the upper neutral distribution — these are our candidates for local selection. 
+
+####How does it work? Pretty simple actually!
+
+1. First, estimate the neutral distrbution of Fst in the sample.
+ * Temporarily remove loci in the upper and lower tails of the distribution -- this should remove selection outliers and result in only neutral loci remaining. 
+ * Use the neutral loci to fit a null distribution of Fst based on population genetic theory [Lewontin and Krakauer 1973](http://www.genetics.org/content/74/1/175.short). 
+
+2. Next, overlay that neutral distribution on all SNPs, and identify selection outliers
+ * Identify outlier loci beyond the upper tail of the neutral distribution as candidates for local adaptation. 
+
+![](http://www.nature.com/scitable/content/ne0000/ne0000/ne0000/ne0000/15836493/f1_nosil.jpg)
+
+
+------------------------
+
+####OK, let's get started:
+  
+The manual for the OutFLANK **R** package can be found [here](https://github.com/whitlock/OutFLANK/blob/master/OutFLANK%20readme.pdf).
+
+The OutFLANK data format is similar to the .geno file we generated for our ADMIXTURE analysis, where SNP genotypes are scored as 0,1,2 (missing =9). But OutFLANK expects this data matrix to be **inverted, with individuals in rows and SNPs in columns**.
+
+* We want to work with ALL the SNPs, not just the set we thinned to 1 per kb. So, we need to run the vcf2geno conversion script for the full dataset.
+
+* After conversion, download the new ".geno" file to your local laptop.
+
+* Boot up R, set your working directory, and install the OutFLANK package from github:
+
+```R
+# Set your working directory to where you downloaded your results files:
+setwd("~/github/PBIO381_srkeller_labnotebook_2018/myresults")
+
+list.files() # Do you see your downloaded files there? If not, double check to make sure you've set your working directory to the right spot
+
+install.packages("devtools")
+library(devtools)
+source("http://bioconductor.org/biocLite.R")
+biocLite("qvalue")
+install_github("whitlock/OutFLANK")
+
+# You'll also need to install the vcfR and adegenet libraries that we'll need for loading in the vcf files to R
+
+install.packages("vcfR")
+install.packages("adegenet")
+
+# Now load the libraries
+library(OutFLANK)
+library(vcfR)
+library(adegenet)
+```
+
+####We'll live code the rest of the analysis together in class!

@@ -1,0 +1,94 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 4: Admixture and Population Structure Continued"
+date: 'Mar 07, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Goals:
+* Plot our ancestry assignments from ADMIXTURE analysis for different levels of K
+* Compare ADMIXTURE results to multivariate ordination techniques such as PCA to detect population structure
+
+
+We can check our estimates of individual ancestry and make admixture barplots in R.
+
+* Download the output Q files that ADMIXTURE generated to your laptop: Let's get the files corresponding to K=2-5 (2Q, 3Q, 4Q, 5Q)
+* Also download the beetle.pop metadata for plot labeling
+
+### Ancestry plots can be made using the R package **'pophelper'**. [Nice vignette here](http://royfrancis.github.io/pophelper/).
+
+Install pophelper package from GitHub:
+`install.packages(c("Cairo","ggplot2","gridExtra","gtable","tidyr","devtools"),dependencies=T)`
+`devtools::install_github('royfrancis/pophelper')`
+
+Pophelper makes nice looking figures with MANY customizable settings. So many that I'm not going to drag you through the muck coding this line-by-line in class. Here is a script that gets us started, and that you can modify to suit your needs:
+
+```{r eval=FALSE}
+library(pophelper)
+
+setwd("/Users/srkeller/github/PBIO381_srkeller_labnotebook_2018/myresults/")
+
+admixfiles=list.files(path=("ADMIXTURE/"),full.names=T)
+admixlist=readQ(files=admixfiles,filetype="basic")
+
+# metadata: sample id and pop from beetle.pop file
+metadata=read.table("beetle.pop",header=F)
+
+# format metadata to a data frame and ind variables as chars. for plotting
+metadata2=data.frame(sampleid=metadata[,1], population=metadata[,2])
+
+metadata2$sampleid=as.character(metadata2$sampleid)
+metadata2$population=as.character(metadata2$population)
+
+# add in the sample id to the different Q files for plotting
+if(length(unique(sapply(admixlist,nrow)))==1)
+  admixlist <- lapply(admixlist,"rownames<-",metadata2$sampleid)
+
+head(admixlist[[3]])
+```
+
+Make ancestry plots grouped by population
+```{r eval=FALSE}
+p <- plotQ(admixlist[c(1,2,3,4)],
+           returnplot=T,exportplot=T,quiet=T,basesize=11, imgoutput="join", 
+           showyaxis=T, showticks=T, panelspacer=0.4, useindlab=F, showindlab=F, 
+           grplab=metadata2[2], grplabsize=4, linesize=1, barsize=1, pointsize=3, 
+           panelratio=c(4,1), divsize = 0.75, pointcol="white", showtitle=T, 
+           titlelab="ADMIXTURE analysis on O. tauri, SNPs thinned to 1 per kb", 
+           splab=c("K=2","K=3","K=4","K=5"), outputfilename="ADMIXTURE_Otauri",
+           imgtype="pdf",height=3,width=25)
+
+plot(p$plot[[1]])
+```
+
+
+----------------------------------------
+
+## PCA on SNP genotypes:
+
+Principal Components Analysis (PCA) is a powerful multivariate technique to reduce the dimensionality of large SNP datasets into a few synthetic axes (PC's) that describe the major structure present in the data. We'll do this in **R** using the *adegent* package ([adegenet manual available here](https://cran.r-project.org/web/packages/adegenet/adegenet.pdf)).
+
+* Transfer your filtered (but not thinned) vcf file from the server to your local machine. * Also transfer the metadata "cols_data.txt".
+
+```
+/data/project_data/beetles/metadata/cols_data.txt
+```
+
+* Open **R**, and load the following packages we'll need for running PCA on our SNP data:
+
+`install.packages("vcfR")` 
+`install.packages("adegenet")`
+
+We'll code the PCA script together in class...
+
+
+## DAPC
+If you have *a-priori* defined groups, another way to analyze SNP-PCA information is with a discriminant analysis. This is known as **Discriminant Analysis of Principal Components (DAPC)**, and is a very useful means of finding the SNPs that *most* differentiate your samples for a variable of interest. 
+
+[Read more on this method here](https://bmcgenet.biomedcentral.com/articles/10.1186/1471-2156-11-94). 
+
+We may skip doing DAPC in class, but it's good for you to know about this analysis type for the future when you're wanting to test for population structure among groups you have some a-priori knowledge about.
+
+

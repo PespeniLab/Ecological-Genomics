@@ -1,0 +1,251 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data"
+date: 'January 29, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for 1/29/18
+
+1. To understand the Onthophagus taurus beetle biology, experimental design, and data set.
+2. To understand the general work flow or "pipeline" for processing and analyzing RNAseq data.
+3. To learn how to make/write a bash script and how write a script to process files in batches (*.sh files and #! should mean something to you by the end of today).
+4. To visualize and interpret Illumina data quality (what is a .fastq file and what are Phred scores?).
+5. To add to your growing list of bioinformatics tricks (take notes!).
+
+
+
+## 1. The bull headed beetle, *Onthophagus taurus*
+
+Native to the mediterranean, this dung beetle was deliberately introduced to Australia in the late 1960s with a massive, government-led effort to help reduce fly pests and disease that were plaguing livestock.  In the early 1970s, the beetles were "accidentally" introduced to the eastern United States from an unknown origin.  
+
+*The experimental design:*
+
+- Three populations reared in a common garden lab conditions for more than two generations: from the native range, Italy (IT), from Western Australia (WA), from North Carolina (NC)
+- Four developmental stages: late third larval instart (L3L), pre-pupae day 1 (PP1), pupae day 1 (PD1), and adults four days after ecolsion (AD4)
+- Both sexes; three individuals per sex
+- 3 pops * 4 developmental stages * 2 sexes * 3 individuals = 72 samples
+- Sequenced on about 7 lanes of Illumina HiSeq 2500
+
+
+
+## 2. The "pipeline"
+
+1. Visualize, Clean, Visualize
+
++ Visualize the quality of raw data (Program: FastQC)
+
++ Clean raw data (Program: Trimmomatic)
+
++ Visualize the quality of cleaned data (Program: FastQC)
+
+2. Download reference transcriptome assembly
+
+   * *Note:* If you're working with an organism that does not have a reference assembly, this is the point when you use your cleaned reads to make a reference assembly (e.g. program: Trinity), assess it's quality (Programs: BUSCO, blastx to various databases)
+
+3. Map (a.k.a. Align) cleaned reads from each sample to the reference assembly to generate **s**equence **a**lign**m**ent files (Program: bwa, Input: *.fastq, Output: *.sam)
+
+4. Extract read count data from .sam files (i.e. the number of reads that map (align) to each "gene")
+
+5. Assemble a data matrix of counts for each gene for each sample
+
+6. Analyze count data to test for differences in gene expression
+
+
+
+## 3. Visualize, Clean, and Visualize again
+
+Let's begin to work with our RNAseq data!  The first step is to take a look at the quality of our data coming off the sequencer and see if we notice any problems.  
+
+You'll each be in charge of cleaning and visualizing the left (R1) and right (R2) files from a single sample.
+
+Your file assignment for today:
+
+| Student | Files      |
+| ------- | ---------- |
+| Ethan   | WA_PP1_F1* |
+| Jamie   | WA_PP1_F2* |
+| Lucy    | WA_PP1_F3* |
+| Morgan  | WA_PP1_M1* |
+| Paul    | WA_PP1_M2* |
+| Suraj   | WA_PP1_M3* |
+
+You can find these in the directory `/data/project_data/beetles/rawdata/`
+
+### Peak: What is a .fastq file?
+
+Let's take a peak into a file and learn something about what a .fastq file is:
+
+```bash
+$ zcat WA_PP1_F1_AGTCAA_L003_R1_001.fastq.gz | head -n4
+@CCRI0219:155:C2LNBACXX:3:1101:1499:1976 1:N:0:AGTCAA
+CGGGATCGTAAGGAGCTAATTCTTTAGCACGGGATGTTTTTACTAAATCAACCCATTCCGGTACTTTTAGTTTTCCTGATTTTTTAAGAAATTGGGCGAA
++
+@@?DDDDDFFH??FHBHGI4CB?FHGH>@<EGG@DEHHIGIEFHE>DH9CC3B;;7@CCEBHEDEDEDE@ACAC;>@CCCCCCFBBA>@C9A:>@?B><@
+```
+
+*Note:* `zcat` lets us open a .gz (gzipped) file like `cat`; we then "pipe" `|` this output from `zcat` to the `head` command and print just the top 4 lines `-n4`
+
+The fastq file format** has 4 lines for each read: 
+
+| Line | Description                              |
+| ---- | ---------------------------------------- |
+| 1    | Always begins with '@' and then information about the read |
+| 2    | The actual DNA sequence                  |
+| 3    | Always begins with a '+' and sometimes the same info in line 1 |
+| 4    | A string of characters which represent the **quality** scores; always has same number of characters as line 2 |
+
+[Here's a useful reference for understanding Quality (Phred) scores](http://www.drive5.com/usearch/manual/quality_score.html).  If P is the probability that a base call is an error, then:
+
+P = 10^(–Q/10)
+
+Q = –10 log10(P)
+
+So:
+
+| Phred Quality Score | Probability of incorrect base call | Base call accuracy |
+| ------------------- | ---------------------------------- | ------------------ |
+| 10                  | 1 in 10                            | 90%                |
+| 20                  | 1 in 100                           | 99%                |
+| 30                  | 1 in 1000                          | 99.9%              |
+| 40                  | 1 in 10,000                        | 99.99%             |
+
+***The Phred Q score is translated to ASCII characters so that a two digit number can be represented by a single character.*** So clever! 
+
+```
+ Quality encoding: !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHI
+                   |         |         |         |         |
+    Quality score: 0........10........20........30........40   
+```
+
+*What kind of characters do you want to see in your quality score?* 
+
+### Visualize using FastQC
+
+How can we look at the quality more systematically for all reads in the file?  We can use [the program FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (also already installed in our `/data/popgen/` directory). FastQC looks at the quality collectively across all reads in a sample.
+
+Clean your file using the following command:
+
+```
+fastqc FILENAME.fastq.gz
+```
+
+This will generate an .html output file in the directory in which you run your command.  You could run this from a directory in your home directory; to do that you would need to provide the full path to the input file. 
+
+Move your .html file you just generated to your computer using the `scp ` command from your computer (hint: open another terminal or putty window)
+
+```
+scp NETID@pbio381.uvm.edu:/PATHTODIRECTORY/YOURFILE_fastqc.html .
+```
+
+The dot means "to the present directory" or you can direct it somewhere else.
+
+Alternatively, you can use a file tranfer program like fetch, etc.
+
+*How does the quality look?*
+
+### Clean using Trimmomatic
+
+[Here's a link to the Trimmomatic program](http://www.usadellab.org/cms/index.php?page=trimmomatic) that we'll use to clean the reads for each file. The program is already installed in our `/data/popgen/` directory.
+
+We've provided an example script in the `/data/scripts/` directory this time because the program is a java based program and thus a bit more particular in its call.  
+
+1. Make a directory in your home directory called "scripts" and another called "cleanreads"
+2. Copy the bash script over to your ~/scripts directory
+3. Open and edit bash script using the program vim
+4. Change the permissions on your script to make it executable, then run it!  (examples below)
+
+```bash
+cp /data/scripts/trim_example.sh ~/scripts/ # copies the script to your home scripts dir
+vim trim_example.sh						  # open the script with vim to edit
+```
+
+```bash
+#!/bin/bash
+      java -classpath /data/popgen/Trimmomatic-0.33/trimmomatic-0.33.jar org.usadellab.trimmomatic.TrimmomaticPE \  
+                -threads 1 \ 
+                -phred33 \
+                 /data/project_data/beetles/rawdata/WA_PP1_YOURSAMPLE_R1.fastq.gz \
+                 /data/project_data/beetles/rawdata/WA_PP1_YOURSAMPLE_R2.fastq.gz \
+                 ~/cleanreads/"YOURSAMPLE_R1_clean_paired.fa" \
+                 ~/cleanreads/"YOURSAMPLE_R1_clean_unpaired.fa" \
+                 ~/cleanreads/"YOURSAMPLE_R2_clean_paired.fa" \
+                 ~/cleanreads/"YOURSAMPLE_R2_clean_unpaired.fa" \
+                 ILLUMINACLIP:/data/popgen/Trimmomatic-0.33/adapters/TruSeq3-PE.fa:2:30:10 \
+                 LEADING:28 \
+             	TRAILING:28 \
+             	SLIDINGWINDOW:6:28 \
+             	HEADCROP:12 \
+             	MINLEN:35 \
+```
+
+Trimmomatic performs the cleaning steps in the order they are presented. It's recommended to clip adapter early in the process and clean for length at the end.
+
+Here's the general format of the command:
+
+```bash
+java -jar <path to trimmomatic.jar> PE 
+	[-threads <threads] 
+	[-phred33 | -phred64] 
+	<input 1> 
+	<input 2> 
+	<paired output 1> 
+	<unpaired output 1> 
+	<paired output 2> 
+	<unpaired output 2> 
+	<step 1> 
+	...
+```
+
+The steps and options are [from the Trimmomatic website](http://www.usadellab.org/cms/index.php?page=trimmomatic):
+
+- ILLUMINACLIP:<fastaWithAdaptersEtc>:<seed mismatches>:<palindrome clip threshold>:<simple clip threshold>
+- SLIDINGWINDOW:<windowSize>:<requiredQuality>
+  - windowSize: specifies the number of bases to average across
+  - requiredQuality: specifies the average quality required.
+- LEADING:<quality>
+  - quality: Specifies the minimum quality required to keep a base.
+- TRAILING:<quality>
+  - quality: Specifies the minimum quality required to keep a base.
+- CROP:<length>
+  - length: The number of bases to keep, from the start of the read.
+- HEADCROP:<length>
+  - length: The number of bases to remove from the start of the read.
+- MINLEN:<length>
+  - length: Specifies the minimum length of reads to be kept.
+
+```
+ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
+SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quality within the window falls below a threshold.
+LEADING: Cut bases off the start of a read, if below a threshold quality
+TRAILING: Cut bases off the end of a read, if below a threshold quality
+CROP: Cut the read to a specified length
+HEADCROP: Cut the specified number of bases from the start of the read
+MINLEN: Drop the read if it is below a specified length
+```
+
+#### Now run your script!
+
+```bash
+chmod u+x trim_example.sh    # makes the script "executable" by the "user"
+./trim_example.sh  		    # executes the script, or bash trim_example.sh
+```
+
+### Visualize again using FastQC
+
+Check the quality of one of your cleaned files using fastqc again.
+
+```bash
+				# You fill in the blank!
+```
+
+Should we play with when to do the HEADCROP step?
+
+
+
+
+
+
+

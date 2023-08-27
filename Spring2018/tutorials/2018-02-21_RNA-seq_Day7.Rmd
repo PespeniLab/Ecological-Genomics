@@ -1,0 +1,36 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data - Day 7"
+date: 'February 21, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Goals for 2/21/18
+
+1. To explore a bit more how you can use DESeq2 and various other packages in R to (a) test for differences in gene expression using different models, (b) visualize global transcriptional patterns, and (c) make heatmaps of sets of genes.
+2. To export the LogFoldChange data to do another test for "functional enrichment" in differentially expressed genes (optional).
+3. To identify co-expression modules using WGCNA.
+
+## DESeq2 One more time!
+
+Again we will continue to build on our scripts in R using the package DESeq2 to test for differences in gene expression.  
+
+- We will build a "group" model and pull out a contrast of interest.
+- We will subset the differentially expressed genes in this contrast and visualize them using a heatmap.
+- Export LogFoldChange results for another way to do the enrichment analyses with GOMWU.
+- Export the normalized counts data to use as an import for WGCNA.
+
+## Correlated Network Analysis - WGCNA
+
+Weighted gene correlation network analysis identifies co-expressed gene modules and tests for an association with specific factors or descriptors (meta-data) associated with your data.  In our case, population is of particular interest.
+
+You will need two input files for this analysis: 
+
+1. a normalized counts file in .csv format (we'll output from DESeq2)
+2. a meta-data file; like our cols_data file, but WGCNA would like the meta-data to be quantitative, so I've coded each factor as a numerical value.
+
+Then we'll do live coding to hammer out [WGCNA based on their tutorials found here](https://labs.genetics.ucla.edu/horvath/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/)!
+
+

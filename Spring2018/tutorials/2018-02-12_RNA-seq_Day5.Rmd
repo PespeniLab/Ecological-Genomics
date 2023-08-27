@@ -1,0 +1,33 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data - Day 5"
+date: 'February 12, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for 2/12/18
+
+1. To continue to learn how we can use R and the package DESeq2 to test for differences in gene expression and visualize the quality and patterns in our data.
+2. To learn how we can test for "functional enrichment" in differentially expressed genes.
+
+## Continuing to use DESeq2 to test for differences in Gene Expression
+
+Today we will continue to build on our scripts in R using the package DESeq2 to test for differences in gene expression.  There are four main aspects to the task: 
+
+- Importing the counts matrix and the column information files.
+- Deciding and defining our models for testing for exression differences and running the analyses.
+- Visualizing the data at both at the global, transcriptome-wide scale using PCA and heatmaps as well as at the scale of the individual gene.
+- Saving outputs for other analyses and figures (exporting .csv and .pdf files).
+
+## Functional enrichment tests
+
+Functional enrichment analyses test for the non-random concentration of differentially expressed genes in specific classes of genes characterized by their protein function.  As always, there are many ways to do this.  Today we will use an enrichment approach and scripts generated and provided by one of the authors of the paper we read, Dr. Matz at University of Texas, Austin.  He has kindly provided all [the scripts and description for GO Mann-Whitney U on a github page](https://github.com/z0on/GO_MWU).
+
+I have already downloaded the scripts and necessary databases to our server.  I have also put the needed output of DESeq2 results that will serve as input for GOMWU analysis.
+
+Find them on our server in ```/data/project_data/beetles/enrichment```.
+
+
+

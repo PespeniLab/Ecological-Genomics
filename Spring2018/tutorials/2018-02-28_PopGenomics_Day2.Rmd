@@ -1,0 +1,86 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 2: Diversity and Site Frequency Spectrum (SFS)"
+date: 'Feb 26, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Goals:
+* Learn to calculate SNP allele frequencies and diversity metrics with vcftools
+* Learn to subset the vcf file for interesting individuals (or for specific chromosomes or SNP loci)
+* Calculate nucleotide diversity for each contig
+
+## Getting summary stats for downstream analysis and plotting in R##
+
+We should now be familiar with working with SNP data in VCF files, and doing some basic filtering. Now that we have a filtered SNP dataset that has high-quality sites in it, let's look at some different measures of genetic diversity in our sample. 
+
+Keep in mind that the diversity of a population primarily reflects its **effective population size (Ne)**.  Ne is shaped by many different aspects of a species' life history and ecology (sex ratio, generation time, mating system, offspring number, and many more!) as well as the population's history (bottlenecks, population growth). As a result, looking at the diversity within populations (and comparing to other populations or species) is a critical step in understanding how ecology shapes genomes. 
+
+Now: Let's take a more in-depth look at the diversity hidden within our RNASeq data. There are many different ways to look at the diversity within populations using SNPs. Here are some that we'll think about for today:
+
+
+- **Nucleotide diversity (pi)**: The average number of pairwise differences between all individuals in the population. This is equivalent to the expected heterozygosity (2pq) for a bi-allelic locus.
+
+- **Allele frequencies (*p* and *q*)**: What is the frequency of a given SNP? Usually defined in terms of the Major (common) and minor (rare) allele at each SNP locus.
+
+- **Site Frequency Spectrum (SFS):** Also known as the "Allele Frequency Spectrum". It is the histogram of allele frequencies across all SNP loci. In other words, how many loci are rare (say, frequency in the population between 0-0.1)? How many loci are common (0.4-0.5)? It turns out the shape of this distribution has an incredible amount of information in it…both about the population's demographic history (Ne, size changes) and also selection (purifying selection & positive selection)
+
+
+### Diversity metrics based on subsetting your VCF files: ###
+
+Many times we'll want to subset the total SNP dataset to analyze diversity in different groups. Say, compare allele frequencies in different populations. This is easy, you just need to create a separate text file containing which samples below to which groups so you can tell Vcftools how to split things up.
+
+As an example, **let's compare the SNP frequencies for all loci between our 3 populations**. 
+
+First, you need to create text files containing the individual ID's for each population separately. Path to the metadata: 
+
+```
+/data/project_data/beetles.metadata/cols_data.txt
+```
+
+Use this file to get *just the **IT** individual sample IDs*. 
+
+How can we create these files in a clever, unix-y way?   HINT: grep!   ;)
+
+We'll also want to remove all but the first column of data — the sample IDs. Here's a trick using cut. Try to figure out how you might pipe this with the grep command, and direct the output to a new file:
+
+```
+$ cut -f 1 
+```
+
+Name your new file: **"IT.inds"** (Note, the extension has no real meaning here; name it something logical to help you remember) Next, create another 2 files for the other populations.
+
+
+Now that we have our individuals separated by population, we can call Vcftools to calculate allele frequencies separately for each population. This will require 3 separate calls to Vcftools.
+
+Here's the first line (do the same for the other 2 pops)
+
+```bash
+$ vcftools --vcf filename.vcf --freq2 --keep IT.inds --out IT
+```
+
+Now, we can import these datasets into R and make some plots to examine how the diversity varies in our dataset. We can get the data into R in one of 2 ways:
+
+1. Download the results files to our laptops using scp or Fetch [MacOS] or Winscp [PC]
+2. Stay on the server, and use the command-line version of R. This latter option can be more efficient if we want to do a quick look and make some simple plots, but isn't good for more complicated tasks. 
+
+
+Let's bring in the results we got from VCFtools to R. The Site Frequency Spectrum (SFS) is simply a histogram of the allele frequencies across loci. We'll use R's 'hist' function for this.
+
+
+------------------------------------------
+
+###Estimating Onthofagus nucleotide diversity
+
+The papers we've read report on some very intriguing associations between species life history traits and nucleotide diversity (pi). Recall that pi is proportional to Ne, through the equation:
+
+*pi = 4 Ne u*
+
+where 'u' is the per-site mutation rate, generally ~10^-9
+
+We can use vcftools to calculate pi for each site, then aggregate the data per contig in R to get mean values.
+
+Since pi includes both polymorphic and monomorphic sites in the genome, we'll need to use a filtering strategy on our vcf file that includes the non-variable sites
+

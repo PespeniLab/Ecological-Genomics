@@ -1,0 +1,24 @@
+---
+title: "P/BIO381 Tutorials: Working with RNA-seq data - Day 4"
+date: 'February 7, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for 2/7/18
+
+1. To review the uses and characteristics of a bash script.
+2. To review what happened when we tried to extract the number of uniquely mapped reads to each gene from our .sam files and discuss the options for getting a counts matrix.
+3. To learn how we can use a counts matrix as input for a program such as DESeq2 to test for differences in gene expression.
+
+## Using DESeq2 to test for differences in Gene Expression
+
+We'll be working in R on our personal machines using our counts matrix, the compiled table uniquely mapped reads to each gene from each sample (.sam file).  You need two things to get started: (1) the DESeq2 package installed, which we did in the last session, and (2) the data files, the counts matrix and the meta-data table.
+
+On your machine, create a directory where you want to keep the data files and scripts for this transcriptomics work.  From that directory you can ```scp``` the two data files from the following directory on the server ```USERNETID@pbio381.uvm.edu:/data/project_data/beetles/counts``` into the present directory ```.```.  
+
+Now you can open a new script in R, set your working directory, and we'll start coding together live to import, filter, normalize, visualize, and analyze our data!
+
+[Here is a link for the latest DESeq2 tutorial](http://www.bioconductor.org/packages/3.7/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).  There are many ways to get a counts matrix and there are many ways to test for differences in expression. In this class we're exploring one particular path among many!

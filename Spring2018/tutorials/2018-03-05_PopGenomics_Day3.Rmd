@@ -1,0 +1,99 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 3: Admixture and Population Structure"
+date: 'Mar 05, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Goals:
+* Look for evidence of genetic population structure using ADMIXTURE analysis
+* Compare ADMIXTURE results to multivariate ordination techniques such as PCA to detect population structure
+
+
+We'll take 2 different approaches to test if there is any population structure present in our sample: 
+
+1. The maximum likelihood ADMIXTURE program to cluster genotypes into *K*  groups, in which we'll vary *K* from 1 - 10
+
+2. Principal Component Analysis (PCA) and related analyses on the SNPs to see if they group by population
+
+
+Keep in mind, both analyses are *naive* with regard to the actual sampling locality of individuals, so they provide a relatively unbiased way of determining if there are actually >1 genetically distinct groups represented in the data.
+
+
+------------------------------------------
+
+## ADMIXTURE analysis ##
+
+A common way to estimate population structure or test for mixed ancestry is to use genotypic clustering algorithms. These include the familiar program STRUCTURE, as well as many others that have sprung up like it. All share the common feature of using multi-locus genetic data to estimate:
+
+* (i) the number of clusters present, and 
+* (ii) each individual's proportion of genetic ancestry in these clusters
+
+With large population genomic datasets, STRUCTURE would take a prohibitively long time to run. Thus, analyzing thousands of SNPs requires computationally efficient approaches to the clustering problem. A good option is the maximum-likelihood program ADMIXTURE by John Novembre's lab.
+
+For reference, here is the source page for information on [ADMIXTURE](https://www.genetics.ucla.edu/software/admixture/).
+
+And as with any good software, there is also a well annotated [manual](https://www.genetics.ucla.edu/software/admixture/admixture-manual.pdf) available.
+
+ADMIXTURE introduces a user-defined number of groups or clusters (known as K) and uses maximum likelihood to estimate allele frequencies in each cluster, and assign each individual ancestry (Q) to one or more of these clusters. 
+
+To run ADMIXTURE, we need to provide an input file and the requested level of K to investigate. First, we need to convert vcf > .geno format:
+
+We'll use PGDSpider, a conversion tool.
+
+![PGDSpider](https://www.researchgate.net/profile/Laurent_Excoffier/publication/51823785/figure/fig1/AS:409900954996742@1474739411354/Connectivity-between-population-genetics-programs-and-formats-Red-reading-and-writing.jpg)
+
+The program [PGDSpider](http://www.cmpg.unibe.ch/software/PGDSpider/) is able to convert vcf files to .geno format, which ADMIXTURE can read. This requires 4 files:
+
+* the input data file in vcf format (thinned to remove closely linked sites in LD; see below)
+* a text file with sample IDs and the population designations
+* a settings file (.spid) that tells PGDSpider how to process the data
+* a bash script that runs the program with all the above settings specified
+
+**Lucky for you, I've already done this!**  But, here are the files for future reference, in case you need to do this yourself down the road. Make sure they're all in the same directory along with your vcf file before running.
+
+```bash
+/data/project_data/beetles/metadata/beetles.pop
+/data/project_data/scripts/beetles.spid
+/data/project_data/scripts/vcf2geno.sh
+```
+
+
+Use **cp** to copy the needed files to your *~/myscripts* folder in your home directory on the server, then **cd** there and confirm the files are present.
+
+### Thinning your vcf file for ADMIXTURE
+* ADMIXTURE assumes SNPs are unlinked, so we first need to thin the data for closely adjacent sites. 
+* Use the vcftools flag `--thin 1000` to thin sites to 1 SNP per kb
+* You should have a file called out.recode.vcf.geno in your directory. 
+* From within your home directory `~/myscripts/`, open vim to create a bash script for running ADMIXTURE at each level of K from 1 to 10. 
+
+Let's code the script together:
+
+```bash
+#!/bin/bash
+```
+
+When you're ready to go, exit vim to return to the command line, and execute the script.
+
+```
+$ bash ADMIX.sh
+```
+
+The cross-validation procedure in ADMIXTURE breaks the samples into *n* equally sized chunks. It then masks each chunk in turn, trains the model to estimate the allele frequencies and ancestry assignments on the unmasked data, and then attempts to predict the genotype values for the masked individuals. 
+
+**If the model is good (and there's true structure in the data), then a supported value of K will show low cross-validation (CV) error. This is shown in the example plot below (not our data). *Note, this does not mean there is only 1 true K-value*!**
+
+![ADMIXTURE CV](https://www.researchgate.net/profile/Jason_Hodgson/publication/263579532/figure/download/fig3/AS:392426666643462@1470573216485/Figure-S1-Plot-of-ADMIXTURE-cross-validation-error-from-K2-through-K6-We-chose-K3-to.png)The CV values for our runs are stored in the output file "chooseK.txt"
+
+After your run is finished, cat the contents of this file to your screen:
+
+```bash
+$ cat chooseK.txt
+```
+
+* What level of K is the CV the lowest? 
+* What does this say about the presence of genetic structure in our data?
+* Which K is "real"? 
+

@@ -1,0 +1,50 @@
+---
+title: "Tutorials and Scripts"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+[Back to main page](index.html)
+
+**List of Tutorials** 
+
+1. 2018-01-24: [Command-line UNIX tutorial](2018-01-24_Command_Line_Unix.html)
+
+2. 2018-01-29: [RNA-seq tutorial - Day 1](2018-01-29_RNA-seq_Day1.html)
+
+3. 2018-01-31: [RNA-seq tutorial - Day 2](2018-01-31_RNA-seq_Day2.html)
+
+4. 2018-02-05: [RNA-seq tutorial - Day 3](2018-02-05_RNA-seq_Day3.html)
+
+5. 2018-02-07: [RNA-seq tutorial - Day 4](2018-02-07_RNA-seq_Day4.html)
+
+6. 2018-02-12: [RNA-seq tutorial - Day 5](2018-02-12_RNA-seq_Day5.html)
+
+7. 2018-02-14: [RNA-seq tutorial - Day 6](2018-02-14_RNA-seq_Day6.html)
+
+8. 2018-02-21: [RNA-seq tutorial - Day 7](2018-02-21_RNA-seq_Day7.html)
+
+9. 2018-02-26: [PopGenomics tutorial - Day 1](2018-02-26_PopGenomics_Day1.html)
+
+10. 2018-02-28: [PopGenomics tutorial - Day 2](2018-02-28_PopGenomics_Day2.html)
+
+11. 2018-03-05: [PopGenomics tutorial - Day 3](2018-03-05_PopGenomics_Day3.html)
+
+12. 2018-03-07: [PopGenomics tutorial - Day 4](2018-03-07_PopGenomics_Day4.html)
+
+13. 2018-03-19: [PopGenomics tutorial - Day 5](2018-03-19_PopGenomics_Day5.html)
+
+14. 2018-03-21: [PopGenomics tutorial - Day 6](2018-03-21_PopGenomics_Day6b.html)
+
+15. 2018-03-21: [PopGenomics tutorial - Day 7](2018-03-26_PopGenomics_Day7.html)
+
+
+
+### Troubleshooting   
+
+If you're on a Mac and havin trouble with R loading packages that depend on X11, you may not have it installed on your system (recent Mac's don't have this loaded at the factory). [Follow this link](https://stackoverflow.com/questions/38952427/include-cairo-r-on-a-mac) for a thread on how to install X11.
+
+
+ 

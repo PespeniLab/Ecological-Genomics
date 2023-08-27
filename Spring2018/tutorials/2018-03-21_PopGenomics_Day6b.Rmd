@@ -1,0 +1,122 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics 6: Testing selection using Fst outlier analysis"
+date: 'Mar 21, 2018'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+## Goals:
+
+* **Understand** how local adaptation may lead to elevated allele frequency divergence among populations, estimated using Fst
+
+* **Appreciate** the complications of population deomgraphy on using Fst as a selection statistic
+
+* **Apply** a method (Bayescan) that detects the signature of local adaptation as elevated Fst at loci beyond the expected neutral distribution
+
+------------------------------
+
+### Challenges for finding Fst outliers:
+
+As we've discussed in class, positive directional selection **acting differently across popuations** is expected to elevate genetic differentiation between groups (Fst). 
+
+* Fst measures *the magnitude of allele frequency differences between 2 or more groups*.
+
+* BUT, neutral demographic history (genetic drift, bottlenecks, range expansions) can inflate Fst, leading to **false positives** in scans for selective sweeps. 
+
+
+![](http://www.nature.com/scitable/content/ne0000/ne0000/ne0000/ne0000/15836493/f1_nosil.jpg)
+
+We'll be using the program **'Bayescan'** to test for SNPs with very high Fst, indicative of the action of diversifying selection and local adaptation. It is a method implemented by Matthieu Foll and Oscar Gaggiotti:
+
+[Foll M and OE Gaggiotti (2008) A genome scan method to identify selected loci appropriate for both dominant and codominant markers: A Bayesian perspective. Genetics 180: 977-993](http://www.genetics.org/content/180/2/977)
+
+Bayescan is a Bayesian method that estimates 2 key parameters: 
+
+  * a population-specific effect (beta) that is shared among loci
+  * a locus-specific effect (alpha) that is shared among populations. 
+     
+The **alpha** effect is the parameter that informs us about selection. Strong positive values indicate diversifying selection and local adaptation. Negative values indicate stablizing selection. Values close to zero are neutral.
+
+------------------------
+
+####OK, let's get started:
+  
+* You need to first convert from vcf to Bayescan format using pgdspider. This takes a while, so we're providing a converted file for you to use. You can find it here:
+
+```/data/project_data/beetles/snps/OTAU_2018_reads2snps_DP10GP95_biallelic_MAF01_Miss0.8.vcf.recode.vcf.bayescan```
+
+* To run Bayescan from the command line, you can either call the program with options, or write them into a bash script. 
+
+* To get an initial list of options, call the program without any inputs:
+
+```[srkeller@pbio381 snps]$ bayescan```
+
+ --------------------------- 
+ | BayeScan 2.0 usage:     | 
+ --------------------------- 
+ -help        Prints this help 
+ --------------------------- 
+ | Input                   | 
+ --------------------------- 
+ alleles.txt  Name of the genotypes data input file 
+ -d discarded Optional input file containing list of loci to discard
+ -snp         Use SNP genotypes matrix
+ --------------------------- 
+ | Output                  | 
+ --------------------------- 
+ -od .        Output file directory, default is the same as program file
+ -o alleles   Output file prefix, default is input file without the extension
+ -fstat       Only estimate F-stats (no selection)
+ -all_trace   Write out MCMC trace also for alpha paremeters (can be a very large file)
+ --------------------------- 
+ | Parameters of the chain | 
+ --------------------------- 
+ -threads n   Number of threads used, default is number of cpu available 
+ -n 5000      Number of outputted iterations, default is 5000 
+ -thin 10     Thinning interval size, default is 10 
+ -nbp 20      Number of pilot runs, default is 20 
+ -pilot 5000  Length of pilot runs, default is 5000 
+ -burn 50000  Burn-in length, default is 50000 
+ --------------------------- 
+ | Parameters of the model | 
+ --------------------------- 
+ -pr_odds 10  Prior odds for the neutral model, default is 10 
+ -lb_fis 0    Lower bound for uniform prior on Fis (dominant data), default is 0
+ -hb_fis 1    Higher bound for uniform prior on Fis (dominant data), default is 1
+ -beta_fis    Optional beta prior for Fis (dominant data, m_fis and sd_fis need to be set)
+ -m_fis 0.05  Optional mean for beta prior on Fis (dominant data with -beta_fis)
+ -sd_fis 0.01 Optional std. deviation for beta prior on Fis (dominant data with -beta_fis)
+ -aflp_pc 0.1 Threshold for the recessive genotype as a fraction of maximum band intensity, default is 0.1
+ --------------------------- 
+ | Output files            | 
+ --------------------------- 
+ -out_pilot   Optional output file for pilot runs
+ -out_freq    Optional output file for allele frequencies
+
+
+* You've got lots of practice now writing simple bash scripts, so let's have you try writing one on your own. Create a simple bash script that does the following:
+
+1. Call the program
+
+2. Tell it the input file (use the one in the shared space; no need to copy to ~/)
+
+3. Specify the options you want
+
+4. Direct the output to your ```~/myresults/```
+
+###Note: 
+* The most important option is ```-pr_odds```
+
+* This sets the prior probability on the odds that a given SNP is neutral vs. under selection. **The default value of 10 is generally much too low – that means 1 out of every 10 loci is under selection!** [Simulation studies that create SNP data under different models of gene flow and population structure reveal that this leads to many false positive SNPs](https://onlinelibrary.wiley.com/doi/full/10.1111/mec.12725). 
+
+![](https://wol-prod-cdn.literatumonline.com/cms/attachment/926622f2-aaf1-46ef-9764-0a5caffc5069/mec12725-fig-0003-m.jpg)
+
+* Let's do an experiment to evaluate sensitivity of the results to the prior odds. Each student should **choose one** of the following values: ```10, 100, 500, 1000, 5000, 10000```
+
+* You may also want to specify an output directory to write all the results to. Be sure to **mkdir** this location ahead of time, or...you could write it into your bash script ;)
+
+* Bayescan will run for a loooooong time, so before you execute your script, enter into a **screen**.
+
+* Don't forget to ctrl A + D to exit your screen before leaving class. We'll look at the results next week!
+

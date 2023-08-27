@@ -1,0 +1,20 @@
+---
+title: "Ecological Genomics Class Members"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+[Back to main page](index.html)
+
+**List of participants and their Github portfolios** 
+
+1. [Suraj Bhattarai](https://github.com/Surajuvm/Ecological_Genomics_Notebook/blob/master/Template_online_notebook.Rmd)   
+2. [Paul Cronin](https://github.com/croninp2/Ecological_Genomics_Notebook/blob/master/Paul_Cronin_online_notebook.Rmd)   
+3. [Jamie Kostyun](https://github.com/JKostyun/2018_Ecological_Genomics_Notebook_JLK/blob/master/Template_online_notebook.Rmd)
+4. [Lucy Rogers](https://github.com/lerogers/2018_Ecological_Genomics_Notebook/blob/master/Lucy_online_notebook.Rmd)
+5. [Morgan Southgate](https://github.com/mws19/EcologicalGenomics/blob/master/Template_online_notebook.Rmd)    
+6. [Ethan Thibault](https://ethanthibault.github.io/PBIO_381_Notebook/)
+
+
