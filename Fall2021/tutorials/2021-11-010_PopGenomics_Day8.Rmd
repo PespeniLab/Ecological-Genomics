@@ -1,0 +1,403 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 8"
+date: 'November 10, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Use admixture-trait mapping to identify specific genomic regions associated with variation in bud phenology and disease susceptibility
+2. Investigate how genome-wide ancestry structures trait variation 
+3. Explore the genetic basis of how local ancestry affects phenotypes
+
+It's been a while getting to this point, but now we can finally relate how trait variation reflects differences in genetic ancestry in this hybrid zone!
+
+## Admixture mapping is a powerful approach to genotype-phenotype mapping
+
+Early genomic approaches to trait mapping used bi-parental crosses between a pair of individuals that contrasted in their phenotypes and for many genetic markers. Known as linkage, or quantitative trait loci (QTL) mapping, this method relied on linkage between nearby markers co-located with an unknown causal locus segregating after a round of recombination in controlled crosses. The method was powerful, but typical designs analyzed F2's or F1-backcrosses after a single round of recombination, and as a consequence, the linkage blocks tended to be huge and the interval encompassing a QTL could span millions of bp.
+
+---
+
+<img src="https://media.springernature.com/full/springer-static/image/art%3A10.1038%2F35072085/MediaObjects/41576_2001_Article_BF35072085_Fig1_HTML.gif?as=webp"width=1000>
+*The basic strategy behind mapping quantitative trait loci (QTL) is illustrated here. (a) Inbred parents that differ in the density of trichomes are crossed to form an F1 population with intermediate trichome density. (b) An F1 individual is selfed to form a population of F2 individuals. (c) Each F2 is selfed for six additional generations, ultimately forming several recombinant inbred lines (RILs). Each RIL is homozygous for a section of a parental chromosome. The RILs are scored for several genetic markers, as well as for the trichome density phenotype. In c, the arrow marks a section of chromosome that derives from the parent with low trichome density. The leaves of all individuals that have inherited that section of chromosome from the parent with low trichome density also have low trichome density, indicating that this chromosomal region probably contains a QTL for this trait.* **From: Mauricio (2001) NRG 2:370–381**
+
+---
+
+Let's see, for poplars that would be 8 generations of crossing * roughly 10 years from seed to flower for poplar, is only 80 years.  Just in time for a PhD!
+
+Admixture mapping is basically just like the QTL mapping strategy shown above, except we let nature do the crosses between genetically and phenotypically divergent groups and then look at the segregation of ancestry blocks with trait variation under controlled conditions. Pretty clever...
+
+## Let's recap, what do we need for admixture-mapping:
+
+1. **Genetically divergent populations**
+2. **A Range of hybrid ancestries created by recombination**
+3. **Phenotypic trait variation that differs between the populations**
+
+We know we have (1) and (2) already from our genomic analyses on the SNP data to date.  Let's talk about (3)
+
+### Common garden phenotyping:
+
+Briefly...
+
+* We grew each genotype from rooted cuttings in the greenhouse, and planted 3 clonal reps/genotype in a randomized block design at the UVM Hort Farm in spring 2020.
+* Trees were watered during establishment during the summer of their first year, and then left untreated thereafter except for mowing between rows.
+* Beginning in the 2021 growing season, we measured the following phenotypes (1) Bud flush -- the day of year when leaves emerge from buds in spring; (2) Bud set -- the day of year in late-summer/fall when the apical meristem transitions to dormancy and forms an overwintering bud; (3) Rust infection -- a rank ordinal assessment of disease severity caused by the fungal rust pathogen, *Melampsora spp.*
+
+All traits were measured during 2021, and random effects ANOVA was used to estimate best lienar unbiased predictors (BLUPs) for each genotype.  BLUPs have a mean of zero, and represent a genotype's phenotypic deviation from the mean of the entire group.  
+
+### Bud flush, bud set, and rust:
+
+---
+
+<img src="https://www.uvm.edu/~kellrlab/uploads/2/2/9/6/22961126/editor/screen-shot-2021-03-31-at-4-52-08-pm.png?1617224158" align="left" height=315>
+
+<img src="https://as2.ftcdn.net/v2/jpg/02/25/03/51/1000_F_225035107_2Z43Wv8p2ErqUatQBN5GhcB6XqxGEhI6.jpg" align="left" height=315>
+
+<img src="https://www.uvm.edu/~kellrlab/uploads/2/2/9/6/22961126/baxteringarden_orig.jpg">
+
+And now on to the good stuff...  
+
+## Admixture mapping:
+
+The basic model for admixture mapping is:
+
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/d7a4584a4cb17736acb86f8df8a882008af1627d/docs/AdmixEq.jpg?raw=true" width=600>
+
+* *Y* is the phenotype of the *i*th individual
+* Beta-0 is the intercept
+* Beta-1 is the coefficient relating the phenotypic effect of ancestry at locus *j*
+* Beta-2 is the coefficient relating the phenotypic effect of genome-wide ancestry for the *i*th individual.  
+
+Essentially, it's a generalized linear model (GLM), in which we test for phenotypic effects of local ancestry while using genome-wide ancestry as a covariate. 
+
+## Our pipeline:
+
+1. Wrangle the phenotype data from the common gardens to get just the data for the admixed individuals we ran Loter on
+2. Get genome-wide ancestry for those same individuals (based off the K=5 model, subsetting for just the balsamifera Q value)
+3. Run Admixture mapping in Plink
+4. Bring the results into R and visualize
+
+### Step 1: Get the phentype data ready:
+
+On the server...
+
+```
+CHR="ChrXX"
+
+echo $CHR  # Does it look right?
+
+cd /data/project_data/PopGenomics/shared/${CHR}_sweeps/LAI/
+
+# Get phenotype data from meta file for the admixed samples:
+
+tail -n +2 /data/project_data/PopGenomics/VT_Garden_Phenotypes_2021.txt | \
+grep -w -f Admixed.Inds - >Admixed.pheno
+
+printf "#FID\tIID\tRUST\tFLUSH\tSET\n%.0s" >Plink/pheno.forPlink
+
+cat Admixed.pheno >>Plink/pheno.forPlink
+
+```
+
+### Easy-peasy!  Onto Step 2:
+
+```
+# Get K=2 ADMIX to use as covariate; Need to use tail -n +2 to skip the header in the metadata file before pasting to the Q file
+
+tail -n +2 /data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt | \
+cut -f1 | \
+paste - /data/project_data/PopGenomics/shared/poplar_hybrids.LDpruned.5.Q | \
+grep -w -f Admixed.Inds - | \
+sed 's/\s/\t/g' | \
+cut -f 1,5 >Plink/Admixed_KBals
+
+cat /data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt | \
+cut -f1-2 | \
+grep -w -f Admixed.Inds - | \
+sed 's/\s/\t/g' | \
+cut -f2 >Plink/Transect
+
+# Create the cov file with KBals
+
+printf "#FID\tIID\tK2Q\n%.0s" >Plink/cov.forPlink
+paste Plink/Transect Plink/Admixed_KBals >>Plink/cov.forPlink
+
+```
+
+### Amost there...  Step 3: Run Plink admixture mapping
+
+This will run all three traits automatically, outputting separate files for each trait.  [There's lots of options for tweaking.  If you're ever curious (or bored)](https://www.cog-genomics.org/plink/2.0/assoc). 
+
+```
+cd Plink/
+
+plink2 --bfile ${CHR}_Admixed_FAI \
+--pheno pheno.forPlink \
+--covar cov.forPlink \
+--glm omit-ref
+
+```
+
+Plink should run FAST (that's why we keep it around). If successful, you should see the following files in your Plink/ directory:
+
+```
+-rw-r--r--. 1 srkeller users 36400787 Nov  9 19:01 plink2.FLUSH.glm.linear
+-rw-r--r--. 1 srkeller users 37591739 Nov  9 19:01 plink2.RUST.glm.linear
+-rw-r--r--. 1 srkeller users 35911442 Nov  9 19:01 plink2.SET.glm.linear
+
+```
+
+In addition to these files, you'll want to make sure you have the following other files downloaded to your machine. I'm giving you my guess as to what directories they're in within your `ChrXX_sweeps/` folder, but you will know best. NOTE:  Some of them you may have already downloaded. No need to do it again if you've got them already on your laptop (and know where to find them!)
+
+```
+# Meta-data:
+/data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt
+
+# Phenotypes:
+/data/project_data/PopGenomics/VT_Garden_Phenotypes_2021.txt
+
+# Admixed.Inds:
+/data/project_data/PopGenomics/shared/${CHR}_sweeps/LAI/Admixed.Inds
+
+# SNPs analyzed for your chromosome:
+/data/project_data/PopGenomics/shared/${CHR}_sweeps/LAI/${CHR}.kept.sites
+
+# Frequencies of Local Ancestry:
+/data/project_data/PopGenomics/shared/${CHR}_sweeps/LAI/Plink/${CHR}_LAI_freq.afreq
+
+# Genome-wide balsamifera ancestry:
+/data/project_data/PopGenomics/shared/${CHR}_sweeps/LAI/Plink/Admixed_KBals
+
+```
+
+### Get all these files onto your laptop and organized into a directory, and then fire up R
+
+
+First, let's read in all these files and merge them together based on the `ID` variable that they have in common.
+
+```
+library(ggplot2)
+library(gridExtra)
+
+setwd("path to your files...")
+
+# Get the list of admixed individuals:
+Admixed <- read.table("Admixed.Inds",header=F)
+
+# Get the meta data:
+meta <- read.table("Combined_Transect_Sampling_Data_2020.txt", sep="\t",header=T)
+
+# merge them together:
+meta_admx <- merge(meta, Admixed, by.x="ID", by.y="V1")
+str(meta_admx)  
+
+# Read in the Admixture coefficients for KBals that we made from the K=5 file:
+KBals <- read.table("Admixed_KBals", sep="\t", header=F)
+names(KBals) = c("ID","KBals")
+
+# Second merge:
+meta_admx_KBals <- merge(meta_admx,KBals,by="ID")
+
+
+# Bring in phenotype data:
+pheno <- read.table("VT_Garden_Phenotypes_2021.txt",sep="\t",header=T)
+
+# Merge pheno data with meta and KBals:
+meta_admx_KBals_pheno <- merge(meta_admx_KBals,pheno,by="ID")
+
+```
+
+The first question we can ask is if these phenotypes show a relationship with the overall ancestry fraction in each individual, averaged across the genome (as done by our previous ADMIXTURE analysis).
+
+```
+#  Rust
+plotRust <- ggplot(meta_admx_KBals_pheno,aes(x=KBals,y=RUST, color=Transect.x)) +
+  geom_point(size=2) + 
+  xlab("Proportion P. balsamifera ancestry") +
+  ylab("Rust susceptibility") 
+
+plotRust
+
+# Bud set
+plotBudset <- ggplot(meta_admx_KBals_pheno,aes(x=KBals,y=SET, color=Transect.x)) +
+  geom_point(size=2) + 
+  xlab("Proportion P. balsamifera ancestry") +
+  ylab("Bud set") 
+
+plotBudset
+
+# Bud flush
+plotBudflush <- ggplot(meta_admx_KBals_pheno,aes(x=KBals,y=FLUSH, color=Transect.x)) +
+  geom_point(size=2) + 
+  xlab("Proportion P. balsamifera ancestry") +
+  ylab("Bud flush") 
+
+plotBudflush
+
+grid.arrange(plotRust, plotBudset, plotBudflush, nrow = 3)
+
+# linear models testing trait ~ genome-wide admixture association
+summary(lm(RUST~KBals + Transect.x, data=meta_admx_KBals_pheno))
+
+summary(lm(SET~KBals + Transect.x, data=meta_admx_KBals_pheno))
+
+summary(lm(FLUSH~KBals + Transect.x, data=meta_admx_KBals_pheno))
+
+```
+
+What about the effects of local ancestry within the genome, after controlling for genome-wide ancestry effects as a covariate in the GLM model?
+
+```
+######  Bring in Association results from Plink   ######
+
+rust <- read.table("plink2.RUST.glm.linear",skip=1,sep="\t",header=F)
+names(rust) = c("CHROM",	"POS",	"ID",	"REF",	"ALT",	"A1",	"TEST",	"OBS_CT",	"BETA",	"SE",	"T_STAT",	"P")
+rust2 <- rust[which(rust$TEST=="ADD"),]
+
+# Define association outliers as the upper 0.1% of p-values
+
+#########  rust  #########
+rust2 <- cbind(snps, rust2[,-c(1:2)])
+rust2$outlier = ifelse(rust2$P<quantile(rust2$P,0.001),2,1)
+
+p1 <- ggplot(rust2,aes(x=POS,y=-1*log10(P))) +
+  geom_point(size=rust2$outlier, color=rust2$outlier) + 
+  xlab("Position (bp) along chromosome") +
+  ylab("-log10 P-value") +
+  ggtitle("Rust infection")
+
+#p1
+
+####### Bud set  #########
+budset <- read.table("AdmixMapping/plink2.SET.glm.linear",skip=1,sep="\t",header=F)
+names(budset) = c("CHROM",	"POS",	"ID",	"REF",	"ALT",	"A1",	"TEST",	"OBS_CT",	"BETA",	"SE",	"T_STAT",	"P")
+budset2 <- budset[which(budset$TEST=="ADD"),]
+budset2 <- cbind(snps, budset2[,-c(1,2)])
+budset2$outlier = ifelse(budset2$P<quantile(budset2$P,0.001),2,1)
+
+p2 <- ggplot(budset2,aes(x=POS,y=-1*log10(P))) +
+  geom_point(size=budset2$outlier, color=budset2$outlier) + 
+  xlab("Position (bp) along chromosome") +
+  ylab("-log10 P-value") +
+  ggtitle("Bud set")
+
+#p2
+
+#########  Bud flush  #########
+budflush <- read.table("AdmixMapping/plink2.FLUSH.glm.linear",skip=1,sep="\t",header=F)
+names(budflush) = c("CHROM",	"POS",	"ID",	"REF",	"ALT",	"A1",	"TEST",	"OBS_CT",	"BETA",	"SE",	"T_STAT",	"P")
+budflush <- budflush[which(budflush$TEST=="ADD"),]
+budflush2 <- cbind(snps, budflush[,-c(1,2)])
+budflush2$outlier = ifelse(budflush2$P<quantile(budflush2$P,0.001),2,1)
+
+p3 <- ggplot(budflush2,aes(x=POS,y=-1*log10(P))) +
+  geom_point(size=budflush2$outlier, color=budflush2$outlier) + 
+  xlab("Position (bp) along chromosome") +
+  ylab("-log10 P-value") +
+  ggtitle("Bud flush")
+
+#p3
+
+grid.arrange(p1, p2, p3, nrow = 3)
+
+```
+You can also get the outliers as lists to investigate further by using GenomicRanges() (see the [Day 5 tutorial](https://pespenilab.github.io/Ecological-Genomics/2021-11-01_PopGenomics_Day5.html)) or the [Phytozome JBrowse](https://phytozome-next.jgi.doe.gov/jbrowse/index.html?data=genomes%2FPtrichocarpa_v4_1&loc=Chr02%3A5503921..5529300&tracks=Transcripts%2CAlt_Transcripts%2CPASA_assembly%2CBlastx_protein%2CBlatx_BasalMalvidae&highlight=) to figure out which gene IDs fall within these regions. 
+```
+# Get outliers for a given trait association:
+
+rust_outliers <- rust2[which(rust2$outlier==2),c(2,3,9)]
+set_outliers <- budset2[which(budset2$outlier==2),c(2,3,9)]
+flush_outliers <- budflush2[which(budflush2$outlier==2),c(2,3,9)]
+```
+
+
+What about if we want to plot local ancestry variation along with our association plots? Let's make sliding windows of 50kb to plot local ancestry, so it's a bit more smoothed.
+
+```
+# Read in list of positions
+snps <- read.table("Chr02.kept.sites",sep="\t", header=T)
+
+# Plot freq of LAI along chr
+AF <- read.table("Chr02_LAI_freq.afreq", skip=1,sep="\t",header=F)
+names(AF) = c("CHROM",	"ID",	"REF",	"ALT",	"ALT_FREQS",	"OBS_CT")
+str(AF)
+
+AF2 <- cbind(snps,AF)
+
+windows <- seq(1,max(AF2$POS),5e4)
+AF_windows <- numeric()
+
+for(i in 1:length(windows)){
+  tmp=AF2[which(AF2$POS>windows[i] & AF2$POS<windows[i+1]),"ALT_FREQS"]
+  ancfreq=mean(tmp)
+  AF_windows[i] = ancfreq
+}
+
+AF3 <- as.data.frame(cbind(windows,AF_windows))
+names(AF3) = c("window","AvgAncFreq")
+
+```
+We can define outlier regions of local ancestry along chromosomes as those that are +/- 2 standard deviations (SD) from the mean ancestry on that chromosome. These may be interesting regions to explore for candidate genes, especially if they're also co-located with our phenotype associations.
+
+```
+upper = mean(AF3$AvgAncFreq,na.rm=T) + 2*sd(AF3$AvgAncFreq,na.rm=T)
+lower = mean(AF3$AvgAncFreq,na.rm=T) - 2*sd(AF3$AvgAncFreq,na.rm=T)
+
+outliers_upper = AF3[which(AF3$AvgAncFreq>upper),]
+outliers_lower = AF3[which(AF3$AvgAncFreq<lower),]
+
+# Print the outlier regions out
+outliers_upper
+outliers_lower
+
+# And finally, make the 4-panel plot with the trait associations
+p1 <- ggplot(AF3[,-3],aes(x=window,y=AvgAncFreq)) +
+  geom_line(size=0.8, color="blue") + 
+  xlab("Position (bp) along chromosome") +
+  ylab("Frequency P. trichocarpa ancestry") +
+  geom_hline(yintercept=mean(AF2$ALT_FREQS), color = "red") + 
+  geom_hline(yintercept=upper, linetype="dashed", color = "red") + 
+  geom_hline(yintercept=lower, linetype="dashed", color = "red") +
+  ggtitle("Chr02: Local ancestry")
+
+p1
+
+
+grid.arrange(p1, p2, p3, p4, nrow = 4)
+
+```
+
+It seems like the 3 phenotypes show a species-specific pattern of balsamifera having lower disease, earlier bud set, and also earlier bud flush.  Are these correlations maintained in admixed genotypes, even after recombination shuffles ancestry blocks up?  If so, then it's likely there is pleiotropy (shared genetic basis) underlying the traits.
+
+We can look at this by grabbing the Betas for the admiture mapping, which give us the effect of substituting tricho for balsam ancetry.  The Betas tell us both the direction that has on the phenotype (increase vs. decrease) and also the magnitude of the effect. Are the Betas for one trait correlated with the Betas for another trait, as predicted by the pleiotropy hypothesis?
+
+```
+# Get the betas from each trait and look at pleiotropy between traits
+betas <- cbind(rust[,c(1:3,9)],budset2[,9],budflush2[,9])
+names(betas) = c("CHROM","POS","ID","beta_rust","beta_set","beta_flush")
+str(betas)
+
+cor(betas[,4:6],betas[4:6])
+
+p5 <- ggplot(betas,aes(x=beta_flush,y=beta_set)) +
+  geom_point(color="darkgray") + 
+  xlab("Beta bud flush") +
+  ylab("Beta bud set") +
+  ggtitle("Correlation of bud set and flush effect sizes")
+
+p5
+
+```
+
+
+
+
+
+
+
+
+
+

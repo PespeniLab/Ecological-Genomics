@@ -1,0 +1,324 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 6"
+date: 'November 03, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Estimate local ancestry along chromosomes
+2. Build additional expertise with bash scripting (file parsing and loops) 
+3. Position ourselves for testing adaptive introgression (next week)!
+
+## Local Ancestry Inference (LAI)
+
+We've talked about how admixture results in mixtures of genetic ancestry from different source populations. When we ran *ADMIXTURE* previously, this estimated the fractional ancestry for each individual across the *entire* genome, but this analysis doesn't focus down to how ancestry varies along the chromosome.  
+
+**That's the focus of Local Ancestry Inference (LAI).**
+
+LAI methods estimate the source of ancestry *for each locus* along the chromosome for admixed individuals. Because of linkage, nearby positions along chromosomes often derive ancestry from the same source population. When recombination occurs between homologs in admixed individuals, then chromosomes become mosaics of genetic ancestry, with 0, 1, or 2 allele copies (in diploids) derived from a given source population. 
+
+***
+
+<img src="https://oup.silverchair-cdn.com/oup/backfile/Content_public/Journal/mbe/35/9/10.1093_molbev_msy126/1/msy126f1.jpeg?Expires=1638923187&Signature=UmBQCxkwXSxYHDmGUWOUt-ADM2DrIqrBI6gVQLjj930FA6hgt6L4oU-KJDU-Nh5FYmmnguMsKwgMz9j-sNtzt~KcqfH2QZsp0G9ES6uNQ-WhQQZ790TUkAKIZwOBU0Es18YunYQ-lpXqKCkmewbUc2uc23GUBSHHumEUYy2DdwZqZEgHDKCuvIdD699FMBB2WBbLyrtT7OhkZk9Mzh1iS9YhwaY4cJK0x7NgAG8Xk6bfKr-HdGBgfOM~0bsBteOeau3ltpYQ-0VuoY~59LOUdwFy362q8P6ReMsXhSDgrzgZbVRVmzvN6LnOpPxOGI9Fq8a~c32wKiv5TPTC7juEIg__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA">
+**From Dias-Alves et al. 2018 -- Figure 1:** *Example of local ancestry inference for four simulated Populus individuals resulting from admixture between two Populus species, which are Populus trichocarpa and Populus balsamifera (Suarez-Gonzalez et al. 2016). For an admixed individual, local ancestry at a given locus corresponds to the number of copies that has been inherited from the species P. trichocarpa. LAI software require haplotypes from putative source populations and process haplotypes or genotypes from admixed population to return local ancestry of admixed individuals.*
+
+***
+
+LAI is also sometimes referred to "chromosome painting", and has inspired some really cool artistic interpretations! [Check this one out by an art professor at Reed College](https://www.reed.edu/art/ondrizek/)
+
+
+### LAI can be used to study many interesting questions, including:
+
+* From which population or species did a specific gene or genomic region derive its ancestry along the chromosome?
+* What regions of the genome are especially permeable to introgression, and hence may be candidates for adaptive introgression?
+* Which genomic regions are resistant to introgression, and therefore may contribute to reproductive isolation between lineages?
+
+There are several different methods for the estimation of LAI, and they are all computationally *INTENSIVE*. 
+
+[A recent paper](https://peerj.com/articles/10090/) compared several different LAI methods against each other. The methods differ in how flexible they are to working with different study systems, in part based on:
+
+* knowing the age of the admixture event (some methods only work on very recent admixture)
+* the number of lineages (populations, species) that contributed ancestry (some methods only work for K=2)
+* the necessity of a having genetic map in units of recombination distances (cM) (we often don't have one)
+* prior knowledge of the recombination rate and mutation rate (we often don't know these)
+
+The LAI program *Loter* by [Dias-Alves et al. 2018](https://academic.oup.com/mbe/article/35/9/2318/5040668) is designed to be very flexible for non-model organisms, with minimal parameter requirements (i.e., it doesn't require, for example, time since admixture, recombination or mutation rates).
+
+*Loter* works by specifying a set of phased haplotypes from each of the ancestral populations, and then assigning admixed individuals ancestry along chromosomes based on haplotypes matching.
+
+<img src="https://oup.silverchair-cdn.com/oup/backfile/Content_public/Journal/mbe/35/9/10.1093_molbev_msy126/1/msy126f2.jpeg?Expires=1638926363&Signature=GlReRiBd6y6Btw46Xt5Khs3CMetjR7xSjqfndTJcsj~DwV0zIXCse982~0dRdBh9JBMANtMeib7v85z6zCe4YB7v4Avmb~RYySD1TwOyXx-LhUHV537j-eeZ0Edwu2Q8T28T5VMu05r8rjyUi7Jf0eIXNPGeIEwu2gFmebpuCkMGk7g8ADgaPbXqwMranarUfH~UvfyONtoE8R3Z9saSn8CNH8MYpRAuqIkbGsyn4kp-Ymmr48mseQeG6MzjeT8eIvP4HQNfJA5N~X0gYqEJmgrLDxOOZbaYcgGIK6lGZwG8ynNVIvIUWhPhIKGJqHB2X8dDIbf8R9C~hLNAzXDcwA__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA">
+
+We'll use *Loter* to for LAI along each of our poplar chromosomes in the hybrid zone, using the previous K=5 ADMIXTURE run to define ancestral vs. admixed genotypes.
+
+First step: download and install the *Loter* python package into your **local directory on the server**. Log-in to pbio381, and execute the following code from within your home directory:
+
+```
+git clone https://github.com/bcm-uga/Loter.git
+cd Loter/python-package
+python setup.py install --user
+
+```
+
+*Loter* requires reference populations to infer LAI within admixed individuals.  Here, we are interested in *P. balsamiera* vs. *P. trichocarpa* as the reference populations. Rather than rely soley on the ADMIXTURE K=2 model, we're going to use the K=5 model that showed the lowest CV value:
+
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/c36553261acf89249304492fd47c091487d223a8/Fall_2021/tutorials/Admix_K5.jpg?raw=true">
+*ADMIXTURE run for K=5. Ancestry assigned to colors: P. balsamifera (orange), P. trichocarpa (red, yellow, green), other Populus spp. (blue)*
+
+***
+
+## Our pipeline:
+
+1. Extract "reference" individuals with high ancestry assignments to either Balsam (K4>0.99) or Tricho ([K1+K2+K5]>0.99. Exclude inds assigned to "Populus spp." (K3>0.5).
+2. Use VCFtools to parse our vcf files by ancestry group. **NOTE:** We'll do this separately by your chromosome to keep things computationally efficient. 
+3. Run *Loter* for 1 admixed sample at a time to estimate LAI. Working on 1 sample at a time will reduce memory requirements on the server.
+
+First, get into your shared chromosome directory on the pbio381 server:
+
+`cd /data/project_data/PopGenomics/shared/ChrXX_sweeps/`
+
+# (1) Define your Chromosome and extract "reference" balsam and trichocarpa individuals
+
+```
+CHR="ChrXX"  # Be sure to customize to your chromosome number!!!
+
+echo $CHR  # Does it look right?
+
+# Then make some new folders to store future results in:
+
+mkdir LAI
+
+cd LAI/
+
+mkdir Admixed
+```
+To parse the individuals by their ancestry coefficients @ K=5, we'll use `R` at the commandline. We'll need the Q files for the K=5 ADMXITURE run, and the meta-data.
+
+Remember how to start an R session at the commandline?
+
+```
+# Interactive R session at the commandline:
+
+R
+```
+
+```
+# Import K=5 Admixture run
+Qscores <- read.table("/data/project_data/PopGenomics/shared/poplar_hybrids.LDpruned.5.Q", sep=" ",header=F)
+names(Qscores) = c("K1","K2","K3","K4","K5")
+
+# Import meta-data
+meta <- read.table("/data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt",sep="\t",header=T)
+
+# Combine them 
+merged <- cbind(meta,Qscores)
+str(merged)
+
+```
+
+Now, we want to subset individuals based on their genome-wide ancestry assignments.  
+
+**Example first few lines from K=5 Q-matrix:**
+
+```{r, echo=FALSE}
+library(data.table)
+
+dat <- read.table("~/OneDrive - University of Vermont/PBIO381/Fall2021/Module3_PopLandscapeGenomics/Admixture/example.Q", sep=" ", header=F)
+names(dat) <- c("K1 (Tricho)","K2 (Tricho)","K3 (PopSpp)","K4 (Balsam)","K5 (Tricho)")
+knitr::kable(dat)
+```
+
+**Here's how we're going to group samples based on ADMIXTURE ancestry assignments:**
+
+* Balsam = K4 > 0.99
+* Tricho = (K1 + K2 + K5) > 0.99
+* PopSpp = K3 > 0.5  # Want to exclude from our LAI analysis!
+* Admixed = Everything else!
+
+
+**Now, to run this in R:**
+
+```
+for(i in 1:nrow(merged)){
+if(merged$K4[i]>=0.99){
+	merged$Anc[i]="Bals"
+	}else if (sum(c(merged$K1[i],merged$K2[i],merged$K5[i]))>=0.99){
+	merged$Anc[i]="Tricho"
+	} else if(merged$K3[i]>0.5){
+	merged$Anc[i]="PopSpp"
+	}else{
+	merged$Anc[i]="Admx"
+	}
+}
+
+table(merged$Anc)
+```
+What do your samples sizes look like for each assignment?
+
+Now, we can write these sample IDs out to separate files to use with VCFtools to group our samples.
+
+```
+Bals_Inds_Ref <- merged[merged$Anc=="Bals",1]  
+length(Bals_Inds_Ref) # Should net you 46 individuals
+write.table(Bals_Inds_Ref, "Balsam.Inds", quote=F, row.names=F, col.names=F)
+
+Tricho_Inds_Ref <- merged[merged$Anc=="Tricho",1]
+length(Tricho_Inds_Ref) # Should net you 80 individuals
+write.table(Tricho_Inds_Ref, "Tricho.Inds", quote=F, row.names=F, col.names=F)
+
+Admixed_Inds <- merged[merged$Anc=="Admx",1]
+length(Admixed_Inds) # Should net you 442 individuals
+write.table(Admixed_Inds, "Admixed.Inds", quote=F, row.names=F, col.names=F)
+
+quit() # choose 'n' when prompted
+
+```
+Back at the command line!
+
+# 2. Use VCFtools to parse the VCF file you made previously for your chromosome
+
+Now we want to generate separate VCF files for each of our "reference" panels (Balsam and Tricho) and our admixed individuals.
+
+```
+# First we grab just the Balsam and Tricho reference individuals
+
+vcftools --vcf /data/project_data/PopGenomics/shared/${CHR}_sweeps/${CHR}.recode.vcf --keep Balsam.Inds --recode --stdout | gzip -c >poplar_hybrids.maf05.${CHR}.BalsRef.vcf.gz
+
+vcftools --vcf /data/project_data/PopGenomics/shared/${CHR}_sweeps/${CHR}.recode.vcf --keep Tricho.Inds --recode --stdout | gzip -c >poplar_hybrids.maf05.${CHR}.TrichoRef.vcf.gz
+
+```
+
+We'll also want to export a list of all the SNP positions in our VCF files for bringing into R later and merging with the LAI outputs.  You only need to do this for one of your vcf files (the positions will be the same across them all).
+
+```
+vcftools --gzvcf poplar_hybrids.maf05.${CHR}.BalsRef.vcf.gz --kept-sites --out ${CHR}
+
+```
+### What about making VCF files for the Admixed samples?
+
+LAI estimation with *Loter* is a bit, shall we say, *memory consuming.* 
+
+One trick is to run the analysis for one admixed sample at a time, instead of trying to feed them all into memory simultaneously. It will still take awhile, but it (hopefully) won't crash our server :)
+
+So, we need a way to loop the *Loter* analysis over each individual sample ID in the `Admixed.Inds` file, one at a time.
+
+We do this using a special kind of loop in bash called `while read`. Essentially, this runs a loop that iterates over each line in an external file.  In this case, it's each sample ID (one per line) in the `Admixed.Inds` file that you made. 
+
+Let's work through a test-case first (always a good idea in programming to try a **small** experiment before the BIG run!)
+
+```
+# Example while loop:
+
+while read ID
+do
+  echo "$ID"
+done < Admixed.Inds
+```
+
+This loop:
+
+* Slurped in the file we made called `Admixed.Inds` (**note**, this happens at the end of the code chunk, as a reverse file direct, "<")
+* Then, 1 line (sample "ID") at a time...
+* Performed an operation, in this case simply printing (`echo`) the name of the sample ID to the screen
+
+Make sense?  Now, let's adapt it to our analysis!
+
+**START A SCREEN FIRST!**
+
+`screen`
+
+Then once you're in a screen...
+
+```
+CHR="ChrXX"  # Be sure to customize to your chromosome number!!!
+
+echo $CHR  # Does it look right?
+
+while read ID
+do
+  vcftools --gzvcf /data/project_data/PopGenomics/shared/${CHR}_sweeps/${CHR}.recode.vcf \
+  --indv $ID \
+  --recode \
+  --stdout | gzip -c   >Admixed/poplar_hybrids.maf05.${CHR}.${ID}.vcf.gz
+done < Admixed.Inds
+```
+Now, before you forget, **DETACH FROM YOUR SCREEN**
+
+
+**This loop:**
+
+* reads in our master VCF file that is already subsetted by our chromosome of interest
+* subsets by just the individual of interest (`--indv`)
+* writes a new file based on the subsetting (`--recode`)
+* passes that file to "stdout" which is used to send it to another program on the other side of the "pipe" `|`
+* uses `gzip` to compress the new output file to save space
+* uses the `< Admixed.Inds` to feed the loop sample ID's of the admixed individuals, one line at a time.
+
+# 3. Run *Loter!*
+
+Now that we have VCFtools working for us to parse our files by individual, we can start our *Loter* analysis. 
+
+The basic logic is the same: 
+
+* start a **NEW** screen (it takes a LONG time)
+* run ***Loter*** iteratively for each Admixed individual in a `while read` loop
+
+```
+# First, make a new dir to store the results:
+mkdir Loter_out
+
+CHR="ChrXX"  # Be sure to customize to your chromosome number!!!
+
+echo $CHR  # Does it look right?
+
+while read ID
+do
+for file in Admixed/poplar_hybrids.maf05.${CHR}.${ID}.vcf.gz
+do
+loter_cli -r poplar_hybrids.maf05.${CHR}.BalsRef.vcf.gz poplar_hybrids.maf05.${CHR}.TrichoRef.vcf.gz \
+-a $file \
+-f vcf \
+-o Loter_out/${ID}_LAI.txt \
+-n 1 \
+-pc -v
+done
+done < Admixed.Inds
+
+```
+Note the "nested" loops here (i.e., there are 2 loops happening in the code). 
+
+* The first loop grabs one sample ID at a time from the file `Admixed.Inds`. 
+* The next loop finds the matching vcf file for that sample ID, and feeds it into the *Loter* analysis for LAI estimation.
+
+The flags control options:
+
+* `-o` directs the analysis output to the `Loter_out` directory you made, and names it by the ID name
+* `-n` controls how many cpu's to use in the analysis (just 1 for now)
+* `-pc` implements phase correction on the inferred ancestry
+* `-v` prints "verbose" progress updates to the screen as the analysis proceeds
+
+Now, before you forget, **DETACH FROM YOUR SCREEN**
+
+## Looking ahead...
+
+We're going to let this run awhile.  Good thing it's Wednesday, and we don't meet again till next Monday ;)
+
+In the meantime, you can check progress by 
+
+* Doing `ll` in your `Loter_out/` directory to verify that the LAI files are getting made 
+* You can also check if the analysis is still running under your user name using the `top` command.
+* If it seems like things have ended early without the expected outputs (one ${ID}_LAI.txt file per admixed sample), let us know!
+
+On Monday, we'll pick up with digging into the results of our local ancestry analysis along chromosomes!
+
+
+
+
+
+
+
+
+

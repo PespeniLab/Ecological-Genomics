@@ -1,0 +1,198 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 5"
+date: 'November 01, 2021  (whaaat?)'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Evaluate the overlap between chromosomal regions with evidence of selective sweeps and levels of genetic divergence (Fst) between species
+2. Learn to work with Genomic Ranges and extract genome annotation
+3. Test for functional enrichment of candidate genes
+
+## Reviewing where we left off last time:
+
+We (hopefully) have produced the following for each of our chromosomes:
+
+* RAiSD tests for selective sweeps
+* Fst in sliding windows of 50 kb (*oops -- need to update the ggplot titles!*)
+* Nucleotide diversity in sliding windows of 50 kb (*ditto!*)
+
+
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/a44611952a40b570ff882f5c30225846729a2896/Fall_2021/tutorials/Chr02_sweeps.jpeg?raw=true">
+
+We zoomed in on a couple of interesting regions that showed evidence for selective sweeps (based on the Manhattan plots of the RAiSD u-stat). For example, here's Chr02 zoomed in on that first RAiSD peak:
+
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/244f32d465c9eb61976bf6da6c52102edbe8b6c2/Fall_2021/tutorials/Chr02_sweeps_zoomed.jpeg?raw=true">
+
+Right now we're just eye-balling it. How can we get a test for association between RAiSD sweep regions and regions of low Fst? 
+
+## Enter the GenomicRanges() R package
+
+GenomicsRanges is a very versatile R package for defining feature sets in genomic data (defined by ranges, in bp) and looking for overlaps between different sets.
+
+Note, you'll need to uncomment the first few lines if you don't have GenomicRanges and GenomicFeatures installed already.
+```
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install("GenomicRanges")
+# BiocManager::install("GenomicFeatures")
+
+library(GenomicRanges)
+library(GenomicFeatures)
+
+```
+Here's our workflow:
+
+1. Bring in the Fst outputs we generated last week and identify windows with low Fst
+2. Bring in the RAiSD outputs and identify very high values of the u-stat (candidates for selection)
+3. Use GenomicRanges() to find their overlaps
+4. Test for significance by randomizing the values of meanFst among the windows many times, and estimate how much overlap there is in the randomized distribution
+
+### Step 1: Import Fst and threshold for low values
+
+```
+####### Randomization test for Fst and sweep outliers #########
+
+setwd("~/OneDrive - University of Vermont/PBIO381/Fall2021/Module3_PopLandscapeGenomics/") # Customize to where your Fst, Pi, and RAiSD files are located on your laptop
+
+fst <- read.table("Selection/Bals_Tricho_All.windowed.weir.fst", sep="\t",header=T) # Import the Fst results
+
+cent <- read.table("Selection/Chr02_centromere.txt", sep="\t",header=F) # Import the centromere coordinates
+
+fst <- fst[-which(fst$BIN_START>cent$V2 & fst$BIN_END<cent$V3),] # Mask Fst windows in the centromere region
+
+
+# Calculate Genomic Ranges for outlier bins
+
+CHR="Chr02"  # Customize to your chromosome.  Make sure syntax is exact!
+
+# Define the genomic ranges of the Fst bins
+fstGR <- GRanges(CHR,IRanges(fst[,"BIN_START"],fst[,"BIN_END"]))
+
+# Define what should be a "low" value of Fst.  Here, we'll try the lowest 10% of windows that don't incude the centromere.  Can play with this if you want (choosing the last value in the quantile function call). 
+fstThreshold = quantile(fst$MEAN_FST,0.1)
+
+# Call outliers (=1) or non-outliers (=2) based on fst Threshold
+fstGR$outlier <- ifelse(fst$MEAN_FST<fstThreshold,1,2)
+
+# Grab just the outlier Fst windows
+fstCand <- subset(fstGR, outlier==1)
+
+```
+### Step 2: Import RAiSD and threshold for candidate sweeps
+
+```
+raisd <- read.table(paste0("Selection/RAiSD_Report.",CHR,".",CHR), sep="\t",header=F) # Import the RAiSD results
+
+# Define RAiSD genomic ranges based on first and last SNP within the RAiSD windows of 50 SNPs each.   How deos this relate to the Fst window size?
+raisdGR <- GRanges(CHR,IRanges(raisd[,2],raisd[,3]))
+
+# Define RAiSD outliers, based on the upper 1% of SNPs
+raisdThreshold = quantile(raisd$V7,0.99)
+  
+raisdGR$outlier <- ifelse(raisd$V7>raisdThreshold,"outlier","non")
+
+```
+
+Since the RAiSD results are 1 per SNP, and adjacent SNPs have highly similar values (because of linkage), we want to merge runs of adjacent outlier positions together into outlier windows.
+
+```
+raisdGR_out <- unlist(reduce(split(raisdGR, ~outlier)))
+raisdGR_out$outlier <- names(raisdGR_out)
+raisdCand <- subset(raisdGR_out, outlier=="outlier")
+
+```
+### Step 3: Find the overlaps betweeen low Fst windows and high RAiSD windows
+
+```
+# Use GenomicRanges to pull out the RAiSD outlier windows that overlap the lowest Fst windows
+overlap <- subsetByOverlaps(raisdCand, fstCand)
+
+length(overlap) # Number of the RAiSD sweep candidate loci that overlap with the lowest n% of Fst windows
+
+```
+How many windows overlap between RAiSD and Fst?
+
+*How much is a lot?  How few is a little?*
+
+### Step 4: Test for significance of observed overlapping bins by randomizing the Fst values and recalculting the overlap
+
+```
+# A little code I wrote to permute Fst values randomly among the 50kb windows, and re-calculate the overlap with the RAiSD outliers. 
+# Can set number of permutation replicates (NumPerm)
+# 1000 permutations seems to give a decent randomized distribution
+
+NumPerm=1000
+
+Perm = NA
+for(i in 1:NumPerm){
+  FstSamp = cbind(fst[,c(2,3)], fst[sample(nrow(fst)),6])
+  names(FstSamp) = c("Start", "Stop", "FST")
+  FstRand = FstSamp[which(FstSamp[3]<fstThreshold),]  
+  FstRand_ranges <- GRanges(seqnames=CHR, ranges=IRanges(FstRand[,1],FstRand[,2]))
+  FstRand_ranges_red <- reduce(FstRand_ranges)
+  Perm[i] = sum(countOverlaps(raisdCand, FstRand_ranges_red))
+}
+
+# Plot the random distribution with a blue line marking the observed overlap
+hist(Perm, col="gray", main="Randomization test", xlab="Overlapping windows of Fst and RAiSD outliers")
+abline(v=length(overlap), col="blue", lwd=3)
+
+# Calculate the p-pvalue based on the rank of the observed value in the randomized distribution.
+# Note the 1-tailed test here (alpha = 0.05)
+
+p_value = 1-ecdf(Perm)(length(overlap))
+p_value
+
+```
+
+## Now let's grab the poplar genome annotation to figure out which genes are in the overlapping lowFst/highRAiSD windows
+
+For this, we'll need to download from the server a copy of the poplar GFF file. The GFF format is the standard for storing information on genomic feature intervals, like the start and stop of transcripts, exons, introns, UTRs, etc.
+
+Download a copy of the file from the server using Fetch, WinSCP, or `scp` at the commandline:
+
+`/data/project_data/PopGenomics/Annotation/Ptrichocarpa_533_v4.1.gene.gff3.gz`
+
+Once it's on your laptop, we'll need to import it to R and create a transcript database (txdb) using the `makeTxDbFromGFF` function.
+
+```
+# Import the GFF annotation file and make a transcript database
+txdb <- makeTxDbFromGFF("Annotation/Ptrichocarpa_533_v4.1.gene.gff3.gz", format="gff3")
+
+txdb
+
+# How many chromosomes are present?
+head(seqlevels(txdb))
+
+# Subset the database for just your chromosome of interest
+seqlevels(txdb) <- CHR # subset for just your chromosome
+
+# Reduce the transcript database to just the non-redundant gene names, instead of multiple entries for all the variant transcript types per gene
+genes <- unlist(reduce(transcriptsBy(txdb, by="gene"))) 
+genes$geneID <- names(genes)
+
+```
+
+Now we'll use GenomicRanges() just like before to find the genes that overlap in the intervals of our candidate regions of overlapping lowFst/highRAiSD
+
+```
+candGenes <- subsetByOverlaps(genes, overlap)
+
+write.table(candGenes$geneID, paste0("Annotation/candGenes",CHR,".txt"), quote=F, col.names=F, row.names=F, sep=",")
+
+```
+
+## Functional enrichment analysis
+
+Now let's see if there is evidence of functional enrichment for these sets of genes in our candidate regions for selection. 
+
+There's several (many!) ways of approaching this problem, but for today we'll try the user-friendly Fisher's Exact Test available at [Popgenie.org](https://popgenie.org).  
+
+You'll need to open up your text file of candidate genes that you exported above, copy the list, and then make a new "active" gene list on Popgenie.  
+
+Once you've got your candidate genes in a new list on Popgenie, go to `Analysis Tools > Enrichment`

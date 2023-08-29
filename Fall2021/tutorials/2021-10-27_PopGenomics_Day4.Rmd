@@ -1,0 +1,233 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 4"
+date: 'October 27, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Test for signatures of selective sweeps in the poplar hybrid zone
+2. Estimate and visualize nucleotide diversity and divergence (Fst) along chromosomes
+3. Investigate interesting candidate regions using the available Poplar genome annotation
+
+---
+
+## 1. Natural selection leaves signatures in the genome
+
+We've discussed previously in class how genomic data can be used to investigate regions where selection may have acted along chromosomes.  There are many different approaches to identify such regions, and in part they depend on...
+
+1. The form of selection we want to investigate (e.g., directional selection, balancing selection, local adaptation, background selection)
+2. The type of genetic data available (whole-genomes, GBS/RAD, single genes, ...)
+3. The design and biological scale of sampling (individuals, populations, species)
+
+Obviously, the question of interest should drive all of these considerations, and the most powerful studies match a question with (1), and then design (2) and (3) to get at the answer.
+
+For this tutorial, we're going to ask the questions, "What genomic regions experienced recent strong selection in poplar, and do they show evidence of reduced divergence between the species, consistent with introgression?"
+
+## Detecting "selective sweeps" (a.k.a., hitch-hiking selection) in genomic data
+
+When a new or existing variant comes under positive selection, it's frequency will increase in the population at a rate that is proportional to its effect on fitness. New beneficial mutations tend to occur on a single haplotype background initially. As a result, very strong selection on new mutations will also tend to increase the frequency nearby linked polymorphisms, even if they are neutral themselves.  The resulting "hitch-hiking" effect has several important consequences: (1) it will decrease the overall nucleotide diversity at the selected locus and linked sites nearby, and (2) it will cause a temporary increase in linkage disequilibrium until recombination has time to break up the association between the target of selection and linked sites.
+
+The characteristic elimination of diversity near a target of selection is known as a **selective sweep**.
+
+<img src="https://febs.onlinelibrary.wiley.com/cms/asset/1af28f43-dd1f-4194-8c13-c908046a8862/feb213447-fig-0001-m.jpg" width="700">
+
+We might expect selective sweeps to occur independently in different populations (or species). If the fitness benefits of the variant are conditionally dependent on the local environment, then we might see a signature of elevated divergence (Fst) when we compare allele frequencies near the selected region between different populations (species). Alternatively, if the fitness effects are more broadly beneficial (less context dependence), then we might expect to see a positively selected site spread from one population (species) to another when their is gene flow (hybridization).  
+
+*What predictions might we make for our poplar hybrid zone?* 
+
+## On to the nuts and bolts...
+
+We'll test for selective sweeps using the program [RAiSD](https://github.com/alachins/raisd), or "Raised Accuracy in Sweep Detection". The original paper is [described here](https://www.nature.com/articles/s42003-018-0085-8).
+
+RAiSD integrates the signatures of a selective sweep (namely, reduced polymorphism, and elevated LD) into a single test statistic, 'u' (pronounces "mu").  It is *very* fast computationally, which makes it ideal for genome-scale datasets, and has very good statistical properties (low false positive rate, robust to model mis-specification) compared to related methods for detecting selective sweeps.
+
+Here's our general workflow for using RAiSD to detect sweeps:
+
+1. Divide and conquer the analysis by chromosome. Each person will pick one chromosome to investigate (I'll do any that don't get picked)
+2. Use VCFtools to parse your maf-filtered vcf file by chromosome
+3. Use `grep` to grab the centromere coordinates for your chromosome
+4. Run RAiSD for your chromosome, masking the centromere
+5. Compare the selective sweep signals to nucleotide diversity and Fst, using VCFtools to calculate the latter for our chromosome
+6. Bring the results into R and make beautiful plots!
+
+### Step 1 -- pick a chromosome, any chromosome (there are 19 in poplar)
+
+### Step 2: Generate your parsed vcf file:
+
+```
+# Rename value in <> to your chromosome number! Include the zero only if your chromosome # is <10
+
+myChr=<Chr0X>  
+
+# myChr=Chr02  # I used Chr02 for my test run...
+
+
+cd /data/project_data/PopGenomics
+
+# Run VCFtools to subset the big vcf file for just your chromosome
+
+vcftools --gzvcf poplar_hybrids.maf05.vcf.gz \
+--chr $myChr \
+--out shared/$myChr \
+--recode
+```
+### Step 3: Grab the coordinates of the centromere region
+
+I obtained the centromeric locations for each of poplar's 19 chromosomes from this awesome paper: [Weighill et al. (2019)](https://www.frontiersin.org/articles/10.3389/fgene.2019.00487/full)
+
+I downloaded their Table S1 and have it available on the server:
+
+```
+# Extract the centromere coordinates for your chromosome so you can exclude those regions from your sweep analysis
+
+grep $myChr poplar_centromeres.txt > shared/${myChr}_centromere.txt # grab the centromere location for your chromosome
+
+cd shared/
+
+mkdir ${myChr}_sweeps  # make a new directory for your chromosome analyses
+
+mv *${myChr}* ${myChr}_sweeps # clean up the space by moving all files into your the directory you just made
+
+cd ${myChr}_sweeps
+
+```
+
+### Step 4 -- Run RAiSD to detect selective sweeps!
+
+```
+# Test for selective sweeps
+
+RAiSD -n $myChr \
+-I ${myChr}.recode.vcf \
+-f -t -R -P -D -A 0.99 \
+-X ${myChr}_centromere.txt
+
+```
+
+### Step 5.1 -- Estimate nucleotide diversity using 50 kb sliding windows
+
+VCFtools can get the job done...
+
+```
+# Estimate nucleotide diversity (pi) in sliding windows of 50kb
+
+vcftools --vcf ${myChr}.recode.vcf \
+--chr $myChr \
+--window-pi 50000 \
+--out $myChr
+```
+
+### Step 5.2:  Calculate Fst between species using 50kb sliding windows
+
+For estimating Fst, we need to define groups!  For this analysis, we're going to define groups based on the K=5 Admixture run:
+
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/c36553261acf89249304492fd47c091487d223a8/Fall_2021/tutorials/Admix_K5.jpg?raw=true">
+
+Here we see a clearly identifiable P. balsamifera group (the 4th (orange) group in the K=5 analysis), and the other groups which represent P. trichocarpa and different subpopulations and admixed fractions.  We can use the K=5 Q-scores to parse individuals into 1 of 2 groups based on the fraction of balsamifera ancestry.  
+
+To do this, we'll use R, but rather than waste time transferring to your laptops, and then back to the server again, we'll just run an interacive session of R right on the server.  It may look a little different than what you're used to, but it's still R under the hood!
+
+```
+# First, need to subset the metadata file for just those individuals with balsamifera ancestry
+# We can do this using an interactive R session at the commandline. 
+# An alternative is to put these R commands in a script, save it with the ".r" extension, 
+# and at the commandline type "Rscript myscript.r"
+
+R # Opens an interactive R session within Unix...
+Qscores <- read.table("../poplar_hybrids.LDpruned.5.Q", sep=" ",header=F)
+names(Qscores) = c("K1","K2","K3","K4","K5")
+
+meta <- read.table("../../Combined_Transect_Sampling_Data_2020.txt",sep="\t",header=T)
+
+merged <- cbind(meta,Qscores)
+str(merged)
+
+Bals_Inds <- merged[which(merged$K4>0.5),1]  
+length(Bals_Inds) # Should net you 188 individuals
+
+Tricho_Inds <- merged[which(merged$K4<=0.5),1]
+length(Tricho_Inds) # Should net you 388 individuals
+
+# Write out your Bals and Tricho lists as tab-delimited text files
+write.table(Bals_Inds, "Bals_Inds.txt", quote=F, row.names=F, col.names=F)
+
+write.table(Tricho_Inds, "Tricho_Inds.txt", quote=F, row.names=F, col.names=F)
+
+quit()
+
+# When prompted with: "Save workspace image? [y/n/c]"  choose: n
+```
+
+Then once you've got your list of sample names for each species, you're ready to run the Fst analysis in VCFtools:
+
+```
+# Calculate Fst between Balsam and Tricho using sliding windows of 50kb
+
+vcftools --vcf ${myChr}.recode.vcf \
+--weir-fst-pop Bals_Inds.txt \
+--weir-fst-pop Tricho_Inds.txt \
+--fst-window-size 50000 \
+--out Bals_Tricho_All
+
+```
+
+### Step 6: Transfer files to your laptops and plot in R!
+
+Use Fetch, Winscp, or `scp` at the commandline to transfer all the files **EXCEPT THE VCF FILE** to your laptop.  
+
+Here's some R code to get you started.  You'll probably want to customize it.  At the least, make sure you change the title of the ggplot to reflect your chromosome number.
+
+```
+library(ggplot2)
+library(gridExtra) # If needed, install.packages("gridExtra")
+
+setwd("~/OneDrive - University of Vermont/PBIO381/Fall2021/Module3_PopLandscapeGenomics/Selection/")
+
+pi <- read.table("Chr02.windowed.pi",sep="\t", header=T)
+str(pi)
+
+fst <- read.table("Bals_Tricho_All.windowed.weir.fst", sep="\t",header=T)
+str(fst)
+
+cent <- read.table("Chr02_centromere.txt", sep="\t",header=F)
+centromere = mean(c(cent$V2,cent$V3))
+
+raisd <- read.table("RAiSD_Report.Chr02.Chr02", sep="\t",header=F)
+str(raisd)
+
+p1 <- ggplot(pi,aes(x=BIN_START,y=PI/mean(PI))) +
+      geom_line(size=0.25, color="blue") + 
+      geom_point(aes(x=centromere,y=1, size=100), show.legend=F) +
+      xlim(0,max(pi$BIN_START)) +
+      ggtitle("Chomosome 2: Nucleotide diversity and Fst in 10kb sliding windows") +
+      xlab("") +
+      ylab("Scaled nucleotide diversity")
+
+p2 <- ggplot(fst,aes(x=BIN_START,y=MEAN_FST/mean(MEAN_FST))) +
+        geom_line(size=0.25, color="red") +
+        geom_point(aes(x=centromere,y=1, size=100), show.legend=F) +
+        xlim(0,max(fst$BIN_START)) + 
+        ylab("Scaled Fst")
+
+p3 <- ggplot(raisd,aes(x=V1,y=V7/mean(V7))) +
+      geom_point(size=0.25, color="black") +
+      xlim(0,max(raisd$V3)) + 
+      xlab("Position along chromosome (bp)") +
+      ylab("RAiSD u-stat")
+
+grid.arrange(p1, p2, p3, nrow = 3)
+
+```
+
+## Post-analysis tinkering
+
+* Try adjusting your ggplot xlim settings to zero in on interested regions and get coordinates
+* use the R function `quantile` to determine regions in the upper nth percentile of the distributions of u-stat, nucleotide diversity, or Fst. Example: `quantile(pi$PI, 0.01)` or `quantile(fst$MEAN_FST, 0.01)` to get the 1 % tails of interest for each distribution
+* Use the Phytozome [JBrowse for Populus trichocarpa](https://phytozome-next.jgi.doe.gov/jbrowse/index.html?data=genomes/Ptrichocarpa_v4_1) to look at what gene models are located within the region
+
+
+

@@ -1,0 +1,201 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 7"
+date: 'November 08, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Continue working to estimate local ancestry along chromosomes
+2. Collate out Loter outputs and convert into Plink format
+3. Calculate frequency of local ancestry along our chromosomes
+4. Appreciate the fact that sometimes there isn't a ready-made solution to a coding problem, and you have to work through it yourself.  
+
+Sigh...  This last point is something to emphasize, and while it can be challenging and even frustrating at times, it's part of nearly every large-scale bioinformatics analysis at some point.  And reaching the solution can be incredibly rewarding.
+
+## Did everyone's Loter analysis finish?  
+
+Let's get things running if not...
+
+## Now the tough part: how to collate and convert a massive amount of output into something we can work with
+
+Let' look at one output together.  We can open it in `vim` at the commandline:
+
+`vim 201_LAI.txt`
+
+To justify the rows and columns, type a ':' and then
+
+`set nowrap`
+
+You should see the two chromosomal haplotypes that make up this individual, with a string of 0's and 1's. What do these represent?
+
+Our challenge is to re-cast these data into a single value per individual and SNP position. To do this, we need to express the data as allele dosages of 0/1/2 copies of Trichocarpa ancestry. We'll want to do this for all individuals, then combine the individuals together into a big matrix that we can use to calculate local ancestry frequency along chromosomes, and test for associations between local ancestry and traits.  
+
+## Our pipeline:
+
+1. Convert haploid 0/1 calls to diploid 0/1/2 calls
+2. Collate 0/1/2 data across all admixed individuals into a single data matrix
+3. Convert matrix to Plink2.0 format (*.bed file)
+4. Estimate frequencies of local ancestry along chromosomes
+
+### (1) Convert haploid calls to diloid using `datamash` and (2) Collate across individuals
+
+Calculations like these are usually easy to do in `R`. I tried (really, hard!) to make this work in `R`, but the memory requirements were just too big, and `R` ran incredibly slow, even using tools like `data.table`. So, we need a bash solution. Unlike `R`, `bash` doesn't perform mathematical functions natively, but there are functions you can use to do so. One is the `datamash` package that we'll use. I installed it already, but you can read bout it [here](https://www.gnu.org/software/datamash/).  
+
+We'll use datamash to loop through our output files in Loter_out/ and sum up the Trichocarpa allele counts at each position. 
+
+First, we'll need to set some variables that we'll need later, such as the Chromosome ID, how many SNP positions we're analyzing on that chromosome, and the number of individuls.
+
+```
+## As LOTER files get output, can convert these into 0/1/2 encoding using the bash tool 'datamash'
+
+## From within your LAI/ directory:
+
+CHR="Chr02"
+
+echo $CHR # Is it right?
+
+Nsites=`tail -n +2 ${CHR}.kept.sites | wc -l | sed 's/\s/\t/' | cut -f1` # calculates and stores the number of SNP sites for your chromosome
+
+echo $Nsites # For Chr02, Nsites=281887 SNPs
+
+Ninds=`wc -l Admixed.Inds | sed 's/\s/\t/' | cut -f1` # calculates and stores the number of admixed individuals you previously identified
+
+echo $Ninds  # Should be 442 individuals
+```
+
+Now that we have the variables defined, we can run the datamash step:
+
+```
+touch ${CHR}_matrix.diploid
+
+for file in Loter_out/*.txt
+do
+datamash --field-separator=" " sum 1-${Nsites} <$file >>${CHR}_matrix.diploid
+done
+
+```
+This step took about 2 minutes for Chr02 all the sample IDs (442). Output should be a matrix few hundred Mb in size.  You can use `ll` to check.
+
+The field separator used by Loter is a space, but most programs are expecting a tab to separate SNP positions. Additionally, right now the loci are in columns and individuals are in rows, but we want the opposite (loci in rows, individuals in columns). So, we also need to transpose our matrix. We can do this with 1 line of code by piping together several functions -- the beauty of bash!!!
+
+```
+sed 's/\s/\t/g' ${CHR}_matrix.diploid | cut -f1-${Nsites} | datamash transpose >${CHR}_matrix.diploid.tr
+
+```
+
+You should now have a transposed matrix file filled with 0/1/2 data, with loci in rows and individuals in columns.  You should head (or open in vim) to take a look and verify for yourself that the format is what we wanted.
+
+### (3) Convert matrix to Plink2.0 format
+
+[Plink2.0](https://www.cog-genomics.org/plink/2.0/) is a very powerful and flexible software for genomics analysis. And, it accepts as input 0/1/2 allele dosage data like ours!  Unfortunately, it's required data format is somewhat archaic, and requires the main data matrix to be appended with the SNP positions. It also requires an accessory file that describes the individuals in our sample (.fam file).  Below, we work though the steps to make these:
+
+**This step will make the main data matrix with site info attached:**
+
+```
+
+seq -f "snp%02g" 1 $Nsites >sites
+
+printf 'A\n%.0s' $(seq $Nsites) >allele1  # Create a dummy column of 'A' the length of your Nsites file
+
+printf "T\n%.0s" $(seq $Nsites) >allele2 # Create a dummy column of 'T' the length of your Nsites file
+
+mkdir Plink
+
+paste sites allele1 allele2 ${CHR}_matrix.diploid.tr >Plink/${CHR}_matrix.diploid.tr.forPlink
+
+```
+Take a look to verify the formatting.
+
+
+**This step will make the fam file for our samples:**
+
+```
+
+cat /data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt | \
+cut -f1-2 | \
+grep -w -f Admixed.Inds - | \
+cut -f2 | \
+paste - Admixed.Inds >FID_IID
+
+printf '0\t0\t0\t-9\n%.0s' $(seq $Ninds) >dummy
+
+paste FID_IID dummy  >Plink/${CHR}_fam.forPlink
+
+```
+Take a look to verify the formatting.
+
+**Now, we're ready to run the conversion into Plink format (.bed)**
+
+```
+## This runs the Plink conversion from allele dosages to bed format
+
+cd Plink/ 
+
+plink2 --import-dosage ${CHR}_matrix.diploid.tr.forPlink noheader \
+--fam ${CHR}_fam.forPlink \
+--make-bed \
+--out ${CHR}_Admixed_FAI
+```
+
+Once we have the Plink format, the analysis options open up a lot. Not only cn Plink do genomics like eestimating allele frequencies, Fst, and even GWAS, but it can also export iinto a lot of other different formats 9like VCF) that we can use with other programs.  
+
+For now, if there's time left, we'll simply have Plink calculate the local ancestry frequencies at each SNP position:
+
+```
+plink2 --bfile ${CHR}_Admixed_FAI --freq --out ${CHR}_LAI_freq
+```
+
+We can transfer the resulting file using Fetch, WinSCP, or scp to our laptops, and plot with R! 
+
+You'll want 2 files for this (replacing "ChrXX" with your Chr ID):
+
+1. ChrXX_SNP.kept.sites
+2. ChrXX_LAI_freq.afreq
+
+```
+library(ggplot2)
+
+setwd("path to your output files...")
+
+# Read in list of positions
+snps <- read.table("ChrXX.kept.sites",sep="\t", header=T)
+
+# Read in the local ancestry frequencies from Plink
+AF <- read.table("ChrXX_LAI_freq.afreq", skip=1,sep="\t",header=F)  
+
+# Note the skip=1 here.  
+# This skips the first line, since Plink's header line doesn't play well with R.  
+# We'll define our own header line below.
+
+names(AF) = c("CHROM",	"ID",	"REF",	"ALT",	"ALT_FREQS",	"OBS_CT")
+
+AF2 <- cbind(snps,AF)
+
+str(AF2) # How does it look?
+
+# A simple plot:
+
+p1 <- ggplot(AF2[,-3],aes(x=POS,y=ALT_FREQS)) +
+  geom_line(size=0.25, color="blue") + 
+  xlab("Position (bp) along chromosome") +
+  ylab("Frequency P. trichocarpa ancestry")
+
+p1
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

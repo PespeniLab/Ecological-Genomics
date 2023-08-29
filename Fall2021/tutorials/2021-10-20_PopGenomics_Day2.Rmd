@@ -1,0 +1,234 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 2"
+date: 'October 20, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Familiarize ourselves with working with VCF files
+2. Calculate nucleotide diversity and individual-level heterozygosity
+3. Identify potential hybrids using Admixture analysis
+
+---
+
+## 1. From raw fastq sequences to SNP genotypes: 
+
+* Prior to our course, the raw fastq data were demultiplexed, visualized for quality, and trimmed for adapter sequences and low quality bases (<Q30)
+* Cleaned reads were mapped to v4.1 of the *P. trichocarpa* reference genome [available here](https://phytozome-next.jgi.doe.gov/info/Ptrichocarpa_v4_1) using the Burrows-Wheeler Alignment [bwa](https://github.com/lh3/bwa) program
+* Sequence alignments were processed to remove PCR duplicates then used to call SNPs using the [GATK haplotype caller genotyping pipeline](https://gatk.broadinstitute.org/hc/en-us/articles/360035890411-Calling-variants-on-cohorts-of-samples-using-the-HaplotypeCaller-in-GVCF-mode)
+* The resulting variants were filtered to remove positions with >10% missingness and minor allele frequencies (MAF) <0.002. 
+* After filtering, missing values were imputed using the [BEAGLE v5.2](http://faculty.washington.edu/browning/beagle/beagle.html) imputation pipeline (Browning et al. 2021)
+* The final variant file was output in [Variant Call Format (VCF)](https://en.wikipedia.org/wiki/Variant_Call_Format)
+
+We'll then use this VCF file today and throughput the rest of this module to explore diversity, population structure, and selection in this hybrid zone!
+
+The VCF file can be found on the pbio381 server here:
+`/data/project_data/PopGenomics/poplar_hybrids.vcf.gz`
+
+Let's take a peek inside the vcf file first.  Note, because it's large, we've compressed it (the .gz extension) and would prefer not to unzip it. We can still work on the compressed version if we use the right tools.
+
+```
+cd /data/project_data/PopGenomics
+
+zcat poplar_hybrids.vcf.gz | head -n 11
+
+##fileformat=VCFv4.2
+##filedate=20210624
+##source="beagle.27Jul16.86a.jar (version 4.1)"
+##INFO=<ID=AF,Number=A,Type=Float,Description="Estimated ALT Allele Frequencies">
+##INFO=<ID=AR2,Number=1,Type=Float,Description="Allelic R-Squared: estimated squared correlation between most probable REF dose and true REF dose">
+##INFO=<ID=DR2,Number=1,Type=Float,Description="Dosage R-Squared: estimated squared correlation between estimated REF dose [P(RA) + 2*P(RR)] and true REF dose">
+##INFO=<ID=IMP,Number=0,Type=Flag,Description="Imputed marker">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DS,Number=A,Type=Float,Description="estimated ALT dose [P(RA) + P(AA)]">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Estimated Genotype Probability">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	201	202  ......
+```
+
+*Note:* `zcat` lets us open a .gz (gzipped) file; we then "pipe" `|` this output from `zcat` to the `head` command and print as many lines as we want `-n #`
+
+The metadata for each sample is located in the same directory as the vcf file.  Let's also take a peek in that file:
+
+`Combined_Transect_Sampling_Data_2020.txt`
+
+
+## 2. Working with VCF files using VCFtools
+
+We often work with VCF files to calculate nucleotide diversity statistics, and we often want to analyze only part of the entire file. For example, we might want to look at just a certain chromosome or list of positions within the genome. Alternatively, we may want to calculate diversity on a particular subset of our samples.  Using [VCFtools](https://vcftools.github.io/man_latest.html) (and it's companion, [BCFtools](https://samtools.github.io/bcftools/bcftools.html#query)) makes this easy. Both are very flexible programs to read, manipulate, and output stats from VCF files.  Get familiar with them -- we'll use them all the time!
+
+`vcftools --gzvcf poplar_hybrids.vcf.gz <OPTIONS>`
+
+* How many SNPs (and samples) are there?
+* We can see if many of these are rare variants at low frequency by including a minor allele frequency filter `--maf <float>`...what value should we try?
+* What if we just wanted to look at the SNPs for a particular chromosome?  `--chr <chromosome ID>`
+
+One of the classic estimators nucleotide diversity in genomic data is ["pi" -- the average number of pairwise differences between DNA sequences](https://en.wikipedia.org/wiki/Nucleotide_diversity). We can use VCFtools to calculate pi in windows along the chromosome of a specified length using the `windowed-pi` flag.  We can set a window of 50 kb. We'll also want to add the ``--out ~/path/outputname` flag to redirect and name the output to our home directory:
+
+```
+vcftools --gzvcf poplar_hybrids.vcf.gz \
+--chr <chromosome ID> \
+--maf <float> \
+--windowed-pi 50000 \
+--out ~/myresults/pi_chrX_mafX_win50K
+```
+Since we're interested in hybrids, let's also use VCFtools to calculate a genome-wide measure of individual heterozygosity using the `--het` flag. 
+
+```
+vcftools --gzvcf poplar_hybrids.vcf.gz \
+--maf <float> \
+--het \
+--out ~/myresults/het_mafX
+```
+How might this be expected to vary with hybrid status, or along the transects between the parental species ranges?
+
+We can transfer these files to our laptops using Fetch or WinSCP (or `scp` at the commandline) and bring into R for plotting.
+
+```
+setwd()
+
+pi <- read.table("filename.windowed.pi",sep="\t",header=T)
+
+plot(pi$BIN_START,pi$PI,type="l",col="blue")
+
+# You can use xlim=c(,) to zoom in on certain sections of chromosome
+
+het <- read.table("poplar_het.het", sep="\t",header=T)
+
+meta <- read.table("Combined_Transect_Sampling_Data_2020.txt", sep="\t",header=T)
+
+het2 <- merge(het,meta,by.x="INDV",by.y="ID")
+het2$rel_heterozygosity=1-((het2$O.HOM.-het2$E.HOM.)/het2$E.HOM.)
+
+library(ggplot2)
+
+ggplot(het2, aes(x=Transect, y=rel_heterozygosity, fill=Transect)) +
+  geom_dotplot(binaxis='y', binwidth=0.005, stackdir='center')
+
+ggplot(het2, aes(x=Longitude, y=Latitude, color=rel_heterozygosity)) +
+  geom_point(size=3, shape=1)
+
+```
+
+## 3. Identifying ancestry with Admixture analysis
+
+As we've seen from papers we've read in this class (and probably others), Admxiture analyses try to estimate what fraction of an individual's ancestry dervies from one or more populations that vary in allele frequencies. These methods do so by taking a user-defined number of clusters (K) and attempting to allocate individuals proportional ancestry to each cluster so as to **maximize Hardy-Weinberg and linkage equilibrium**.  
+
+We'll use the Software [ADMIXTURE](https://dalexander.github.io/admixture/publications.html) for this, based on the method published by [Alexander et al. (2009)](https://genome.cshlp.org/content/19/9/1655.full).  It has a mere ~4500 citations... .  ADMIXTURE is fast (much faster than *Structure*). We can test varying levels of K, and use cross-validation to look for which K levels have the most support.
+
+Recall that linkage disequilibrium (LD) due to physical linkage along chromosomes can bias the interpretation of many popgen analyses, and that's definitely true for ADMIXTURE (which assumes no physical LD).  So, we'll need to filter out SNPs  that show LD before running ADMIXTURE. 
+
+**Here's our approach (Working in groups of 2):**
+
+* **Filter for `maf` using VCFtools and export a new vcf file using the `--recode` option**  (STEVE WILL DO THIS ONCE FOR EVERYONE)
+* **Estimate which SNP sites show no LD across the genome using [Plink v2.0](https://www.cog-genomics.org/plink/2.0/)**
+
+```
+# Set the path and filename to the vcf file filtered for minor allele frequency (maf)
+
+VCF=/data/project_data/PopGenomics/poplar_hybrids.maf05.vcf.gz
+
+cd ~/myresults
+
+plink2 --vcf $VCF \
+--threads 3 \
+--double-id \
+--allow-extra-chr \
+--set-missing-var-ids @:# \
+--indep-pairwise 50 10 0.1 \
+--out poplar_hybrids_noLD
+
+# The filename ending with "prune.in" contains the SNP IDs that are in approx linkage equilibrium
+
+```
+
+* **Use Plink2.0 to convert from VCF to ADMIXTURE format and subset for no LD SNPs**
+
+```
+mkdir Admixture
+
+FILE=poplar_hybrids
+
+plink2 --vcf $VCF \
+--threads 3 \
+--allow-extra-chr \
+--make-bed \
+--out Admixture/$FILE 
+
+plink2 --bfile Admixture/$FILE \
+--threads 3 \
+--allow-extra-chr \
+--set-missing-var-ids @:# \
+--extract poplar_hybrids_noLD.prune.in \
+--make-bed \
+--out Admixture/$FILE.LDpruned 
+
+# Replace column 1 Chr #'s with 0's, since ADMIXTURE doesn't like them
+
+cd Admixture
+
+FILE2=poplar_hybrids.LDpruned
+
+awk '{$1=0;print $0}' $FILE2.bim > $FILE2.bim.tmp
+mv $FILE2.bim.tmp $FILE2.bim
+
+```
+
+* **Run ADMIXTURE!** We'll use cross-validation (default = 5-fold) and customize our level of K per group. j = number of threads
+
+```
+# Run Admixture 
+
+K=<your value>
+
+admixture -j3 --cv $FILE2.bed $K >log${K}.out
+
+```
+
+If you wanted to run multiple values of K in a loop **(not recommended for today)**, you could do:
+
+```
+for K in {2..5}
+do
+ admixture -j3 --cv $FILE2.bed $K >log${K}.out
+done
+```
+Once you're analysis is done running, you can look through the log.out file to get the CV error, or simply use `grep "CV" log.out` to search for the line containing the search term in "" and print it to your screen.
+
+* **Plot individual ancestries on the map in R**
+
+Download your file ending in ".Q" which contains the ancestry coefficients to your laptop. You'll also need to download the `Combined_Transect_Sampling_Data_2020.txt` metadata file (available in /data/project_data/PopGenomics/). Once you have the files downloaded, open up R.
+
+```
+library(maps)  # If you don't have this library, you'll need to run install.packages("maps") first
+library(plotrix) # If you don't have this library, you'll need to run install.packages("plotrix") first
+
+setwd()  #set the path to where your downloaded files are on your laptop
+
+meta <- read.table("Combined_Transect_Sampling_Data_2020.txt", sep="\t",header=T)  
+
+Qscores <- read.table("yourfilename.Q", sep=" ",header=F)
+names(Qscores) <- c("K1","K2", ...)  # Customize to your level of K!
+
+tiff("Admix.tiff", width = 10, height = 7, units = "in",
+     res = 300)
+map("world",xlim=c(-160,-100),ylim=c(40,70),fill=T, col="lightgrey")
+title("Admixture K=X")
+map.axes(cex.axis=1.5)
+for(i in 1:nrow(meta)){
+  floating.pie(meta$Longitude[i], meta$Latitude[i], 
+               c(Qscores$K1[i],Qscores5$K2[i],...),
+               col=c("yellow","green",...),
+               radius=0.5)
+}
+
+# Customize the above to your level of K wherever you see the ellipses (...)!
+
+dev.off()
+
+# File will get automatically saved as a Tiff image within your working directory.  Open it up and take a look!
+```
+

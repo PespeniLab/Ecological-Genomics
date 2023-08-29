@@ -1,0 +1,164 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 1"
+date: 'October 18, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for Population & Landscape Genomics Module
+
+1. To use a natural hybrid zone between species of *Populus* trees to explore admixture of genetic ancestry and the effects of introgression on adaptive traits
+2. To appreciate the different processes that structure genomic variation within and between species, including population structure & gene flow, recombination, and selection
+3. To gain proficiency working with large genome-wide polymorphism data
+
+---
+
+## 1. Poplars as model systems for ecological genomics 
+<img src="https://thumbs.dreamstime.com/b/poplar-autumn-leaves-watercolor-hand-drawn-illustration-branch-poplar-leaves-sketch-126528295.jpg" height="400" align="right"> 
+Poplars are fast-growing, deciduous trees that show great diversity in their genetics, the environments they grow in, and their ecological relationships with other species. They also have a relatively compact genome (ca. 480 Mb) and because of their potential to contribute to bioenergy, *Populus* was selected by the U.S. Department of Energy (DOE) to be the first tree to have its whole genome sequenced (Tuskan et al. 2006, Science). The genomic resources for poplar have grown to include:
+
+* a [well annotated reference genome](https://phytozome-next.jgi.doe.gov/info/Ptrichocarpa_v4_1), with >99% of sequence assembled into 19 chromosomes
+* a [genome browser maintained by JGI](https://phytozome-next.jgi.doe.gov/jbrowse/index.html?data=genomes%2FPtrichocarpa_v4_1&loc=Chr01%3A1..100000&tracks=Transcripts%2CAlt_Transcripts%2CPASA_assembly%2CBlastx_protein%2CBlatx_BasalMalvidae&highlight=) and additional annotation resources available at [Popgenie](https://popgenie.org)
+* [thousands of transcriptomes](https://www.ncbi.nlm.nih.gov/Traces/study/?query_key=6&WebEnv=MCID_616c3bc056e76b7be42c8fdc&o=acc_s%3Aa) exploring gene expression under different experimental conditions and tissue types
+* the ability to [create transgenics with *Agrobacterium*](https://www.frontiersin.org/articles/10.3389/fpls.2016.00296/full)
+* ease of clonal propagation using [rooted stem cuttings](https://www.nrs.fs.fed.us/sustaining_forests/conserve_enhance/bioenergy/rooting_genetics/) 
+* a large, international [research community focused on poplar genomics](https://link.springer.com/content/pdf/10.1007/978-1-4419-1541-2.pdf)
+
+This combination of genetic and ecological diversity along with available genomic resources have made poplars a good system for evolutionary biologists to study the genetic basis of local adaptation, especially in relation to climate gradients.
+
+---
+
+## 2. Population and landscape genomics of adaptive introgression in a poplar hybrid zone
+
+Poplars show a high propensity for hybridization between related species in the same section of the genus. This property is often utilized in selective breeding, where hybrids show abundant heterosis that is sued for bioenergy production. In North America, two species of closely related poplars have been studies extensively for their local adaptation to climate gradients -- *Populus trichocarpa* (Black Cottonwood) and *P. balsamifera* (Balsam Poplar). These two species are sister-taxa, having diverged recently (approx. 76,000 years ago) during the Pleistocene glacial period. 
+
+<img src="http://cronklab.wdfiles.com/local--files/armando-geraldes/tric_bals" width="700">
+
+<img src="https://tourismfernie.com/uploads/content/gallery/SO_1705-3220-1560web-vertical-medium.jpg" align="left" height="300"> 
+<img src="https://www2.palomar.edu/users/warmstrong/images2/denali6b.jpg" aligh="left" height="300">
+
+
+The two species have very different geographic distributions, with "Ptricho" mostly distributed along the Pacific Northwest coast in temperate rainforest environments, with cool summers and mild winters. In contrast, "Pbalsam" has a continental distribution across the entire northern tier of North America, inhabiting climatically more variable and extreme environments, with hot and sometimes dry summers, and very cold winters. 
+
+<img src="https://onlinelibrary.wiley.com/cms/asset/581011f0-9172-4d5c-8432-e7a4b34a1a57/jeb13174-fig-0003-m.jpg" width="550">
+
+*Meirmans et al. (2017) J. Evol. Biol., 30:2044*
+
+Where the two species ranges overlap, hybrids have been observed.  In fact, numerous studies have established that hybridization occurs naturally when the species are sympatric, particularly along the spine of the Rocky Mountains in western North America.
+
+With funding from the National Science Foundation, we are studying hybridization between poplars as a source of evolutionary novelty and adaptive genetic variation.  This is a collaboration between the Keller lab (UVM), the Holliday lab (VA Tech), the Hamilton lab (Penn State U.) and the Fitzpatrick lab (U. Maryland Center for Env. Sci.). 
+
+### Our overarching goals for this project are to use North American *Populus* hybrid zones as a "living laboratory" to address 3 Aims: 
+
+* **Aim 1:** Understand the geographic structure of hybridization and its consequences for genomic diversity
+* **Aim 2:** Elucidate the role of particular genomic regions and their interactions with the environment in explaining hybrid fitness
+* **Aim 3:** Test the fitness effects of introgression through controlled hybrid crosses.
+
+For this module of the course, we will focus on elements from Aims (1) and (2).
+
+---
+
+### Sampling Design 
+* In winter of 2019-2020, we collected dormant stem cuttings from trees growing in natural forest stands spanning **6 transects** chosen to span the extent of overlap between *P. trichocarpa* and *P. balsamifera*  throughout their ranges.  
+<img src="https://github.com/stephenrkeller/Ecological_Genomics/blob/be3be9543f09fc1c0e9c3242806dbfa14dc28169/Fall_2021/tutorials/littleOvr.jpg?raw=true" height="500" align="right">
+* Additional sampling of (putatively) pure *P. balsamifera* were obtained from the Agroforestry Centre of Agriculture and Agri-Food Canada
+* Total sampling yielded **N=575 samples** (plus 2 duplicates)
+* Cuttings were rooted in the greenhouse, and we extracted genomic DNA from leaf tissue. 
+* **Paired-end 2x150 genomic libraries** were prepared and sequenced on 9 lanes of an Illumina NovaSeq at Duke University. 
+* [**Example sequencing output from lanes 1 - 4**](http://seqweb.gcb.duke.edu/21/04/52dyb1nggrccw47_6826_210409B7.html)
+* **Common gardens containing 3 clonal reps of 542 genotypes** (all among the 574 unique genotypes sequenced) were planted at 3 different sites:  
+(1) Fargo, ND
+(2) Burlington, VT
+(3) Critz, VA
+
+### What questions can we ask with these datasets?
+
+1.   
+2. 
+3.
+4. 
+5. 
+
+---
+
+
+## 3. Working with variant call format (VCF) files using [VCFtools](https://vcftools.github.io/man_latest.html)
+
+* Prior to our course, the raw fastq data were demultiplexed, visualized for quality, and trimmed for adapter sequences and low quality bases (<Q30)
+* Cleaned reads were mapped to v4.1 of the *P. trichocarpa* reference genome [available here](https://phytozome-next.jgi.doe.gov/info/Ptrichocarpa_v4_1) using the Burrows-Wheeler Alignment [bwa](https://github.com/lh3/bwa) program
+* Sequence alignments were processed to remove PCR duplicates then used to call SNPs using the [GATK haplotype caller genotyping pipeline](https://gatk.broadinstitute.org/hc/en-us/articles/360035890411-Calling-variants-on-cohorts-of-samples-using-the-HaplotypeCaller-in-GVCF-mode)
+* The resulting variants were filtered to remove positions with >10% missingness and minor allele frequencies (MAF) <0.002. 
+* After filtering, missing values were imputed using the [BEAGLE v2.2](http://faculty.washington.edu/browning/beagle/beagle.html) imputation pipeline (Browning et al. 2021)
+* The final variant file was output in [Variant Call Format (VCF)](https://en.wikipedia.org/wiki/Variant_Call_Format)
+
+We'll then use this VCF file today and throughput the rest of this module to explore diversity, population structure, and selection in this hybrid zone!
+
+The VCF file can be found on the pbio381 server here:
+`/data/project_data/PopGenomics/poplar_hybrids.vcf.gz`
+
+Let's take a peek inside the vcf file first.  Note, because it's large, we've zipped in (the .gz extension) and would prefer not to unzip it. We can still work on the unzipped version if we use the right tools.
+
+```
+cd /data/project_data/PopGenomics
+
+zcat poplar_hybrids.vcf.gz | head -n 11
+
+##fileformat=VCFv4.2
+##filedate=20210624
+##source="beagle.27Jul16.86a.jar (version 4.1)"
+##INFO=<ID=AF,Number=A,Type=Float,Description="Estimated ALT Allele Frequencies">
+##INFO=<ID=AR2,Number=1,Type=Float,Description="Allelic R-Squared: estimated squared correlation between most probable REF dose and true REF dose">
+##INFO=<ID=DR2,Number=1,Type=Float,Description="Dosage R-Squared: estimated squared correlation between estimated REF dose [P(RA) + 2*P(RR)] and true REF dose">
+##INFO=<ID=IMP,Number=0,Type=Flag,Description="Imputed marker">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DS,Number=A,Type=Float,Description="estimated ALT dose [P(RA) + P(AA)]">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Estimated Genotype Probability">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	201	202  ......
+```
+
+*Note:* `zcat` lets us open a .gz (gzipped) file; we then "pipe" `|` this output from `zcat` to the `head` command and print as many lines as we want `-n #`
+
+The metadata for each sample is located in the same directory as the vcf file.  Let's also take a peek in that file:
+
+`Combined_Transect_Sampling_Data_2020.txt`
+
+We often work with VCF files to calculate nucleotide diversity statistics, and we often want to analyze only part of the entire file. For example, we might want to look at just a certain chromosome or list of positions within the genome. Alternatively, we may want to calculate diversity on a particular subset of our samples.  Using [VCFtools](https://vcftools.github.io/man_latest.html) (and it's companion, [BCFtools](https://samtools.github.io/bcftools/bcftools.html#query)) makes this easy. Both are very flexible programs to read, manipulate, and output stats from VCF files.  Get familiar with them -- we'll use them all the time!
+
+`vcftools --gzvcf poplar_hybrids.vcf.gz <OPTIONS>`
+
+* How many SNPs (and samples) are there?
+* We can see if many of these are rare variants at low frequency by including a minor allele frequency filter `--maf <float>`...what value should we try?
+* What if we just wanted to look at the SNPs for a particular chromosome?  `--chr <chromosome ID>`
+
+One of the classic estimators nucleotide diversity in genomic data is ["pi" -- the average number of pairwise differences between DNA sequences](https://en.wikipedia.org/wiki/Nucleotide_diversity). We can use VCFTools to calculate pi in windows along the chromosome of a specified length using the `windowed-pi` flad.  We'll also want to add the ``--out ~/path/outputname` flag to redirect and name the output to our home directory:
+
+```
+vcftools --gzvcf poplar_hybrids.vcf.gz --maf <float> --chr <chromosome ID> --out ~/myresults/pi_chrX_mafX_winX
+```
+VCFTools also can calculate a genome-wide measure of individual heterozygosity using the `--het` flag. 
+
+```
+vcftools --gzvcf poplar_hybrids.vcf.gz --maf <float> --het --out ~/myresults/het_mafX
+```
+How might this be expected to vary with hybrid status, or along the transects between the parental species ranges?
+
+We can transfer these files to our laptops using Fetch or WinSCP (or `scp` at the commandline) and bring into R for plotting.
+
+### If there's time...
+
+* We can explore parsing the vcf file for individuals belonging to just certain transects using `grep` followed by the VCFTools option `keep`
+
+
+
+
+
+
+
+
+
+
+
+
+

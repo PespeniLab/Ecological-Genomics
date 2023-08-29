@@ -1,0 +1,162 @@
+---
+title: "P/BIO381 Tutorials: Population Genomics Day 3"
+date: 'October 25, 2021'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives
+
+1. Finish identifying potential hybrids using Admixture analysis (make maps)
+2. Relate degree of admixture to genome-wide heterozygosity
+
+---
+
+## 1. Here's where we left off last week:
+
+* **Run ADMIXTURE!** We'll use cross-validation (default = 5-fold) and customize our level of K per group. j = number of threads
+
+```
+# Run Admixture 
+
+K=<your value>
+
+admixture -j3 --cv $FILE2.bed $K >log${K}.out
+
+```
+
+Once you're analysis is done running, you can look through the log.out file to get the CV error, or simply use `grep "CV" log.out` to search for the line containing the search term in "" and print it to your screen.
+
+* **Plot individual ancestries on the map in R**
+
+Download your file ending in ".Q" which contains the ancestry coefficients to your laptop. You'll also need to download the metadata on the samples:
+
+`/data/project_data/PopGenomics/Combined_Transect_Sampling_Data_2020.txt` 
+
+Once you have the files downloaded, open up R.
+
+```
+library(maps)  # If you don't have this library, you'll need to run install.packages("maps") first
+library(plotrix) # If you don't have this library, you'll need to run install.packages("plotrix") first
+
+setwd()  #set the path to where your downloaded files are on your laptop
+
+meta <- read.table("Combined_Transect_Sampling_Data_2020.txt", sep="\t",header=T)  
+
+Qscores <- read.table("yourfilename.Q", sep=" ",header=F)
+names(Qscores) <- c("K1","K2", ...)  # Customize to your level of K!
+
+tiff("Admix.tiff", width = 10, height = 7, units = "in",
+     res = 300)
+map("world",xlim=c(-160,-100),ylim=c(40,70),fill=T, col="lightgrey")
+
+title("Admixture K=X") # Change for your value of K
+map.axes(cex.axis=1.5)
+for(i in 1:nrow(meta)){
+  floating.pie(meta$Longitude[i], meta$Latitude[i], 
+               c(Qscores$K1[i],Qscores$K2[i],...),
+               col=c("yellow","green",...),
+               radius=0.5)
+}
+
+# Customize the above to your level of K wherever you see the ellipses (...)!
+
+dev.off()
+
+# Don't forget to save your R script!
+
+```
+### The image file will get automatically saved as a Tiff image within your working directory.  Open it up and take a look, then post to the EG Slack under #results so we can discuss together
+
+One prediction we can make is that heterozygosity across the genome should increase under admixture, as loci with divergent allele frequencies in different lineages are combined. When this occurs at loci that harbor mildly deleterious alleles with divergent frequencies between lineages, the resulting complementation is one explanation for the genetic basis of hybrid vigor or [heterosis](https://en.wikipedia.org/wiki/Heterosis). 
+
+We can test if admixture between lineages is increasing heterozygosity genome-wide by correlating (1) the extent of an individual's ancestry diversity with (2) individual-level heterozygosity across the genome.  We have (1) already; now let's get (2)
+
+We'll go back to the server and use VCFtools to calculate genome-wide individual heterozygosity using the `--het` flag. We'll use our vcf file filtered for maf=0.05. Let's discuss why it makes sense NOT to thin for LD here...
+
+```
+vcftools --gzvcf /data/project_data/PopGenomics/poplar_hybrids.maf05.vcf.gz \
+--het \
+--out ~/myresults/het_maf05
+```
+
+**For Discussion:**  What value of K should we use from our ADMIXTURE analysis? Let's agree as a class, and one of us will place the corresponding .Q file in:
+
+`/data/project_data/PopGenomics/shared`
+
+Use Fetch or WinSCP (or `scp` at the commandline) to transfer:
+
+* The .Q file for the level of K we've agreed upon
+* Your het_maf05.het file
+
+Once on your laptop, we can bring these data into R for plotting. Let's continue to add to the previous script we developed for the ADMIXTURE analysis.
+
+
+```
+library(ggplot2)
+
+Qscores_new <- read.table("newfilename.Q", sep=" ",header=F) # Rename to the new file!
+names(Qscores_new) <- c("K1","K2", ...)  # Customize to the level of K!
+
+# Calculate Shannon Diversity across the K different Q-scores per individual
+
+K=X  # Change X to the level of K we're investigating
+
+tmp=numeric()
+
+for(i in 1:nrow(Qscores_new)){
+  for(j in 1:K){
+    tmp[j] = Qscores_new[i,j]*log(Qscores_new[i,j])
+  }
+  Qscores_new$ShDiv[i] = -1*sum(tmp)
+}
+```
+
+Now let's bring in the heterozygosity data:
+
+```
+het <- read.table("het_maf05.het", sep="\t",header=T)
+
+str(het) # What's in this dataframe?  
+```
+**What do these values mean?**
+
+* INDV = Individual sample ID
+* O.HOM. = Number of sites genome-wide that were observed to be homozygous (either 0|0 or 1|1)
+* E.HOM. = Number of sites genome-wide predicted to be homozygous based on Hardy-Weinberg expectations (=1-2pq across all loci)
+* N_SITES = Number of SNPs included in the calculation
+* F = [Inbreeding coefficient (=1-obsHet/expHet)](https://en.wikipedia.org/wiki/F-statistics)
+
+We'll use F as our measure of how heterozygous individuals are relative to expectations if *P. trichocarpa* and *P. balsamifera* were randomly mating with each other (F=0)
+
+```
+# Combine the meta data, heterozygosity, and admixture data
+
+het2 <- cbind(meta,het,Qscores_new) #bind the het results with the meta data
+
+# How does F vary within each transect?
+
+ggplot(het2, aes(x=Transect, y=F, color=Transect)) +
+  geom_dotplot(binaxis='y', binwidth=0.01, stackdir='center')
+
+```
+
+Looks like transects vary in their extent of heterozygosity -- let's relate this to ancestry diversity at the individual-level.  To do this, we'll calculate an index of how mixed an individual's genome is for ancestry fraction using the [Shannon Diversity index](https://en.wikipedia.org/wiki/Diversity_index#Shannon_index).
+
+```
+
+# Plot admixture diversity spatially
+ggplot(het2, aes(x=Longitude, y=Latitude, color=ShDiv)) +
+  geom_point(size=4, shape=20)
+
+# And finally, are more admixed individuals more heterozygous in their genomes?
+
+ggplot(het2, aes(x=F, y=ShDiv, color=Transect)) +
+  geom_point(size=4, shape=20)
+
+cor.test(het2$F,het2$ShDiv)
+
+```
+
