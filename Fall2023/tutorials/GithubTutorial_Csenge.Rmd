@@ -1,0 +1,103 @@
+---
+title: "Github Tutorial"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+Before getting started, make sure you have a GitHub account [here](https://github.com/) and download github desktop [here](https://desktop.github.com/).
+
+## In the browser
+
+### Making a Github Repository
+
+1.  Navigate to your profile on GitHub
+2.  Click the Repositories link at the top of the page
+3.  Select the green *New* button in the top right corner of your screen
+4.  Name your repository, select **Add a README file** and select the green *Create Repository* button at the bottom of the screen
+
+### Modifying files
+
+In order to edit a file in the browser, for example your README.md, click on the little pencil button in the top right corner, then when you are done, click the green *Commit changes* button.
+
+### Uploading files
+
+In order to upload a file, click on the *Add file* button just left of the green *Code* button.
+
+### To review commit history
+
+To review all the changes you have made to the repo, click on the little clock icon followed by your number of commits just under the green *Code* button. You can click on each commit to see what you have changed.
+
+## Using the GitHub desktop app
+
+### Clone existing repos
+
+1.  Open the GitHub desktop app.
+2.  Click on *Clone a repository*. You will have to sign in to your GitHub account.
+3.  Choose a repository you would like to clone and specify where your computer should store it. This step might take a few minutes to load.
+4.  Once the repo has been cloned, find the new folder on your computer. This is where your files will be living - you can edit, remove or add files here and GitHub desktop will track these changes.
+
+### Editing and adding files
+
+1.  Open the README.md file with any markdown editor you like (perhaps RStudio is the best ;) )
+2.  Make any kind of change and then save your changes (like you always do when you want to save changes to a file you are working on).
+3.  Navigate back to the GitHub desktop app. On the left, you should see your changes appear!
+4.  To add a file to your repo, you can simply drag and drop your file on your computer into the above mentioned folder. Again, you should see the fact that you have added a file on the left in your GitHub desktop app.
+5.  Once you are done modifying your repo, make some notes in the bottom left corner about what you have done, and click *Commit to main*. All your changes should disappear from the left bar and a new line should appear in the bottom left corner under *Committed just now*.
+6.  Now, you can click on *Push origin* in order to upload your changes.
+7.  You can head to your GitHub repo page in the browser, and after refreshing the page, you should see your changes appear.
+
+NOTE: The git commit command captures a snapshot of the project's changes. The git push command is used to upload local repository content to a remote repository. Thus, you can make several commits before pushing all the commits at once, however, it is generally advisable to push as you go.
+
+## What if you have modified your repo somewhere else?
+
+1.  Go to your GitHub repo in the browser and make a change to your README.md file. Make sure to commit your changes.
+2.  Navigate back to your GitHub desktop app. As you will see, there are no changes in the left bar because you haven't changed anything locally. If you click on the *History* bar, you will see your past changes, but to the most recent one you made in the browser.
+3.  In order to retrive the changes you made in the browser, first click *Fetch origin* (this will change if there has been any remote changes to your repo), then click on *Pull origin* to download the changes you have made to your local computer.
+4.  You should now be able to see your changes in the folder on your computer, as well as in the *History* bar on the left.
+
+## Merge conflicts
+
+What if you have made some changes to your repo locally, before pulling the changes you have made remotely? Let's test it out!
+
+1.  Make another change to your README.md file in the browser. Commit.
+2.  Now open the README.md file on your computer. As you see, the changes you made in the browser are not present in your version of the file (as we haven't pulled yet, on purpose). Make a change to the file (different from what you have done in the browser) and save it.
+3.  Navigate back to your GitHub desktop app.
+4.  Click on *Fetch origin* and then *Pull origin*.
+5.  This will produce and ERROR message, which is exactly what we wanted. Click *stash changes and continue*. You will see that the history bar only shows the changes you have made online, it is missing the changes you have made locally. Also, there will be a new bar on the bottom that says *Stashed Changes*.
+6.  Click on *Stashed Changes* then click on *Restore*.
+7.  You will see that some lines are highlighted with blue on the left. Click on the lines that you don't want to keep (this will unselect them and they will no longer appear blue). Then, click on commit and push. The changes should appear in the History tab, as well as in the browser.
+8.  Finally, you can discard the changes that still appear in the left tab by right clicking on the name of the file (e.g. README.md) and selecting *Discard changes*. You are done!
+
+## Using git in the terminal
+
+1.  In order to be able to access your repos remotely, e.g. from the class server, you will need to generate a personal access token on GitHub. To do that, navigate to GitHub, click on your little icon, click Settings \> Developer settings \> Personal access tokens \> Tokens (classic) \> Generate new token (classic) \> Name and select repo. Copy and save the personal access token!
+2.  Open your terminal and type ssh NETID\@ecogen.uvm.edu. Enter your UVM password when prompted.
+3.  Go to the browser and find the page for your GitHub repo and you'd like to use. Click on the green *Code* button. Copy the HTTPS link, it will be something like: [https://github.com/Cpetak/your_repo_name.git](https://github.com/Cpetak/test.git)
+4.  Type `git clone https://github.com/Cpetak/test.git` to clone your git repo. Enter your GitHub username and when prompted for a password, paste your personal access token.
+5.  Now if you type `ls`, you should see you repo! Try to `cd`, and ls to view the content. Everything should be there!
+6.  Type `echo "hello from the class server" > my_new_file.txt` to make a new file.
+7.  Type `git status`. This will show you if you have made any changes to the repo, just like GitHub desktop does.
+8.  You will see that the new file we created my_new_file.txt is listed under *Untracked files*. This is because we have to tell git that this is a file/change that we would like git to keep track of. To that, type `git add my_new_file.txt`.
+9.  Type `git status` again. You will see that my_new_file.txt has moved to *Changes to be committed*. So let's commit this change! Type `git commit -m"testing class server"`.
+10. Now you have made a commit titled "testing class server", so we have created a snapshot of our project. Just like before, we need to push the commit in order for us to be able to see the changes outside of the remote server we are using right now. Type `git push origin main` (origin means remote repo, main means main branch). You will need to enter your github username and personal access code. `git status` should tell you that there is nothing to commit.
+11. Navigate back to your GitHub desktop and click *Fetch origin* and then *Pull origin*. You should be able to see the commit you made on the class server in your History tab. Yeyy!
+
+### Merge conflict in the terminal
+
+1.  Go to the git folder on your computer, open the my_new_file.txt file and add a line at the end. Save, commit and push through GitHub desktop.
+
+2.  Go to your terminal and locate your git repo on the class server.
+
+3.  Type `git pull origin main`. You will need to enter your github username and personal access code. It should show you that a file has been modified. `cat my_new_file.txt` should show you the updated version of the file.
+
+4.  Repeat step 1 and step 2. Now, instead of pulling first (like you should to avoid a merge conflict) type `echo "here is a new line from the server" >> my_new_file.txt`. This will append a new line to the file called my_new_file.txt. Note, if you type `cat my_new_file.txt`, you will only see the modification you made on the server, but not the one you made on your computer, because you haven't pulled.
+
+5.  Type `git pull origin main`. It will complain and tell you "Please commit your changes or stash them before you merge. Aborting". To resolve this issue, type `git add my_new_file.txt`, then `git commit -m'changed my file for reasons'`.
+
+6.  Now type `git pull origin main`. This time, it will tell you "You have divergent branches and need to specify how to reconcile them" and "Need to specify how to reconcile divergent branches". Since we will want to merge in the future, type `git config pull.rebase false`. Then, type `git pull origin main` again.
+
+7.  This will give you "CONFLICT (content): Merge conflict in my_new_file.txt". Type `nano my_new_file.txt` to fix the conflict (i.e. remove lines you don't want.)
+
+8.  Finish by doing the usual `git add my_new_file.txt`, `git commit -m'resolved conflict'`, `git push origin main`. Pull in the GitHub app and check what you have done in the History tab. You should see both the local and the server commits, as well as your conflict resolution as separate commits.
