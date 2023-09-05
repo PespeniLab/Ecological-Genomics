@@ -12,7 +12,8 @@ fontsize: 18pt
 
 **Intro**
 
-1. 2023-08-30: [Github Tutorial](Fall2023/tutorials/GithubTutorial.html)
+1. 2023-08-30: [Bash Tutorial](Fall2023/tutorials/BashTutorial.html)
+2. 2023-09-06: [Git Tutorial](Fall2023/tutorials/GitTutorial.html)
 
 **Population & Landscape Genomics Module**
 
