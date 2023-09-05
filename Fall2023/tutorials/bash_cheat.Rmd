@@ -1,0 +1,12 @@
+---
+title: "Bash cheatsheets"
+output: html_document
+---
+
+## Links to cheatsheets
+
+<https://upload.wikimedia.org/wikipedia/commons/7/79/Unix_command_cheatsheet.pdf>
+
+<http://linuxcommand.org/index.php>
+
+<http://ss64.com/bash/>
