@@ -149,8 +149,8 @@ the changes you have made to your local computer.</li>
 computer, as well as in the <em>History</em> bar on the left.</li>
 </ol>
 </div>
-<div id="merge-conflicts" class="section level2">
-<h2>Merge conflicts</h2>
+<div id="merge-conflict-before-committing" class="section level2">
+<h2>Merge conflict before committing</h2>
 <p>What if you have made some changes to your repo locally, before
 pulling the changes you have made remotely? Let’s test it out!</p>
 <ol style="list-style-type: decimal">
@@ -177,6 +177,43 @@ browser.</li>
 <li>Finally, you can discard the changes that still appear in the left
 tab by right clicking on the name of the file (e.g. README.md) and
 selecting <em>Discard changes</em>. You are done!</li>
+</ol>
+</div>
+<div id="merge-conflict-after-committing" class="section level2">
+<h2>Merge conflict after committing</h2>
+<ol style="list-style-type: decimal">
+<li>Make a change to your README.md file in the browser. Commit.</li>
+<li>Now open the README.md file on your computer. As you see, the
+changes you made in the browser are not present in your version of the
+file (as we haven’t pulled yet, on purpose). Make a change to the file
+(different from what you have done in the browser) and save it.</li>
+<li>Navigate back to your GitHub desktop app. Commit your local change.
+Click on the push button.</li>
+<li>You will get an error message saying “Newer commits on remote”. It
+is saying that there have been some remote changes that you need to pull
+first, before you could push your new changes. Click on Fetch.</li>
+<li>The button on the top should change to <em>Pull origin</em>. Click
+on it. Since you have modified the same file, git won’t be able to
+automatically resolve your merge, and it tells you to open the file the
+has the merge conflict. GitHub desktop will suggest an editor app to
+open you file in (you can change this, let’s say to RStudio by hitting
+<em>Abort</em>, GitHub Desktop in the top left corner,
+<em>Integrations</em> &gt; <em>External editor</em>). Click on “Open in”
+followed be the name of your editor of choise.</li>
+<li>Delete the lines you want to discard (typically, lines with
+&gt;,&lt; or = symbols). Save your changes.</li>
+<li>Go back to you GitHub Desktop. The marge conflict message should
+change to <em>No conflicts remaining</em>. Click <em>Continue
+merge</em>.</li>
+<li>We have essentially made a new commit by clicking on <em>Continue
+merge</em>, so you should see a new commit appear in the bottom left
+corner of the page, beginning with “Merge branch ‘main’”. Now we just
+have to click on <em>Push origin</em>. Resolved!</li>
+<li>To double check what we have done, navigate to the <em>History</em>
+tab. You should be able to see both of the changes that you have made:
+the one you made locally, and the one you made remotely. And, if you
+navigate back to your browser and look at the file you have been
+modifying, you should see the final version of the file.</li>
 </ol>
 </div>
 <div id="using-git-in-the-terminal" class="section level2">
