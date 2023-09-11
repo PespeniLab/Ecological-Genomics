@@ -63,6 +63,15 @@ The data we'll be analyzing here consist of exome-capture data for adult red spr
 -   Libraries were made by random mechanical shearing of DNA (250 ng -1ug) to an average size of 400 bp followed by end-repair reaction, ligation of an adenine residue to the 3'-end of the blunt-end fragments to allow the ligation of barcoded adapters, and PCR-amplification of the library. SureSelect probes (Agilent Technologies: Santa Clara, CA) were used for solution-based targeted enrichment of pools of 16 libraries, following the SureSelectxt Target Enrichment System for Illumina Paired-End Multiplexed Sequencing Library protocol.\
 -   Libraries were sequenced on an Illumina HiSeq X to generate paired-end 150-bp reads.
 
+Here's the table of sample population codes used in file naming and their source localties
+
+```{r}
+library(data.table)
+dat = read.csv("~/Documents/GitHub/Ecological-Genomics/Fall2023/data/RS_sampleSites.csv", header=F)
+names(dat) = c("PopCode","PopName","State/Province","Country","Latitude","Longitude","Elevation")
+knitr::kable(dat)
+```
+
 ## 2. The "pipeline"
 
 -   Visualize the quality of raw data (Program: FastQC)
@@ -106,7 +115,7 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 The fastq file format\*\* has 4 lines for each read:
 
 | Line | Description                                                                                                   |
-|-------------|-----------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | 1    | Always begins with '\@' and then information about the read                                                   |
 | 2    | The actual DNA sequence                                                                                       |
 | 3    | Always begins with a '+' and sometimes the same info in line 1                                                |
@@ -119,7 +128,7 @@ Q = --10 log10(P)
 So:
 
 | Phred Quality Score | Probability of incorrect base call | Base call accuracy |
-|--------------------|----------------------------------|-------------------|
+|--------------------|---------------------------------|-------------------|
 | 10                  | 1 in 10                            | 90%                |
 | 20                  | 1 in 100                           | 99%                |
 | 30                  | 1 in 1000                          | 99.9%              |
@@ -192,7 +201,7 @@ chmod u+x fastqc.sh    # makes the script "executable" by the "user"
 ./fastqc.sh             # executes the script
 ```
 
-It'll take just a couple of minutes per fastq file. Once you've got results, let's look at them by using Filezilla to transfer the folder ~/myresults/fastqc/ over to your laptop. Once complete, you can open the html outputs with a web browser.
+It'll take just a couple of minutes per fastq file. Once you've got results, let's look at them by using Filezilla to transfer the folder \~/myresults/fastqc/ over to your laptop. Once complete, you can open the html outputs with a web browser.
 
 *How does the quality look?*
 
@@ -200,14 +209,13 @@ It'll take just a couple of minutes per fastq file. Once you've got results, let
 
 [We'll use the Trimmomatic program](http://www.usadellab.org/cms/index.php?page=trimmomatic) to clean the reads for each file. The program is already installed on our server.
 
-Since this job is a bit more complicated, we've provided a partially completed example script here: `/netfiles/ecogen/PopulationGenomics/scripts/trim_loop_Fa23.sh` 
+Since this job is a bit more complicated, we've provided a partially completed example script here: `/netfiles/ecogen/PopulationGenomics/scripts/trim_loop_Fa23.sh`
 
 1.  `cd` over to the directory where the example script lives
 2.  Open and edit the bash script using the program vim.
 3.  Edit the file so that you're trimming the fastq files for the population assigned to you; remember to add annotations as notes to yourself!
-4.  Save the file in vim to your home directory. To do this, hit <Esc> when you're finished making edits, then `:wq ~/myscripts/trim_loop_Fa23.sh` This will write (w) a new copy of the file over to your ~/myscripts folder and the quit (q) vim.
+4.  Save the file in vim to your home directory. To do this, hit <Esc> when you're finished making edits, then `:wq ~/myscripts/trim_loop_Fa23.sh` This will write (w) a new copy of the file over to your \~/myscripts folder and the quit (q) vim.
 5.  Change the permissions on your script to make it executable, then run it! (examples below)
-
 
 This time we use the variable coding to call the name of the R1 read pair, define the name for the second read in the pair (R2), and create a basename that only contains the "pop_ind" part of the name, i.e. AB_05
 
@@ -270,59 +278,9 @@ Check the quality of one of your cleaned files using fastqc again.
                 # You fill in the blank!  Don't forget to change your input path to the pairedcleaned files!
 ```
 
-## 6. Mapping cleaned and trimmed reads against the reference genome
+## Take notes on your workflow today so you can remember what you did for the future!
 
-Now that we have cleaned and trimmed read pairs, we're ready to map them against the reference genome.
-
--   We'll be using a reduced reference genome based on selecting only those scaffolds of the full genome reference that contain at least one bait. We've placed it on our server here:
-
-`/data/project_data/RS_ExomeSeq/ReferenceGenomes/Pabies1.0-genome_reduced.fa`
-
--   The reference genome is based on Norway spruce (*P. abies*) and is available from [congenie.org](http://congenie.org).
-
--   We'll use the program [bwa](https://github.com/lh3/bwa), which is a very efficient and very well vetted read mapper. Lots of others exist and can be useful to explore for future datasets. We tried several, and for our exome data, bwa seems to be the best
-
--   We are going to write a bash script together that calls the R1 and R2 reads for each individual in our population, and uses the bwa-mem algorithm to map reads to the reference genome. The resulting output will be a sam file alignment. The basic bwa command we'll use is:
-
-```         
-bwa mem -t 1 -M -a ${ref} ${forward} ${reverse} > ${output}/BWA/${name}.sam
-```
-
-where
-
-```         
--t 1 is the number of threads, or computer cpus to use (in this case, just 1)
--M labels a read with a special flag if its mapping is split across >1 contig
--a keeps alignments involving unpaired reads
-${ref} specifies the path and filename for the reference genome
-${forward} specifies the path and filename for the cleaned and trimmed R1 reads 
-${reverse} specifies the path and filename for the cleaned and trimmed R2 reads 
->${output}/BWA/${name}.sam  directs the .sam file to be saved into a directory called BWA
-```
-
-Other bwa options detailed here: [bwa manual page](http://bio-bwa.sourceforge.net/bwa.shtml)
-
-Our last steps (with basic syntax) are to: 1. Convert our sam files to the more efficient binary version (bam) and sort them + `sambamba-0.7.1-linux-static view -S --format=bam file.sam -o file.bam`
-
-2.  Get rid of any PCR duplicate sequences (why are these a problem?) and re-sort after removing dups
-
--   `sambamba-0.7.1-linux-static markdup -r -t 1 file.bam file.rmdup.bam`
--   `samtools sort file.rmdup.bam -o file.sorted.rmdup.bam`
-
-3.  Get some stats on how well the mapping worked
-
--   `samtools flagstat file.sorted.rmdup.bam | awk 'NR>=5&&NR<=13 {print $1}' | column -x`
--   `samtools depth file.sorted.rmdup.bam | awk '{sum+=$3} END {print sum/NR}`
-
-For this, we'll use a combination of two new programs: [samtools](https://github.com/samtools/samtools) and [sambamba](https://lomereiter.github.io/sambamba/). Samtools was writtend by Heng Li, the same person who wrote bwa, and is a powerful tool for manipulating sam/bam files. Sambamba is derived from samtools, and has been re-coded to increase efficiency (speed). We'll use them both at different steps.
-
-I've put a bash script with the commands to run steps 1-3 above. It's located here:
-
-`/data/scripts/process_bam.sh`
-
-Make a copy of this over to your home directory and use `vim` to edit the paths and population. Then when you're ready to save and quit vim, type `:wq`
-
-Last step, we're going to put these scripts altogether into a "wrapper" that will exectue each of them one after the other, and work for us while we're off getting a coffee or sleeping. :) I'll show you how to code this together in class.
+[Notebook template in markdown (md) format](https://github.com/PespeniLab/Ecological-Genomics/blob/0708da3bdd3a0bf27d80bdedade51d4aba12c933/Fall2023/GithubNotebookTemplate.md)
 
 Once your wrapper script is ready, you're going to want to start a `screen`. The `screen` command initiates a new shell window that won't interupt or stop your work if you close your computer, log off the server, or leave the UVM network. Anytime you're running long jobs, you definiteily want to use `screen`.
 
