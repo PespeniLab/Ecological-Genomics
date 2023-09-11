@@ -1,0 +1,14 @@
+2019	Indian_Gap	North_Carolina	USA	-83.45	35.6	1620
+2020	Glade_Run	West_Virginia	USA	-79.83333	38.63333	1160
+2021	Bear_Meadows	Pennsylvania	USA	-77.75	40.7291	550
+2022	October_Mtn_State_Forest	Massachusetts	USA	-73.25	42.36667	550
+2024	Upper_Jay	New-York	USA	-73.66667	44.41667	610
+2027	Pillsbury_State_Forest	New-Hampshire	USA	-72.08333	43.2	500
+2030	Amherst	Maine	USA	-68.38333	44.9	150
+2030	Amherst	Maine	USA	-68.38333	44.9	150
+2032	Valcartier_Forest_Experimental_Station	Quebec	Canada	-71.55	46.91667	270
+2100	Sheet_Harbour_Waters	Nova-Scotia	Canada	-62.73333	45.2	60
+2101	Corberrie	Nova-Scotia	Canada	-65.9	44.16667	60
+2103	Centra_Acadia_Forest_Experiment_Station	New-Brunswick	Canada	-66.33333	46.03333	60
+2505	Eastern_Acadia_Forest_Experiment_Station	New-Brunswick	Canada	-66.2	46.03333	60
+Source	Population	State	Country	Longitude	Latitude	Elevation
