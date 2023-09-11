@@ -9,21 +9,23 @@ fontsize: 18pt
 
 # Learning Objectives for 09/11/23
 
-1.  To get background on the ecology of Red spruce (*Picea rubens*), and the experimental design of the exome capture data
+1.  To get background on the study system (Red spruce, *Picea rubens*), and the experimental design of the exome capture data
 2.  To understand the general work flow or "pipeline" for processing and analyzing the exome capture sequence data
-3.  To visualize and interpret Illumina data quality (what is a fastq file; what are Phred scores?).
+3.  To visualize and interpret Illumina data quality (what is a fastq file; what are Phred (Q) scores?).
 4.  To learn how to make/write a bash script, and how to use bash commands to process files in batches
 5.  To trim the reads based on base quality scores in preparation for mapping to the reference genome
 
 ## 1. Red spruce, *Picea rubens*
 
-<img src="https://static.inaturalist.org/photos/5362103/large.jpg?1544110582" width="550" height="350"/> <img src="https://www.researchgate.net/profile/Adam_Rollins/publication/33756615/figure/fig1/AS:309876237586432@1450891660815/The-range-of-red-spruce-USGS-1999_W640.jpg" width="270" height="350"/>
+![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/mmf.jpg?token=GHSAT0AAAAAACGK5AYTT2AWDSWLG36MEWMGZH6T54A)
 
 Red spruce is a coniferous tree that plays a prominent role in montane communities throughout the Appalachians. It thrives in the cool, moist climates of the high elevation mountains of the Appalachians and northward along the coastal areas of Atlantic Canada. In the low-latitude trailing edge of the range, populations are highly fragmented and isolated on mountaintops. These "island" populations are remnants of spruce forests that covered the southern U.S. glaciers extended as far south as Long Island, NY. As the climate warmed at the end of the Pleistocene (\~20K years ago), red spruce retreated upward in elevation to these mountaintop refugia, where they are now highly isolated from other such stands and from the core of the range further north.
 
+![](https://upload.wikimedia.org/wikipedia/commons/4/42/Picea_rubens_range_map.png)
+
 Because of its preference for cool, moist climates, red spruce shows climate sensitivities that may make it especially vulnerable to climate change. This makes assessing the amount and distribution of genetic diversity across the landscape of red spruce an important conservation issue! Ultimately, we want to use genomic insights to help inform conservation biologists working to restore red spruce and evaluate the potential for assisted migration (a form of human-mediated dispersal) to offset the loss of adaptation under climate change. A close partner in this effort is the [Nature Conservancy](https://www.nature.org/en-us/about-us/where-we-work/united-states/west-virginia/stories-in-west-virginia/sprucing-things-up-a-bit/) and the Central Appalachian Spruce Restoration Initiative ([CASRI](http://restoreredspruce.org)) -- a multi-partner group dedicated to restoring and enhancing red spruce populations to promote their resilience under climate change.
 
-![](http://restoreredspruce.org/wp/wp-content/uploads/2019/09/cropped-New-logo-CASRI-header-1.jpg)
+![](https://restoreredspruce.org/wp-content/uploads/2023/07/cropped-cropped-CASRI-Website-Header-1536x142.png)
 
 Some videos of the collaboration between UVM and CASRI on red spruce restoration:
 
@@ -35,44 +37,48 @@ Since 2015, the Keller Lab has been studying the genetic basis of climate adapta
 
 ## Summary of prior population genomics research on red spruce
 
-Our recent prior work funded by NSF (2017-2022) focused on early-life fitness of seedlings in response to genomic variation and climate adaptation. That work sampled seeds and needle tissue from 340 mother trees at 65 populations spread throughout the range, and generated population genomic data through exome capture sequencing. Based on these data, some of the insights we gleaned were:
+Our recent work funded by NSF (2017-2022) focused on early-life fitness of seedlings in response to population genomic variation and climate adaptation. That work sampled seeds and needle tissue from 340 mother trees at 65 populations spread throughout the range and generated population genomic data through exome capture sequencing. Seedlings from each mother were grown in multiple common gardens and measured for fitness traits. Based on these data, some of the insights we gleaned were:
 
 -   Red spruce has very low genetic diversity and has an Ne that has been declining for thousands of years [Capblancq et al. 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12985)
--   Populations are genetically differentiated into 3 geographically separated ancestry groups in the north (core) mid-latitude (margin) and southern (edge) regions of its range [Capblancq et al. 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12985))
--   A local population's level of genetic diversity and its frequency of deleterious mutations (aka, "genetic load") were related to how well seedlings survived and grew under greenhouse conditions [Capblancq et al. 2021](https://link.springer.com/article/10.1007/s10592-021-01378-7)
--   Seedling growth traits in common garden experiments showed heritable genetic variation and trait divergence among the 3 ancestry groups [Prakash et al. 2022](https://royalsocietypublishing.org/doi/full/10.1098/rstb.2021.0008)
--   Certain genomic regions showed strong allele frequency clines along climatic gradients indicative of selection, often related to abiotic stress (heat and drought) [Capblancq et al. 2023](https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18465)
+-   Populations are differentiated into 3 geographically separated clusters of genetic ancestry in the north (core) mid-latitude (margin) and southern (edge) regions of its range [Capblancq et al. 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/eva.12985))
+-   Local populations level of genetic diversity and frequency of deleterious mutations (aka, "genetic load") were related to how well seedlings survived and grew under greenhouse conditions [Capblancq et al. 2021](https://link.springer.com/article/10.1007/s10592-021-01378-7)
+-   Seedling growth traits in common garden experiments showed heritable genetic variation and genetically-based trait divergence among the 3 ancestry groups [Prakash et al. 2022](https://royalsocietypublishing.org/doi/full/10.1098/rstb.2021.0008)
+-   Certain genomic regions showed strong allele frequency clines along climatic gradients indicative of selection, with gene functions often related to abiotic stress (heat and drought) [Capblancq et al. 2023](https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18465)
 -   There was a hint in some of the results that hybridization with black spruce might be playing a role in some of the above results, but we lacked genomic data from black spruce to nail that down.
 
-*Let's brainstorm about some issues these data couldn't address, or where the inference of population history or climate adaptation were constrained by aspects of the experimental design?*. **What questions would you want to ask next?**
+**Let's brainstorm about some issues these data couldn't address, or where the inference of population history or climate adaptation were constrained by aspects of the experimental design?** 
+
+*What questions would we want to ask next?*
 
 ## A new dataset for analysis
 
-The data we'll be analyzing here consist of exome-capture data for adult red spruce growing in a [provenance trial in northern New Hampshire near the town of Colebrook](https://goo.gl/maps/4LSPvpN2RdVbUuH78). Here are the details:
+The data we'll be analyzing here consist of exome capture data for adult red spruce growing in a [provenance trial in northern New Hampshire near the town of Colebrook](https://goo.gl/maps/4LSPvpN2RdVbUuH78). Here are the details:
 
 -   95 individuals sampled from 12 populations across the range (N=190 red spruce)
 -   Individuals were grown from seed and planted out into the provenance trial as 2 year old seedlings in 1960
 -   Multiple studies have assessed survival, growth (height DBH), and cold tolerance of these individuals at multiple time points over the last 60 years
 -   Needle tissue was sampled from surviving red spruce in the trial in May 2020 for genomic DNA
--   We also sampled 18 black spruce individuals from natural stands in 2 locations distant from red spruce's range (MN and MI). These will be useful for detecting black spruce ancestry in the red spruce populations, if it exists
--   We used the same exome-capture probe set as Capblancq et al. (2020)
--   Exome-capture was designed based on transcriptomes from multiple tissues and developmental stages in the related species, white spruce (*P. glauca*).\
--   Bait design used 2 transcriptomes previously assembled by [Rigault et al. (2011)](http://www.plantphysiol.org/content/157/1/14.full) and [Yeaman et al. (2014)](https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.12819).
+-   We also sampled 18 black spruce individuals from natural stands in 2 locations distant from red spruce's range (MN and MI). 
+    -  These will be useful for detecting black spruce ancestry in the red spruce populations, if it exists
+-   We used the same exome-capture probe set as Capblancq et al. (2020). 
+    -  *Why exome capture instead of alternatives (WGS, or RAD/GBS)??*
+-   Exome-capture was designed based on transcriptomes from multiple tissues and developmental stages in the related species, white spruce (*P. glauca*).
+-   Bait design used 2 transcriptomes previously assembled by [Rigault et al. (2011)](https://academic.oup.com/plphys/article/157/1/14/6108725) and [Yeaman et al. (2014)](https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.12819).
 -   A total of 80,000 120 bp probes were designed, including 75,732 probes within or overlapping exomic regions, and an additional 4,268 probes in intergenic regions.
--   Each probe was required to represent a single blast hit to the *P. glauca* reference genome of at least 90bp long and 85% identity, covering **38,570 unigenes**.\
--   Libraries were made by random mechanical shearing of DNA (250 ng -1ug) to an average size of 400 bp followed by end-repair reaction, ligation of an adenine residue to the 3'-end of the blunt-end fragments to allow the ligation of barcoded adapters, and PCR-amplification of the library. SureSelect probes (Agilent Technologies: Santa Clara, CA) were used for solution-based targeted enrichment of pools of 16 libraries, following the SureSelectxt Target Enrichment System for Illumina Paired-End Multiplexed Sequencing Library protocol.\
+-   Each probe was required to represent a single blast hit to the *P. glauca* reference genome of at least 90bp long and 85% identity, covering **38,570 unigenes**.
+-   Libraries were made by random mechanical shearing of DNA (250 ng -1ug) to an average size of 400 bp followed by ligation of barcoded adapters, and PCR-amplification of the library. SureSelect probes (Agilent Technologies: Santa Clara, CA) were used for targeted enrichment following the SureSelect Target Enrichment System for Illumina Paired-End Multiplexed Sequencing Library protocol.
 -   Libraries were sequenced on an Illumina HiSeq X to generate paired-end 150-bp reads.
 
-Here's the table of sample population codes used in file naming and their source localties
+Here's the table of sample population codes used in file naming and their source localities
 
-```{r}
+```{r, echo=FALSE}
 library(data.table)
 dat = read.csv("~/Documents/GitHub/Ecological-Genomics/Fall2023/data/RS_sampleSites.csv", header=F)
 names(dat) = c("PopCode","PopName","State/Province","Country","Latitude","Longitude","Elevation")
 knitr::kable(dat)
 ```
 
-## 2. The "pipeline"
+## 2. Here's our "pipeline"
 
 -   Visualize the quality of raw data (Program: FastQC)
 
@@ -86,22 +92,23 @@ We'll then use these cleaned reads to align to the reference genome next time so
 
 ## 3.-5. Visualize, Clean, and Visualize again
 
-Whenever you get a new batch of NGS data, the first step is to look at the data quality of coming off the sequencer and see if we notice any problems with base quality, sequence length, PCR duplicates, or adapter contamination.
+Whenever you get a new batch of NGS data, the first step is to look at the data quality of coming off the sequencer and see if we notice any problems with base quality, sequence length, PCR duplicates, or adapter contamination. A lot of this info is stored in the raw data files you get from the core lab after sequencing, which are in *"fastq" format*.
 
-You'll each be in charge of cleaning and visualizing the left (R1) and right (R2) files from a single sample.
+The fastq files for our project are stored in this path: `/netfiles/ecogen/PopulationGenomics/fastq/red_spruce`
 
-We're going to assign each student to analyze all the sequence files from *one population*. (We'll do this in class)
+`cd` over there and `ll` to see the files. There should be 190 fastq files -- 2 for each of the 95 samples (2 files/sample because these are paired-end reads, and each sample gets a file with the forward reads (R1) and another with the reverse reads (R2)).
 
-### What is a .fastq file?
+The naming convention for our data is: `<PopCode>_<RowID>_<ColumnID>_<ReadDirection>.fast.gz`
+
+Together, `<PopCode>_<RowID>_<ColumnID>` define the unique individual ID for each DNA sample, and there should be 2 files per sample (and R1 and an R2)
+
+### So...what is a .fastq file anyway?
 
 [A fastq file is the standard sequence data format for NGS](https://en.wikipedia.org/wiki/FASTQ_format). It contains the sequence of the read itself, the corresponding quality scores for each base, and some meta-data about the read.
 
-The files are big (typically many Gb compressed), so we can't open them completely. Instead, we can peek inside the file using `head`. But size these files are compressed (note the .gz ending in the filenames), and we want them to stay compressed while we peek. Bash has a solution to that called `zcat`. This lets us look at the .gz file without uncompressing it all the way.
-
-The fastq files are in this path: `/netfiles/ecogen/PopulationGenomics/fastq/red_spruce`
+The files are big (typically many Gb compressed), so we can't open them completely. Instead, we can peek inside the file using `head`. But size these files are compressed (note the .gz ending in the filenames), and we want them to stay compressed while we peek. Bash has a solution to that called `zcat`. This lets us look at the .gz file without uncompressing it all the way. Let's peek inside a file:
 
 ```         
-cd /netfiles/ecogen/PopulationGenomics/fastq/red_spruce
 zcat 2505_9_C_R2.fastq.gz | head -n 4
 
 @A00354:455:HYG3FDSXY:1:1101:3893:1031 2:N:0:CATCAAGT+TACTCCTT
@@ -112,10 +119,10 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
 *Note:* `zcat` lets us open a .gz (gzipped) file; we then "pipe" `|` this output from `zcat` to the `head` command and print just the top 4 lines `-n4`
 
-The fastq file format\*\* has 4 lines for each read:
+The fastq file format has 4 lines for each read:
 
 | Line | Description                                                                                                   |
-|------------------|------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | 1    | Always begins with '\@' and then information about the read                                                   |
 | 2    | The actual DNA sequence                                                                                       |
 | 3    | Always begins with a '+' and sometimes the same info in line 1                                                |
@@ -123,7 +130,7 @@ The fastq file format\*\* has 4 lines for each read:
 
 [Here's a useful reference for understanding Quality (Phred) scores](http://www.drive5.com/usearch/manual/quality_score.html). If P is the probability that a base call is an error, then:
 
-Q = --10 log10(P)
+Q = -10\*log10(P)
 
 So:
 
@@ -148,26 +155,39 @@ So:
 
 We're going to use [the program FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (already installed on our server). FastQC looks at the quality collectively across all reads in a sample.
 
-First, let's make a new folder within our home directories that we name `myresults`.
-
-`mkdir ~/myresults/`
-
-Then let's cd into that and make another folder called `fastqc` to hold the outputs from our QC analysis. Do that on your own, just like above. Then cd into the `fastqc` folder and type `pwd` to print the present working directory to screen to prove to yourself you did it right.
-
-The basic FastQC command is like this:
+First, let's `cd` back to our home directories `~/` and set up some new folders to store our work. We'll make 3 directories to store our data, scripts, and results:
 
 ```         
-fastqc FILENAME.fastq.gz -o outputdirectory/
+mkdir mydata/
+mkdir myscripts/
+mkdir myresults/
+```
+
+Then let's cd into the `myresults/` folder then use `pwd` to prove to yourself that you're in the `myresults/` folder within your home directory. It should look like this (but with your home directory info instead of mine):
+
+```         
+[kellrlab@ecogen myresults]$ pwd
+/users/k/e/kellrlab/myresults
+```
+
+Now within `myresults/` let's make another folder called `fastqc/` to hold the outputs from our QC analysis. Do that on your own, just like we did above, then cd into the `fastqc/` folder and type `pwd` again to prove to yourself you did it right.
+
+Now, we're ready to run FastQC to look at the quality of our sequencing. The basic command is like this:
+
+```         
+fastqc filename.fastq.gz -o outputdirectory/
 ```
 
 This will generate an .html output file for each input file you've run.
 
-But, we want to be clever and process multiple files (i.e., ALL files from our population) without having to manually submit each one. We can do this by writing a bash script that contains a loop.
+You'll each be in charge of cleaning and visualizing the left (R1) and right (R2) files from **one population**. *(Lets choose these populations now)*.
 
-The basic syntax of a bash loops is like this:
+Since we're doing multiple samples from the same population, we want to be clever and process in a batch instead of manually one at a time. We can do this by writing a bash script that contains a loop. This is the first taste of how bash scripting is powerful!
+
+The basic syntax of a bash loop is like this:
 
 ```         
-cd <location of the input data files>
+cd <path to the input data>
 
 for name in somefilelist
 do
@@ -176,7 +196,7 @@ do
 done
 ```
 
-Note the use of variable assignment using \${}. We define the word `name` in the "for loop" as the variable of interest, and then call the iterations of it using \${name}. For example, we could use the wildcard character (\*) in a loop to call all files that include the ID code for your population and then pass those filenames in a loop to fastqc. Something like:
+Note the use of variable assignment using \${}. We define the word `name` in the "for loop" as the variable of interest, and then call the iterations of it using \${name}. For example, we could use the wildcard character (\*) in a loop to call all files that include the ID code for your population and then pass those filenames in a loop to FastQC. Something like:
 
 ```         
 cd /netfiles/ecogen/PopulationGenomics/fastq/red_spruce/
@@ -190,7 +210,7 @@ do
 done
 ```
 
-Let's write the above into a script using the Vim text editor at the command line. Type `vim` to get into the editor, then type "i" to enter INSERT mode. You can then type your script (remember to make necessary changes to the "mypop" population code and output path). Lastly, to save the file and quit Vim, hit the ESCAPE key to get out of INSERT mode, followed by `:wq ~/myscripts/fastqc.sh`. This will save the file into your `my scripts/` folder in your home directory.
+Let's write the above into a script using the Vim text editor at the command line. Type `vim` to get into the editor, then type "i" to enter INSERT mode. You can then type your script (remember to make necessary changes to the "mypop" population code). Lastly, to save the file and quit Vim, hit the ESCAPE key to get out of INSERT mode, followed by `:wq ~/myscripts/fastqc.sh`. This will save the file into your `myscripts/` folder in your home directory.
 
 Back at the command line, you should be able to cd into the `myscripts` folder and `ll` to see your new script!
 
@@ -198,14 +218,18 @@ Back at the command line, you should be able to cd into the `myscripts` folder a
 
 ```         
 chmod u+x fastqc.sh    # makes the script "executable" by the "user"
-./fastqc.sh             # executes the script
+bash fastqc.sh         # executes the script
 ```
 
-It'll take just a couple of minutes per fastq file. Once you've got results, let's look at them by using Filezilla to transfer the folder \~/myresults/fastqc/ over to your laptop. Once complete, you can open the html outputs with a web browser.
+It'll take just a couple of minutes per fastq file. Once you've got results, let's use Filezilla to transfer the folder `~/myresults/fastqc/` over to your laptop and into the `results` folder in your github repo. Once the file transfer is complete, go to where you saved your files *on your laptop* and try double-clicking one of the html outputs. It should open with a web browser.
 
 *How does the quality look?*
 
+Since we made some changes (added files) to our github repo, we should practice committing these and then pushing to GitHub!
+
 ### Clean using Trimmomatic
+
+Now that we have a sense of the quality of our data, and where we might need some trimming, our next step is to clean the reads by removing low quality bases and leftover Illumina sequence adapters from the sequences.
 
 [We'll use the Trimmomatic program](http://www.usadellab.org/cms/index.php?page=trimmomatic) to clean the reads for each file. The program is already installed on our server.
 
@@ -217,45 +241,14 @@ Since this job is a bit more complicated, we've provided a partially completed e
 4.  Save the file in vim to your home directory. To do this, hit <Esc> when you're finished making edits, then `:wq ~/myscripts/trim_loop_Fa23.sh` This will write (w) a new copy of the file over to your \~/myscripts folder and the quit (q) vim.
 5.  Change the permissions on your script to make it executable, then run it! (examples below)
 
-This time we use the variable coding to call the name of the R1 read pair, define the name for the second read in the pair (R2), and create a basename that only contains the "pop_ind" part of the name, i.e. AB_05
+Trimmomatic needs both read pairs (i.e., the R1 and R2 files) given to it at the same time. This makes the use of name variables in the loop a bit tougher since we can't rely just on the population name (example, `2505`) but also need each individual name too (example, `2505_9_C`).
+
+We'll use a couple of tricks of variable coding and substitution to call the name of the R1 file, use it's naming convention to define the name for the second (R2) file for that individual, and then create a "basename" that contains the unique identifier for that individual.
 
 ```         
-    R2=${R1/_R1_fastq.gz/_R2_fastq.gz}   # defines the name for the second read in the pair (R2) based on knowing the R1 name (the file names are identifcal except for the R1 vs. R2 designation)
-    f=${R1/_R1_fastq.gz/}   # creates a new variable from R1 that has the "_R1_fastq.gz" stripped off
-    name=`basename ${f}`   # calls the handy "basename" function to define a new variable containing only the very last part of the filename while stripping off all the path information.  This gets us the "AB_05" bit we want.
-```
-
-Here's how it should look (replace AB with your population name):
-
-```         
-#!/bin/bash   
- 
-cd /data/project_data/RS_ExomeSeq/fastq/edge_fastq  
-
-for R1 in AB*R1_fastq.gz  
-
-do 
- 
-    R2=${R1/_R1_fastq.gz/_R2_fastq.gz}
-    f=${R1/_R1_fastq.gz/}
-    name=`basename ${f}`
-
-    java -classpath /data/popgen/Trimmomatic-0.33/trimmomatic-0.33.jar org.usadellab.trimmomatic.TrimmomaticPE \
-        -threads 1 \
-        -phred33 \
-         "$R1" \
-         "$R2" \
-         /data/project_data/RS_ExomeSeq/fastq/edge_fastq/pairedcleanreads/${name}_R1.cl.pd.fq \
-         /data/project_data/RS_ExomeSeq/fastq/edge_fastq/unpairedcleanreads/${name}_R1.cl.un.fq \
-         /data/project_data/RS_ExomeSeq/fastq/edge_fastq/pairedcleanreads/${name}_R2.cl.pd.fq \
-         /data/project_data/RS_ExomeSeq/fastq/edge_fastq/unpairedcleanreads/${name}_R2.cl.un.fq \
-        ILLUMINACLIP:/data/popgen/Trimmomatic-0.33/adapters/TruSeq3-PE.fa:2:30:10 \
-        LEADING:20 \
-        TRAILING:20 \
-        SLIDINGWINDOW:6:20 \
-        MINLEN:35 
- 
-done 
+    R2=${R1/_R1.fastq.gz/_R2.fastq.gz}   # defines the name for the second read in the pair (R2) based on knowing the R1 name (the file names are identical except for the R1 vs. R2 designation)
+    f=${R1/_R1_fastq.gz/}   # creates a new variable from R1 that has the "_R1.fastq.gz" stripped off
+    name=`basename ${f}`   # calls the handy "basename" function to define a new variable containing only the very last part of the filename while stripping off all the path information. This gets us the "2505_9_C" bit we want.
 ```
 
 Trimmomatic performs the cleaning steps in the order they are presented. It's recommended to clip adapter early in the process and clean for length at the end.
@@ -270,20 +263,33 @@ SLIDINGWINDOW: Perform a sliding window trimming, cutting once the average quali
 MINLEN: Drop the read if it is below a specified length
 ```
 
-### Visualize again using FastQC
-
-Check the quality of one of your cleaned files using fastqc again.
+Once you're ready, go ahead and execute your bash script that you saved into your `~/myscripts/` folder:
 
 ```         
-                # You fill in the blank!  Don't forget to change your input path to the pairedcleaned files!
+cd ~/myscripts/
+bash trim_loop_Fa23.sh
+```
+
+Note that the output (the trimmed and cleaned reads) are going to get saved to a new folder your script will make for you: `~/mydata/cleanreads/`
+
+### Visualize again using FastQC
+
+To check the quality of one of your cleaned files, you can use FastQC again. Try that on 1 or 2 files to see how things looks (no need to do them all).
+
+```         
+# You fill in the blank!  Don't forget to change your input path to the cleanreads/ directory!
 ```
 
 ## Take notes on your workflow today so you can remember what you did for the future!
 
+An important final step is taking good notes on your workflow so you can remebber what you did down the road (your "future self") and share your process with others (reproducible science!). It's also really important once you start making detailed decisions that will affect the analysis outcome of your data, so you can recreate the results and explore the effect of different assumptions/decisions.
+
+We want you to keep such a notebook for each module in the course (kind of like you would for each experiment, or each thesis chapter you will work on). We've provided you with a notebook template based on the markdown (md) language.
+
 [Notebook template in markdown (md) format](https://github.com/PespeniLab/Ecological-Genomics/blob/0708da3bdd3a0bf27d80bdedade51d4aba12c933/Fall2023/GithubNotebookTemplate.md)
 
-Once your wrapper script is ready, you're going to want to start a `screen`. The `screen` command initiates a new shell window that won't interupt or stop your work if you close your computer, log off the server, or leave the UVM network. Anytime you're running long jobs, you definiteily want to use `screen`.
+You should save a copy of this template to your github repo. You can then open it up and edit this file directly within RStudio, taking notes using either the `Soource` interface if you know the markdown language (or want to learn) or you can use RStudio's built-in markdown GUI editor under the `Visual` tab. This works very similar to Word.
 
-Using it is easy. Just type `screen` followed by <Enter>. It will take you to a new empyt terminal. You can then start your wrapper bash script and see that it starts running. Once everything looks good, you have to detach from the screen by typing Ctrl-A + Ctrl-D. If you don't do this, you'll lose your work!
+Here's a cheatsheet for markdown language if you want to write using `Source` code:
 
-When you're ready to check back on the progress of your program, you can recover your screen by typing `screen -r`. That'll re-attach you back to your program!
+[Markdown cheatsheet](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
