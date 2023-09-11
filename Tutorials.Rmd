@@ -17,6 +17,8 @@ fontsize: 18pt
 
 **Population & Landscape Genomics Module**
 
+3. 2023-09-11: [PopGen Day 1](Fall2023/tutorials/2023-09-11_PopGenomics_Day1.html)
+
 **Transcriptomics Module**
 
 **Metagenomics/Microbiome Module**
