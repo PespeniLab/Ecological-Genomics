@@ -57,7 +57,7 @@ NOTE: The git commit command captures a snapshot of the project's changes. The g
 3.  In order to retrive the changes you made in the browser, first click *Fetch origin* (this will change if there has been any remote changes to your repo), then click on *Pull origin* to download the changes you have made to your local computer.
 4.  You should now be able to see your changes in the folder on your computer, as well as in the *History* bar on the left.
 
-## Merge conflicts
+## Merge conflict before committing
 
 What if you have made some changes to your repo locally, before pulling the changes you have made remotely? Let's test it out!
 
@@ -69,6 +69,18 @@ What if you have made some changes to your repo locally, before pulling the chan
 6.  Click on *Stashed Changes* then click on *Restore*.
 7.  You will see that some lines are highlighted with blue on the left. Click on the lines that you don't want to keep (this will unselect them and they will no longer appear blue). Then, click on commit and push. The changes should appear in the History tab, as well as in the browser.
 8.  Finally, you can discard the changes that still appear in the left tab by right clicking on the name of the file (e.g. README.md) and selecting *Discard changes*. You are done!
+
+## Merge conflict after committing
+
+1.  Make a change to your README.md file in the browser. Commit.
+2.  Now open the README.md file on your computer. As you see, the changes you made in the browser are not present in your version of the file (as we haven't pulled yet, on purpose). Make a change to the file (different from what you have done in the browser) and save it.
+3.  Navigate back to your GitHub desktop app. Commit your local change. Click on the push button.
+4.  You will get an error message saying "Newer commits on remote". It is saying that there have been some remote changes that you need to pull first, before you could push your new changes. Click on Fetch.
+5.  The button on the top should change to *Pull origin*. Click on it. Since you have modified the same file, git won't be able to automatically resolve your merge, and it tells you to open the file the has the merge conflict. GitHub desktop will suggest an editor app to open you file in (you can change this, let's say to RStudio by hitting *Abort*, GitHub Desktop in the top left corner, *Integrations* \> *External editor*). Click on "Open in" followed be the name of your editor of choise.
+6.  Delete the lines you want to discard (typically, lines with \>,\< or = symbols). Save your changes.
+7.  Go back to you GitHub Desktop. The marge conflict message should change to *No conflicts remaining*. Click *Continue merge*.
+8.  We have essentially made a new commit by clicking on *Continue merge*, so you should see a new commit appear in the bottom left corner of the page, beginning with "Merge branch 'main'". Now we just have to click on *Push origin*. Resolved!
+9.  To double check what we have done, navigate to the *History* tab. You should be able to see both of the changes that you have made: the one you made locally, and the one you made remotely. And, if you navigate back to your browser and look at the file you have been modifying, you should see the final version of the file.
 
 ## Using git in the terminal
 
