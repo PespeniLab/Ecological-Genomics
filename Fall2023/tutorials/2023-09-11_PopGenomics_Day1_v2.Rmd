@@ -17,11 +17,11 @@ fontsize: 18pt
 
 ## 1. Red spruce, *Picea rubens*
 
-![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/DSCN4335_SpruceKnob_WV.jpeg?token=GHSAT0AAAAAACGK5AYSWWSQLBITEF6RINI4ZIA2LNQ)
+![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/mmf.jpg?token=GHSAT0AAAAAACGK5AYS3C5QAXWLNCUH5FAQZIBE63Q)
 
 Red spruce is a coniferous tree that plays a prominent role in montane communities throughout the Appalachians. It thrives in the cool, moist climates of the high elevation mountains of the Appalachians and northward along the coastal areas of Atlantic Canada. In the low-latitude trailing edge of the range, populations are highly fragmented and isolated on mountaintops. These "island" populations are remnants of spruce forests that covered the southern U.S. glaciers extended as far south as Long Island, NY. As the climate warmed at the end of the Pleistocene (\~20K years ago), red spruce retreated upward in elevation to these mountaintop refugia, where they are now highly isolated from other such stands and from the core of the range further north.
 
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Picea_rubens_range_map.png/1280px-Picea_rubens_range_map.png)
+![](https://images.squarespace-cdn.com/content/v1/5dc428f0a2f25b37decb3f57/1590517755750-1Z7TMYI7ZRYIJ9GC3P60/redsprucemap.png?format=2500w)
 
 Because of its preference for cool, moist climates, red spruce shows climate sensitivities that may make it especially vulnerable to climate change. This makes assessing the amount and distribution of genetic diversity across the landscape of red spruce an important conservation issue! Ultimately, we want to use genomic insights to help inform conservation biologists working to restore red spruce and evaluate the potential for assisted migration (a form of human-mediated dispersal) to offset the loss of adaptation under climate change. A close partner in this effort is the [Nature Conservancy](https://www.nature.org/en-us/about-us/where-we-work/united-states/west-virginia/stories-in-west-virginia/sprucing-things-up-a-bit/) and the Central Appalachian Spruce Restoration Initiative ([CASRI](http://restoreredspruce.org)) -- a multi-partner group dedicated to restoring and enhancing red spruce populations to promote their resilience under climate change.
 
