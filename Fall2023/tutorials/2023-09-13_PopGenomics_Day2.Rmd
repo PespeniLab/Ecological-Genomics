@@ -110,7 +110,7 @@ wget "ftp://plantgenie.org:980/Data/PlantGenIE/Picea_abies/v1.0/fasta/GenomeAsse
 Rather than trying to map to the entire 19.6 Gbp reference (yikes!), we first subsetted the *P. abies* reference to include **just the contigs that contain one or more probes** from our exome capture experiment. For this, we did a BLAST search of each probe against the *P. abies* reference genome, and then retained all scaffolds that had a best hit.
 
 * This reduced reference contains:
-  + 668,091,227 bp (~668 Mbp) in 33,679 contigs
+  + 1,376,182,454 bp (~1.38 Gbp) in 33,679 contigs
   + The mean (median) contig size is 10.5 (12.9) kbp
   + The N50 of the reduced reference is 101,375 bp
 
@@ -124,7 +124,7 @@ Rather than trying to map to the entire 19.6 Gbp reference (yikes!), we first su
 * First, we want to specify the population of interest and the paths to the input and output directories.  We can do this by defining variables in bash, like so:
 
 + Each student gets assigned a population to work with:
-+ `MYPOP="2XXX"`
++ `MYPOP="XXXX"`
 
 + Directory with the cleaned fastq files
 + `INPUT="/netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads"`
@@ -149,9 +149,9 @@ where
 ```
 -t 1 is the number of threads, or computer cpus to use (in this case, just 1)
 -${REF} specifies the path and filename for the reference genome
-${R1} specifies the path and filename for the cleaned and trimmed R1 reads 
-${R2} specifies the path and filename for the cleaned and trimmed R2 reads 
->${OUT}${NAME}.sam  specifies the path and filenam for the .sam file to be saved into a new directory
+${READ1} specifies the path and filename for the cleaned and trimmed R1 reads 
+${READ2} specifies the path and filename for the cleaned and trimmed R2 reads 
+>${OUT}/${NAME}.sam  specifies the path and filenam for the .sam file to be saved into a new directory
 ```
 
 * Other bwa options detailed here:  [bwa manual page](https://bio-bwa.sourceforge.net/bwa.shtml)

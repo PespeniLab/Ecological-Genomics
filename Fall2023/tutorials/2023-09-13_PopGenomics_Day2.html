@@ -183,7 +183,7 @@ all scaffolds that had a best hit.</p>
 <ul>
 <li>This reduced reference contains:
 <ul>
-<li>668,091,227 bp (~668 Mbp) in 33,679 contigs</li>
+<li>1,376,182,454 bp (~1.38 Gbp) in 33,679 contigs</li>
 <li>The mean (median) contig size is 10.5 (12.9) kbp</li>
 <li>The N50 of the reduced reference is 101,375 bp</li>
 </ul></li>
@@ -200,7 +200,7 @@ together at the end</h3>
 paths to the input and output directories. We can do this by defining
 variables in bash, like so:</p></li>
 <li><p>Each student gets assigned a population to work with:</p></li>
-<li><p><code>MYPOP=&quot;2XXX&quot;</code></p></li>
+<li><p><code>MYPOP=&quot;XXXX&quot;</code></p></li>
 <li><p>Directory with the cleaned fastq files</p></li>
 <li><p><code>INPUT=&quot;/netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads&quot;</code></p></li>
 <li><p>Output dir to store mapping files (bam)</p></li>
@@ -226,9 +226,9 @@ for our population of interest…(hint, look back at the
 <p>where</p>
 <pre><code>-t 1 is the number of threads, or computer cpus to use (in this case, just 1)
 -${REF} specifies the path and filename for the reference genome
-${R1} specifies the path and filename for the cleaned and trimmed R1 reads 
-${R2} specifies the path and filename for the cleaned and trimmed R2 reads 
-&gt;${OUT}${NAME}.sam  specifies the path and filenam for the .sam file to be saved into a new directory</code></pre>
+${READ1} specifies the path and filename for the cleaned and trimmed R1 reads 
+${READ2} specifies the path and filename for the cleaned and trimmed R2 reads 
+&gt;${OUT}/${NAME}.sam  specifies the path and filenam for the .sam file to be saved into a new directory</code></pre>
 <ul>
 <li>Other bwa options detailed here: <a href="https://bio-bwa.sourceforge.net/bwa.shtml">bwa manual
 page</a></li>
