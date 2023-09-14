@@ -59,7 +59,8 @@ Population &amp; Landscape Genomics 2</h1>
 <h1>Learning Objectives for 09/13/23</h1>
 <ol style="list-style-type: decimal">
 <li>Review visualizing QC on our sequence reads</li>
-<li>Trim reads using and assess pre- and post trimming</li>
+<li>Trim reads using <code>fastp</code> and assess pre- and post
+trimming</li>
 <li>Start mapping (a.k.a. aligning) each set of cleaned reads to a
 reference genome</li>
 <li>Visualize sequence alignment files</li>
@@ -71,8 +72,9 @@ reference genome</li>
 might need some trimming, our next step is to clean the reads by
 removing low quality bases and leftover Illumina sequence adapters from
 the sequences.</p>
-<p><a href>We’ll use the <code>fastp</code> program</a> to clean the
-reads for each file. See also the <a href="https://onlinelibrary.wiley.com/doi/10.1002/imt2.107">paper
+<p><a href="https://github.com/OpenGene/fastp">We’ll use the
+<code>fastp</code> program</a> to clean the reads for each file. See
+also the <a href="https://onlinelibrary.wiley.com/doi/10.1002/imt2.107">paper
 published by Chen in May 2023</a>. Another very similar program for
 trimming is <a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">Trimmomatic</a>.
 It works great, but <code>fastp</code> does everything Trimmomatic does
@@ -221,8 +223,7 @@ in our populations.</p></li>
 about how we should write this into a loop to call all the fastq files
 for our population of interest…(hint, look back at the
 <code>fastp.sh</code> script)</p>
-<pre><code>/data/popgen/bwa-mem2/bwa-mem2 mem -t 1 ${REF} ${R1} ${R2} &gt; ${OUT}${NAME}.sam
-</code></pre>
+<pre><code>/data/popgen/bwa-mem2/bwa-mem2 mem -t 1 ${REF} ${READ1} ${READ2} &gt; ${OUT}${NAME}.sam</code></pre>
 <p>where</p>
 <pre><code>-t 1 is the number of threads, or computer cpus to use (in this case, just 1)
 -${REF} specifies the path and filename for the reference genome
@@ -236,26 +237,36 @@ page</a></li>
 <p>Because you’re each mapping sequences from multiple samples
 (N=8/pop), it’s going to take a little while.</p>
 <p>Whenever you have a job that will take a long time, you’re going to
-want to start a <code>screen</code>. The <code>screen</code> command
-initiates a new shell window that won’t interupt or stop your work if
-you close your computer, log off the server, or leave the UVM network.
-Anytime you’re running long jobs, you definiteily want to use
-<code>screen</code>.</p>
-<p>Using it is easy. Just type <code>screen</code> followed by
-<code>&lt;Enter&gt;</code>. It will take you to a new empty terminal.
-You can then start your wrapper bash script and see that it starts
-running. Once everything looks good, you have to detach from the screen
-by typing <code>&lt;Ctrl-A&gt;</code> + <code>&lt;Ctrl-D&gt;</code>. If
-you don’t do this, you’ll lose your work!</p>
-<p>When you’re ready to check back on the progress of your program, you
-can recover your screen by typing <code>screen -r</code>. That’ll
-re-attach you back to your program!</p>
-<p>When you’re script is ready, do:</p>
-<pre><code>screen
+want to start a “screen session” using the <code>tmux</code> command.
+<code>tmux</code> initiates a new shell window that won’t interrupt or
+stop your work if you close your computer, log off the server, or leave
+the UVM network. Anytime you’re running long jobs, you definitely want
+to use <code>tmux</code>.</p>
+<p>Using it is easy. Here’s what you need to do:</p>
+<ul>
+<li><p>Type <code>tmux</code> and hit
+<code>&lt;return&gt;</code></p></li>
+<li><p>You are now in a “screen” — meaning you can start a job and once
+you exit the screen it will keep running.</p></li>
+<li><p>Start your program or run your bash script like so:
+<code>bash mapping.sh</code></p></li>
+<li><p>You’ll see the program start running. - Assuming everything is
+working and you’re not seeing errors, you want to now detach from the
+screen. To do so, hold the <code>&lt;control&gt;</code> key down while
+you hit the <code>b</code> key. Then release the
+<code>&lt;control&gt;</code> key and hit just the <code>d</code>
+key.</p></li>
+<li><p>If you do it right, then you should exit your screen session and
+go back to a “regular” terminal. If you don’t do this, you’ll lose your
+work!</p></li>
+<li><p>You can recover your screen by typing <code>tmux attach</code>.
+That’ll re-attach you back to your program!</p></li>
+</ul>
+<p>When your script is ready, do:</p>
+<pre><code>tmux
 
 bash mapping.sh</code></pre>
-<p>Don’t forget to <code>&lt;Ctrl-A&gt;</code> +
-<code>&lt;Ctrl-D&gt;</code> to detach from your screen!</p>
+<p>Don’t forget to detach from your screen!</p>
 <div id="while-thats-running-lets-take-a-look-at-a-sequence-alignment-sam-file-already-available-in-netfilesecogenpopulationgenomicsfastqred_sprucecleanreadsbam" class="section level4">
 <h4>While that’s running, let’s take a look at a Sequence AlignMent
 (SAM) file already available in
