@@ -17,7 +17,7 @@ fontsize: 18pt
 
 ## 1. Red spruce, *Picea rubens*
 
-![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/mmf.jpg?token=GHSAT0AAAAAACGK5AYS3C5QAXWLNCUH5FAQZIBE63Q)
+![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/mmf.jpg?token=GHSAT0AAAAAACGK5AYTVSN4Z3WMTZY7RKXUZIHXNKA)
 
 Red spruce is a coniferous tree that plays a prominent role in montane communities throughout the Appalachians. It thrives in the cool, moist climates of the high elevation mountains of the Appalachians and northward along the coastal areas of Atlantic Canada. In the low-latitude trailing edge of the range, populations are highly fragmented and isolated on mountaintops. These "island" populations are remnants of spruce forests that covered the southern U.S. glaciers extended as far south as Long Island, NY. As the climate warmed at the end of the Pleistocene (\~20K years ago), red spruce retreated upward in elevation to these mountaintop refugia, where they are now highly isolated from other such stands and from the core of the range further north.
 
@@ -186,7 +186,6 @@ Once you've got results, let's use Filezilla to transfer the folder `~/myresults
 
 Since we made some changes (added files) to our github repo, we should practice committing these and then pushing to GitHub!
 
-
 ## Take notes on your workflow today so you can remember what you did for the future!
 
 An important final step is taking good notes on your workflow so you can remebber what you did down the road (your "future self") and share your process with others (reproducible science!). It's also really important once you start making detailed decisions that will affect the analysis outcome of your data, so you can recreate the results and explore the effect of different assumptions/decisions.
@@ -195,7 +194,7 @@ We want you to keep such a notebook for each module in the course (kind of like 
 
 [Notebook template in markdown (md) format](https://github.com/PespeniLab/Ecological-Genomics/blob/0708da3bdd3a0bf27d80bdedade51d4aba12c933/Fall2023/GithubNotebookTemplate.md)
 
-You should save a copy of this template to your github repo. You can then open it up and edit this file directly within RStudio, taking notes using either the `Soource` interface if you know the markdown language (or want to learn) or you can use RStudio's built-in markdown GUI editor under the `Visual` tab. This works very similar to Word.
+You should save a copy of this template to your github repo. You can then open it up and edit this file directly within RStudio, taking notes using either the `Source` interface if you know the markdown language (or want to learn) or you can use RStudio's built-in markdown GUI editor under the `Visual` tab. This works very similar to Word.
 
 Here's a cheatsheet for markdown language if you want to write using `Source` code:
 
