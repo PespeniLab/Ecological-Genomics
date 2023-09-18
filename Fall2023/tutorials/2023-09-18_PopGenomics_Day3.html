@@ -94,9 +94,10 @@ cheatsheet</a></p>
 your changes and push to Github. You can check out your notebook on your
 repo’s site, and Github will automatically render the markdown code into
 a nice format!</p>
-<div id="visualize-the-mapping-by-now-you-should-all-have-sequence-alignment-sam-files-for-the-inds-in-your-populations" class="section level4">
-<h4>2. Visualize the mapping: By now, you should all have Sequence
-AlignMent (SAM) files for the inds in your populations!</h4>
+</div>
+<div id="visualize-the-mapping-by-now-you-should-all-have-sequence-alignment-sam-files-for-the-inds-in-your-populations" class="section level2">
+<h2>2. Visualize the mapping: By now, you should all have Sequence
+AlignMent (SAM) files for the inds in your populations!</h2>
 <ul>
 <li>Let’s take a peek at one of the non-binary (sam) alignment
 files</li>
@@ -143,8 +144,8 @@ a SAM FLAG decoder</a> by the Broad Institute.</p></li>
 up TAGs specific to <code>bwa mem</code> mapping here</a></p></li>
 </ul>
 </div>
-<div id="process-our-mapping-files-using-samtools-and-sambamba" class="section level4">
-<h4>3. Process our mapping files using samtools and sambamba</h4>
+<div id="process-our-mapping-files-using-samtools-and-sambamba" class="section level2">
+<h2>3. Process our mapping files using samtools and sambamba</h2>
 <ul>
 <li><p>We can use the program <a href="https://lomereiter.github.io/sambamba/">sambamba</a> for
 manipulating alignment (sam/bam) files. <a href="https://lomereiter.github.io/sambamba/">sambamba</a>. Sambamba is
@@ -174,9 +175,9 @@ command.</p></li>
 always reattach by <code>tmux attach-session</code></p></li>
 </ul>
 </div>
-<div id="how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level4">
-<h4>How can we get a summary of how well our reads mapped to the
-reference?</h4>
+<div id="calculate-mapping-stats-how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level2">
+<h2>4. Calculate mapping stats: How can we get a summary of how well our
+reads mapped to the reference?</h2>
 <ul>
 <li><p>We can use the program <a href="https://github.com/samtools/samtools">samtools</a> Written by Heng
 Li, the same person who wrote bwa. It is a powerful tool for
@@ -192,7 +193,6 @@ output.</p></li>
 <li><p>Here’s a script to get us started:
 <code>/netfiles/ecogen/PopulationGenomics/scripts/bam_stats.sh</code></p></li>
 </ul>
-</div>
 <div id="if-theres-time-while-thats-running-we-can-take-a-look-at-one-of-our-alignment-files-sam-or-bam-using-an-integrated-viewed-in-samtools-called-tview.-to-use-it-simply-call-the-program-and-command-followed-by-the-sambam-file-you-want-to-view-and-the-path-to-the-reference-genome.-for-example" class="section level4">
 <h4>If there’s time while that’s running, we can take a look at one of
 our alignment files (sam or bam) using an integrated viewed in samtools

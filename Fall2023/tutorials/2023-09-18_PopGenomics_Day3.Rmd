@@ -30,7 +30,7 @@ Here's a cheatsheet for markdown language if you want to write using `Source` co
 
 When you're done your entries, save and quit RStudio, then commit your changes and push to Github.  You can check out your notebook on your repo's site, and Github will automatically render the markdown code into a nice format!
 
-#### 2. Visualize the mapping: By now, you should all have Sequence AlignMent (SAM) files for the inds in your populations!
+## 2. Visualize the mapping: By now, you should all have Sequence AlignMent (SAM) files for the inds in your populations!
 
 -   Let's take a peek at one of the non-binary (sam) alignment files
 
@@ -63,7 +63,7 @@ Find the official Sequence AlignMent file documentation can be found [here](http
 -   [You can look up TAGs specific to `bwa mem` mapping here](https://bio-bwa.sourceforge.net/bwa.shtml)
 
 
-#### 3. Process our mapping files using samtools and sambamba
+## 3. Process our mapping files using samtools and sambamba
 
 -   We can use the program [sambamba](https://lomereiter.github.io/sambamba/) for manipulating alignment (sam/bam) files. [sambamba](https://lomereiter.github.io/sambamba/). Sambamba is closely related to its progenitor program `samtools` which is written by the same scientist who develop `bwa`, Heng Li. `sambamba` has been re-coded to increase efficiency (speed).
 
@@ -83,7 +83,7 @@ Find the official Sequence AlignMent file documentation can be found [here](http
 - Detach from the screen using `<CTRL>`+`b` then `d`. You can always reattach by `tmux attach-session`
 
 
-#### How can we get a summary of how well our reads mapped to the reference? 
+## 4. Calculate mapping stats: How can we get a summary of how well our reads mapped to the reference? 
 
 - We can use the program [samtools](https://github.com/samtools/samtools) Written by Heng Li, the same person who wrote bwa. It is a powerful tool for manipulating sam/bam files.  
 
