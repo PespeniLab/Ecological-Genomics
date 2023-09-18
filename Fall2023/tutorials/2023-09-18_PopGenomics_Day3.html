@@ -79,20 +79,21 @@ will work on). We’ve provided you with a notebook template based on the
 markdown (md) language.</p>
 <p><a href="https://github.com/PespeniLab/Ecological-Genomics/blob/0708da3bdd3a0bf27d80bdedade51d4aba12c933/Fall2023/GithubNotebookTemplate.md">Notebook
 template in markdown (md) format</a></p>
-<p>You should save a copy of this template to your github repo. You can
-then open it up and edit this file directly within RStudio, taking notes
-using either the <code>Source</code> interface if you know the markdown
-language (or want to learn) or you can use RStudio’s built-in markdown
-GUI editor under the <code>Visual</code> tab. This works very similar to
-Word.</p>
+<p>You should save a copy of this template to your github repo and
+rename it <code>PopulationGenomics_Notebook.md</code> in your main repo
+folder. You can then open it up and edit this file directly within
+RStudio, taking notes using either the <code>Source</code> interface if
+you know the markdown language (or want to learn) or you can use
+RStudio’s built-in markdown GUI editor under the <code>Visual</code>
+tab. This works very similar to Word.</p>
 <p>Here’s a cheatsheet for markdown language if you want to write using
 <code>Source</code> code:</p>
 <p><a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax">Markdown
 cheatsheet</a></p>
-<p>Save your notebook as <code>PopulationGenomics.md</code> in your main
-repo folder. Then commit your changes and push to Github. You can check
-out your notebook on your repo’s site, and Github will automatically
-render the markdown code into a nice format!</p>
+<p>When you’re done your entries, save and quit RStudio, then commit
+your changes and push to Github. You can check out your notebook on your
+repo’s site, and Github will automatically render the markdown code into
+a nice format!</p>
 <div id="visualize-the-mapping-by-now-you-should-all-have-sequence-alignment-sam-files-for-the-inds-in-your-populations" class="section level4">
 <h4>2. Visualize the mapping: By now, you should all have Sequence
 AlignMent (SAM) files for the inds in your populations!</h4>
@@ -103,10 +104,10 @@ files</li>
 <p><code>/netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads/bam/</code></p>
 <ul>
 <li>First, try looking at a SAM file using <code>head</code> and
-<code>tail</code>. Pick one of your pop files (jsut one) to work with
+<code>tail</code>. Pick one of your files (just one) to play with
 below:</li>
 </ul>
-<pre><code>tail -n 100 FILENAME.sam</code></pre>
+<pre><code>tail -n 2 YOURFILENAME.sam</code></pre>
 <p>A SAM file is a tab delimited text file that stores information about
 the alignment of reads in a FASTQ file to a reference genome or
 transcriptome. For each read in a FASTQ file, there’s a line in the SAM
@@ -136,11 +137,10 @@ therefore has a smaller file size.</p>
 <a href="https://en.wikipedia.org/wiki/SAM_(file_format)">here</a> or <a href="https://samtools.github.io/hts-specs/SAMtags.pdf">more
 officially</a>.</p>
 <ul>
-<li><p><a href="http://seqanswers.com/forums/showthread.php?t=17314">Some useful
-FLAGs to know</a> - for example what do the numbers in the second column
-of data mean?</p></li>
 <li><p><a href="https://broadinstitute.github.io/picard/explain-flags.html">Here’s
 a SAM FLAG decoder</a> by the Broad Institute.</p></li>
+<li><p><a href="https://bio-bwa.sourceforge.net/bwa.shtml">You can look
+up TAGs specific to <code>bwa mem</code> mapping here</a></p></li>
 </ul>
 </div>
 <div id="process-our-mapping-files-using-samtools-and-sambamba" class="section level4">
@@ -169,9 +169,9 @@ an error that the script doesn’t exist, then either cd into the
 <code>~/myscripts</code> directory before running your script, or
 incorporate the path into the file name when you give your bash
 command.</p></li>
-<li><p>Detach from the screen using <code>&lt;CTRL&gt;-b</code> then
-<code>d</code>. You can always reattach by
-<code>tmux attach-session</code></p></li>
+<li><p>Detach from the screen using
+<code>&lt;CTRL&gt;</code>+<code>b</code> then <code>d</code>. You can
+always reattach by <code>tmux attach-session</code></p></li>
 </ul>
 </div>
 <div id="how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level4">

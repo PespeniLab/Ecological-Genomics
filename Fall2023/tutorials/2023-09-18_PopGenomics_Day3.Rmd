@@ -22,13 +22,13 @@ We want you to keep such a notebook for each module in the course (kind of like 
 
 [Notebook template in markdown (md) format](https://github.com/PespeniLab/Ecological-Genomics/blob/0708da3bdd3a0bf27d80bdedade51d4aba12c933/Fall2023/GithubNotebookTemplate.md)
 
-You should save a copy of this template to your github repo. You can then open it up and edit this file directly within RStudio, taking notes using either the `Source` interface if you know the markdown language (or want to learn) or you can use RStudio's built-in markdown GUI editor under the `Visual` tab. This works very similar to Word.
+You should save a copy of this template to your github repo and rename it `PopulationGenomics_Notebook.md` in your main repo folder. You can then open it up and edit this file directly within RStudio, taking notes using either the `Source` interface if you know the markdown language (or want to learn) or you can use RStudio's built-in markdown GUI editor under the `Visual` tab. This works very similar to Word.
 
 Here's a cheatsheet for markdown language if you want to write using `Source` code:
 
 [Markdown cheatsheet](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
-Save your notebook as `PopulationGenomics.md` in your main repo folder. Then commit your changes and push to Github.  You can check out your notebook on your repo's site, and Github will automatically render the markdown code into a nice format!
+When you're done your entries, save and quit RStudio, then commit your changes and push to Github.  You can check out your notebook on your repo's site, and Github will automatically render the markdown code into a nice format!
 
 #### 2. Visualize the mapping: By now, you should all have Sequence AlignMent (SAM) files for the inds in your populations!
 
@@ -36,10 +36,10 @@ Save your notebook as `PopulationGenomics.md` in your main repo folder. Then com
 
 `/netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads/bam/`
 
--   First, try looking at a SAM file using `head` and `tail`. Pick one of your pop files (jsut one) to work with below:
+-   First, try looking at a SAM file using `head` and `tail`. Pick one of your files (just one) to play with below:
 
 ```         
-tail -n 100 FILENAME.sam
+tail -n 2 YOURFILENAME.sam
 ```
 
 A SAM file is a tab delimited text file that stores information about the alignment of reads in a FASTQ file to a reference genome or transcriptome. For each read in a FASTQ file, there's a line in the SAM file that includes
@@ -58,21 +58,21 @@ The left (R1) and right (R2) reads alternate through the file. SAM files usually
 
 Find the official Sequence AlignMent file documentation can be found [here](https://en.wikipedia.org/wiki/SAM_(file_format)) or [more officially](https://samtools.github.io/hts-specs/SAMtags.pdf).
 
--   [Some useful FLAGs to know](http://seqanswers.com/forums/showthread.php?t=17314) - for example what do the numbers in the second column of data mean?
-
 -   [Here's a SAM FLAG decoder](https://broadinstitute.github.io/picard/explain-flags.html) by the Broad Institute.
+
+-   [You can look up TAGs specific to `bwa mem` mapping here](https://bio-bwa.sourceforge.net/bwa.shtml)
 
 
 #### 3. Process our mapping files using samtools and sambamba
 
 -   We can use the program [sambamba](https://lomereiter.github.io/sambamba/) for manipulating alignment (sam/bam) files. [sambamba](https://lomereiter.github.io/sambamba/). Sambamba is closely related to its progenitor program `samtools` which is written by the same scientist who develop `bwa`, Heng Li. `sambamba` has been re-coded to increase efficiency (speed).
 
--   There are several steps we need to do: 
+- There are several steps we need to do: 
 
-    -  convert sam alignment file to (binary) bam format
-    -  sort the bam file by its read coordinates
-    -  mark and remove PCR duplicate reads
-    -  index the sorted, duplicate removed alignment for quick lookup
+  -  convert sam alignment file to (binary) bam format
+  -  sort the bam file by its read coordinates
+  -  mark and remove PCR duplicate reads
+  -  index the sorted, duplicate removed alignment for quick lookup
 
 - Here's a script that we can customize for the above jobs: `/netfiles/ecogen/PopulationGenomics/scripts/process_bams.sh` 
 
@@ -80,7 +80,7 @@ Find the official Sequence AlignMent file documentation can be found [here](http
 
 - When you're ready, enter a screen session using `tmux` then execute your script `bash process_bams.sh`. If you get an error that the script doesn't exist, then either cd into the `~/myscripts` directory before running your script, or incorporate the path into the file name when you give your bash command.
 
-- Detach from the screen using `<CTRL>-b` then `d`. You can always reattach by `tmux attach-session`
+- Detach from the screen using `<CTRL>`+`b` then `d`. You can always reattach by `tmux attach-session`
 
 
 #### How can we get a summary of how well our reads mapped to the reference? 
