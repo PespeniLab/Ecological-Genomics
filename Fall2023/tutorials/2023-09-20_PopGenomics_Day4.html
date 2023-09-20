@@ -11,8 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+<meta name="date" content="2023-09-20" />
 
-<title>Tutorials and Scripts</title>
+<title>Ecological Genomics Tutorials: Population &amp; Landscape Genomics 4</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,35 +47,352 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Population &amp; Landscape Genomics 4</h1>
+<h4 class="date project-date">September 20, 2023</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="learning-objectives-for-092023" class="section level1">
+<h1>Learning Objectives for 09/20/23</h1>
 <ol style="list-style-type: decimal">
-<li>2023-08-30: <a href="Fall2023/tutorials/BashTutorial.html">Bash
-Tutorial</a></li>
-<li>2023-09-06: <a href="Fall2023/tutorials/GithubTutorial_Csenge.html">Git
-Tutorial</a></li>
+<li>Finish calculating mapping statistics to assess quality of the
+result</li>
+<li>Introduce use of genotype-likelihoods for analyzing diversity in low
+coverage sequences</li>
+<li>Use the ‘ANGSD’ program to calculate nucleotide diversity (thetas)
+and neutrality stats</li>
 </ol>
-<p><strong>Population &amp; Landscape Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2023-09-11: <a href="Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html">PopGen Day
-1</a></li>
-<li>2023-09-13: <a href="Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html">PopGen Day
-2</a></li>
-<li>2023-09-18: <a href="Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html">PopGen Day
-3</a></li>
-<li>2023-09-20: <a href="Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html">PopGen Day
-4</a></li>
+<div id="calculate-mapping-stats-how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level2">
+<h2>1. Calculate mapping stats: How can we get a summary of how well our
+reads mapped to the reference?</h2>
+<ul>
+<li><p>We can use the program <a href="https://www.htslib.org/doc/samtools.html">samtools</a> Written by
+Heng Li, the same person who wrote bwa. It is a powerful tool for
+manipulating sam/bam files.</p></li>
+<li><p>The samtools command <code>flagstat</code> gets us some basic
+info on how well the mapping worked</p></li>
+<li><p>We can also estimate depth of coverage (avg. number of
+reads/site) using the samtools command <code>depth</code></p></li>
+<li><p>We’ll use both of these commands in loops to assess the mapping
+stats on each sample in our population.</p></li>
+<li><p>We’ll also use the <code>awk</code> tool to help format the
+output. <a href="https://quickref.me/awk.html">(awk cheatsheet
+here)</a></p></li>
+<li><p>Here’s a script to get us started:
+<code>/netfiles/ecogen/PopulationGenomics/scripts/bam_stats.sh</code></p></li>
+</ul>
+</div>
+<div id="inference-of-population-genomics-from-the-aligned-sequence-data-should-we-call-genotypes" class="section level2">
+<h2>2. Inference of population genomics from the aligned sequence data:
+should we call genotypes?</h2>
+<p>Many of the papers you’ll read that do popgen on NGS data have a SNP
+calling step that results in a specific gneotype being called for each
+SNP site for each individual. For example,</p>
+<table>
+<thead>
+<tr class="header">
+<th>SNP</th>
+<th>Ind1</th>
+<th>Ind 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>CC</td>
+<td>CT</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>AG</td>
+<td>AA</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>GT</td>
+<td>TT</td>
+</tr>
+</tbody>
+</table>
+<p>But how do we know that Ind1 is homozygous at SNP-1 (CC) – couldn’t
+it be CT and we just didn’t have enough coverage to observe the second
+allele?</p>
+<p>The basic problem is that read data are counts that produce a
+binomial distribution of allele calls at a given site, and if you have
+few reads, you might by chance not observe the true genotype. So, what’s
+the right thing to do?</p>
+<p>As with almost anything in statistics, the right thing to do is not
+throw away that uncertainty, but instead incorporate it into your
+analysis. That’s what we’re going to do…</p>
+<div id="genotype-free-population-genetics-using-genotype-likelihoods" class="section level3">
+<h3>Genotype-free population genetics using genotype likelihoods</h3>
+<p>A growing movement in popgen analysis of NGS data is embracing the
+use of genotype likelihoods to calculate stats based on each individual
+having a likelihood (probability) of being each genotype.</p>
+<p><strong>A genotype likelihood (GL) is essentially the probability of
+observing the sequencing data (reads containing a particular base),
+given the genotype of the individual at that site.</strong></p>
+<p>These probabilities are modeled explicitly in the calculation of
+population diversty stats like Theta-pi, Tajima’s D, Fst, PCA, etc…;
+thus not throwing out any precious data, but also making fewer
+assumptions about the true (unknown) genotype at each locus</p>
+<ul>
+<li><p>We’re going to use this approach with the program ‘ANGSD’, which
+stands for ‘Analysis of Next Generation Sequence Data’</p></li>
+<li><p>This approach was pioneered by Rasmus Nielsen, published
+originally in <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-014-0356-4">Korneliussen
+et al. 2014</a>.</p></li>
+<li><p><a href="http://www.popgen.dk/angsd/index.php/ANGSD">ANGSD has a
+user’s manual (it’s a work in progress…)</a></p></li>
+</ul>
+<hr />
+<div id="the-basic-work-flow-of-angsd-goes-like-this" class="section level4">
+<h4>The basic work flow of ANGSD goes like this:</h4>
+<ol style="list-style-type: decimal">
+<li>Create a list of bam files for the samples you want to analyze</li>
+<li>Estimate genotype likelihoods (GL’s) and allele frequencies after
+filtering to minimize noise</li>
+<li>Use GL’s to:
+<ol style="list-style-type: lower-alpha">
+<li><p>estimate the site frequency spectrum (SFS)</p></li>
+<li><p>estimate nucleotide diversities and neutrality stats (Thetas,
+Tajima’s D, …)</p></li>
+</ol></li>
 </ol>
-<p><strong>Transcriptomics Module</strong></p>
-<p><strong>Metagenomics/Microbiome Module</strong></p>
+</div>
+<div id="in-your-myscripts-folder-enter-vim-and-create-a-file-called-angsd.sh" class="section level4">
+<h4>1. In your <code>~/myscripts</code> folder, enter vim and create a
+file called <code>ANGSD.sh</code></h4>
+<p>Create the header for your inputs and outputs</p>
+<pre><code>mkdir ~/myresults/ANGSD
+
+INPUT=&quot;&quot;
+
+OUTPUT=~/myresults/ANGSD
+
+REF=&quot;/netfiles/ecogen/PopulationGenomics/ref_genome/Pabies1.0-genome_reduced.fa&quot;
+
+MYPOP=&quot;&quot;
+
+ls ${INPUT}/${MYPOP}*sorted.rmdup.bam &gt;${OUTPUT}/${MYPOP}_bam.list
+</code></pre>
+<p>Write (w) and quit(q) your file and try running it at the command
+line.</p>
+<p><em>Check your output bamlist to see it was made properly!</em></p>
+<ul>
+<li>Where would you look for this file? (Hint, refer back to the
+<code>ls</code> command that makes it).</li>
+<li>How would you verify its contents? (hint: use <code>head</code> or
+<code>cat</code> or even <code>vim</code>)</li>
+</ul>
+</div>
+<div id="open-your-angsd.sh-script-back-up-in-vim" class="section level4">
+<h4>2. Open your <code>ANGSD.sh</code> script back up in
+<code>vim</code></h4>
+<p>Estimate your GL’s and allele freqs, optionally filtering for base
+and mapping quality, sequencing depth, SNP probability, minor allele
+frequency, etc.</p>
+<p>Add the following code chunk at the bottom of your script:</p>
+<pre><code># File suffix to distinguish analysis choices
+SUFFIX=&quot;&quot;
+
+# Estimating GL&#39;s and allele frequencies for all sites with ANGSD
+
+######################
+
+ANGSD -b ${OUTPUT}/${MYPOP}_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${OUTPUT}/${MYPOP}_${SUFFIX} \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-GL 1 \
+-doSaf 1 \
+##### below filters require `do-Counts`
+#-doCounts 1 \
+#-minInd 4 \
+#-setMinDepthInd 1 \
+#-setMaxDepthInd 40 \
+#-setMinDepth 10 \
+#-skipTriallelic 1 \
+#-doMajorMinor 1 \
+##### below filters require `doMaf`
+#-doMaf 1 \
+#-SNP_pval 1e-6 \
+#-minMaf 0.01</code></pre>
+<p>What do all these options mean?</p>
+<table>
+<colgroup>
+<col width="22%" />
+<col width="77%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>-nThreads 1</td>
+<td>how many cpus to use – be conservative</td>
+</tr>
+<tr class="even">
+<td>-remove_bads 1</td>
+<td>remove reads flagged as ‘bad’ by samtools</td>
+</tr>
+<tr class="odd">
+<td>-C 50</td>
+<td>enforce downgrading of map quality if contains excessive
+mismatches</td>
+</tr>
+<tr class="even">
+<td>-baq 1</td>
+<td>estimates base alignment qualities for bases around indels</td>
+</tr>
+<tr class="odd">
+<td>-minMapQ 20</td>
+<td>threshold for minimum read mapping quality (Phred)</td>
+</tr>
+<tr class="even">
+<td>-minQ 20</td>
+<td>threshold for minimum base quality (Phred)</td>
+</tr>
+<tr class="odd">
+<td>-GL 1</td>
+<td>calculate genotype likelihoods (GL) using the Samtools formula</td>
+</tr>
+<tr class="even">
+<td>-doSaf 1</td>
+<td>output allele frequency likelihoods for each site</td>
+</tr>
+<tr class="odd">
+<td>-doCounts 1</td>
+<td>output allele counts for each site</td>
+</tr>
+<tr class="even">
+<td>-minInd 4</td>
+<td>min number of individuals to keep a site (see also ext 2
+filters)</td>
+</tr>
+<tr class="odd">
+<td>-setMinDepthInd 1</td>
+<td>min read depth for an individual to count towards a site</td>
+</tr>
+<tr class="even">
+<td>-setMaxDepthInd 40</td>
+<td>max read depth for an individual to count towards a site</td>
+</tr>
+<tr class="odd">
+<td>-setMinDepth 10</td>
+<td>min read depth across ALL individual to keep a site</td>
+</tr>
+<tr class="even">
+<td>-skipTriallelic 1</td>
+<td>don’t use sites with &gt;2 alleles</td>
+</tr>
+<tr class="odd">
+<td>-doMajorMinor 1</td>
+<td>fix major and minor alleles the same across all samples</td>
+</tr>
+<tr class="even">
+<td>-doMaf 1</td>
+<td>calculate minor allele frequencies</td>
+</tr>
+<tr class="odd">
+<td>-SNP_pval 1e-6</td>
+<td>Keep only site highly likely to be polymorphic (SNPs)</td>
+</tr>
+<tr class="even">
+<td>-minMaf 0.01</td>
+<td>Keep only sites with minor allele freq &gt; some proportion.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTES</strong></p>
+<ul>
+<li>If you want to restrict the estimation of the genotype likelihoods
+to a particular set of sites you’re interested in, add the option
+<code>-sites selected_sites.txt</code> (tab delimited file with the
+position of the site in column 1 and the chromosome in column 2) or use
+<code>-rf selected_chromosome.chrs</code> (if listing just the unique
+“chromosomes” or contigs you want to anlayze)</li>
+<li>Some popgen stats you want to estimate only the polymorphic sites;
+for this you should include the <code>-SNP_pval 1e-6</code> option to
+eliminate monomorphic sites when calculating your GL’s</li>
+<li>There are good reasons to do it BOTH ways, with and without the
+<code>-SNP_pval 1e-6</code> option. Keeping the monomorphic sites is
+essential for getting proper estimates of nucleotide diversity and
+Tajima’s D. But other analyses such as PCA or GWAS want only the
+SNPs.</li>
+</ul>
+<p><strong>Write (q) and quit (q) your script. Then run at the command
+line</strong></p>
+</div>
+<div id="a.-in-your-myscripts-folder-create-angsd_dotheta.sh-to-estimate-the-sfs-and-nucleotide-diversity-stats-for-your-pop" class="section level4">
+<h4>3a. In your <code>~/myscripts</code> folder, create
+<code>ANGSD_doTheta.sh</code> to estimate the SFS and nucleotide
+diversity stats for your pop</h4>
+<p>Based on the saf.idx files from ANGSD GL calls, you can estimate the
+Site Frequency Spectrum (SFS), which is the precursor to many other
+analyses such as nucleotide diversities (as well as Fst, demographic
+history analysis, etc.)</p>
+<pre><code>REF=&quot;/netfiles/ecogen/PopulationGenomics/ref_genome/Pabies1.0-genome_reduced.fa&quot;
+
+OUT=~/myresults/ANGSD
+
+MYPOP=&quot;&quot;
+
+SUFFIX=&quot;&quot;
+
+#Estimation of the SFS for all sites using the FOLDED SFS
+realSFS ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+        -maxIter 1000 \
+        -tole 1e-6 \
+        -P 1 \
+        &gt; ${OUT}/${MYPOP}_${SUFFIX}.sfs
+</code></pre>
+</div>
+<div id="b.-after-the-sfs-estimate-the-theta-diversity-stats" class="section level4">
+<h4>3b. After the SFS, estimate the theta diversity stats:</h4>
+<p>Once you have the SFS, you can estimate the thetas and neutrality
+stats by adding the following code chunk at the end of your
+<code>ANGSD_doTheta.sh</code> script:</p>
+<pre><code># Estimate thetas and stats using the SFS
+
+realSFS saf2theta ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+        -sfs ${OUT}/${MYPOP}_${SUFFIX}.sfs \
+        -outname ${OUT}/${MYPOP}_${SUFFIX}
+
+thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx
+</code></pre>
+<p>If we wanted to analyze this on sliding windows, we could instead
+replace the above code chunk with the following:</p>
+<pre><code># For sliding window analysis:
+
+thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx \
+-win 50000 \
+-step 10000 \
+-outnames ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz</code></pre>
+<p>For either of the results files above, the first column of the
+results file (*.thetas.idx.pestPG) is formatted a bit funny and we don’t
+really need it. We can use the <code>cut</code> command to get rid of
+it:</p>
+<pre><code>cut -f2- ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx.pestPG &gt; ${OUT}/${MYPOP}_${SUFFIX}.thetas</code></pre>
+<p>This is now ready to bring into R to look at the mean and variability
+in nucleotide diversity for our pop. How does it compare to others?</p>
+<p>We can compare the diversity in our different pops by entering your
+diversity stats in this google doc:</p>
+<p><a href="https://docs.google.com/spreadsheets/d/1y3GMvnGP65fYfBoJsdrixGLkGCe_TcDlo_7GFyPe1QM/edit?usp=sharing" class="uri">https://docs.google.com/spreadsheets/d/1y3GMvnGP65fYfBoJsdrixGLkGCe_TcDlo_7GFyPe1QM/edit?usp=sharing</a></p>
+</div>
+</div>
+</div>
 </div>
 </section>
 
