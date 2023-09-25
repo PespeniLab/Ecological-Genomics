@@ -21,6 +21,7 @@ fontsize: 18pt
 4. 2023-09-13: [PopGen Day 2](Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html)
 5. 2023-09-18: [PopGen Day 3](Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html)
 6. 2023-09-20: [PopGen Day 4](Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html)
+7. 2023-09-25: [PopGen Day 5](Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html)
 
 **Transcriptomics Module**
 

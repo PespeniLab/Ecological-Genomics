@@ -12,7 +12,7 @@
 
 
 
-<title>Tutorials and Scripts</title>
+<title>Ecological Genomics Tutorials: Population &amp; Landscape Genomics 5</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,37 +46,266 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Population &amp; Landscape Genomics 5</h1>
+<h4 class="date project-date">Setpember 25, 2023</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="learning-objectives-for-092523" class="section level1">
+<h1>Learning Objectives for 09/25/23</h1>
 <ol style="list-style-type: decimal">
-<li>2023-08-30: <a href="Fall2023/tutorials/BashTutorial.html">Bash
-Tutorial</a></li>
-<li>2023-09-06: <a href="Fall2023/tutorials/GithubTutorial_Csenge.html">Git
-Tutorial</a></li>
+<li>Calculate diversity stats for our focal pops (SFS, theta-W,
+theta-Pi, Tajima’s D)</li>
+<li>Summarize the results in R and share to google doc</li>
+<li>Introduce Fst in ANGSD using genotype probabilities</li>
 </ol>
-<p><strong>Population &amp; Landscape Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2023-09-11: <a href="Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html">PopGen Day
-1</a></li>
-<li>2023-09-13: <a href="Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html">PopGen Day
-2</a></li>
-<li>2023-09-18: <a href="Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html">PopGen Day
-3</a></li>
-<li>2023-09-20: <a href="Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html">PopGen Day
-4</a></li>
-<li>2023-09-25: <a href="Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html">PopGen Day
-5</a></li>
+<div id="calculate-sfs-and-diversity-stats" class="section level3">
+<h3>1. Calculate SFS and diversity stats</h3>
+<p>At the end of our last session, we used ANGSD to estimate genotype
+likelihoods for our red spruce populations. We wrote the script
+<code>ANGSD.sh</code> to work on these, which should have the following
+output files in your <code>~/myresults/ANGSD</code> directory:</p>
+<pre><code>-rw-r--r--. 1 kellrlab users 1417463962 Sep 20 11:44 9999_.saf.gz
+-rw-r--r--. 1 kellrlab users    1086161 Sep 20 11:44 9999_.saf.idx
+-rw-r--r--. 1 kellrlab users   79501025 Sep 20 11:44 9999_.saf.pos.gz</code></pre>
+<p>These “saf” files contain “site allele frequency” likelihoods, and
+are the info needed to estimate stats that depend on population allele
+frequencies, like nucleotide diversities, neutrality stats like Tajima’s
+D, and population divergence stats like Fst. Each of these stats depends
+on the <em>SFS – the Site Frequency Spectrum</em> So, our workflow will
+be to use the .saf files to estimate the SFS, and then use the SFS to
+estimate our diversity stats and Fst.</p>
+<div id="in-your-myscripts-folder-create-angsd_dotheta.sh-to-estimate-the-sfs-and-nucleotide-diversity-stats-for-your-pop" class="section level4">
+<h4>In your <code>~/myscripts</code> folder, create
+<code>ANGSD_doTheta.sh</code> to estimate the SFS and nucleotide
+diversity stats for your pop</h4>
+<p>Based on the saf.idx files from ANGSD GL calls, first estimate the
+Site Frequency Spectrum (SFS)</p>
+<pre><code>REF=&quot;/netfiles/ecogen/PopulationGenomics/ref_genome/Pabies1.0-genome_reduced.fa&quot;
+
+OUT=~/myresults/ANGSD
+
+MYPOP=&quot;&quot;
+
+SUFFIX=&quot;&quot;
+
+#Estimation of the SFS for all sites using the FOLDED SFS
+realSFS ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+        -maxIter 1000 \
+        -tole 1e-6 \
+        -P 1 \
+        -fold 1 \
+        &gt; ${OUT}/${MYPOP}_${SUFFIX}.sfs
+</code></pre>
+</div>
+<div id="after-the-sfs-estimate-the-theta-diversity-stats" class="section level4">
+<h4>After the SFS, estimate the theta diversity stats:</h4>
+<p>Once you have the SFS, you can estimate the thetas and neutrality
+stats by adding the following code chunk at the end of your
+<code>ANGSD_doTheta.sh</code> script:</p>
+<pre><code># Estimate thetas and stats using the SFS
+
+realSFS saf2theta ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+        -sfs ${OUT}/${MYPOP}_${SUFFIX}.sfs \
+        -outname ${OUT}/${MYPOP}_${SUFFIX}
+
+thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx
+</code></pre>
+<p>If we wanted to analyze this on sliding windows, we could instead
+replace the above code chunk with the following:</p>
+<pre><code># For sliding window analysis:
+
+thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx \
+-win 50000 \
+-step 10000 \
+-outnames ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz</code></pre>
+</div>
+<div id="an-important-distinction-the-unfolded-vs.-folded-sfs" class="section level4">
+<h4>An important distinction! <strong>The unfolded vs. folded
+SFS</strong></h4>
+<p>The big difference here is whether we are confident in the ancestral
+state of each variable site (SNP) in our dataset</p>
+<p>If we know the ancestral state, then the best info is contained in
+the <strong>unfolded</strong> SFS, which shows the frequency histogram
+of how many derived loci are rare vs. common</p>
+<ul>
+<li>bins in the <strong>unfolded</strong> SFS go from 0 to 2N –
+why?</li>
+</ul>
+<p>When you don’t know the ancestral state confidently, you can make the
+SFS based on the minor allele (the less frequent allele; always &lt; 0.5
+in the population).</p>
+<ul>
+<li>bins in the <strong>folded</strong> SFS go from 0 to 1N – why?</li>
+</ul>
+<p>Essentially, the folded spectra wraps the SFS around such that high
+frequency “derived” alleles are put in the small bins (low minor allele
+freq).</p>
+<p><img src="data:image/png;base64,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" /></p>
+</div>
+<div id="now-we-have-some-diversity-results" class="section level4">
+<h4>Now we have some diversity results!</h4>
+<p>For either of the results files above, the first column of the
+results file (*.thetas.idx.pestPG) is formatted a bit funny and we don’t
+really need it. There are also a bunch of other neutrality stats that we
+don’t need right now. We can use the <code>cut</code> command to get rid
+of these extra columns. The below <code>cut</code> command retains
+columns 2-5, 9 and 14</p>
+<pre><code>cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx.pestPG &gt; ${OUT}/${MYPOP}_${SUFFIX}.thetas</code></pre>
+<p>The columns correspond to the following stats:</p>
+<table>
+<colgroup>
+<col width="4%" />
+<col width="13%" />
+<col width="81%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Col</th>
+<th>Statistic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>Chr</td>
+<td>The chromosome or (more appropriately) contig being analyzed</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>WinCenter</td>
+<td>The center of the contig, in bp</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>tW</td>
+<td>Watterson’s Theta – an estimate of nucleotide diversity based on
+segregating sites</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>tP</td>
+<td>Theta Pi – estimate of nucleotide diversity based on pairwise
+divergence</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Tajima</td>
+<td>Tajima’s D – a neutrality stat that tests for the difference in
+tW-tP</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>nSites</td>
+<td>The number of base pairs being analyzed along this stretch of
+cont.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="summarize-diversity-stats-in-r" class="section level3">
+<h3>2. Summarize diversity stats in R</h3>
+<p>We’re now ready to use <code>Filezilla</code> to download these 2
+files:</p>
+<ol style="list-style-type: decimal">
+<li>.thetas.idx.pestPG</li>
+<li>.sfs</li>
 </ol>
-<p><strong>Transcriptomics Module</strong></p>
-<p><strong>Metagenomics/Microbiome Module</strong></p>
+<p>Save these to your <code>results</code> folder in your githuib repo
+so we can import into R to look at the mean and variability in
+nucleotide diversity for our pop. Here’s some basic R code to help you
+along:</p>
+<pre><code>setwd(&quot;&quot;) # set your path to your results folder in your repo where you saved your diversity stats file
+
+list.files() # list out the files in this folder to make sure you&#39;re in the right spot.
+
+# First let&#39;s read in the diversity stats
+theta &lt;- read.table(&quot;_.thetas&quot;,sep=&quot;\t&quot;,header=T)
+
+theta$tWsite = theta$tW/theta$nSites #scales the theta-W by the number of sites
+theta$tPsite = theta$tP/theta$nSites #scales the theta-Pi by the number of sites
+
+summary(theta)
+
+# You can order the contig list to show you the contigs with the highest values of Tajima&#39;s D, or the lowest
+
+head(theta[order(theta$Tajima, decreasing = TRUE),]) # top 10 Tajima&#39;s D values
+
+head(theta[order(theta$Tajima, decreasing = FALSE),]) # bottom 10 Tajima&#39;s D values
+
+#You can also look for contigs that have combinations of high Tajima&#39;s D and low diversity -- these could represent outliers for selection
+#theta[which(theta$Tajima&gt;1.5 &amp; theta$tPsite&lt;0.001),]
+
+
+sfs&lt;-scan(&#39;9999_.sfs&#39;)
+sfs&lt;-sfs[-c(1,which(sfs==0))]
+sfs&lt;-sfs/sum(sfs)
+
+# Be sure to replace &quot;9999&quot; with your pop code in the &quot;main&quot; legend below
+barplot(sfs,xlab=&quot;Chromosomes&quot;,
+        names=1:length(sfs),
+        ylab=&quot;Proportions&quot;,
+        main=&quot;Pop 9999 Site Frequency Spectrum&quot;,
+        col=&#39;blue&#39;)
+
+# Put the nucleotide diversities, Tajima&#39;s D, and SFS into a 4-panel figure
+par(mfrow=c(2,2))
+hist(theta$tWsite, xlab=&quot;theta-W&quot;, main=&quot;Watterson&#39;s theta&quot;)
+hist(theta$tPsite, xlab=&quot;theta-Pi&quot;, main=&quot;Pairwise Nucleotide Diversity&quot;)
+hist(theta$Tajima, xlab=&quot;D&quot;, main=&quot;Tajima&#39;s D&quot;)
+barplot(sfs,names=1:length(sfs),main=&#39;Site Frequency Spectrum&#39;)
+
+
+# To reset the panel plotting, execute the line below:
+dev.off()
+</code></pre>
+<p>We can compare the diversity in our different pops by entering your
+diversity stats in this google doc:</p>
+<p><a href="https://docs.google.com/spreadsheets/d/1y3GMvnGP65fYfBoJsdrixGLkGCe_TcDlo_7GFyPe1QM/edit?usp=sharing" class="uri">https://docs.google.com/spreadsheets/d/1y3GMvnGP65fYfBoJsdrixGLkGCe_TcDlo_7GFyPe1QM/edit?usp=sharing</a></p>
+</div>
+<div id="use-angsd-and-the-sfs-for-multiple-pops-to-calculate-genetic-divergence-between-pops-fst" class="section level3">
+<h3>3. Use ANGSD and the SFS for multiple pops to calculate genetic
+divergence between pops (Fst)</h3>
+<p>We can calculate Fst between any pair of populations by comparing
+their SFS to each other. For this, we’ll need to estimate the SFS for
+pairs of populations; we can each contribute to the overall analysis by
+looking at how our focal pop is divergent from the others.</p>
+<ul>
+<li><p>For this analysis, let’s calculate Fst between our focal red
+spruce population (MYPOP) and the black spruce samples…this could tell
+us which of our pops might be hybridizing. What would we expect for Fst
+in this case?</p></li>
+<li><p>Let’s write a bash script called ANGSD_Fst.sh that includes the
+following code:</p></li>
+</ul>
+<pre><code># Start with the usual bash script header
+
+# Give yourself some notes
+
+# Path to Black Spruce (BS) input saf.idx data:
+
+BLKSPR=&quot;/netfiles/ecogen/PopulationGenomics/fastq/black_spruce/cleanreads/bam/ANGSD&quot;
+
+#Path to save your output:
+
+OUTPUT=
+
+MYPOP=&quot;&quot;
+
+SUFFIX=&quot;&quot;
+
+# Estimate Fst between my red spruce pop and black spruce:
+
+realSFS ${MYPOP}_.saf.idx ${BLKSPR}/BS_all.saf.idx -P 1 &gt;${MYPOP}_BS.sfs
+realSFS fst index ${MYPOP}_.saf.idx BS_all.saf.idx -sfs ${MYPOP}_BS.sfs -fstout ${MYPOP}_BS -whichFst 1
+realSFS fst stats ${MYPOP}_BS.fst.idx 
+</code></pre>
+</div>
 </div>
 </section>
 
