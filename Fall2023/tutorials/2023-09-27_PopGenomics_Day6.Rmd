@@ -43,11 +43,11 @@ We can calculate Fst between any pair of populations by comparing their SFS to e
 
 BLKSPR="/netfiles/ecogen/PopulationGenomics/fastq/black_spruce/cleanreads/bam/ANGSD"
 
-#Path to save your output:
-
 OUTPUT=
 
 MYPOP=""
+
+cd ${OUTPUT}
 
 # Estimate Fst between my red spruce pop and black spruce:
 
@@ -235,4 +235,4 @@ abline(v=cumsum(sapply(unique(pops[ord,2]),function(x){sum(pops[ord,2]==x)})),co
 
 For reference, here's a map of the sample sites within the red spruce range:
 
-![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/colebrookSourcesMap.jpeg?token=GHSAT0AAAAAACGK5AYSHV4Q5CY2FUJISXVAZITJFFQ)
+![](https://raw.githubusercontent.com/stephenrkeller/Ecological_Genomics/master/Fall_2023/pics/colebrookSourcesMap.jpeg?token=GHSAT0AAAAAACGK5AYSCMT2SZDBWWK4JTZKZITJOWQ)
