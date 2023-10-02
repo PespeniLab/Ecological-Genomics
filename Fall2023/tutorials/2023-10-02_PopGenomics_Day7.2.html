@@ -11,8 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+<meta name="date" content="2023-10-02" />
 
-<title>Tutorials and Scripts</title>
+<title>Ecological Genomics Tutorials: Population &amp; Landscape Genomics 7.2</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,42 +47,321 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Population &amp; Landscape Genomics 7.2</h1>
+<h4 class="date project-date">October 02, 2023</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="learning-objectives-for-100223-part-2" class="section level1">
+<h1>Learning Objectives for 10/02/23 Part 2</h1>
 <ol style="list-style-type: decimal">
-<li>2023-08-30: <a href="Fall2023/tutorials/BashTutorial.html">Bash
-Tutorial</a></li>
-<li>2023-09-06: <a href="Fall2023/tutorials/GithubTutorial_Csenge.html">Git
-Tutorial</a></li>
+<li>Extract climate data for red spruce localities and summarize with
+PCA</li>
+<li>Start genotype-environment association (GEA) analysis running</li>
 </ol>
-<p><strong>Population &amp; Landscape Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2023-09-11: <a href="Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html">PopGen Day
-1</a></li>
-<li>2023-09-13: <a href="Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html">PopGen Day
-2</a></li>
-<li>2023-09-18: <a href="Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html">PopGen Day
-3</a></li>
-<li>2023-09-20: <a href="Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html">PopGen Day
-4</a></li>
-<li>2023-09-25: <a href="Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html">PopGen Day
-5</a></li>
-<li>2023-09-27: <a href="Fall2023/tutorials/2023-09-27_PopGenomics_Day6.html">PopGen Day
-6</a></li>
-<li>2023-10-02: <a href="Fall2023/tutorials/2023-10-02_PopGenomics_Day7.1.html">PopGen Day
-7 (part 1)</a> \ <a href="Fall2023/tutorials/2023-10-02_PopGenomics_Day7.2.html">(part
-2)</a></li>
+<p>We’ve now learned about outlier loci that show extreme population
+structure along genetic PC axes. These are loci that tend to have high
+Fst (population structure) suggestive of selection and local adaptation.
+But how does this relate to different aspects of the environment? How do
+we know what environmental gradients might be responsible for driving
+this population differentiation? Where’s the “landscape” in all this
+genomics stuff?</p>
+<p>That’s where GEA comes in – short for “Genotype-Environment
+Association”. The whole idea behind GEA is to look for loci that show
+strong associations between allele frequencies and environmental
+gradients, like climate. There’s a substantial literature on GEA methods
+in landscape genomics, but a good background paper is <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/mec.13322">Rellstab
+et al. (2015)</a>.</p>
+<p>For any GEA analysis, you essentially need two things:</p>
+<ol style="list-style-type: decimal">
+<li>Genotype data from individuals sampled across one or more
+environmental gradients. <em>Check!</em></li>
+<li>Environmental data (like cimate) you want to test as drivers of the
+selection on allele frequencies. Let’s go get some!</li>
 </ol>
-<p><strong>Transcriptomics Module</strong></p>
-<p><strong>Metagenomics/Microbiome Module</strong></p>
+<div id="getting-bioclim-climate-data-for-our-red-spruce-samples" class="section level3">
+<h3>1. Getting <code>Bioclim</code> climate data for our red spruce
+samples</h3>
+<p>On our laptops, we’ll use R to query the <a href="https://www.worldclim.org/data/worldclim21.html">Worldclim climate
+database</a> and pull out the bioclim variables for each of our samples
+based on their lat/longs.</p>
+<p>Remember, the following code is in R, not bash ;)</p>
+<pre><code># You made need to use &quot;install.packages&quot; if you don&#39;t have some of the below libraries already
+
+library(raster)
+library(FactoMineR)
+library(factoextra)
+library(corrplot)
+
+setwd(&quot;&quot;)
+
+bio &lt;- getData(&quot;worldclim&quot;,var=&quot;bio&quot;,res=10)
+
+coords &lt;- read.csv(&quot;https://www.uvm.edu/~kellrlab/forClass/colebrookSampleMetaData.csv&quot;, header=T)
+
+The chunk below refers to your bamlist file that you transferred during last week&#39;s PCA/admixture analysis.  It should be the same one you want to use here -- if your sample list for analysis changes in the future, you&#39;ll need a different bamlist!
+
+names &lt;- read.table(&quot;pcangsd/allRS_bam.list&quot;)
+names &lt;- unlist(strsplit(basename(as.character(names[,1])), split = &quot;.sorted.rmdup.bam&quot;))
+split = strsplit(names, &quot;_&quot;)
+pops &lt;- data.frame(names[1:95], do.call(rbind, split[1:95]))
+names(pops) = c(&quot;Ind&quot;, &quot;Pop&quot;, &quot;Row&quot;, &quot;Col&quot;)
+
+angsd_coords &lt;- merge(pops, coords, by.x=&quot;Ind&quot;, by.y=&quot;Tree&quot;)
+
+points &lt;- SpatialPoints(angsd_coords[c(&quot;Longitude&quot;,&quot;Latitude&quot;)])
+
+clim &lt;- extract(bio,points)
+
+angsd_coords_clim &lt;- cbind.data.frame(angsd_coords,clim)
+str(angsd_coords_clim)</code></pre>
+<div id="and-just-like-that-weve-got-bioclim-data-for-our-samples" class="section level4">
+<h4>And just like that, we’ve got Bioclim data for our samples!</h4>
+<p>Now, we don’t want to test all 19 variables in our GEA, but rather
+just one or a few that seem to capture the climate gradients in our
+samples. For this, we can use PCA on the climate data (so, an
+environmental, not a genetic PCA in this case). Using the cliamte PCA
+can then let us see which variables most strongly define the climate
+space of red spruce, and we can then use these for our GEA test.</p>
+</div>
+<div id="in-r" class="section level4">
+<h4>In R:</h4>
+<pre><code>clim_PCA = PCA(angsd_coords_clim[,15:33], graph=F)
+
+# screeplot of PCA eigenvalues
+fviz_eig(clim_PCA)
+
+# plot the variable loadings on the 1st 2 PCs
+fviz_pca_var(clim_PCA)
+
+# Which variables show the strongest loading on each axis?
+var &lt;- get_pca_var(clim_PCA)
+corrplot(var$cos2, is.corr=FALSE)
+  
+# We can ask the same question using correlation tests of each variable with each PC axis:
+dimdesc(clim_PCA)
+
+# Lastly, how do our samples fall out in climate PCA space?
+fviz_pca_ind(clim_PCA, 
+             geom.ind=&quot;point&quot;,
+             col.ind = angsd_coords_clim$Latitude, 
+             gradient.cols = c(&quot;#00AFBB&quot;, &quot;#E7B800&quot;, &quot;#FC4E07&quot;),
+             legend.title=&quot;Latitude&quot;)</code></pre>
+<p>What do you think? Let’s pick 1 Bioclim variabe for each PC1 and 2
+axis and export the values:</p>
+<pre><code>write.table(scale(angsd_coords_clim[,c(&quot;bioXX&quot;,&quot;bioYY&quot;)]),
+            &quot;allRS_bioXX_YY.txt&quot;,
+            sep=&quot;\t&quot;,
+            quote=F,
+            row.names = F,
+            col.names=F)</code></pre>
+<p>After you’ve written this file out, use <strong>FileZilla</strong> to
+transfer it to the server and into your <code>~/myresults/ANGSD</code>
+folder.</p>
+<p>You’ll then need to use the <code>cut</code> command to write out
+separate environmental files for each variable (ANGSD only tests one
+variable at a time).</p>
+<p>Can you think of a <code>cut</code> statement to take your
+<code>allRS_bioXX_YY.txt</code> file as input and write out a new output
+called <code>allRS_bioXX.txt</code> that has just the first variable in
+it? Then try it again for the 2nd variable.</p>
+<p><code>cut options someinfile &gt;someoutfile</code></p>
+</div>
+</div>
+<div id="getting-our-gea-run-on-the-server-started" class="section level3">
+<h3>2. Getting our GEA run on the server started!</h3>
+<p>The GEA analysis will likely take some time – maybe over a day to
+run. So let’s get it started now so we can have the results to look at
+on Wednesday.</p>
+<p>We’ll use ANGSD again to test for associations between allele
+frequencies and the bioclim variables while using genotype likelihoods
+to account for uncertainty. The ANGSD routine we’ll use is called
+<code>doAsso</code> which stands for “do Association”. It has it’s own
+<a href="http://www.popgen.dk/angsd/index.php/Association">manual page
+on ANGSD’s website</a></p>
+<p>AGNSD <code>doAsso</code> requires genotype <em>probabilities</em>
+(yes, these are slightly different mathematical than genotype
+<em>likelihoods</em>), which means we’ll need to call the initial set of
+ANGSD commands to import the bam’s and filter them before sending the
+probabilities to the <code>doAsso</code> function.</p>
+<pre><code>bash header
+
+notes
+
+
+REF=&quot;/netfiles/ecogen/PopulationGenomics/ref_genome/Pabies1.0-genome_reduced.fa&quot;
+
+SUFFIX=&quot;&quot;
+
+INPUT=&quot;&quot;
+
+OUTPUT=
+
+# Make a list of all the sorted and PCR dup removed bam files:
+
+ls /netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads/bam/2*sorted.rmdup.bam &gt; ${OUTPUT}/allRS_bam.list
+
+# Run ANGSD to estimate the Geno Probs and then perform the GEA using doAsso:
+
+ANGSD -b ${OUTPUT}/allRS_bam.list \
+-ref ${REF} -anc ${REF} \
+-out ${OUTPUT}/${SUFFIX} \
+-nThreads 1 \
+-remove_bads 1 \
+-C 50 \
+-baq 1 \
+-minMapQ 20 \
+-minQ 20 \
+-GL 1 \
+-doSaf 1 \
+-doCounts 1 \
+-minInd 47 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 40 \
+-skipTriallelic 1 \
+-doMajorMinor 1 \
+-doMaf 1 \
+-SNP_pval 1e-6 \
+-minMaf 0.05 \
+-doPost 1 \
+-doAsso 5 \
+-yQuant ${OUTPUT}/allRS_bioXX.txt
+</code></pre>
+<p>That’s a lot of options for ANGSD! Here’s the breakdown (after the
+obvious in/out and reference genome at the beginning):</p>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Code option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>-nthreads</code></td>
+<td>how many CPU’s you want to use</td>
+</tr>
+<tr class="even">
+<td><code>-remove_bads</code></td>
+<td>discards reads that don’t map as a pair to a unique location in the
+ref genome</td>
+</tr>
+<tr class="odd">
+<td><code>-C 50</code></td>
+<td>downgrades the quality of reads with excessive mismatches to the ref
+genome</td>
+</tr>
+<tr class="even">
+<td><code>-baq 1</code></td>
+<td>performs re-calibration of base Q-scores around regions of
+structural variation</td>
+</tr>
+<tr class="odd">
+<td><code>-minMapQ 20</code></td>
+<td>discards reads with mapping Q-score &lt;20</td>
+</tr>
+<tr class="even">
+<td><code>-minQ 20</code></td>
+<td>sets bases with Q-scores &lt; 20 to missing</td>
+</tr>
+<tr class="odd">
+<td><code>-GL 1</code></td>
+<td>estimate genotype likelihoods using the Samtools algorithm</td>
+</tr>
+<tr class="even">
+<td><code>-doSAF 1</code></td>
+<td>estimate site-allele frequencies</td>
+</tr>
+<tr class="odd">
+<td><code>-doCounts 1</code></td>
+<td>count mapped bases at each site – needed for filters below</td>
+</tr>
+<tr class="even">
+<td><code>-minInd 47</code></td>
+<td>skip loci that have &lt; minInd number of individuals with data; set
+to ~50% of your full sample size</td>
+</tr>
+<tr class="odd">
+<td><code>-setMinDepthInd 1</code></td>
+<td>set individuals with &lt;1 read per site to missing for that
+site</td>
+</tr>
+<tr class="even">
+<td><code>-setMaxDepthInd 40</code></td>
+<td>set individuals with &gt; 40 reads per site to missing for that
+site</td>
+</tr>
+<tr class="odd">
+<td><code>-skipTriallelic 1</code></td>
+<td>if there are &gt;2 alleles present at a site – discard!</td>
+</tr>
+<tr class="even">
+<td><code>-doMajorMinor 1</code></td>
+<td>calculate which allele is the most common (major) and which is rare
+(minor)</td>
+</tr>
+<tr class="odd">
+<td><code>-doMaf 1</code></td>
+<td>compute the minor allele frequencies</td>
+</tr>
+<tr class="even">
+<td><code>-SNP_pval 1e-6</code></td>
+<td>discard sites unlikely to be polymorphic, based on a p-value of
+&lt;1e-6</td>
+</tr>
+<tr class="odd">
+<td><code>-minMaf 0.05</code></td>
+<td>discard sites with minor allele frequencies &lt; 5%</td>
+</tr>
+</tbody>
+</table>
+<p>Most of these are identical to what I used for calling the genotype
+likelihoods (beagle files) that we used as input into pcANGSD. But I
+wanted to give you all the options and their meaning (<a href="http://www.popgen.dk/angsd/index.php/ANGSD">see also the ANGSD
+manual online</a> so you could have them in case you need to change
+anything.</p>
+<p>Those last 3 lines are the important part for the GEA:</p>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Code option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>doPost 1</code></td>
+<td>compute genotype probabilities</td>
+</tr>
+<tr class="even">
+<td><code>doAsso 5</code></td>
+<td>perform the GEA association test</td>
+</tr>
+<tr class="odd">
+<td><code>-yQuant</code></td>
+<td>path and filename containing the input environmental variable to
+test</td>
+</tr>
+</tbody>
+</table>
+<p>You’ll also notice that we do this just on loci that are present in
+at least 5% frequeny across the entire set of samples
+(<code>-minMaf 0.05</code>)</p>
+<p>Save your script as <code>ANGSD_GEA.sh</code></p>
+<p>Then you know what to do….tmux, bash, dettach from screen, top to see
+if you’re running!</p>
+</div>
 </div>
 </section>
 

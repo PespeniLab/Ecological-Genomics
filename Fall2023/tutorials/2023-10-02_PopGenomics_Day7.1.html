@@ -11,8 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+<meta name="date" content="2023-10-02" />
 
-<title>Tutorials and Scripts</title>
+<title>Ecological Genomics Tutorials: Population &amp; Landscape Genomics 7.1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,42 +47,283 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Population &amp; Landscape Genomics 7.1</h1>
+<h4 class="date project-date">October 02, 2023</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="learning-objectives-for-100223-part-1" class="section level1">
+<h1>Learning Objectives for 10/02/23 Part 1</h1>
 <ol style="list-style-type: decimal">
-<li>2023-08-30: <a href="Fall2023/tutorials/BashTutorial.html">Bash
-Tutorial</a></li>
-<li>2023-09-06: <a href="Fall2023/tutorials/GithubTutorial_Csenge.html">Git
-Tutorial</a></li>
+<li>Review the population structure results</li>
+<li>Perform a scan for selection and identify contigs with outlier
+loci</li>
+<li>Identify and visualize outlier loci</li>
 </ol>
-<p><strong>Population &amp; Landscape Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2023-09-11: <a href="Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html">PopGen Day
-1</a></li>
-<li>2023-09-13: <a href="Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html">PopGen Day
-2</a></li>
-<li>2023-09-18: <a href="Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html">PopGen Day
-3</a></li>
-<li>2023-09-20: <a href="Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html">PopGen Day
-4</a></li>
-<li>2023-09-25: <a href="Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html">PopGen Day
-5</a></li>
-<li>2023-09-27: <a href="Fall2023/tutorials/2023-09-27_PopGenomics_Day6.html">PopGen Day
-6</a></li>
-<li>2023-10-02: <a href="Fall2023/tutorials/2023-10-02_PopGenomics_Day7.1.html">PopGen Day
-7 (part 1)</a> \ <a href="Fall2023/tutorials/2023-10-02_PopGenomics_Day7.2.html">(part
-2)</a></li>
+<div id="what-have-we-learned-about-the-genetic-structure-from-the-pca-and-admixture-plots" class="section level3">
+<h3>1. What have we learned about the genetic structure from the PCA and
+admixture plots?</h3>
+<p>Let’s take a look at the PCA and admixture figures posted to the
+Slack #coding channel.</p>
+<ul>
+<li><p><em>What does the PCA seem to be telling us?</em></p></li>
+<li><p><em>What different picture does the admixture plot reveal? How
+does it relate to the PCA?</em></p></li>
+<li><p><em>Would we want to look for higher levels of K in the admixture
+analysis? How do we do that??</em></p></li>
+</ul>
+</div>
+<div id="how-has-selection-acted-to-drive-divergence-of-individual-loci-in-excess-of-the-population-structure-weve-observed" class="section level3">
+<h3>2. How has selection acted to drive divergence of individual loci in
+excess of the population structure we’ve observed?</h3>
+<p>When selection acts in response to local environmental conditions, we
+observe an excess of population structure at certain loci. This can be
+thought of as Fst at a single locus exceeding some background level of
+divergence that exists across the genome as a whole. We call these “Fst
+outliers” and identifying these outliers is a major goal in ecological
+genomic studies. But, a major challenge is how best to control for
+background population structure – in other words, how can we sift out
+the “outliers” from the rest of the population structure in the
+genome?</p>
+<ul>
+<li><p>One approach to identifying Fst outliers is using genetic PCA to
+(a) identify the major axes of population structure, and then (b) find
+loci that “load” very strongly on these axes, indicating their
+exceptional divergence is probably driven by the action of selection in
+excess of genetic drift.</p></li>
+<li><p>We can run a scan for Fst outliers using <code>pcANGSD</code>,
+just like we did for the genetic PCA, but here we initiate a selection
+scan for loci that are exceptionally divergent along one or more of the
+inferred genetic PC axes. This method is especially helpful when it’s
+hard to define what are genetic “populations”, since it uses the genetic
+PCA to infer the genetic structure directly. The method employed in
+<code>pcANGSD</code> follows the “FastPCA” selection scan method
+described by <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(16)00003-3">Galinsky
+et al. 2015</a></p></li>
+<li><p>The approach essentially uses the SNP weights or “loadings” on a
+given genetic PC axis to determine the strength of association, and if
+it exceeds the expectation due to neutral drift.</p></li>
+<li><p>Let’s write a bash script called
+<code>pcANGSD_selection.sh</code> that includes the following code.
+Recall that <code>pcANGSD</code> uses genotype likelihoods in “beagle”
+format, which have been calculated for you <a href="https://pespenilab.github.io/Ecological-Genomics/Fall2023/tutorials/2023-09-27_PopGenomics_Day6.html">(see
+last tutorial)</a> and can be found here:
+<code>/netfiles/ecogen/PopulationGenomics/ANGSD/</code></p></li>
+</ul>
+<p>Here’s a start to our script:</p>
+<pre><code>INPUT=&quot;&quot;
+
+OUTPUT=
+
+SUFFIX=&quot;allRS_poly&quot;
+
+cp ${INPUT}/allRS_bam.list ${OUTPUT}
+
+# Activates the pcANGSD environment and run the selection scan:
+
+source /data/popgen/pcangsd/venv/bin/activate
+        
+pcangsd -b ${INPUT}/${SUFFIX}.beagle.gz \
+    -o ${OUTPUT}/${SUFFIX} \
+    -e &lt;what number should we use here?&gt;
+    --selection \
+    --minMaf 0.05 \
+    --sites_save \
+    --snp_weights \
+    --threads 1
+    </code></pre>
+<p>Note the <code>minMaf 0.05</code> option tests only those loci that
+have a minor allele frequency of 0.05 of greater. That’s because there’s
+little statistical power for testing association of alleles that are
+very rare (&lt;5% in the sample).</p>
+<p>It should run quickly! Once finished, you’ll the see a new set of
+files, including:</p>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File name</th>
+<th>contents</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>allRS_poly.selection.npy</td>
+<td>selection scores for each locus on each tested PC axis</td>
+</tr>
+<tr class="even">
+<td>allRS_poly.weights.npy</td>
+<td>weights that show how strongly each locus “loads” on each PC
+axis</td>
+</tr>
+<tr class="odd">
+<td>allRS_poly.sites</td>
+<td>for each locus shows whether it got tested (1) or not (0)</td>
+</tr>
+</tbody>
+</table>
+<p>You’ll also want to get a file with minor allele frequencies (“maf”)
+that ANGSD makes when first estimating genotype likelihoods. You have
+one of these files from when you worked on your focal pops, but we need
+one for the “allRS_poly” run of all red spruce individuals for just
+polymorphic sites. I’ve provided this here:</p>
+<p><code>/netfiles/ecogen/PopulationGenomics/ANGSD/allRS_poly.mafs.gz</code></p>
+<p>We need to combine the “mafs” file and the “sites” file to create a
+file that has the contig and position info for each locus that got
+tested for selection. Here’s a few lines of bash code to create this
+file:</p>
+<ol style="list-style-type: decimal">
+<li>First, we need to add a header to the “sites” file:</li>
 </ol>
-<p><strong>Transcriptomics Module</strong></p>
-<p><strong>Metagenomics/Microbiome Module</strong></p>
+<p><code>sed -i &#39;1i kept_sites&#39; ~/myresults/ANGSD/allRS_poly.sites</code></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Next, we need to get the contig and position info out of the “mafs”
+file and combine it with the “sites” file:</li>
+</ol>
+<p><code>zcat /netfiles/ecogen/PopulationGenomics/ANGSD/allRS_poly.mafs.gz | cut -f1-7 | paste - ~/myresults/ANGSD/allRS_poly.sites &gt;allRS_poly_mafs.sites</code></p>
+<p>Now we have all the files we need! Be sure to transfer the 3 listed
+above, plus the new <code>allRS_poly_mafs.sites</code> you just made,
+using <strong>FileZilla</strong> and save into your repo on your laptop.
+When you have these files transferred (don’t forget where you saved them
+to on your laptop!), open up <strong>RStudio</strong> and let’s start
+making some figures!</p>
+</div>
+<div id="idenitfy-and-visualize-outlier-loci" class="section level3">
+<h3>3. Idenitfy and visualize outlier loci</h3>
+<p>We’ll use R to import the selection scan results and associated
+meta-data, assign p-values for each tested locus, and visualize the
+results!</p>
+<p>Just a reminder, the following is R code, not bash. ;)</p>
+<pre><code>
+###################################
+#  Selection scans for red spruce #
+###################################
+
+library(RcppCNPy) # for reading python numpy (.npy) files
+
+setwd(&quot;~/Documents/Github/Ecological_Genomics/Fall_2023/pcangsd/&quot;)
+
+list.files()
+
+### read in selection statistics (these are chi^2 distributed)
+
+s&lt;-npyLoad(&quot;allRS_poly.selection.npy&quot;)
+
+# convert test statistic to p-value
+pval &lt;- as.data.frame(1-pchisq(s,1))
+names(pval) = &quot;p_PC1&quot;
+
+## read positions
+p &lt;- read.table(&quot;allRS_poly_mafs.sites&quot;,sep=&quot;\t&quot;,header=T, stringsAsFactors=T)
+dim(p)
+
+p_filtered = p[which(p$kept_sites==1),]
+dim(p_filtered)
+
+# How many sites got filtered out when testing for selection? Why?
+
+## make manhattan plot
+plot(-log10(pval$p_PC1),
+  col=p_filtered$chromo,
+  xlab=&quot;Position&quot;,
+  ylab=&quot;-log10(p-value)&quot;,
+  main=&quot;Selection outliers: pcANGSD e=1 (K2)&quot;)
+
+# We can zoom in if there&#39;s something interesting near a position...
+
+plot(-log10(pval$p_PC1[2e05:2.01e05]),
+  col=p_filtered$chromo, 
+  xlab=&quot;Position&quot;, 
+  ylab=&quot;-log10(p-value)&quot;, 
+  main=&quot;Selection outliers: pcANGSD e=1 (K2)&quot;)
+
+# get the contig with the lowest p-value for selection
+sel_contig &lt;- p_filtered[which(pval==min(pval$p_PC1)),c(&quot;chromo&quot;,&quot;position&quot;)]
+sel_contig
+
+# get all the outliers with p-values below some cutoff
+cutoff=1e-3   # equals a 1 in 5,000 probability
+outlier_contigs &lt;- p_filtered[which(pval&lt;cutoff),c(&quot;chromo&quot;,&quot;position&quot;)]
+outlier_contigs
+
+# how many outlier loci &lt; the cutoff?
+dim(outlier_contigs)[1]
+
+# how many unique contigs harbor outlier loci?
+length(unique(outlier_contigs$chromo))
+</code></pre>
+<p>How do we find out what functional genes are contained on the unique
+contigs harboring outliers?</p>
+<p>We can use the <em>Picea abies</em> reference genome annotation to
+get the genes based on the outlier contigs, then test for enrichment of
+gene function using available public databases.</p>
+<p>First, export your unique outlier contigs in R:</p>
+<pre><code>write.table(unique(outlier_contigs$chromo),
+  &quot;allRS_poly_PC1_outlier_contigs.txt&quot;, 
+  sep=&quot;\t&quot;,
+  quote=F,
+  row.names=F,
+  col.names=F)</code></pre>
+<p>Transfer back to the server and then grep out the gene IDs. We can do
+this with a series of piped commands like so:</p>
+<ul>
+<li><p>Define your paths to the ref genome annotation on the server and
+your newly made outlier loci file</p></li>
+<li><p>Use <code>zcat</code> to open the annotation without unzipping
+it, then pipe to <code>grep</code> and use the <code>-f</code> flag to
+take the contig names from the outliers file – this is a handy trick,
+and saves us a lot of time from having to manually input each contig one
+at a time and search!</p></li>
+<li><p>Pipe to a new <code>grep</code> to get just the contigs
+containing genes</p></li>
+<li><p>Pipe the list of gene IDs to take just the unique ones, cut out
+the 9th column (containing the gene IDs), and get rid of the annoying
+“ID=” portion of each gene ID</p></li>
+</ul>
+<p>Just a reminder, the following is bach code, not R ;)</p>
+<pre><code>ANNOT=&quot;/netfiles/ecogen/PopulationGenomics/ref_genome/annotation/Pabies1.0-all-cds.gff3.gz&quot;
+
+OUTLIERS=~/myresults/ANGSD/allRS_poly_PC1_outlier_contigs.txt
+
+zcat ${ANNOT} | grep -f ${OUTLIERS} | grep &quot;gene&quot; | uniq | cut -f9 | sed &quot;s/ID=//g&quot;</code></pre>
+<p>Voila! You should now have a list of gene IDs printed to your screen.
+You can either copy these by highlighting with your mouse and clicking
+<ctrl><c> or you can save to an external file for later (using the
+<code>&gt;outfile.txt</code> command)</p>
+<p>Take your gene IDs and go to the <a href="plantgenie.org">plantgenie</a> website. Here, you can create a
+gene list using your copied IDs, determine which genes they correspond
+to (not all wil be annotated!), and test for functional enrichment:</p>
+<ul>
+<li><p>In the upper left corner, see a circle with 3 red bars –&gt;
+click it, and create a new gene list</p></li>
+<li><p>Paste your gene IDs into the list, and plantgenie will search the
+P. abies annotation and return all the known genes</p></li>
+<li><p>Click the “+” button to save these to the current gene list, then
+close out</p></li>
+<li><p>Go to the “Analysis Tools” tab on the top bar of the page, and
+choose “Enrichment”</p></li>
+<li><p>Plantgenie will now test for whether the annotation Gene Ontology
+(GO) and Protein Family (Pfam) functional descriptions assigned to each
+gene ID are over-represented compared to all other genes containing
+those GO and Pfam categories in the P. abies genome.</p></li>
+<li><p>Relate back to the biology!</p>
+<ul>
+<li><em>What sort of functional genes did you find are represented in
+your outliers?</em></li>
+<li><em>Are any enriched for certain GO or Pfam functions? (focus on
+p-values &lt;&lt; 0.01, or q-values &lt; 0.05)</em></li>
+<li><em>Remember the population structure axis (genetic PC) these loci
+are outliers along…are any of the enriched functions interesting in
+light of this structure? Any surprising?</em></li>
+</ul></li>
+</ul>
+</div>
 </div>
 </section>
 
