@@ -1,5 +1,5 @@
 ---
-title: "Ecological Genomics Tutorials: Population & Landscape Genomics 7.1"
+title: "Ecological Genomics Tutorials: Population & Landscape Genomics 7"
 date: 'October 02, 2023'
 output:
   prettydoc::html_pretty:
@@ -7,7 +7,7 @@ output:
 fontsize: 18pt
 ---
 
-# Learning Objectives for 10/02/23 Part 1
+# Learning Objectives for 10/02/23
 
 1. Review the population structure results
 2. Perform a scan for selection and identify contigs with outlier loci
@@ -195,7 +195,7 @@ zcat ${ANNOT} | grep -f ${OUTLIERS} | grep "gene" | uniq | cut -f9 | sed "s/ID=/
 
 Voila! You should now have a list of gene IDs printed to your screen. You can either copy these by highlighting with your mouse and clicking <ctrl><c> or you can save to an external file for later (using the `>outfile.txt` command)
 
-Take your gene IDs and go to the [plantgenie](plantgenie.org) website. Here, you can create a gene list using your copied IDs, determine which genes they correspond to (not all wil be annotated!), and test for functional enrichment:
+Take your gene IDs and go to the [plantgenie](https://plantgenie.org) website. Here, you can create a gene list using your copied IDs, determine which genes they correspond to (not all wil be annotated!), and test for functional enrichment:
 
 - In the upper left corner, see a circle with 3 red bars --> click it, and create a new gene list
 

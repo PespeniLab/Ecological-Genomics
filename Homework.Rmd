@@ -1,0 +1,11 @@
+---
+title: "Ecological Genomics (PBIO6800 / BIO6200) Fall 2023"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Homework assignments:
+
+1. [Homework #1 ~ Population & Landscape Genomics](Fall2023/assignments/Homework1.html)

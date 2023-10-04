@@ -1,0 +1,108 @@
+---
+title: "Homework #1 (Population & Landscape Genomics)"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Homework assignment #1 -- Due by Monday October 09, 2023 (end of day)
+
+We’ve now completed our first module of coding sessions. Let's review all you've learned!
+
+* *How to log in and move around a Unix server *
+* *How to write bash scripts and execute them at the command line*
+* *Working with raw Illumina NGS data, from QC to read trimming to mapping to a reference genome*
+* *Using the ANGSD pipeline to analyze low-coverage sequencing for estimates of nucleotide diversity, Tajima's D, and Fst*
+* *Estimating and visualizing population structure in the form of genetic PCA and admixture plots*
+* *Testing for selection using outlier analyses (pcANGSD) and GEA (doAsso)*
+
+You've accomplished a lot! :)
+
+Along the way, we've learned and discussed what these results mean for the genetic history of red spruce and its adaptation. 
+
+**The picture that is emerging is one of complex population structure in the north vs. south part of the range, but also clear evidence of selection. But, so far we've explored only low levels of population structure and selection outliers along just a single genetic PC1 axis.** 
+
+## Your first homework assignment is to more fully explore the genetic structure in red spruce, and test for selection beyond the PC1 genetic axis of structure.
+
+The basic recipe (with a nod to the Great British Bake Off):
+
+1. Bake a cake.
+
+2. While eating your delicious cake, explore higher levels of structure across a range of PCA/Admixture groups, from K=2 through 4. (Hint: What levels of -e would that represent?)
+
+2. Compare the different levels of structure. Interpret the results in light of landscape position, isolation or expansion history, and the possible influence of gene flow with black spruce.
+
+3. Choose a level of structure (i.e., number of genetic PCs or K admixture groups) that captures the genetic variation present in the sample (i.e., clusters samples well without introducing a lot of noise), and run a selection scan on each of the genetic PC(s) you've retained. 
+
+4. Using the set of significant outlier loci from the PC selection scan, test for climate association using GEA. You may choose to use the same bioclim variables we used in class, or may want to work with a different variable(s). This choice may in part be dictated by which axes of population structure you're testing for selection, and what climate gradient(s) might be associated with how populations are distributed along those axes.
+
+5. Interpret the final set of candidates in terms of how selection is shaping red spruce adaptation in light of the population structure you tested. 
+
+**Extra credit:** Summarize gene annotation and/or evidence of functional enrichment of your outliers. 
+
+
+### Guidelines and expectations:
+
+* The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.
+* You may work collaboratively, but the final product and all of the writing should be your own defensible work
+* Approach the writing as a technical report based on the work you’ve done to date.  That is, write for a scientific audience using appropriate technical language and narrative style, with citations used when referring to methods or making factual assertions.
+* Your write-up should include the following essential elements:
+
+#### Background (1-2 paragraphs):
+* A brief description providing context and motivation of the problem we’re trying to address with these data
+* Brief background on the study species, biological samples, library prep, and sequencing strategy (look through early tutorials for info, plus your notes from class)
+
+#### Bioinformatics Pipeline (~2 paragraphs):
+* Detailed description of the various steps you used for the analysis of the sequencing data.  Take it from QC assessment of the raw reads up to estimation of population structure and selection. No need to incude things we did in class but that aren't used explicitly in your homework analysis (e.g., nucleotide diversity, Fst, etc) unless you think it's relevant.
+* This will section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done.  Include justification for using particular analysis approaches or choices as appropriate (e.g., Why did we map to a reduced ref instead of the entire P. abies reference genome?; Why did we use genotype likelihoods with ANGSD instead of analyzing “hard called” genotypes?, etc...).
+
+#### Results (1-2 paragraphs)
+* Report your findings from the different analysis steps.  Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.  
+* You may use a max of 3 tables/figures total (not counted towards the page limit). 
+* Be sure each table/figure has a title, and a very brief legend describing its contents.
+
+#### Conclusion (1-2 paragraphs)
+* Give your biological conclusion so far from the data: What have we learned about the diversity and demographic history in this set of populations? Relate back to your motivation given in the Background section.
+* Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.
+* Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.
+* Discuss opportunities for future directions.
+
+#### References (listed on a separate page)
+* Cite papers in APA format.  Example:  
+  <font size="0.75">*Capblancq, T., Butnor, J. R., Deyoung, S., Thibault, E., Munson, H., Nelson, D. M., ... & Keller, S. R. (2020). Whole‐exome sequencing reveals a long‐term decline in effective population size of red spruce (Picea rubens). Evolutionary Applications, 13(9), 2190-2205.*</font>
+
+
+* Only include references to papers you cite in your text
+
+* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github “scripts” folder. Share a URL link to your Github page with your emailed homework submission.
+
+
+### Guidelines and deadlines:
+
+* You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
+
+* Due by Monday Oct 09, 2023 (end of day)
+
+* Email your homework in doc or pdf format to:
+```
+Stephen.Keller@uvm.edu
+Melissa.Pespeni@uvm.edu
+Csenge.Petak@uvm.edu
+```
+
+### Advice and hints :)
+ 
+* You do **NOT** need to run everything starting from step 1.  Probably you'll need to start part way through Tutorial 6 and onwards.
+
+* You want to work with all the RS samples, not just your "MYPOP" population.
+
+* If you use the R code from the tutorials for plotting PCA or admixture, you'll probably need to tweak some of the plot settings (e.g., which PC axes are getting plotted), colors, axis labels and plot titles, etc. Ask for help if you're unfamiliar with plotting in R.
+
+* Likewise for when you are exporting your files in R for use back on the server -- you'll likely need to make changes to code to ensure you're exporting the variable(s) of interest.
+
+
+* People argue in the literature about how to find the true level of K. The reality is there probably is no one true level, and so we should look at several plausible levels of K, as they each have some information we can use. Likewise, we are not looking for a "right" answer with this assignment...treat it heuristically and as an opportunity to exercise what you've learned, both in coding these analyses and in their interpretation.
+
+#### Reach out via Slack or office hours if you get stuck, and don't forget to have fun with it!
+

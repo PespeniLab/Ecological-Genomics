@@ -9,7 +9,7 @@ fontsize: 18pt
 
 # Learning Objectives for 10/04/23
 
-# Perform Geneotype-Enviroment Association (GEA) on selection outlier loci!
+# Geneotype-Enviroment Association (GEA) on selection outlier loci!
 
 1. Revisit pcANGSD selection scan to output genetic PCs and outlier loci list
 2. Extract climate data for red spruce localities and summarize with PCA 
@@ -36,7 +36,7 @@ Our approach will not be to test every SNP locus with GEA, but rather just test 
 
 ### 1. Re-visit the pcANGSD results to get necessary outlier info and covariates
 
-(a). Last session, we produced a list of outlier loci, but we only exported the ones from genetic PC1. Let's get also export the outliers along the genetic PC2 axis. 
+(a). Last session, we produced a list of outlier loci, but we had some trouble applying our significance cutoff and exporting our list of outlier loci. That's take a second and make sure that's good now. 
 
 In R:
 
@@ -66,17 +66,14 @@ dim(p_filtered)
 cutoff=1e-3   
 
 outliers_PC1 <- p_filtered[which(pval$p_PC1<cutoff),c("chromo","position")]
-outliers_PC2 <- p_filtered[which(pval$p_PC2<cutoff),c("chromo","position")]
 
-# how many outlier loci < the cutoff for each PC axis?
+# how many outlier loci < the cutoff?
 dim(outliers_PC1)[1]
-dim(outliers_PC2)[1]
 
-# put the outliers from PC1 and PC2 into one dataframe and write out the table:
-outliers_PC1_2 <- rbind(outliers_PC1, outliers_PC2)
 
-write.table(outliers_PC1_2,
-  "allRS_poly_outliers_PC1_2.txt", 
+# write them out to a file
+write.table(outliers_PC1,
+  "allRS_poly_outliers_PC1.txt", 
   sep=":",
   quote=F,
   row.names=F,
@@ -144,7 +141,9 @@ str(angsd_coords_clim)
 
 #### And just like that, we've got Bioclim data for our samples!
 
-Now, we don't want to test all 19 variables in our GEA, but rather just one or a few that seem to capture the climate gradients in our samples. For this, we can use PCA on the climate data (so, an environmental, not a genetic PCA in this case). Using the cliamte PCA can then let us see which variables most strongly define the climate space of red spruce, and we can then use these for our GEA test.
+Now, we don't want to test all 19 variables in our GEA, but rather just one or a few that seem to capture the climate gradients in our samples. 
+
+For this, we can use PCA on the climate data (so, an environmental, not a genetic PCA in this case). Using the cliamte PCA can then let us see which variables most strongly define the climate space of red spruce, and we can then use these for our GEA test.
 
 #### In R:
 ```
@@ -166,13 +165,13 @@ fviz_pca_biplot(clim_PCA,
              title="Climate PCA (Bioclim)",
              legend.title="Latitude")
 
-# Which variables show the strongest correlation on each climate PC axis?
+# Which variables show the strongest correlation on the first 2 climate PC axes?
 
 dimdesc(clim_PCA)[1:2]
 
 ```
 
-Let's export the Bioclim variable most important for each of the first 2 climate PCA axes:
+Let's export the Bioclim variable most important for each of these axes:
 
 ```
 # Replace "XX" with your bio variable most significant on climate PC1:
@@ -185,7 +184,8 @@ write.table(scale(angsd_coords_clim["bioXX"]),
             col.names=F)
 
 
-# Replace "YY" with your bio variable most significant on climate PC2:            
+# Replace "YY" with your bio variable most significant on climate PC2:  
+
 write.table(scale(angsd_coords_clim["bioYY"]),
             "allRS_bioYY.txt",
             sep="\t",
@@ -252,7 +252,7 @@ ANGSD -b ${OUTPUT}/${SUFFIX}_bam.list \
 -doPost 1 \
 -doAsso 5 \
 -yQuant ${OUTPUT}/allRS_${BIOVAR}.txt \
--rf ${OUTPUT}/${SUFFIX}_outliers_PC1_2.txt \
+-rf ${OUTPUT}/${SUFFIX}_outliers_PC1.txt \
 -cov ${OUTPUT}/${SUFFIX}_genPC1_2.txt
 
 
@@ -271,7 +271,7 @@ Those last 5 lines are the important part for the GEA:
 | `rf`      | the list of outlier loci to test, in chromosome:position format |
 | `-cov`    | the list of covariates, in this case, the genetic PC axes describing the pop structure |
 
-You'll also notice that we do this just on loci that are present in at least 5% frequeny across the entire set of samples (`-minMaf 0.05`)
+You'll also notice that we do this just on loci that are present in at least 5% frequency across the entire set of samples (`-minMaf 0.05`)
 
 Save your script as `ANGSD_GEA.sh`
 
@@ -327,5 +327,5 @@ MA_2314	6247	T	A	0.202935	95	9.714111	33/12/0	10.471330	-0.625151	0.171075	9
 
 * *Do the allele frequencies seem to consistently have positive or negative slopes? What does that mean for the climate gradient you tested?*
 
-* *You could find out what genes and their function are associated with this set of loci using the code we developed at the end of Day 7.*  (**Hint:** Here, you'd be cutting out the first column containing the contig info and using that to grep out the genes from the reference genome annotation. This could then be used at [plantgenie.org](plantgenie.org) to look at gene annotationa and function!)
+* *You could find out what genes and their function are associated with this set of loci using the code we developed at the end of Day 7.*  (**Hint:** Here, you'd be cutting out the first column containing the contig info and using that to grep out the genes from the reference genome annotation. This could then be used at [plantgenie.org](https://plantgenie.org) to look at gene annotationa and function!)
 
