@@ -1,0 +1,182 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 1"
+date: 'October 9, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today 
+
+1. Review _Acartia hudsonica_ ecology and biogeography and the experimental evolution/transcriptomics experimental design.
+2. Understand the general work flow or "pipeline" for processing and analyzing RNAseq data.
+3. "Brainstorm" questions that can be addressed and hypotheses that can be tested with the _A. hudsonica_ experiment.
+4. Visualize and interpret the quality of our Illumina data.
+5. Assess our previously assembled _de novo_ transcriptome assembly using [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki).
+6. Start mapping reads and quantifying abundance simultaneously using [Salmon](https://www.nature.com/articles/nmeth.4197).
+
+
+## 1. Experimental evolution of _Acartia hudsonica_ in global change conditions
+![](https://github.com/PespeniLab/Ecological-Genomics/blob/master/PXL_20220427_182533435.MP~2.jpg)
+
+_Acartia hudsonica_ is a "cold-adapted" calanoid copepod and is an estuarine and near-shore coastal species. It is most abundant along the New England coast (ME, NH, MA, RI, CT), generally not further south than the Chesapeake Bay and not further north than Laborador/Newfoundland, Canada. _Acartia hudsonica_ and it's "warm-adapted" sister species play critical roles in ecosystem functioning at the base of the food chain as a primary consumers of phytoplankton and as a main prey item for many larval fish, including economically important fisheries. With the rapid changes in global conditions, specifically temperature and pH in the oceans, it is critical to understand if and how such ecologically important species will survive.
+
+In a collaboration with colleagues at the University of Connecticutt and with funding from the National Science Foundation (2016-2019), we have carried out long-term experimental evolution studies in high temperature and low pH in these two Acartiid species to understand their capacity for and mechanisms of resilience. We have measured phenotypic, allelic, epi-allelic, and transcriptomic responses across the generations in full factorial and reciprocal transplant experiments. A summary of what we have learned is below. 
+
+- _A. tonsa_ can rapidly adapt to high to high temperature, low pH, and the combination, but with long-term costs revealed after 25 generations ([Dam _et al._ 2021 _Nature Climate Change_](https://www.nature.com/articles/s41558-021-01131-5)).
+- Looking at the allelic responses to selection in _A. tonsa_, warming was the dominant driver of evolution in the combined warming and acidification treatment. However, the combination was highly synergistic with 47% of the selection response being unique from either treatment alone ([Brennan _et al._ 2022 _PNAS_](https://www.pnas.org/doi/abs/10.1073/pnas.2201521119)). These results highlight the challenge that concurrent stressors impose on predictions of adaptation to complex environmental changes.
+- In a reciprocal transplant study in _A. tonsa_, we found that transcriptional plasticity was lost after 15 generations of experimental evolution in global change conditions, but there was sustained genetic capacity to re-adapt to ancestral ambient conditions at the expense of genetic diversity ([Brennan _et al._ 2022 _Nature Communications_](https://www.nature.com/articles/s41467-022-28742-6)).
+- _A. hudsonica_ can also rapidly adapt to high temperature, low pH, and the combination, but with reduced survival revealed after 11 generations (~ one year) ([deMayo _et al._ 2023 _Proc. Roy. Soc. B_](https://royalsocietypublishing.org/doi/abs/10.1098/rspb.2023.1033)).
+
+
+In the present study, we experimentally evolved _Acartia hudsonica_ to four sets of conditions: 
+
+  1. ocean acidification (1000 micro-atm pCO2, ambient temperature, 13 degrees C)
+  2. ocean warming (15 degrees C, 400 micro-atm pCO2)
+  3. combined ocean acidification and warming (1000 micro-atm pCO2, 15 degrees C)
+  4. ambient (13 degrees C, 400 micro-atm pCO2)
+
+#### Additional experimental details:
+
+* Animals were collected from the Long Island Sound, CT and reared in the lab for 3 generations before the start of the experiment.
+* For each treatment, there were three replicate vessels with ~4,000 individuals per vessel. 
+* To sample for RNA, pools of 50 adults were taken at the end of the F0, F2, F4, and F11 generations. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified TRIzol extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Novoseq 6000 platform (Illumina's next greatest sequencer after the HiSeq 4000) with >6 Gb (gigabase pairs, equivalent to >6 billion base pairs) per sample.  
+
+  
+### Realized sample replication after sequencing:  N=38 x 2 = 76 (left and right reads)
+
+|Trt        | Generation  |Nreps  |
+|-----------|-------------|-------|
+|Ambient (AA)    |F0      |3      |
+|Ambient (AA)    |F2      |2      |
+|Ambient (AA)    |F4      |3      |
+|Ambient (AA)    |F11     |3      |
+|Acidification (AH)    |F0       |3      |
+|Acidification (AH)    |F2       |3      |
+|Acidification (AH)    |F4      |3      |
+|Warming (HA)       |F0      |3      |
+|Warming (HA)       |F2      |3      |
+|Warming (HA)       |F4      |3      |
+|Acidification+Warming (HH)    |F0      |3     |
+|Acidification+Warming (HH)    |F4      |3    |
+|Acidification+Warming (HH)    |F11     |3    |
+|-----------|-------------|-------|
+|Total      |             |38     |
+
+In `/data/project_data/RNAseq/rawdata/`, there should be 76 files: N=38 x 2 = 76 (left and right reads, `_1.fq.gz`, `_2.fq.gz`)
+
+
+## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+
+## 3. Data Processing Pipeline:
+
+* FastQC on raw reads --> Trimmomatic (trim based on base pair quality scores and clip adapter sequences) --> FastQC on cleaned reads
+* Generate a reference transcriptome assembly using [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+* Evaluate transcriptome assembly for quality (length and completeness); Collapse isoforms to make a reference transcriptome.
+* **For gene expression analyses:**
+  * Use [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) to simulateously map reads to reference transcriptome and quantify abundance.
+  * [Import](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#3%E2%80%99_tagged_rna-seq) the data into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) in R for data normalization, visualization, and statistical tests for differential gene expression.
+* **For allele frequency analyses:**
+  * Map cleaned reads to reference transcriptome using BWAmem
+  * Identify sequence variants (SNPs) using VarScan; filter for quality, MAF, biallelic, coverage.
+  * Visualize variation with PCA.
+  * Identify alleles with consistent changes in allele frequency between groups using CMH statistic.
+
+
+## 4. Choose samples to visualize for quality (FastQC) and clean (Trimmomatic)
+
+There are 13 groups of samples (based on the table above, 13 treatment x generation combinations). If every student takes one group to process, that should work out... This time we need to trim using the same specifications.
+ 
+### FastQC
+Recall that .fastq (or .fq) files are sequence data files that include quality scores for each base pair. We checked out the reads from our 16S data using `zcat FILENAME.fq.gz | head -n 4`. Recall that letters early in the alphabet indicate good quality on the ASCII score ([see Day 1 microbiome tutorial](2021-09-13_microbiome_Day1.html)). How can we look at the quality more systematically for all reads in the file?  We can use [the program FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) (also already installed in our `/data/popgen/` directory and available to run from any directory).
+
+FastQC will accept multiple file names as input, so figure out which letters in the filename plus a wildcard (*) will capture just the files of your group of samples.
+
+```
+fastqc FILENAME*.fq.gz --outdir=/data/project_data/RNAseq/fastqc/
+```
+
+Now move the .html files to your local machine using your favorite file transfer method (WinSCP, Fetch, scp, etc.). Open the html file by double clicking and you should see your FastQC report! (one for each file)
+
+
+### Clean the reads with Trimmomatic (ALREADY DONE THIS TIME)
+
+[Here's a link to the Trimmomatic program](http://www.usadellab.org/cms/index.php?page=trimmomatic) that we'll use to clean the reads for each file. The program is already installed in our `/data/popgen/` directory.
+
+Already done, but for your reference, let's walk through the script:
+```trim_loop.sh
+#!/bin/bash   
+ 
+# Below is a script to loop through the files in the /rawdata directory, identify matches,  
+# and clean the fastq files, and direct output to /cleandata 
+ 
+cd /data/project_data/RNAseq/rawdata
+ 
+for f1 in *_1.fq.gz  
+ 
+do 
+ 
+ f2=${f1%%_1.fq.gz}"_2.fq.gz"  
+ 
+java -classpath /data/popgen/Trimmomatic-0.39/trimmomatic-0.39.jar org.usadellab.trimmomatic.TrimmomaticPE \
+        -threads 10 \
+        -phred33 \
+         "$f1" \
+         "$f2" \
+         /data/project_data/RNAseq/cleandata/"$f1"_left_clean_paired.fq \
+         /data/project_data/RNAseq/cleandata/"$f1"_left_clean_unpaired.fq \
+         /data/project_data/RNAseq/cleandata/"$f2"_right_clean_paired.fq \
+         /data/project_data/RNAseq/cleandata/"$f2"_right_clean_unpaired.fq \
+        ILLUMINACLIP:/data/popgen/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
+        LEADING:20 \
+        TRAILING:20 \
+        SLIDINGWINDOW:6:20 \
+        MINLEN:36 
+>> log.txt
+ 
+done 
+```
+### Run FastQC on the clean reads to confirm improvement
+
+  * What do we look for in this second run?
+  * [MULTIQC](https://multiqc.info/docs/) is a tool to generate a single summary html report file from all the fastqc reports generated.
+  
+## 5. Start de novo transcriptome assembly using Trinity
+Okay! Now that we know we have good quality, cleaned data to work with, we can move into making a de novo transcriptome assembly, which we will "map" to twice! - once to measure gene expression and once to identify genetic variants! This is a critical step for any species without a reference genome or transcriptome and is quite easy with the trinity package. The hardest parts come after the assembly: 1) settling on a final assembly - selecting a representative sequence among isoforms and 2) annotating the genes - figuring out what they are based on homology using BLAST.
+
+Trinity has remained at the "top of the market" for de novo transcriptome assemblers for the last 10 years. A [recent review](https://academic.oup.com/gigascience/article/8/5/giz039/5488105) finds this assembler performs consistently well across their (somewhat limited) range of datasets.
+
+[Here's a link to the Trinity website](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+
+Here's the basic command to run Trinity:
+``
+Trinity --seqType fq --left reads_1.fq --right reads_2.fq --CPU 6 --max_memory 20G 
+``
+
+Specifically, for our data: (BUT WE DON'T ALL NEED TO DO THIS!)
+```
+screen
+/data/popgen/trinityrnaseq-v2.13.2/Trinity --seqType fq \
+--samples_file /data/project_data/RNAseq/assembly/ahud_samples.txt \
+--CPU 16 --max_memory 50G --bflyCalculateCPU --min_kmer_cov 2 > run.log 2>&1 &
+```
+Note: We'll provide the path to the latest version of Trinity just out this month (Sept 2021) and installed, just to make sure we're using the latest version. It's a little "messier", but it also helps us keep track of what version of the program we used.
+
+Another path note: In the ahud_samples.txt file, we need to provide the full path to all the samples. Check out the file with `vim`.
+
+
+Let's explore some some of the [assembly quality assessment tools that Trinity provides](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Assembly-Quality-Assessment).
+
+
+
