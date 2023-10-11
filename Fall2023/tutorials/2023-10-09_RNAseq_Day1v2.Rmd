@@ -1,0 +1,81 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 1"
+date: 'October 9, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today 
+
+1. Articulate the purpose of and experimental considerations for transcriptomics studies.
+2. Understand the general work flow or "pipeline" for processing and analyzing RNAseq data.
+3. Review _Acartia hudsonica_ ecology and biogeography and the experimental evolution/transcriptomics experimental design.
+
+## 1. Copepod experimental evolution in global change conditions
+### Can organisms adapt to global climate change conditions and if so, how?
+![https://www.diark.org/diark/species_list/Acartia_tonsa](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Atonsa.png)
+
+Copepods are one of the most abundant animals on planet. Calenoid copepods, particularly in the genus Acartia, are critical for ecosystem functioning and biogeochemical cycling. They are primary consumers at the base of the oceanic food chain, eating phytoplankton and transferring the energy up the food chain starting with larval fish. _Acartia hudsonica_ is a "cold-adapted" estuarine and near-shore coastal species. It is most abundant along the New England coast (ME, NH, MA, RI, CT), generally not further south than the Chesapeake Bay and not further north than Laborador/Newfoundland, Canada. With the rapid changes in global conditions, specifically temperature and pH in the oceans, it is critical to understand if and how such ecologically important species will survive.
+
+In a collaboration with colleagues at the University of Connecticutt and with funding from the National Science Foundation (2016-2019), we have carried out long-term experimental evolution studies in high temperature and low pH in these two Acartiid species to understand their capacity for and mechanisms of resilience. We have measured phenotypic, allelic, epi-allelic, and transcriptomic responses across the generations in full factorial and reciprocal transplant experiments. Below is a summary of what we have learned thus far. 
+
+- _A. tonsa_ can rapidly adapt to high to high temperature, low pH, and the combination, but with long-term costs revealed after 25 generations ([Dam _et al._ 2021 _Nature Climate Change_](https://www.nature.com/articles/s41558-021-01131-5)).
+- Looking at the allelic responses to selection in _A. tonsa_, warming was the dominant driver of evolution in the combined warming and acidification treatment. However, the combination was highly synergistic with 47% of the selection response being unique from either treatment alone ([Brennan _et al._ 2022 _PNAS_](https://www.pnas.org/doi/abs/10.1073/pnas.2201521119)). These results highlight the challenge that concurrent stressors impose on predictions of adaptation to complex environmental changes.
+- In a reciprocal transplant study in _A. tonsa_, we found that transcriptional plasticity was lost after 15 generations of experimental evolution in global change conditions, but there was sustained genetic capacity to re-adapt to ancestral ambient conditions at the expense of genetic diversity ([Brennan _et al._ 2022 _Nature Communications_](https://www.nature.com/articles/s41467-022-28742-6)).
+- _A. hudsonica_ can also rapidly adapt to high temperature, low pH, and the combination, but with reduced survival revealed after 11 generations (~ one year) ([deMayo _et al._ 2023 _Proc. Roy. Soc. B_](https://royalsocietypublishing.org/doi/abs/10.1098/rspb.2023.1033)).
+
+
+## New Data!
+We measured gene expression of the experimentally evolved _Acartia hudsonica_ over 11 generations in four sets of conditions: 
+
+  1. Ambient (AM; 13 degrees C, 400 micro-atm pCO2)
+  2. Ocean Warming (OW; 15 degrees C, 400 micro-atm pCO2) 
+  3. Ocean Acidification (OA; 13 degrees C, 1000 micro-atm pCO2)
+  4. Ocean Warming and Acidification (OWA; 15 degrees C; 1000 micro-atm pCO2)
+
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Ahud_exptalDesign.png)
+
+#### Additional experimental details:
+
+* Animals were collected from the Long Island Sound, CT and reared in the lab for 3 generations before the start of the experiment.
+* For each treatment, there were three replicate vessels with ~4,000 individuals per vessel. 
+* To sample for RNA, pools of 50 adults were taken at the end of the F0, F2, F4, and F11 generations. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified TRIzol extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Illumina Novoseq 6000 platform with >6 Gb (gigabase pairs = >6 billion base pairs) per sample.  
+
+  
+### Realized sample replication after sequencing:  N=38 x 2 = 76 (left and right reads)
+
+|Trt        | Generation  |Nreps  |
+|-----------|-------------|-------|
+|Ambient (AA)    |F0      |3      |
+|Ambient (AA)    |F2      |2      |
+|Ambient (AA)    |F4      |3      |
+|Ambient (AA)    |F11     |3      |
+|Acidification (AH)    |F0       |3      |
+|Acidification (AH)    |F2       |3      |
+|Acidification (AH)    |F4      |3      |
+|Warming (HA)       |F0      |3      |
+|Warming (HA)       |F2      |3      |
+|Warming (HA)       |F4      |3      |
+|Acidification+Warming (HH)    |F0      |3     |
+|Acidification+Warming (HH)    |F4      |3    |
+|Acidification+Warming (HH)    |F11     |3    |
+|-----------|-------------|-------|
+|Total      |             |38     |
+
+In `/data/project_data/RNAseq/rawdata/`, there should be 76 files: N=38 x 2 = 76 (left and right reads, `_1.fq.gz`, `_2.fq.gz`)
+
+
+## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+

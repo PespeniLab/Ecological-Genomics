@@ -1,0 +1,318 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 1"
+date: 'October 9, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today 
+
+1. Review _Acartia hudsonica_ ecology and biogeography and the experimental evolution/transcriptomics experimental design.
+2. Develop questions that can be addressed and hypotheses that can be tested with the _A. hudsonica_ experiment.
+3. Understand the general work flow or "pipeline" for processing and analyzing RNAseq data.
+4. Visualize and interpret the quality of our Illumina data.
+5. Assess our previously assembled _de novo_ transcriptome assembly using [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki).
+6. Start mapping reads and quantifying abundance simultaneously using [Salmon](https://www.nature.com/articles/nmeth.4197).
+
+
+## 1. Copepod experimental evolution in global change conditions
+### Can organisms adapt to global climate change conditions and if so, how?
+![https://www.diark.org/diark/species_list/Acartia_tonsa](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Atonsa.png)
+
+Copepods are one of the most abundant animals on planet. Calenoid copepods, particularly in the genus Acartia, are critical for ecosystem functioning and biogeochemical cycling. They are primary consumers at the base of the oceanic food chain, eating phytoplankton and transferring the energy up the food chain starting with larval fish. _Acartia hudsonica_ is a "cold-adapted" estuarine and near-shore coastal species. It is most abundant along the New England coast (ME, NH, MA, RI, CT), generally not further south than the Chesapeake Bay and not further north than Laborador/Newfoundland, Canada. With the rapid changes in global conditions, specifically temperature and pH in the oceans, it is critical to understand if and how such ecologically important species will survive.
+
+In a collaboration with colleagues at the University of Connecticutt and with funding from the National Science Foundation (2016-2019), we have carried out long-term experimental evolution studies in high temperature and low pH in these two Acartiid species to understand their capacity for and mechanisms of resilience. We have measured phenotypic, allelic, epi-allelic, and transcriptomic responses across the generations in full factorial and reciprocal transplant experiments. Below is a summary of what we have learned thus far. 
+
+- _A. tonsa_ can rapidly adapt to high to high temperature, low pH, and the combination, but with long-term costs revealed after 25 generations ([Dam _et al._ 2021 _Nature Climate Change_](https://www.nature.com/articles/s41558-021-01131-5)).
+- Looking at the allelic responses to selection in _A. tonsa_, warming was the dominant driver of evolution in the combined warming and acidification treatment. However, the combination was highly synergistic with 47% of the selection response being unique from either treatment alone ([Brennan _et al._ 2022 _PNAS_](https://www.pnas.org/doi/abs/10.1073/pnas.2201521119)). These results highlight the challenge that concurrent stressors impose on predictions of adaptation to complex environmental changes.
+- In a reciprocal transplant study in _A. tonsa_, we found that transcriptional plasticity was lost after 15 generations of experimental evolution in global change conditions, but there was sustained genetic capacity to re-adapt to ancestral ambient conditions at the expense of genetic diversity ([Brennan _et al._ 2022 _Nature Communications_](https://www.nature.com/articles/s41467-022-28742-6)).
+- _A. hudsonica_ can also rapidly adapt to high temperature, low pH, and the combination, but with reduced survival revealed after 11 generations (~ one year) ([deMayo _et al._ 2023 _Proc. Roy. Soc. B_](https://royalsocietypublishing.org/doi/abs/10.1098/rspb.2023.1033)).
+
+
+## New Data!
+We measured gene expression of the experimentally evolved _Acartia hudsonica_ over 11 generations in four sets of conditions: 
+
+  1. Ambient (AM; 13 degrees C, 400 micro-atm pCO2)
+  2. Ocean Warming (OW; 15 degrees C, 400 micro-atm pCO2) 
+  3. Ocean Acidification (OA; 13 degrees C, 1000 micro-atm pCO2)
+  4. Ocean Warming and Acidification (OWA; 15 degrees C; 1000 micro-atm pCO2)
+
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Ahud_exptalDesign.png)
+
+#### Additional experimental details:
+
+* Animals were collected from the Long Island Sound, CT and reared in the lab for 3 generations before the start of the experiment.
+* For each treatment, there were three replicate vessels with ~4,000 individuals per vessel. 
+* To sample for RNA, pools of 50 adults were taken at the end of the F0, F2, F4, and F11 generations. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified TRIzol extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Illumina Novoseq 6000 platform with >6 Gb (gigabase pairs = >6 billion base pairs) per sample.  
+
+  
+### Realized sample replication after sequencing:  N=38 x 2 = 76 (left and right reads)
+
+|Trt        | Generation  |Nreps  |
+|-----------|-------------|-------|
+|Ambient (AA)    |F0      |3      |
+|Ambient (AA)    |F2      |2      |
+|Ambient (AA)    |F4      |3      |
+|Ambient (AA)    |F11     |3      |
+|Acidification (AH)    |F0       |3      |
+|Acidification (AH)    |F2       |3      |
+|Acidification (AH)    |F4      |3      |
+|Warming (HA)       |F0      |3      |
+|Warming (HA)       |F2      |3      |
+|Warming (HA)       |F4      |3      |
+|Acidification+Warming (HH)    |F0      |3     |
+|Acidification+Warming (HH)    |F4      |3    |
+|Acidification+Warming (HH)    |F11     |3    |
+|-----------|-------------|-------|
+|Total      |             |38     |
+
+In `/data/project_data/RNAseq/rawdata/`, there should be 76 files: N=38 x 2 = 76 (left and right reads, `_1.fq.gz`, `_2.fq.gz`)
+
+
+## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+
+## 3. Our general workflow for analyzing gene expression data (Transcriptomics pipeline):
+### Clean the raw sequence data
+* [FastP](https://github.com/OpenGene/fastp) on raw reads --> cleaned reads
+
+### Already complete: Generate and annotate a de novo reference transcriptome assembly
+* Used [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+* Evaluated transcriptome assembly for quality (length and completeness) using [BUSCO](https://busco.ezlab.org/).
+
+### Map the clean reads to the reference assembly
+* Use [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) to simulateously map reads to reference transcriptome and quantify abundance.
+
+### Test for differential expression among groups
+* [Import](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#3%E2%80%99_tagged_rna-seq) the data into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) in R for data normalization, visualization, and statistical tests for differential gene expression.
+
+### Perform more advanced analyses
+* Identify clusters of genes with correlated expression using Weighted Gene Correlation Network Analysis ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)).
+* Test for functional enrichment among genes differentially expressed between groups using [TopGO](https://bioconductor.org/packages/release/bioc/html/topGO.html) or GO Mann-Whitney U  [GO_MWU](https://github.com/z0on/GO_MWU)
+
+
+## 4. Choose samples to visualize for quality and clean (fastp)  
+
+There are 13 groups of samples (based on the table above, 13 treatment x generation combinations). Every student takes one group to process, that should work out... 
+ 
+### fastq
+Recall that .fastq (or .fq) files are sequence data files that include quality scores for each base pair. We can check out the reads using `zcat FILENAME.fq.gz | head -n 4`. Recall that letters early in the alphabet indicate good quality on the ASCII score.
+*The Phred Q score is translated to ASCII characters so that a two digit number can be represented by a single character.*
+
+```         
+ Quality encoding: !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHI
+                   |         |         |         |         |
+    Quality score: 0........10........20........30........40   
+```
+
+If P is the probability that a base call is an error, then: Q = -10\*log10(P)
+
+So:
+
+| Phred Quality Score | Probability of incorrect base call | Base call accuracy |
+|--------------------|---------------------------------|-------------------|
+| 10                  | 1 in 10                            | 90%                |
+| 20                  | 1 in 100                           | 99%                |
+| 30                  | 1 in 1000                          | 99.9%              |
+| 40                  | 1 in 10,000                        | 99.99%             |
+
+### fastp
+We will use [the program fastp](https://github.com/OpenGene/fastp) (also already installed in our `/data/popgen/` directory and available to run from any directory).
+
+We will use a bash script to loop through the replicates from your treatment group `$MYSAMP`. 
+
+* There's an example script for you to edit in `/data/project_data/RNAseq/scripts/fastp_ahud.sh`. 
+* Copy this to your `~/myscripts` directory. 
+  * **Take a moment to meditate on working in linux. Can you copy this file from anywhere to anywhere? What is important?**
+* Edit the script: All you need to do is define your samples with `$MYSAMP`. 
+* Make sure you make a `~/myresults/fastp` directory first.
+* This should only take about ~12 minutes for each of your sets of samples to complete, but let's start it in `tmux` to be safe.
+
+First, let's talk through the code:
+
+``` bash
+#!/bin/bash   
+
+# This script loops through a set of files defined by MYSAMP, matching left and right reads
+# and cleans the raw data using fastp according to parameters set below
+
+# cd to the location (path) to the fastq data:
+
+cd /data/project_data/RNAseq/rawdata
+
+# Define the sample code to anlayze
+# Be sure to replace with your 5-6-digit sample code
+
+MYSAMP="XXXXX"
+
+# for each file that has "MYSAMP" and "_1.fq.gz" (read 1) in the name
+# the wildcard here * allows for the different reps to be captured in the list
+# start a loop with this file as the input:
+
+for READ1 in ${MYSAMP}*_1.fq.gz
+do
+
+# the partner to this file (read 2) can be found by replacing the _1.fq.gz with _2.fq.gz
+# second part of the input for PE reads
+
+READ2=${READ1/_1.fq.gz/_2.fq.gz}
+
+# make the output file names: print the fastq name, replace _# with _#_clean
+
+NAME1=$(echo $READ1 | sed "s/_1/_1_clean/g")
+NAME2=$(echo $READ2 | sed "s/_2/_2_clean/g")
+
+# print the input and output to screen 
+
+echo $READ1 $READ2
+echo $NAME1 $NAME2
+
+# call fastp
+/data/popgen/fastp -i ${READ1} -I ${READ2} -o /data/project_data/RNAseq/cleandata/${NAME1} -O /data/project_data/RNAseq/cleandata/${NAME2} \
+--detect_adapter_for_pe \
+--trim_front1 24 \
+--trim_poly_g \
+--thread 1 \
+--cut_right \
+--cut_window_size 6 \
+--qualified_quality_phred 20 \
+--length_required 35 \
+--html ~/myresults/fastqc/${NAME1}.html \
+--json ~/myresults/fastqc/${NAME1}.json
+
+done
+```
+
+* Now move the .html files to your local machine using FileZilla. 
+* Let's record in a google sheet some important stats that we may want to report out in a manuscript! Total reads before filtering, total reads after filtering, % reads passed filters. 
+
+## 5. Assess the quality of the reference transcriptome
+
+I previously assembled the _de novo_ transcriptome with these data using [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki). Let's look at some basic statistics of the assembly.
+
+```
+/data/popgen/trinityrnaseq-v2.13.2/util/TrinityStats.pl  /data/project_data/RNAseq/assembly/ahud_Trinity.fasta
+```
+Should yield:
+```
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':	130580
+Total trinity transcripts:	349516
+Percent GC: 35.57
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+	Contig N10: 4647
+	Contig N20: 3149
+	Contig N30: 2356
+	Contig N40: 1791
+	Contig N50: 1356
+
+	Median contig length: 430
+	Average contig: 801.91
+	Total assembled bases: 280279107
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+	Contig N10: 4679
+	Contig N20: 3115
+	Contig N30: 2247
+	Contig N40: 1613
+	Contig N50: 1057
+
+	Median contig length: 320
+	Average contig: 626.33
+	Total assembled bases: 81786351
+```
+We can also assess the completeness of the assembly using a program called [BUSCO](https://busco.ezlab.org/)
+
+```
+busco -m transcriptome -i ahud_Trinity.fasta -o BUSCOarthropoda -l arthropoda_odb10
+
+```
+```
+$ cat short_summary.specific.arthropoda_odb10.BUSCOarthropoda.txt 
+# BUSCO version is: 5.2.2 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /data/project_data/RNAseq/assembly/ahud_Trinity.fasta
+# BUSCO was run in mode: transcriptome
+
+	***** Results: *****
+
+	C:96.9%[S:7.1%,D:89.8%],F:1.1%,M:2.0%,n:1013	   
+	982	Complete BUSCOs (C)			   
+	72	Complete and single-copy BUSCOs (S)	   
+	910	Complete and duplicated BUSCOs (D)	   
+	11	Fragmented BUSCOs (F)			   
+	20	Missing BUSCOs (M)			   
+	1013	Total BUSCO groups searched		   
+
+Dependencies and versions:
+	hmmsearch: 3.1
+	metaeuk: 5.34c21f2
+```
+
+## 6. Map to the reference transcriptome
+#### This chunk makes and preps the reference, note the --prep_reference flag
+NOTE: Only one person needs to do this step. Who's the lucky person?
+```
+/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --est_method salmon \
+  --trinity_mode \
+  --prep_reference
+```
+This should make two files:
+```
+ahud_Trinity.fasta.gene_trans_map
+ahud_Trinity.fasta.salmon.idx
+```
+#### The chunk below maps to the reference using salmon
+* For this part you need to make the samples file `ahud_XXXXX.txt` with your set of samples.
+* Copy the complete file from `/data/project_data/RNAseq/assembly/ahud_XXXXX.txt` to you local machine.
+* Use a text editor to edit the file to only include your samples.
+* Copy the file back to the server; Make sure you give the correct path to your samples file.
+* NOTE: Run this with `tmux` and first navigate to the `/data/project_data/RNAseq/mapping` directory
+```
+cd /data/project_data/RNAseq/mapping
+
+/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --seqType fq \
+  --samples_file /data/project_data/RNAseq/assembly/ahud_XXXXX.txt \
+  --est_method salmon \
+  --output_dir /data/project_data/RNAseq/mapping \
+  --thread_count 1 \
+  --trinity_mode
+```
+
+Let's check the mapping rate of the clean reads to the trinity assembly.
+```
+grep -r --include \*.log -e 'Mapping rate'
+```
+#### This chunk below assembles all the individually mapped reads into one data matrix
+
+We provide a file list to point to just the `quant.sf` files called `salmon_results_filelist.txt`.
+```
+/data/popgen/trinityrnaseq-v2.13.2/util/abundance_estimates_to_matrix.pl --est_method salmon \
+  --gene_trans_map /data/project_data/RNAseq/assembly/ahud_Trinity.fasta.gene_trans_map \
+  --quant_files /data/project_data/RNAseq/mapping/salmon_results_filelist.txt \
+  --name_sample_by_basedir
+```
+Alright! With this matrix of number of reads that mapped to each contig/transcript, we can move to analyzing the data to test for differences in gene expression and more!
