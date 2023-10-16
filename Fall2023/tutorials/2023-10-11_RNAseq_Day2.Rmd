@@ -1,6 +1,6 @@
 ---
-title: "Ecological Genomics Tutorials: Transcriptomics - Day 1"
-date: 'October 9, 2023'
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 2"
+date: 'October 11, 2023'
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -286,7 +286,7 @@ ahud_Trinity.fasta.salmon.idx
 ```
 #### The chunk below maps to the reference using salmon
 * For this part you need to make the samples file `ahud_XXXXX.txt` with your set of samples.
-* Copy the complete file from `/data/project_data/RNAseq/assembly/ahud_XXXXX.txt` to you local machine.
+* Copy the complete file from `/data/project_data/RNAseq/assembly/ahud_XXXXX.txt` to your local machine (or you could edit in `vim` but there will be a lot of deleting.
 * Use a text editor to edit the file to only include your samples.
 * Copy the file back to the server; Make sure you give the correct path to your samples file.
 * NOTE: Run this with `tmux` and first navigate to the `/data/project_data/RNAseq/mapping` directory

@@ -11,8 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+<meta name="date" content="2023-10-16" />
 
-<title>Tutorials and Scripts</title>
+<title>Ecological Genomics Tutorials: Transcriptomics - Day 3</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -29,6 +30,97 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </script>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+
+a.sourceLine {
+pointer-events: auto;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -46,51 +138,415 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Tutorials and Scripts</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Transcriptomics - Day 3</h1>
+<h4 class="date project-date">October 16, 2023</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="objectives-for-today" class="section level1">
+<h1>Objectives for today</h1>
 <ol style="list-style-type: decimal">
-<li>2023-08-30: <a href="Fall2023/tutorials/BashTutorial.html">Bash
-Tutorial</a></li>
-<li>2023-09-06: <a href="Fall2023/tutorials/GithubTutorial_Csenge.html">Git
-Tutorial</a></li>
+<li>Review the quality of our Illumina data from <a href="https://docs.google.com/spreadsheets/d/1c2rOpUUuMiOiymu6foAX9n_mAH5re1pEtMNKLlXQ23w/edit?usp=sharing">our
+google sheet</a>.</li>
+<li>Assess our previously assembled <em>de novo</em> transcriptome
+assembly using scripts provided through <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a>.</li>
+<li>Map reads and quantify abundance simultaneously using <a href="https://www.nature.com/articles/nmeth.4197">Salmon</a>.</li>
+<li>Prepare data for import into DESeq2.</li>
+<li>Start analyzing the gene expression data using <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a></li>
 </ol>
-<p><strong>Population &amp; Landscape Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2023-09-11: <a href="Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html">PopGen Day
-1</a></li>
-<li>2023-09-13: <a href="Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html">PopGen Day
-2</a></li>
-<li>2023-09-18: <a href="Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html">PopGen Day
-3</a></li>
-<li>2023-09-20: <a href="Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html">PopGen Day
-4</a></li>
-<li>2023-09-25: <a href="Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html">PopGen Day
-5</a></li>
-<li>2023-09-27: <a href="Fall2023/tutorials/2023-09-27_PopGenomics_Day6.html">PopGen Day
-6</a></li>
-<li>2023-10-02: <a href="Fall2023/tutorials/2023-10-02_PopGenomics_Day7.1.html">PopGen Day
-7</a></li>
-<li>2023-10-04: <a href="Fall2023/tutorials/2023-10-04_PopGenomics_Day8.html">PopGen Day
-8</a></li>
-</ol>
-<p><strong>Transcriptomics Module</strong></p>
-<ol start="11" style="list-style-type: decimal">
-<li>2023-10-09: <a href="Fall2023/tutorials/2023-10-09_RNAseq_Day1v2.html">Transcriptomics
-Day 1</a></li>
-<li>2023-10-11: <a href="Fall2023/tutorials/2023-10-11_RNAseq_Day2.html">Transcriptomics
-Day 2</a></li>
-<li>2023-10-16: <a href="Fall2023/tutorials/2023-10-16_RNAseq_Day3.html">Transcriptomics
-Day 3</a></li>
-</ol>
-<p><strong>Metagenomics/Microbiome Module</strong></p>
+<div id="review-the-quality-of-our-illumina-data" class="section level2">
+<h2>1. Review the quality of our Illumina data</h2>
+<p>Let’s check the amount and quality of our RNAseq data. We looked at
+some the fastp .html outputs before. Now let’s just check <a href="https://docs.google.com/spreadsheets/d/1c2rOpUUuMiOiymu6foAX9n_mAH5re1pEtMNKLlXQ23w/edit?usp=sharing">our
+google sheet</a>. A good “rule of thumb’ for RNAseq data when working
+with a diploid eukaryote is about ~20M reads per sample.</p>
+</div>
+<div id="assess-the-quality-of-the-reference-transcriptome" class="section level2">
+<h2>2. Assess the quality of the reference transcriptome</h2>
+<p>I previously assembled the <em>de novo</em> transcriptome
+<code>ahud_Trinity.fasta</code> with these RNAseq data using <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a>.
+It can be found in <code>/data/project_data/RNAseq/assembly/</code>.
+Let’s look at some basic statistics of the assembly.</p>
+<pre><code>/data/popgen/trinityrnaseq-v2.13.2/util/TrinityStats.pl  /data/project_data/RNAseq/assembly/ahud_Trinity.fasta</code></pre>
+<p>Should yield:</p>
+<pre><code>################################
+## Counts of transcripts, etc.
+################################
+Total trinity &#39;genes&#39;:  130580
+Total trinity transcripts:  349516
+Percent GC: 35.57
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+    Contig N10: 4647
+    Contig N20: 3149
+    Contig N30: 2356
+    Contig N40: 1791
+    Contig N50: 1356
+
+    Median contig length: 430
+    Average contig: 801.91
+    Total assembled bases: 280279107
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per &#39;GENE&#39;:
+#####################################################
+
+    Contig N10: 4679
+    Contig N20: 3115
+    Contig N30: 2247
+    Contig N40: 1613
+    Contig N50: 1057
+
+    Median contig length: 320
+    Average contig: 626.33
+    Total assembled bases: 81786351</code></pre>
+<p>We can also assess the completeness of the assembly using a program
+called <a href="https://busco.ezlab.org/">BUSCO</a></p>
+<pre><code>busco -m transcriptome -i /data/project_data/RNAseq/assembly/ahud_Trinity.fasta -o ~/myresults/BUSCO/BUSCOarthropoda -l arthropoda_odb10
+</code></pre>
+<ul>
+<li>Then check your BUSCO results as shown below.</li>
+</ul>
+<pre><code>$ cat short_summary.specific.arthropoda_odb10.BUSCOarthropoda.txt 
+# BUSCO version is: 5.2.2 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /data/project_data/RNAseq/assembly/ahud_Trinity.fasta
+# BUSCO was run in mode: transcriptome
+
+    ***** Results: *****
+
+    C:96.9%[S:7.1%,D:89.8%],F:1.1%,M:2.0%,n:1013       
+    982 Complete BUSCOs (C)            
+    72  Complete and single-copy BUSCOs (S)    
+    910 Complete and duplicated BUSCOs (D)     
+    11  Fragmented BUSCOs (F)              
+    20  Missing BUSCOs (M)             
+    1013    Total BUSCO groups searched        
+
+Dependencies and versions:
+    hmmsearch: 3.1
+    metaeuk: 5.34c21f2</code></pre>
+</div>
+<div id="map-to-the-reference-transcriptome" class="section level2">
+<h2>3. Map to the reference transcriptome</h2>
+<div id="the-code-below-makes-and-preps-the-reference-note-the-prep_reference-flag" class="section level4">
+<h4>The code below makes and preps the reference, note the
+–prep_reference flag</h4>
+<p>NOTE: Only one person needs to do this step. Who’s the lucky person?
+* Navigate to the directory where the assembly lives:
+<code>/data/project_data/RNAseq/assembly</code></p>
+<pre><code>/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --est_method salmon \
+  --trinity_mode \
+  --prep_reference</code></pre>
+<p>This should make two files:</p>
+<pre><code>ahud_Trinity.fasta.gene_trans_map
+ahud_Trinity.fasta.salmon.idx</code></pre>
+</div>
+<div id="the-code-below-maps-to-the-reference-using-salmon" class="section level4">
+<h4>The code below maps to the reference using salmon</h4>
+<ul>
+<li>For this part you need to make the samples file
+<code>ahud_XXXXX.txt</code> with your set of samples.</li>
+<li>Copy the complete file from
+<code>/data/project_data/RNAseq/assembly/ahud_XXXXX.txt</code> to your
+local machine (or you could edit in <code>vim</code> but there will be a
+lot of deleting.</li>
+<li>Use a text editor to edit the file to only include your
+samples.</li>
+<li>Copy the file back to the server into your <code>~/mydata</code>
+directory; Update the script below to have your correct samples_file
+filename.</li>
+<li><strong>NOTE: Run this with <code>tmux</code> </strong> and first
+navigate to the <code>/data/project_data/RNAseq/mapping</code>
+directory</li>
+</ul>
+<pre><code>cd /data/project_data/RNAseq/mapping
+
+/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --seqType fq \
+  --samples_file ~/mydata/ahud_XXXXX.txt \
+  --est_method salmon \
+  --output_dir /data/project_data/RNAseq/mapping \
+  --thread_count 1 \
+  --trinity_mode</code></pre>
+</div>
+</div>
+<div id="explore-mapping-rate" class="section level2">
+<h2>Explore mapping rate</h2>
+<p>For each sample mapped, you now have a directory with several output
+files including a log of the run. In that log, the mapping rate (% of
+reads mapped with sufficient quality) is reported. We can view the
+contents of the file using <code>cat</code>. We can also use
+<code>grep</code> (i.e., regular expressions) to pull out the mapping
+rate for all the samples. Though there’s probably a more elegant
+solution, here is one:</p>
+<pre><code>grep -r --include \*.log -e &#39;Mapping rate&#39;</code></pre>
+<ul>
+<li>How could we save this output?</li>
+<li>What is our mapping rate? Is this good/enough? What factors could
+affect mapping rate?</li>
+</ul>
+</div>
+<div id="prepare-data-for-import-into-deseq2." class="section level2">
+<h2>4. Prepare data for import into DESeq2.</h2>
+<div id="the-code-below-assembles-all-the-individually-mapped-reads-into-one-data-matrix" class="section level4">
+<h4>The code below assembles all the individually mapped reads into one
+data matrix</h4>
+<p>We provide a file list to point to just the <code>quant.sf</code>
+files called <code>salmon_results_filelist.txt</code>.</p>
+<ul>
+<li><strong>NOTE: Only one person needs to run the code below. Who’s the
+lucky person this time? </strong></li>
+</ul>
+<pre><code>cd /data/project_data/RNAseq/mapping
+
+/data/popgen/trinityrnaseq-v2.13.2/util/abundance_estimates_to_matrix.pl --est_method salmon \
+  --gene_trans_map /data/project_data/RNAseq/assembly/ahud_Trinity.fasta.gene_trans_map \
+  --quant_files /data/project_data/RNAseq/mapping/salmon_results_filelist.txt \
+  --name_sample_by_basedir</code></pre>
+<p>Alright! With this matrix of number of reads that mapped to each
+contig/transcript, we can move to analyzing the data to test for
+differences in gene expression and more!</p>
+<ul>
+<li>Move the counts data matrix to your individual machines using
+FileZilla. Also move the <code>ahud_samples_R.txt</code> file from
+<code>/data/project_data/RNAseq/mapping/</code> to your machine. This
+file is a table that associates each of our samples with their
+conditions (treatment, generation, replicate).</li>
+</ul>
+</div>
+</div>
+<div id="analyze-the-gene-expression-data-a.k.a.-counts-data-using-deseq2" class="section level2">
+<h2>5. Analyze the gene expression data (a.k.a. counts data) using <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a></h2>
+<p>Now we will work in R on our individual machines, each of us working
+with the complete data set (n=38, not just a subset of samples). There
+are <a href="https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">detailed
+tutorials available from the creators of DESeq2</a>.</p>
+<div id="get-set-up-load-the-packageslibraries-we-will-likely-need" class="section level3">
+<h3>Get set up; Load the packages/libraries we will likely need</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Set your working directory</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;~/github/hudsonica&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Import the libraries that we&#39;re likely to need in this session</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">&quot;BiocManager&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">&quot;BiocManager&quot;</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;DESeq2&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(wesanderson)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vsn)  <span class="do">### First: BiocManager::install(&quot;vsn&quot;) AND BiocManager::install(&quot;hexbin&quot;)</span></span></code></pre></div>
+<p><code>Tools</code> -&gt; <code>Install packages</code> -&gt; Search
+for the library of interest; Install including dependencies.</p>
+</div>
+<div id="import-counts-matrix-and-sample-id-tables-into-r-and-deseq2" class="section level3">
+<h3>Import Counts Matrix and Sample ID tables into R and DESeq2</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the counts matrix</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>countsTable <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/salmon.isoform.counts.matrix&quot;</span>, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">row.names=</span><span class="dv">1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(countsTable)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(countsTable)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>countsTableRound <span class="ot">&lt;-</span> <span class="fu">round</span>(countsTable) <span class="co"># bc DESeq2 doesn&#39;t like decimals (and Salmon outputs data with decimals)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(countsTableRound)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#import the sample discription table</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>conds <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">&quot;ahud_samples_R.txt&quot;</span>, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>, <span class="at">row.names=</span><span class="dv">1</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(conds)</span></code></pre></div>
+</div>
+<div id="explore-the-counts-data-a-bit" class="section level3">
+<h3>Explore the counts data a bit</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let&#39;s see how many reads we have from each sample</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(countsTableRound)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">colSums</span>(countsTableRound))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">colSums</span>(countsTableRound), <span class="at">names.arg=</span><span class="fu">colnames</span>(countsTableRound),<span class="at">cex.names=</span><span class="fl">0.5</span>, <span class="at">las=</span><span class="dv">3</span>,<span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">20000000</span>))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(<span class="fu">colSums</span>(countsTableRound)), <span class="at">col=</span><span class="st">&quot;blue&quot;</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># the average number of counts per gene</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">rowSums</span>(countsTableRound)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">rowSums</span>(countsTableRound)) <span class="co"># [1] 11930.81 - tonsa, 6076.078 - hudsonica genes, 2269 - hudsonica isoform</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(<span class="fu">rowSums</span>(countsTableRound)) <span class="co"># [1] 2226 - tonsa, 582 - hudsonica, 109</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(countsTableRound,<span class="dv">2</span>,mean) <span class="co"># 2 in the apply function does the action across columns</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(countsTableRound,<span class="dv">1</span>,mean) <span class="co"># 1 in the apply function does the action across rows</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">apply</span>(countsTableRound,<span class="dv">1</span>,mean),<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1000</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">120000</span>),<span class="at">breaks=</span><span class="dv">10000</span>)</span></code></pre></div>
+</div>
+<div id="create-a-deseq-object-and-define-the-experimental-design" class="section level3">
+<h3>Create a DESeq object and define the experimental design</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">#### Create a DESeq object and define the experimental design here with the tilda</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> countsTableRound, <span class="at">colData=</span>conds, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">design=</span> <span class="sc">~</span> treatment <span class="sc">+</span> generation)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out genes with too few reads - remove all genes with counts &lt; 15 in more than 75% of samples, so ~28)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">## suggested by WGCNA on RNAseq FAQ</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[<span class="fu">rowSums</span>(<span class="fu">counts</span>(dds) <span class="sc">&gt;=</span> <span class="dv">30</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>,]</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dds) </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the DESeq model to test for differential gene expression</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co"># List the results you&#39;ve generated</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span></code></pre></div>
+</div>
+<div id="visualize-the-global-gene-expression-patterns-using-pca" class="section level3">
+<h3>Visualize the global gene expression patterns using PCA</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################################</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA to visualize global gene expression patterns</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># First normalize the data using variance stabilization</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>vsd <span class="ot">&lt;-</span> <span class="fu">vst</span>(dds, <span class="at">blind=</span><span class="cn">FALSE</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">plotPCA</span>(vsd, <span class="at">intgroup=</span><span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>percentVar <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">attr</span>(data,<span class="st">&quot;percentVar&quot;</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="do">###########  </span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>dataF0 <span class="ot">&lt;-</span> <span class="fu">subset</span>(data, generation <span class="sc">==</span> <span class="st">&#39;F0&#39;</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>F0 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dataF0, <span class="fu">aes</span>(PC1, PC2)) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">10</span>, <span class="at">stroke =</span> <span class="fl">1.5</span>, <span class="fu">aes</span>(<span class="at">fill=</span>treatment, <span class="at">shape=</span>treatment)) <span class="sc">+</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC1: &quot;</span>,percentVar[<span class="dv">1</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC2: &quot;</span>,percentVar[<span class="dv">2</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>)<span class="sc">+</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="dv">21</span>,<span class="dv">22</span>,<span class="dv">23</span>,<span class="dv">24</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&#39;#6699CC&#39;</span>,<span class="st">&quot;#F2AD00&quot;</span>,<span class="st">&quot;#00A08A&quot;</span>, <span class="st">&quot;#CC3333&quot;</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="do">##theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = &quot;black&quot;)) +</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">#guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">#guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#guides(shape = guide_legend(override.aes = list(size = 5)))+</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">size =</span> <span class="dv">4</span>))<span class="sc">+</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>F0</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="st">&quot;PCA_F0.png&quot;</span>, <span class="at">res=</span><span class="dv">300</span>, <span class="at">height=</span><span class="dv">5</span>, <span class="at">width=</span><span class="dv">5</span>, <span class="at">units=</span><span class="st">&quot;in&quot;</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F0, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a><span class="do">################# F2</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>dataF2 <span class="ot">&lt;-</span> <span class="fu">subset</span>(data, generation <span class="sc">==</span> <span class="st">&#39;F2&#39;</span>)</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>F2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dataF2, <span class="fu">aes</span>(PC1, PC2)) <span class="sc">+</span></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">10</span>, <span class="at">stroke =</span> <span class="fl">1.5</span>, <span class="fu">aes</span>(<span class="at">fill=</span>treatment, <span class="at">shape=</span>treatment)) <span class="sc">+</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC1: &quot;</span>,percentVar[<span class="dv">1</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC2: &quot;</span>,percentVar[<span class="dv">2</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>)<span class="sc">+</span></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="dv">21</span>,<span class="dv">22</span>,<span class="dv">23</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_color_manual(values = c(&#39;#6699CC&#39;,&quot;#F2AD00&quot;,&quot;#00A08A&quot;, &quot;#CC3333&quot;)) + </span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_color_manual(values=c(&#39;black&#39;)) +</span></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&#39;#6699CC&#39;</span>,<span class="st">&quot;#F2AD00&quot;</span>,<span class="st">&quot;#00A08A&quot;</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>  <span class="co">#theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = &quot;black&quot;)) +</span></span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_size(guide=&quot;none&quot;) +</span></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>,<span class="dv">22</span>, <span class="dv">23</span>))))<span class="sc">+</span></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>,<span class="dv">22</span>, <span class="dv">23</span>))))<span class="sc">+</span></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">5</span>)))<span class="sc">+</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">size =</span> <span class="dv">4</span>))<span class="sc">+</span></span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>F2</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="st">&quot;PCA_F2.png&quot;</span>, <span class="at">res=</span><span class="dv">300</span>, <span class="at">height=</span><span class="dv">5</span>, <span class="at">width=</span><span class="dv">5</span>, <span class="at">units=</span><span class="st">&quot;in&quot;</span>)</span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F2, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co"># Yes - F2 is missing one ambient replicate</span></span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a><span class="do">################################ F4</span></span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>dataF4 <span class="ot">&lt;-</span> <span class="fu">subset</span>(data, generation <span class="sc">==</span> <span class="st">&#39;F4&#39;</span>)</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>F4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dataF4, <span class="fu">aes</span>(PC1, PC2)) <span class="sc">+</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">10</span>, <span class="at">stroke =</span> <span class="fl">1.5</span>, <span class="fu">aes</span>(<span class="at">fill=</span>treatment, <span class="at">shape=</span>treatment)) <span class="sc">+</span></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC1: &quot;</span>,percentVar[<span class="dv">1</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC2: &quot;</span>,percentVar[<span class="dv">2</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>)<span class="sc">+</span></span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="dv">21</span>,<span class="dv">22</span>,<span class="dv">23</span>,<span class="dv">24</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_color_manual(values = c(&#39;#6699CC&#39;,&quot;#F2AD00&quot;,&quot;#00A08A&quot;, &quot;#CC3333&quot;)) + </span></span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_color_manual(values=c(&#39;black&#39;)) +</span></span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&#39;#6699CC&#39;</span>,<span class="st">&quot;#F2AD00&quot;</span>,<span class="st">&quot;#00A08A&quot;</span>, <span class="st">&quot;#CC3333&quot;</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;Acidification&quot;</span>,<span class="st">&quot;Warming&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>  <span class="co">#theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = &quot;black&quot;)) +</span></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_size(guide=&quot;none&quot;) +</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>,<span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">24</span>))))<span class="sc">+</span></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>,<span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">24</span>))))<span class="sc">+</span></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">5</span>)))<span class="sc">+</span></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">size =</span> <span class="dv">4</span>))<span class="sc">+</span></span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>F4</span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="st">&quot;PCA_F4.png&quot;</span>, <span class="at">res=</span><span class="dv">300</span>, <span class="at">height=</span><span class="dv">5</span>, <span class="at">width=</span><span class="dv">5</span>, <span class="at">units=</span><span class="st">&quot;in&quot;</span>)</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F4, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="do">################# F11</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>dataF11 <span class="ot">&lt;-</span> <span class="fu">subset</span>(data, generation <span class="sc">==</span> <span class="st">&#39;F11&#39;</span>)</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>F11 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dataF11, <span class="fu">aes</span>(PC1, PC2)) <span class="sc">+</span></span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">10</span>, <span class="at">stroke =</span> <span class="fl">1.5</span>, <span class="fu">aes</span>(<span class="at">fill=</span>treatment, <span class="at">shape=</span>treatment)) <span class="sc">+</span></span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC1: &quot;</span>,percentVar[<span class="dv">1</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC2: &quot;</span>,percentVar[<span class="dv">2</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>)<span class="sc">+</span></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="dv">21</span>,<span class="dv">24</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_color_manual(values = c(&#39;#6699CC&#39;,&quot;#F2AD00&quot;,&quot;#00A08A&quot;, &quot;#CC3333&quot;)) + </span></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_color_manual(values=c(&#39;black&#39;)) +</span></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&#39;#6699CC&#39;</span>, <span class="st">&quot;#CC3333&quot;</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Ambient&quot;</span>, <span class="st">&quot;OWA&quot;</span>))<span class="sc">+</span></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>  <span class="co">#theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = &quot;black&quot;)) +</span></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_size(guide=&quot;none&quot;) +</span></span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>, <span class="dv">24</span>))))<span class="sc">+</span></span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fu">c</span>( <span class="dv">21</span>, <span class="dv">24</span>))))<span class="sc">+</span></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">size =</span> <span class="dv">5</span>)))<span class="sc">+</span></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">size =</span> <span class="dv">4</span>))<span class="sc">+</span></span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>F11</span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="st">&quot;PCA_F11.png&quot;</span>, <span class="at">res=</span><span class="dv">300</span>, <span class="at">height=</span><span class="dv">5</span>, <span class="at">width=</span><span class="dv">5</span>, <span class="at">units=</span><span class="st">&quot;in&quot;</span>)</span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F11, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
+</div>
+</div>
 </div>
 </section>
 

@@ -1,0 +1,385 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 3"
+date: 'October 16, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Objectives for today 
+
+1. Review the quality of our Illumina data from [our google sheet](https://docs.google.com/spreadsheets/d/1c2rOpUUuMiOiymu6foAX9n_mAH5re1pEtMNKLlXQ23w/edit?usp=sharing).
+2. Assess our previously assembled _de novo_ transcriptome assembly using scripts provided through [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki).
+3. Map reads and quantify abundance simultaneously using [Salmon](https://www.nature.com/articles/nmeth.4197).
+4. Prepare data for import into DESeq2.
+5. Start analyzing the gene expression data using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+
+
+
+## 1. Review the quality of our Illumina data
+
+Let's check the amount and quality of our RNAseq data. We looked at some the fastp .html outputs before. Now let's just check [our google sheet](https://docs.google.com/spreadsheets/d/1c2rOpUUuMiOiymu6foAX9n_mAH5re1pEtMNKLlXQ23w/edit?usp=sharing). A good "rule of thumb' for RNAseq data when working with a diploid eukaryote is about ~20M reads per sample. 
+
+## 2. Assess the quality of the reference transcriptome
+
+I previously assembled the _de novo_ transcriptome `ahud_Trinity.fasta` with these RNAseq data using [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki). It can be found in `/data/project_data/RNAseq/assembly/`. Let's look at some basic statistics of the assembly.
+
+```
+/data/popgen/trinityrnaseq-v2.13.2/util/TrinityStats.pl  /data/project_data/RNAseq/assembly/ahud_Trinity.fasta
+```
+Should yield:
+```
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':	130580
+Total trinity transcripts:	349516
+Percent GC: 35.57
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+	Contig N10: 4647
+	Contig N20: 3149
+	Contig N30: 2356
+	Contig N40: 1791
+	Contig N50: 1356
+
+	Median contig length: 430
+	Average contig: 801.91
+	Total assembled bases: 280279107
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+	Contig N10: 4679
+	Contig N20: 3115
+	Contig N30: 2247
+	Contig N40: 1613
+	Contig N50: 1057
+
+	Median contig length: 320
+	Average contig: 626.33
+	Total assembled bases: 81786351
+```
+We can also assess the completeness of the assembly using a program called [BUSCO](https://busco.ezlab.org/)
+
+```
+busco -m transcriptome -i /data/project_data/RNAseq/assembly/ahud_Trinity.fasta -o ~/myresults/BUSCO/BUSCOarthropoda -l arthropoda_odb10
+
+```
+* Then check your BUSCO results as shown below.
+```
+$ cat short_summary.specific.arthropoda_odb10.BUSCOarthropoda.txt 
+# BUSCO version is: 5.2.2 
+# The lineage dataset is: arthropoda_odb10 (Creation date: 2020-09-10, number of genomes: 90, number of BUSCOs: 1013)
+# Summarized benchmarking in BUSCO notation for file /data/project_data/RNAseq/assembly/ahud_Trinity.fasta
+# BUSCO was run in mode: transcriptome
+
+	***** Results: *****
+
+	C:96.9%[S:7.1%,D:89.8%],F:1.1%,M:2.0%,n:1013	   
+	982	Complete BUSCOs (C)			   
+	72	Complete and single-copy BUSCOs (S)	   
+	910	Complete and duplicated BUSCOs (D)	   
+	11	Fragmented BUSCOs (F)			   
+	20	Missing BUSCOs (M)			   
+	1013	Total BUSCO groups searched		   
+
+Dependencies and versions:
+	hmmsearch: 3.1
+	metaeuk: 5.34c21f2
+```
+
+## 3. Map to the reference transcriptome
+#### The code below makes and preps the reference, note the --prep_reference flag
+NOTE: Only one person needs to do this step. Who's the lucky person?
+* Navigate to the directory where the assembly lives: `/data/project_data/RNAseq/assembly`
+```
+/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --est_method salmon \
+  --trinity_mode \
+  --prep_reference
+```
+This should make two files:
+```
+ahud_Trinity.fasta.gene_trans_map
+ahud_Trinity.fasta.salmon.idx
+```
+#### The code below maps to the reference using salmon
+* For this part you need to make the samples file `ahud_XXXXX.txt` with your set of samples.
+* Copy the complete file from `/data/project_data/RNAseq/assembly/ahud_XXXXX.txt` to your local machine (or you could edit in `vim` but there will be a lot of deleting.
+* Use a text editor to edit the file to only include your samples.
+* Copy the file back to the server into your `~/mydata` directory; Update the script below to have your correct samples_file filename.
+* **NOTE: Run this with `tmux` ** and first navigate to the `/data/project_data/RNAseq/mapping` directory
+```
+cd /data/project_data/RNAseq/mapping
+
+/data/popgen/trinityrnaseq-v2.13.2/util/align_and_estimate_abundance.pl --transcripts /data/project_data/RNAseq/assembly/ahud_Trinity.fasta \
+  --seqType fq \
+  --samples_file ~/mydata/ahud_XXXXX.txt \
+  --est_method salmon \
+  --output_dir /data/project_data/RNAseq/mapping \
+  --thread_count 1 \
+  --trinity_mode
+```
+
+## Explore mapping rate
+For each sample mapped, you now have a directory with several output files including a log of the run. In that log, the mapping rate (% of reads mapped with sufficient quality) is reported. We can view the contents of the file using `cat`. 
+We can also use `grep` (i.e., regular expressions) to pull out the mapping rate for all the samples. Though there's probably a more elegant solution, here is one:
+```
+grep -r --include \*.log -e 'Mapping rate'
+```
+* How could we save this output?
+* What is our mapping rate? Is this good/enough? What factors could affect mapping rate?
+
+
+## 4. Prepare data for import into DESeq2.
+
+#### The code below assembles all the individually mapped reads into one data matrix
+
+We provide a file list to point to just the `quant.sf` files called `salmon_results_filelist.txt`.
+
+* **NOTE: Only one person needs to run the code below. Who's the lucky person this time? **
+
+```
+cd /data/project_data/RNAseq/mapping
+
+/data/popgen/trinityrnaseq-v2.13.2/util/abundance_estimates_to_matrix.pl --est_method salmon \
+  --gene_trans_map /data/project_data/RNAseq/assembly/ahud_Trinity.fasta.gene_trans_map \
+  --quant_files /data/project_data/RNAseq/mapping/salmon_results_filelist.txt \
+  --name_sample_by_basedir
+```
+Alright! With this matrix of number of reads that mapped to each contig/transcript, we can move to analyzing the data to test for differences in gene expression and more!
+
+* Move the counts data matrix to your individual machines using FileZilla. Also move the `ahud_samples_R.txt` file from `/data/project_data/RNAseq/mapping/` to your machine. This file is a table that associates each of our samples with their conditions (treatment, generation, replicate).
+
+## 5. Analyze the gene expression data (a.k.a. counts data) using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+
+Now we will work in R on our individual machines, each of us working with the complete data set (n=38, not just a subset of samples). There are [detailed tutorials available from the creators of DESeq2](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+
+### Get set up; Load the packages/libraries we will likely need 
+```R
+## Set your working directory
+setwd("~/github/hudsonica")
+
+## Import the libraries that we're likely to need in this session
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("DESeq2")
+
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)  ### First: BiocManager::install("vsn") AND BiocManager::install("hexbin")
+```
+`Tools` -> `Install packages` -> Search for the library of interest; Install including dependencies.
+
+### Import Counts Matrix and Sample ID tables into R and DESeq2 
+```R
+# Import the counts matrix
+countsTable <- read.table("data/salmon.isoform.counts.matrix", header=TRUE, row.names=1)
+head(countsTable)
+dim(countsTable)
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+head(countsTableRound)
+
+#import the sample discription table
+conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+head(conds)
+```
+
+### Explore the counts data a bit
+```R
+# Let's see how many reads we have from each sample
+colSums(countsTableRound)
+mean(colSums(countsTableRound))
+
+barplot(colSums(countsTableRound), names.arg=colnames(countsTableRound),cex.names=0.5, las=3,ylim=c(0,20000000))
+abline(h=mean(colSums(countsTableRound)), col="blue", lwd=2)
+
+# the average number of counts per gene
+rowSums(countsTableRound)
+mean(rowSums(countsTableRound)) # [1] 11930.81 - tonsa, 6076.078 - hudsonica genes, 2269 - hudsonica isoform
+median(rowSums(countsTableRound)) # [1] 2226 - tonsa, 582 - hudsonica, 109
+
+apply(countsTableRound,2,mean) # 2 in the apply function does the action across columns
+apply(countsTableRound,1,mean) # 1 in the apply function does the action across rows
+hist(apply(countsTableRound,1,mean),xlim=c(0,1000), ylim=c(0,120000),breaks=10000)
+```
+
+### Create a DESeq object and define the experimental design
+```R
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment + generation)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of samples, so ~28)
+## suggested by WGCNA on RNAseq FAQ
+
+dds <- dds[rowSums(counts(dds) >= 30) >= 28,]
+nrow(dds) 
+
+# Run the DESeq model to test for differential gene expression
+dds <- DESeq(dds)
+
+# List the results you've generated
+resultsNames(dds)
+```
+
+
+
+### Visualize the global gene expression patterns using PCA
+```R
+###############################################################
+# PCA to visualize global gene expression patterns
+
+# First normalize the data using variance stabilization
+vsd <- vst(dds, blind=FALSE)
+
+data <- plotPCA(vsd, intgroup=c("treatment","generation"), returnData=TRUE)
+percentVar <- round(100 * attr(data,"percentVar"))
+
+###########  
+
+dataF0 <- subset(data, generation == 'F0')
+
+F0 <- ggplot(dataF0, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23,24), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A", "#CC3333"), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  ##theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+
+F0
+
+
+png("PCA_F0.png", res=300, height=5, width=5, units="in")
+
+ggarrange(F0, nrow = 1, ncol=1)
+
+dev.off()
+
+################# F2
+
+dataF2 <- subset(data, generation == 'F2')
+
+F2 <- ggplot(dataF2, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23), labels = c("Ambient", "Acidification","Warming"))+
+  # scale_color_manual(values = c('#6699CC',"#F2AD00","#00A08A", "#CC3333")) + 
+  #scale_color_manual(values=c('black')) +
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A"), labels = c("Ambient", "Acidification","Warming"))+
+  #theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #scale_size(guide="none") +
+  guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F2
+
+
+png("PCA_F2.png", res=300, height=5, width=5, units="in")
+
+ggarrange(F2, nrow = 1, ncol=1)
+
+dev.off()
+
+# Yes - F2 is missing one ambient replicate
+
+################################ F4
+
+dataF4 <- subset(data, generation == 'F4')
+
+F4 <- ggplot(dataF4, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23,24), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  # scale_color_manual(values = c('#6699CC',"#F2AD00","#00A08A", "#CC3333")) + 
+  #scale_color_manual(values=c('black')) +
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A", "#CC3333"), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  #theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #scale_size(guide="none") +
+  guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F4
+
+
+png("PCA_F4.png", res=300, height=5, width=5, units="in")
+
+ggarrange(F4, nrow = 1, ncol=1)
+
+dev.off()
+
+
+################# F11
+
+dataF11 <- subset(data, generation == 'F11')
+
+F11 <- ggplot(dataF11, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,24), labels = c("Ambient", "OWA"))+
+  # scale_color_manual(values = c('#6699CC',"#F2AD00","#00A08A", "#CC3333")) + 
+  #scale_color_manual(values=c('black')) +
+  scale_fill_manual(values=c('#6699CC', "#CC3333"), labels = c("Ambient", "OWA"))+
+  #theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #scale_size(guide="none") +
+  guides(shape = guide_legend(override.aes = list(shape = c( 21, 24))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21, 24))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F11
+
+
+png("PCA_F11.png", res=300, height=5, width=5, units="in")
+
+ggarrange(F11, nrow = 1, ncol=1)
+
+dev.off()
+```

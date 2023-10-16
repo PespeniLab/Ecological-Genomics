@@ -30,6 +30,7 @@ fontsize: 18pt
 
 11. 2023-10-09: [Transcriptomics Day 1](Fall2023/tutorials/2023-10-09_RNAseq_Day1v2.html)
 12. 2023-10-11: [Transcriptomics Day 2](Fall2023/tutorials/2023-10-11_RNAseq_Day2.html)
+13. 2023-10-16: [Transcriptomics Day 3](Fall2023/tutorials/2023-10-16_RNAseq_Day3.html)
 
 
 **Metagenomics/Microbiome Module**
