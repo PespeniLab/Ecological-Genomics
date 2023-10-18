@@ -392,6 +392,26 @@ p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) +
 p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
 p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
 p
+```
 
+### We can make an MA (or sideways volcano) plot now that we're contrasting just two groups
+```R
+plotMA(res_F0_AMvOW, ylim=c(-4,4))
+```
 
+### We can also make a heatmap of the DEGs
+```R
+########################################
+
+# Heatmap of top 20 genes sorted by pvalue
+
+library(pheatmap)
+
+vsd <- vst(dds_sub, blind=FALSE)
+
+topgenes <- head(rownames(res_F0_AMvOW),20)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds_sub)[,c("generation","treatment")])
+pheatmap(mat, annotation_col=df)
 ```
