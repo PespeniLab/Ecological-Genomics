@@ -344,7 +344,54 @@ d
 p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
   theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
 p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
-p <- p + stat_summary(fun = mean, geom = "line")
 p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
 p
+```
+
+### Let's try another model for testing DGE 
+
+```R
+
+#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(dds)
+# [1] 130580     38
+
+# Filter 
+dds <- dds[rowSums(counts(dds) >= 30) >= 28,]
+nrow(dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+dds_sub <- subset(dds, select = generation == 'F0')
+dim(dds_sub)
+
+# Perform DESeq2 analysis on the subset
+dds_sub <- DESeq(dds_sub)
+
+resultsNames(dds_sub)
+
+res_F0_AMvOW <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+
+res_F0_AMvOW <- res_F0_AMvOW[order(res_F0_AMvOW$padj),]
+head(res_F0_AMvOW) 
+
+summary(res_F0_AMvOW)
+
+
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds, gene="TRINITY_DN3821_c0_g1_i2", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+
+
 ```
