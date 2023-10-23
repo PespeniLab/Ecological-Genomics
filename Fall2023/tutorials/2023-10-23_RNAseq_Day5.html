@@ -154,8 +154,9 @@ the new gene expression matrix.</li>
 <li>Explore patterns in the gene expression data using <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a>:
 explore data, plot PCA, test for DGE, make a Venn diagram.</li>
 </ol>
-<div id="review-de-novo-transcriptome-assembly-filtering-results" class="section level2">
-<h2>1. Review de novo transcriptome assembly filtering results</h2>
+</div>
+<div id="review-de-novo-transcriptome-assembly-filtering-results" class="section level1">
+<h1>1. Review de novo transcriptome assembly filtering results</h1>
 <p>Our initial assembly has ~350,000 isoforms and ~180,000 genes due to
 the large amount of genetic diversity among the 100s of individuals
 sequenced and potential isoforms/splice variants among the different
@@ -330,14 +331,14 @@ remapped our cleaned reads to this new assembly using the salmon.</p>
 <code>/data/project_data/RNAseq/mapping</code>.</strong></li>
 </ul>
 </div>
-<div id="analyze-the-gene-expression-data-a.k.a.-counts-data-using-deseq2" class="section level2">
-<h2>2. Analyze the gene expression data (a.k.a. counts data) using <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a></h2>
+<div id="analyze-the-gene-expression-data-a.k.a.-counts-data-using-deseq2" class="section level1">
+<h1>2. Analyze the gene expression data (a.k.a. counts data) using <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a></h1>
 <p>Now we will work in R on our individual machines, each of us working
 with the complete data set (n=38, not just a subset of samples). There
 are <a href="https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">detailed
 tutorials available from the creators of DESeq2</a>.</p>
-<div id="get-set-up-load-the-packageslibraries-we-will-likely-need" class="section level3">
-<h3>Get set up; Load the packages/libraries we will likely need</h3>
+<div id="get-set-up-load-the-packageslibraries-we-will-likely-need" class="section level2">
+<h2>Get set up; Load the packages/libraries we will likely need</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Set your working directory</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;YOUR/WORKING/DIRECTORY&quot;</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -352,8 +353,8 @@ tutorials available from the creators of DESeq2</a>.</p>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(wesanderson)</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vsn)  </span></code></pre></div>
 </div>
-<div id="import-counts-matrix-and-sample-id-tables-into-r-and-deseq2" class="section level3">
-<h3>Import Counts Matrix and Sample ID tables into R and DESeq2</h3>
+<div id="a.-import-counts-matrix-and-sample-id-tables-into-r-and-deseq2" class="section level2">
+<h2>A. Import Counts Matrix and Sample ID tables into R and DESeq2</h2>
 <p><strong>Make sure to replace the counts matrix you are
 importing!</strong></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import the counts matrix</span></span>
@@ -368,8 +369,8 @@ importing!</strong></p>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>conds <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">&quot;ahud_samples_R.txt&quot;</span>, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>, <span class="at">row.names=</span><span class="dv">1</span>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(conds)</span></code></pre></div>
 </div>
-<div id="explore-the-counts-data-a-bit" class="section level3">
-<h3>Explore the counts data a bit</h3>
+<div id="b.-explore-the-counts-data-with-simple-calculations-and-plots" class="section level2">
+<h2>B. Explore the counts data with simple calculations and plots</h2>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let&#39;s see how many reads we have from each sample</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(countsTableRound)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">colSums</span>(countsTableRound))</span>
@@ -386,8 +387,9 @@ importing!</strong></p>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(countsTableRound,<span class="dv">1</span>,mean) <span class="co"># 1 in the apply function does the action across rows</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">apply</span>(countsTableRound,<span class="dv">1</span>,mean),<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1000</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">50000</span>),<span class="at">breaks=</span><span class="dv">10000</span>)</span></code></pre></div>
 </div>
-<div id="create-a-deseq-object-and-define-the-experimental-design" class="section level3">
-<h3>Create a DESeq object and define the experimental design</h3>
+<div id="c.-create-a-deseq-object-define-the-experimental-design-and-filter-by-depth" class="section level2">
+<h2>C. Create a DESeq object, define the experimental design, and filter
+by depth</h2>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">#### Create a DESeq object and define the experimental design here with the tilda</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> countsTableRound, <span class="at">colData=</span>conds, </span>
@@ -407,9 +409,9 @@ importing!</strong></p>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># List the results you&#39;ve generated</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span></code></pre></div>
 </div>
-<div id="check-the-quality-of-the-data-by-sample-clustering-and-visualization" class="section level3">
-<h3>Check the quality of the data by sample clustering and
-visualization</h3>
+<div id="d.-check-the-quality-of-the-data-by-sample-clustering-and-visualization" class="section level2">
+<h2>D. Check the quality of the data by sample clustering and
+visualization</h2>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################################</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the quality of the data by sample clustering and visualization</span></span>
@@ -438,7 +440,6 @@ visualization</h3>
 <span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">clustering_distance_rows=</span>sampleDists,</span>
 <span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">clustering_distance_cols=</span>sampleDists,</span>
 <span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">col=</span>colors)</span></code></pre></div>
-</div>
 <div id="visualize-the-global-gene-expression-patterns-using-pca" class="section level3">
 <h3>Visualize the global gene expression patterns using PCA</h3>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################################</span></span>
@@ -457,8 +458,9 @@ visualization</h3>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="fu">paste0</span>(<span class="st">&quot;PC2: &quot;</span>,percentVar[<span class="dv">2</span>],<span class="st">&quot;% variance&quot;</span>)) <span class="sc">+</span> </span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>()</span></code></pre></div>
 </div>
-<div id="lets-plot-the-pca-by-generation-in-four-panels" class="section level3">
-<h3>Let’s plot the PCA by generation in four panels</h3>
+<div id="make-a-more-advanced-pca-plot-and-plot-by-generation-in-four-panels" class="section level3">
+<h3>Make a more advanced PCA plot and plot by generation in four
+panels</h3>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################################</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Let&#39;s plot the PCA by generation in four panels</span></span>
@@ -599,9 +601,12 @@ visualization</h3>
 <span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F0, F2, F4, F11, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol=</span><span class="dv">2</span>)</span></code></pre></div>
 </div>
-<div id="now-that-we-have-a-sense-of-our-data-lets-explore-models-and-contrasts-for-testing-for-differential-expression" class="section level3">
-<h3>Now that we have a sense of our data, let’s explore models and
-contrasts for testing for differential expression</h3>
+</div>
+<div id="e.-explore-differential-expression-with-full-model-ge-generation-treatment" class="section level2">
+<h2>E. Explore differential expression with full model, GE ~ generation
++ treatment</h2>
+<p>Now that we have a sense of our data, let’s explore models and
+contrasts for testing for differential expression</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Check on the DE results from the DESeq command way above ##</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>resAM_OWA <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
@@ -617,91 +622,97 @@ contrasts for testing for differential expression</h3>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>resAM_OW <span class="ot">&lt;-</span> resAM_OW[<span class="fu">order</span>(resAM_OW<span class="sc">$</span>padj),]</span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resAM_OW)  </span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(resAM_OW)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN3600_c0_g1::TRINITY_DN3600_c0_g1_i2::g.16079::m.16079&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>d</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;line&quot;</span>)</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(resAM_OW)</span></code></pre></div>
+<p>It’s important to check the expression patterns of the top
+differentially genes to know that the model and tests are pulling out
+patterns you expect.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN3600_c0_g1::TRINITY_DN3600_c0_g1_i2::g.16079::m.16079&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>d</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;line&quot;</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
 <p>So, the above model finds differences between treatment groups that
 are largely consistent across generations. We know based on our PCA that
 the responses to treatments are quite different across generations. So
 let’s try subsetting our data by generation and testing for differential
 expression.</p>
 </div>
-</div>
-<div id="lets-try-another-model-for-testing-dge" class="section level2">
-<h2>Let’s try another model for testing DGE</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="do">#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> countsTableRound, <span class="at">colData=</span>conds, </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">design=</span> <span class="sc">~</span> treatment)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] 130580     38</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter </span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[<span class="fu">rowSums</span>(<span class="fu">counts</span>(dds) <span class="sc">&gt;=</span> <span class="dv">30</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>,]</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dds) </span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset the DESeqDataSet to the specific level of the &quot;generation&quot; factor</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(dds, <span class="at">select =</span> generation <span class="sc">==</span> <span class="st">&#39;F0&#39;</span>)</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds_sub)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform DESeq2 analysis on the subset</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds_sub)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds_sub)</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOW <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOW <span class="ot">&lt;-</span> res_F0_AMvOW[<span class="fu">order</span>(res_F0_AMvOW<span class="sc">$</span>padj),]</span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_AMvOW) </span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_AMvOW)</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>d</span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<div id="f.-run-another-model-that-focuses-on-treatment-effects-for-each-generation" class="section level2">
+<h2>F. Run another model that focuses on treatment effects for each
+generation</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> countsTableRound, <span class="at">colData=</span>conds, </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">design=</span> <span class="sc">~</span> treatment)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] 130580     38</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter </span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[<span class="fu">rowSums</span>(<span class="fu">counts</span>(dds) <span class="sc">&gt;=</span> <span class="dv">30</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>,]</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dds) </span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset the DESeqDataSet to the specific level of the &quot;generation&quot; factor</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(dds, <span class="at">select =</span> generation <span class="sc">==</span> <span class="st">&#39;F0&#39;</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds_sub)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform DESeq2 analysis on the subset</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds_sub)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds_sub)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="fu">order</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWvAM)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWvAM)</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds_sub, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>d</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
 <div id="we-can-make-an-ma-or-sideways-volcano-plot-now-that-were-contrasting-just-two-groups" class="section level3">
 <h3>We can make an MA (or sideways volcano) plot now that we’re
 contrasting just two groups</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotMA</span>(res_F0_AMvOW, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>,<span class="dv">4</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We can make an MA plot</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plotMA</span>(res_F0_OWvAM, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>,<span class="dv">4</span>))</span></code></pre></div>
 </div>
 <div id="we-can-also-make-a-heatmap-of-the-degs" class="section level3">
 <h3>We can also make a heatmap of the DEGs</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">########################################</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap of top 20 genes sorted by pvalue</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>vsd <span class="ot">&lt;-</span> <span class="fu">vst</span>(dds_sub, <span class="at">blind=</span><span class="cn">FALSE</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>topgenes <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">rownames</span>(res_F0_AMvOW),<span class="dv">20</span>)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">assay</span>(vsd)[topgenes,]</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">-</span> <span class="fu">rowMeans</span>(mat)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(dds_sub)[,<span class="fu">c</span>(<span class="st">&quot;generation&quot;</span>,<span class="st">&quot;treatment&quot;</span>)])</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(mat, <span class="at">annotation_col=</span>df)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">########################################</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap of top 20 genes sorted by pvalue</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># By environment</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>vsd <span class="ot">&lt;-</span> <span class="fu">vst</span>(dds_sub, <span class="at">blind=</span><span class="cn">FALSE</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>topgenes <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">rownames</span>(res_F0_OWvAM),<span class="dv">20</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">assay</span>(vsd)[topgenes,]</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">-</span> <span class="fu">rowMeans</span>(mat)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(dds_sub)[,<span class="fu">c</span>(<span class="st">&quot;generation&quot;</span>,<span class="st">&quot;treatment&quot;</span>)])</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(mat, <span class="at">annotation_col=</span>df)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(mat, <span class="at">annotation_col=</span>df, <span class="at">cluster_cols =</span> F)</span></code></pre></div>
 </div>
 </div>
 <div id="lets-make-a-venn-or-euler-diagram" class="section level2">
@@ -709,81 +720,81 @@ contrasting just two groups</h3>
 <p>Last but not least, since we have three contrasts, let’s make a Venn
 (or Euler) Diagram to see how similar or different the DGE is from
 Ambient for OA, OW, and OWA at F0!</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="do">#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># For AM vs OW</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOW <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOW <span class="ot">&lt;-</span> res_F0_AMvOW[<span class="fu">order</span>(res_F0_AMvOW<span class="sc">$</span>padj),]</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_AMvOW)</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_AMvOW)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOW <span class="ot">&lt;-</span> res_F0_AMvOW[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_AMvOW<span class="sc">$</span>padj),]</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>degs_F0_AMvOW <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_AMvOW[res_F0_AMvOW<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co"># For AM vs OA</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOA <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOA <span class="ot">&lt;-</span> res_F0_AMvOA[<span class="fu">order</span>(res_F0_AMvOA<span class="sc">$</span>padj),]</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_AMvOA)</span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_AMvOA)</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOA <span class="ot">&lt;-</span> res_F0_AMvOA[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_AMvOA<span class="sc">$</span>padj),]</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>degs_F0_AMvOA <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_AMvOA[res_F0_AMvOA<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="co"># For AM vs OWA</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOWA <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOWA <span class="ot">&lt;-</span> res_F0_AMvOWA[<span class="fu">order</span>(res_F0_AMvOWA<span class="sc">$</span>padj),]</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_AMvOWA)</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_AMvOWA)</span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>res_F0_AMvOWA <span class="ot">&lt;-</span> res_F0_AMvOWA[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_AMvOWA<span class="sc">$</span>padj),]</span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>degs_F0_AMvOWA <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_AMvOWA[res_F0_AMvOWA<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eulerr)</span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Total</span></span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_AMvOA)  <span class="co"># 520</span></span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_AMvOW)  <span class="co"># 4841 </span></span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_AMvOWA)  <span class="co"># 3742</span></span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Intersections</span></span>
-<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_AMvOA,degs_F0_AMvOW))  <span class="co"># 387</span></span>
-<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_AMvOA,degs_F0_AMvOWA))  <span class="co"># 340</span></span>
-<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_AMvOWA,degs_F0_AMvOW))  <span class="co"># 2585</span></span>
-<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>intWA <span class="ot">&lt;-</span> <span class="fu">intersect</span>(degs_F0_AMvOA,degs_F0_AMvOW)</span>
-<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_AMvOWA,intWA)) <span class="co"># 308</span></span>
-<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Number unique</span></span>
-<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a><span class="dv">520-387-340</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 101 OA</span></span>
-<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a><span class="dv">4841-387-2585</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 2177 OW </span></span>
-<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a><span class="dv">3742-340-2585</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 1125 OWA</span></span>
-<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a><span class="dv">387-308</span> <span class="co"># 79 OA &amp; OW</span></span>
-<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a><span class="dv">340-308</span> <span class="co"># 32 OA &amp; OWA</span></span>
-<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a><span class="dv">2585-308</span> <span class="co"># 2277 OWA &amp; OW</span></span>
-<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the names are important and have to be specific to line up the diagram</span></span>
-<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">euler</span>(<span class="fu">c</span>(<span class="st">&quot;OA&quot;</span> <span class="ot">=</span> <span class="dv">101</span>, <span class="st">&quot;OW&quot;</span> <span class="ot">=</span> <span class="dv">2177</span>, <span class="st">&quot;OWA&quot;</span> <span class="ot">=</span> <span class="dv">1125</span>, <span class="st">&quot;OA&amp;OW&quot;</span> <span class="ot">=</span> <span class="dv">79</span>, <span class="st">&quot;OA&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">32</span>, <span class="st">&quot;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">2277</span>, <span class="st">&quot;OA&amp;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">308</span>))</span>
-<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1,  <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">quantities =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a><span class="co"># lty changes the lines</span></span>
-<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1, <span class="at">quantities =</span> <span class="cn">TRUE</span>, <span class="at">fill =</span> <span class="st">&quot;transparent&quot;</span>,</span>
-<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>     <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="dv">4</span>))</span>
-<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a><span class="co">#cross check</span></span>
-<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a><span class="dv">2177</span><span class="sc">+</span><span class="dv">2277</span><span class="sc">+</span><span class="dv">308</span><span class="sc">+</span><span class="dv">79</span> <span class="co"># 4841, total OW</span></span>
-<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a><span class="dv">1125</span><span class="sc">+</span><span class="dv">2277</span><span class="sc">+</span><span class="dv">308</span><span class="sc">+</span><span class="dv">32</span> <span class="co"># 3742, total OWA</span></span>
-<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a><span class="dv">101</span><span class="sc">+</span><span class="dv">32</span><span class="sc">+</span><span class="dv">79</span><span class="sc">+</span><span class="dv">308</span>    <span class="co"># 520, total OA</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="do">#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># For OW vs AM</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="fu">order</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWvAM)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWvAM)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>degs_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OWvAM[res_F0_OWvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co"># For OA vs AM</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> res_F0_OAvAM[<span class="fu">order</span>(res_F0_OAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OAvAM)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OAvAM)</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> res_F0_OAvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>degs_F0_OAvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OAvAM[res_F0_OAvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># For OWA vs AM</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> res_F0_OWAvAM[<span class="fu">order</span>(res_F0_OWAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWAvAM)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWAvAM)</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> res_F0_OWAvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OWAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>degs_F0_OWAvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OWAvAM[res_F0_OWAvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eulerr)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Total</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OAvAM)  <span class="co"># 520</span></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OWvAM)  <span class="co"># 4841 </span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OWAvAM)  <span class="co"># 3742</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Intersections</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWvAM))  <span class="co"># 387</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWAvAM))  <span class="co"># 340</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OWAvAM,degs_F0_OWvAM))  <span class="co"># 2585</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>intWA <span class="ot">&lt;-</span> <span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWvAM)</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OWAvAM,intWA)) <span class="co"># 308</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Number unique</span></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a><span class="dv">520-387-340</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 101 OA</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="dv">4841-387-2585</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 2177 OW </span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a><span class="dv">3742-340-2585</span><span class="sc">+</span><span class="dv">308</span> <span class="co"># 1125 OWA</span></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a><span class="dv">387-308</span> <span class="co"># 79 OA &amp; OW</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a><span class="dv">340-308</span> <span class="co"># 32 OA &amp; OWA</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a><span class="dv">2585-308</span> <span class="co"># 2277 OWA &amp; OW</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the names are important and have to be specific to line up the diagram</span></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">euler</span>(<span class="fu">c</span>(<span class="st">&quot;OA&quot;</span> <span class="ot">=</span> <span class="dv">101</span>, <span class="st">&quot;OW&quot;</span> <span class="ot">=</span> <span class="dv">2177</span>, <span class="st">&quot;OWA&quot;</span> <span class="ot">=</span> <span class="dv">1125</span>, <span class="st">&quot;OA&amp;OW&quot;</span> <span class="ot">=</span> <span class="dv">79</span>, <span class="st">&quot;OA&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">32</span>, <span class="st">&quot;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">2277</span>, <span class="st">&quot;OA&amp;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">308</span>))</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1,  <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">quantities =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a><span class="co"># lty changes the lines</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1, <span class="at">quantities =</span> <span class="cn">TRUE</span>, <span class="at">fill =</span> <span class="st">&quot;transparent&quot;</span>,</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>     <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="dv">4</span>))</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a><span class="co">#cross check</span></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a><span class="dv">2177</span><span class="sc">+</span><span class="dv">2277</span><span class="sc">+</span><span class="dv">308</span><span class="sc">+</span><span class="dv">79</span> <span class="co"># 4841, total OW</span></span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a><span class="dv">1125</span><span class="sc">+</span><span class="dv">2277</span><span class="sc">+</span><span class="dv">308</span><span class="sc">+</span><span class="dv">32</span> <span class="co"># 3742, total OWA</span></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a><span class="dv">101</span><span class="sc">+</span><span class="dv">32</span><span class="sc">+</span><span class="dv">79</span><span class="sc">+</span><span class="dv">308</span>    <span class="co"># 520, total OA</span></span></code></pre></div>
 </div>
 </div>
 </section>

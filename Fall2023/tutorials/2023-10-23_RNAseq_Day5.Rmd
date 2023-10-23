@@ -12,7 +12,7 @@ fontsize: 18pt
 1. Review results from filtering of the de novo assembly and transfer the new gene expression matrix. 
 2. Explore patterns in the gene expression data using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html): explore data, plot PCA, test for DGE, make a Venn diagram.
 
-## 1. Review de novo transcriptome assembly filtering results
+# 1. Review de novo transcriptome assembly filtering results
 Our initial assembly has ~350,000 isoforms and ~180,000 genes due to the large amount of genetic diversity among the 100s of individuals sequenced and potential isoforms/splice variants among the different treatment conditions. I clustered the initial assembly based on 95% sequence similarity using CD-HIT-EST (v4.6.6-2016-0711) and ran Transdecoder to filter down to only open reading frames. The code I used is below for your reference.
 
 ```         
@@ -148,11 +148,11 @@ The percent single copy and duplicated dramatically improved,from **S:7.1%,D:89.
 
 * **Use Filezilla to copy over the new counts matrix `salmon.isoform.counts.matrix.filteredAssembly` from `/data/project_data/RNAseq/mapping`.**
 
-## 2. Analyze the gene expression data (a.k.a. counts data) using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+# 2. Analyze the gene expression data (a.k.a. counts data) using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
 
 Now we will work in R on our individual machines, each of us working with the complete data set (n=38, not just a subset of samples). There are [detailed tutorials available from the creators of DESeq2](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
 
-### Get set up; Load the packages/libraries we will likely need 
+## Get set up; Load the packages/libraries we will likely need 
 
 ```R
 ## Set your working directory
@@ -170,7 +170,7 @@ library(wesanderson)
 library(vsn)  
 ```
 
-### Import Counts Matrix and Sample ID tables into R and DESeq2 
+## A. Import Counts Matrix and Sample ID tables into R and DESeq2 
 **Make sure to replace the counts matrix you are importing!**
 ```R
 # Import the counts matrix
@@ -186,7 +186,7 @@ conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, 
 head(conds)
 ```
 
-### Explore the counts data a bit
+## B. Explore the counts data with simple calculations and plots
 ```R
 # Let's see how many reads we have from each sample
 colSums(countsTableRound)
@@ -205,7 +205,7 @@ apply(countsTableRound,1,mean) # 1 in the apply function does the action across 
 hist(apply(countsTableRound,1,mean),xlim=c(0,1000), ylim=c(0,50000),breaks=10000)
 ```
 
-### Create a DESeq object and define the experimental design
+## C. Create a DESeq object, define the experimental design, and filter by depth
 ```R
 #### Create a DESeq object and define the experimental design here with the tilda
 
@@ -227,7 +227,7 @@ dds <- DESeq(dds)
 resultsNames(dds)
 ```
 
-### Check the quality of the data by sample clustering and visualization
+## D. Check the quality of the data by sample clustering and visualization
 ```R
 ###############################################################
 
@@ -278,7 +278,7 @@ ggplot(pcaData, aes(PC1, PC2, color=treatment, shape=generation)) +
   coord_fixed()
 ```
 
-### Let's plot the PCA by generation in four panels
+### Make a more advanced PCA plot and plot by generation in four panels
 ```R
 ###############################################################
 
@@ -422,7 +422,9 @@ ggarrange(F0, F2, F4, F11, nrow = 2, ncol=2)
 ```
 
 
-### Now that we have a sense of our data, let's explore models and contrasts for testing for differential expression
+## E. Explore differential expression with full model, GE ~ generation + treatment
+
+Now that we have a sense of our data, let's explore models and contrasts for testing for differential expression
 
 ```R
 ## Check on the DE results from the DESeq command way above ##
@@ -442,6 +444,9 @@ head(resAM_OW)
 
 summary(resAM_OW)
 
+```
+It's important to check the expression patterns of the top differentially genes to know that the model and tests are pulling out patterns you expect.
+```R
 
 ### Plot Individual genes ### 
 
@@ -458,7 +463,7 @@ p
 ```
 So, the above model finds differences between treatment groups that are largely consistent across generations. We know based on our PCA that the responses to treatments are quite different across generations. So let's try subsetting our data by generation and testing for differential expression.
 
-## Let's try another model for testing DGE 
+## F. Run another model that focuses on treatment effects for each generation
 
 ```R
 
@@ -483,18 +488,18 @@ dds_sub <- DESeq(dds_sub)
 
 resultsNames(dds_sub)
 
-res_F0_AMvOW <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+res_F0_OWvAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
 
-res_F0_AMvOW <- res_F0_AMvOW[order(res_F0_AMvOW$padj),]
-head(res_F0_AMvOW) 
+res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
+head(res_F0_OWvAM)
 
-summary(res_F0_AMvOW)
+summary(res_F0_OWvAM)
 
 
 ### Plot Individual genes ### 
 
 # Counts of specific top interaction gene! (important validatition that the normalization, model is working)
-d <-plotCounts(dds, gene="TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130", intgroup = (c("treatment","generation")), returnData=TRUE)
+d <-plotCounts(dds_sub, gene="TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130", intgroup = (c("treatment","generation")), returnData=TRUE)
 d
 
 p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
@@ -506,7 +511,9 @@ p
 
 ### We can make an MA (or sideways volcano) plot now that we're contrasting just two groups
 ```R
-plotMA(res_F0_AMvOW, ylim=c(-4,4))
+
+# We can make an MA plot
+plotMA(res_F0_OWvAM, ylim=c(-4,4))
 ```
 
 ### We can also make a heatmap of the DEGs
@@ -517,13 +524,15 @@ plotMA(res_F0_AMvOW, ylim=c(-4,4))
 
 library(pheatmap)
 
+# By environment
 vsd <- vst(dds_sub, blind=FALSE)
 
-topgenes <- head(rownames(res_F0_AMvOW),20)
+topgenes <- head(rownames(res_F0_OWvAM),20)
 mat <- assay(vsd)[topgenes,]
 mat <- mat - rowMeans(mat)
 df <- as.data.frame(colData(dds_sub)[,c("generation","treatment")])
 pheatmap(mat, annotation_col=df)
+pheatmap(mat, annotation_col=df, cluster_cols = F)
 ```
 
 ## Let's make a Venn (or Euler) Diagram
@@ -537,47 +546,47 @@ Last but not least, since we have three contrasts, let's make a Venn (or Euler) 
 
 #################################################################
 
-# For AM vs OW
-res_F0_AMvOW <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
-res_F0_AMvOW <- res_F0_AMvOW[order(res_F0_AMvOW$padj),]
-head(res_F0_AMvOW)
+# For OW vs AM
+res_F0_OWvAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
+head(res_F0_OWvAM)
 
-summary(res_F0_AMvOW)
-res_F0_AMvOW <- res_F0_AMvOW[!is.na(res_F0_AMvOW$padj),]
-degs_F0_AMvOW <- row.names(res_F0_AMvOW[res_F0_AMvOW$padj < 0.05,])
+summary(res_F0_OWvAM)
+res_F0_OWvAM <- res_F0_OWvAM[!is.na(res_F0_OWvAM$padj),]
+degs_F0_OWvAM <- row.names(res_F0_OWvAM[res_F0_OWvAM$padj < 0.05,])
 
-# For AM vs OA
-res_F0_AMvOA <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
-res_F0_AMvOA <- res_F0_AMvOA[order(res_F0_AMvOA$padj),]
-head(res_F0_AMvOA)
+# For OA vs AM
+res_F0_OAvAM <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
+res_F0_OAvAM <- res_F0_OAvAM[order(res_F0_OAvAM$padj),]
+head(res_F0_OAvAM)
 
-summary(res_F0_AMvOA)
-res_F0_AMvOA <- res_F0_AMvOA[!is.na(res_F0_AMvOA$padj),]
-degs_F0_AMvOA <- row.names(res_F0_AMvOA[res_F0_AMvOA$padj < 0.05,])
+summary(res_F0_OAvAM)
+res_F0_OAvAM <- res_F0_OAvAM[!is.na(res_F0_OAvAM$padj),]
+degs_F0_OAvAM <- row.names(res_F0_OAvAM[res_F0_OAvAM$padj < 0.05,])
 
-# For AM vs OWA
-res_F0_AMvOWA <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
-res_F0_AMvOWA <- res_F0_AMvOWA[order(res_F0_AMvOWA$padj),]
-head(res_F0_AMvOWA)
+# For OWA vs AM
+res_F0_OWAvAM <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
+res_F0_OWAvAM <- res_F0_OWAvAM[order(res_F0_OWAvAM$padj),]
+head(res_F0_OWAvAM)
 
-summary(res_F0_AMvOWA)
-res_F0_AMvOWA <- res_F0_AMvOWA[!is.na(res_F0_AMvOWA$padj),]
-degs_F0_AMvOWA <- row.names(res_F0_AMvOWA[res_F0_AMvOWA$padj < 0.05,])
+summary(res_F0_OWAvAM)
+res_F0_OWAvAM <- res_F0_OWAvAM[!is.na(res_F0_OWAvAM$padj),]
+degs_F0_OWAvAM <- row.names(res_F0_OWAvAM[res_F0_OWAvAM$padj < 0.05,])
 
 library(eulerr)
 
 # Total
-length(degs_F0_AMvOA)  # 520
-length(degs_F0_AMvOW)  # 4841 
-length(degs_F0_AMvOWA)  # 3742
+length(degs_F0_OAvAM)  # 520
+length(degs_F0_OWvAM)  # 4841 
+length(degs_F0_OWAvAM)  # 3742
 
 # Intersections
-length(intersect(degs_F0_AMvOA,degs_F0_AMvOW))  # 387
-length(intersect(degs_F0_AMvOA,degs_F0_AMvOWA))  # 340
-length(intersect(degs_F0_AMvOWA,degs_F0_AMvOW))  # 2585
+length(intersect(degs_F0_OAvAM,degs_F0_OWvAM))  # 387
+length(intersect(degs_F0_OAvAM,degs_F0_OWAvAM))  # 340
+length(intersect(degs_F0_OWAvAM,degs_F0_OWvAM))  # 2585
 
-intWA <- intersect(degs_F0_AMvOA,degs_F0_AMvOW)
-length(intersect(degs_F0_AMvOWA,intWA)) # 308
+intWA <- intersect(degs_F0_OAvAM,degs_F0_OWvAM)
+length(intersect(degs_F0_OWAvAM,intWA)) # 308
 
 # Number unique
 
