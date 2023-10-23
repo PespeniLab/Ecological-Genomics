@@ -1,0 +1,610 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 5"
+date: 'October 23, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Objectives for today 
+
+1. Review results from filtering of the de novo assembly and transfer the new gene expression matrix. 
+2. Explore patterns in the gene expression data using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html): explore data, plot PCA, test for DGE, make a Venn diagram.
+
+## 1. Review de novo transcriptome assembly filtering results
+Our initial assembly has ~350,000 isoforms and ~180,000 genes due to the large amount of genetic diversity among the 100s of individuals sequenced and potential isoforms/splice variants among the different treatment conditions. I clustered the initial assembly based on 95% sequence similarity using CD-HIT-EST (v4.6.6-2016-0711) and ran Transdecoder to filter down to only open reading frames. The code I used is below for your reference.
+
+```         
+/data/popgen/cd-hit-v4.6.6-2016-0711/cd-hit-est -i /data/project_data/RNAseq/archive/assembly/ahud_Trinity.fasta -o ahud_Trinity_95.fa -c 0.95 -n 10 -d 0 -M 16000 -T 8
+```
+Where,
+-   c % sequence similarity
+-   n word size, -n 10, 11 for thresholds 0.95 \~ 1.0
+
+```         
+/data/popgen/trinityrnaseq-v2.13.2/util/TrinityStats.pl  /data/project_data/RNAseq/archive/assembly/ahud_Trinity_95.fa
+
+
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':  118421
+Total trinity transcripts:  195476
+Percent GC: 34.10
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+    Contig N10: 4403
+    Contig N20: 2913
+    Contig N30: 2114
+    Contig N40: 1537
+    Contig N50: 1069
+
+    Median contig length: 371
+    Average contig: 679.44
+    Total assembled bases: 132813467
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+    Contig N10: 4778
+    Contig N20: 3209
+    Contig N30: 2338
+    Contig N40: 1708
+    Contig N50: 1166
+
+    Median contig length: 333
+    Average contig: 661.14
+    Total assembled bases: 78292692
+```
+The contig length in this filtered assembly is a little bit longer than before. Now run Transdecoder to get Open Reading Frames:
+```         
+/data/popgen/TransDecoder-3.0.1/TransDecoder.LongOrfs -t /data/project_data/RNAseq/archive/assembly/ahud_Trinity_95.fa
+```
+
+Completed! Now check the assembly stats:
+
+```         
+/data/popgen/trinityrnaseq-v2.13.2/util/TrinityStats.pl  /data/project_data/RNAseq/archive/assembly/ahud_Trinity_95.fa.transdecoder_dir/longest_orfs.cds
+
+
+################################
+## Counts of transcripts, etc.
+################################
+Total trinity 'genes':  27960
+Total trinity transcripts:  67916
+Percent GC: 41.50
+
+########################################
+Stats based on ALL transcript contigs:
+########################################
+
+    Contig N10: 4446
+    Contig N20: 3027
+    Contig N30: 2247
+    Contig N40: 1749
+    Contig N50: 1386
+
+    Median contig length: 531
+    Average contig: 925.37
+    Total assembled bases: 62847294
+
+
+#####################################################
+## Stats based on ONLY LONGEST ISOFORM per 'GENE':
+#####################################################
+
+    Contig N10: 5154
+    Contig N20: 3576
+    Contig N30: 2751
+    Contig N40: 2175
+    Contig N50: 1761
+
+    Median contig length: 792
+    Average contig: 1210.45
+    Total assembled bases: 33844206
+```
+
+Woo hoo!!! It looks a lot longer!
+
+Given BUSCO issues on our server, I found a way to submit the BUSCO job online: <https://gvolante.riken.jp/> Submitted at 10pm 10/20, finished at 8am 10/21
+
+```         
+SHORT SUMMARY OF THE PROJECT:
+Job ID  202310211036-Q2PWKD8FRLY1CHJY
+Project name    Ahud_95_ORF
+Selected program    BUSCO_v5
+Selected ortholog set   Arthropoda
+
+COMPLETENESS ASSESSMENT RESULTS:
+Total number of core genes queried  1013
+Number of core genes detected
+  Complete  980 (96.74%)
+  Complete + Partial    992 (97.93%)
+Number of missing core genes    21 (2.07%)
+Average number of orthologs per core gene   1.59
+% of detected core genes that have more than 1 ortholog 36.12
+Scores in BUSCO format  C:96.7%[S:61.8%,D:34.9%],F:1.2%,M:2.1%
+```
+
+The percent single copy and duplicated dramatically improved,from **S:7.1%,D:89.8% to S:61.8%,D:34.9%!** Much better! So I remapped our cleaned reads to this new assembly using the salmon.
+
+
+|                                   | Complete assembly | Filtered assembly |
+|-----------------------------------|-------------------|-------------------|
+| Number of transcripts             | 349,516           | 67,916            |
+| N50                               | 1,057             | 1,761             |
+| Mean length                       | 626.33            | 1210.45           |
+| BUSCO % complete                  | 96.9%             | 96.74%            |
+| BUSCO Single                      | 7.1%,             | 61.8%             |
+| BUSCO Duplicated                  | 89.8%             | 34.9%             |
+| \% mapping                        | 98%               | 66%               |
+| transcripts after depth filtering | 42,575            | 20,598            |
+
+* **Use Filezilla to copy over the new counts matrix `salmon.isoform.counts.matrix.filteredAssembly` from `/data/project_data/RNAseq/mapping`.**
+
+## 2. Analyze the gene expression data (a.k.a. counts data) using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+
+Now we will work in R on our individual machines, each of us working with the complete data set (n=38, not just a subset of samples). There are [detailed tutorials available from the creators of DESeq2](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+
+### Get set up; Load the packages/libraries we will likely need 
+
+```R
+## Set your working directory
+setwd("YOUR/WORKING/DIRECTORY")
+
+## Import the libraries that we're likely to need in this session
+
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)  
+```
+
+### Import Counts Matrix and Sample ID tables into R and DESeq2 
+**Make sure to replace the counts matrix you are importing!**
+```R
+# Import the counts matrix
+countsTable <- read.table("salmon.isoform.counts.matrix.filteredAssembly", header=TRUE, row.names=1)
+head(countsTable)
+dim(countsTable)
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+head(countsTableRound)
+
+#import the sample discription table
+conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+head(conds)
+```
+
+### Explore the counts data a bit
+```R
+# Let's see how many reads we have from each sample
+colSums(countsTableRound)
+mean(colSums(countsTableRound))
+
+barplot(colSums(countsTableRound), names.arg=colnames(countsTableRound),cex.names=0.5, las=3,ylim=c(0,20000000))
+abline(h=mean(colSums(countsTableRound)), col="blue", lwd=2)
+
+# the average number of counts per gene
+rowSums(countsTableRound)
+mean(rowSums(countsTableRound)) # [1] 6076.078 - hudsonica genes, 2269 - hudsonica isoform, 8218 - hudsonica filtered
+median(rowSums(countsTableRound)) # [1] 582 - hudsonica, 109 - hudsonica isoforms, 377 - hudsonica filtered
+
+apply(countsTableRound,2,mean) # 2 in the apply function does the action across columns
+apply(countsTableRound,1,mean) # 1 in the apply function does the action across rows
+hist(apply(countsTableRound,1,mean),xlim=c(0,1000), ylim=c(0,50000),breaks=10000)
+```
+
+### Create a DESeq object and define the experimental design
+```R
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + treatment)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of samples, so ~28)
+## suggested by WGCNA on RNAseq FAQ
+
+dds <- dds[rowSums(counts(dds) >= 30) >= 28,]
+nrow(dds) 
+
+# Run the DESeq model to test for differential gene expression
+dds <- DESeq(dds)
+
+# List the results you've generated
+resultsNames(dds)
+```
+
+### Check the quality of the data by sample clustering and visualization
+```R
+###############################################################
+
+# Check the quality of the data by sample clustering and visualization
+# The goal of transformation "is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low."
+
+library("pheatmap")
+library("vsn")
+
+# this gives log2(n + 1)
+ntd <- normTransform(dds)
+meanSdPlot(assay(ntd))
+
+# Variance stabilizing transformation
+vsd <- vst(dds, blind=FALSE)
+meanSdPlot(assay(vsd))
+           
+
+sampleDists <- dist(t(assay(vsd)))
+
+library("RColorBrewer")
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(vsd$treatment, vsd$generation, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+```
+
+### Visualize the global gene expression patterns using PCA
+```R
+###############################################################
+
+# PCA to visualize global gene expression patterns
+
+# first transform the data for plotting using variance stabilization
+vsd <- vst(dds, blind=FALSE)
+
+pcaData <- plotPCA(vsd, intgroup=c("treatment","generation"), returnData=TRUE)
+percentVar <- round(100 * attr(data,"percentVar"))
+
+ggplot(pcaData, aes(PC1, PC2, color=treatment, shape=generation)) +
+  geom_point(size=3) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
+  coord_fixed()
+```
+
+### Let's plot the PCA by generation in four panels
+```R
+###############################################################
+
+# Let's plot the PCA by generation in four panels
+
+data <- plotPCA(vsd, intgroup=c("treatment","generation"), returnData=TRUE)
+percentVar <- round(100 * attr(data,"percentVar"))
+
+###########  
+
+dataF0 <- subset(data, generation == 'F0')
+
+F0 <- ggplot(dataF0, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-10, 25) + xlim(-40, 10)+ # zoom for F0 with new assembly
+  #ylim(-40, 25) + xlim(-50, 50)+ # new assembly limits
+  #ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23,24), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A", "#CC3333"), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  ##theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+
+F0
+
+
+#png("PCA_F0.png", res=300, height=5, width=5, units="in")
+
+#ggarrange(F0, nrow = 1, ncol=1)
+
+#dev.off()
+
+################# F2
+
+dataF2 <- subset(data, generation == 'F2')
+
+F2 <- ggplot(dataF2, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 25) + xlim(-50, 55)+
+  #ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23), labels = c("Ambient", "Acidification","Warming"))+
+  # scale_color_manual(values = c('#6699CC',"#F2AD00","#00A08A", "#CC3333")) + 
+  #scale_color_manual(values=c('black')) +
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A"), labels = c("Ambient", "Acidification","Warming"))+
+  theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #scale_size(guide="none") +
+  guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F2
+
+
+# png("PCA_F2.png", res=300, height=5, width=5, units="in")
+# 
+# ggarrange(F2, nrow = 1, ncol=1)
+# 
+# dev.off()
+
+# Yes - F2 is missing one ambient replicate
+
+################################ F4
+
+dataF4 <- subset(data, generation == 'F4')
+
+F4 <- ggplot(dataF4, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 25) + xlim(-50, 55)+ # limits with filtered assembly
+  #ylim(-20, 10) + xlim(-40, 25)+  # zoom with filtered assembly
+  #ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23,24), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  # scale_color_manual(values = c('#6699CC',"#F2AD00","#00A08A", "#CC3333")) + 
+  #scale_color_manual(values=c('black')) +
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A", "#CC3333"), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  #theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #scale_size(guide="none") +
+  guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F4
+
+
+# png("PCA_F4.png", res=300, height=5, width=5, units="in")
+# 
+# ggarrange(F4, nrow = 1, ncol=1)
+# 
+# dev.off()
+
+
+################# F11
+
+dataF11 <- subset(data, generation == 'F11')
+
+F11 <- ggplot(dataF11, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  ylim(-40, 25) + xlim(-50, 55)+
+  #ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,24), labels = c("Ambient", "OWA"))+
+  scale_fill_manual(values=c('#6699CC', "#CC3333"), labels = c("Ambient", "OWA"))+
+  guides(shape = guide_legend(override.aes = list(shape = c( 21, 24))))+
+  guides(fill = guide_legend(override.aes = list(shape = c( 21, 24))))+
+  guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+F11
+
+
+# png("PCA_F11.png", res=300, height=5, width=5, units="in")
+# 
+# ggarrange(F11, nrow = 1, ncol=1)
+# 
+# dev.off()
+
+ggarrange(F0, F2, F4, F11, nrow = 2, ncol=2)
+```
+
+
+### Now that we have a sense of our data, let's explore models and contrasts for testing for differential expression
+
+```R
+## Check on the DE results from the DESeq command way above ##
+
+resAM_OWA <- results(dds, name="treatment_OWA_vs_AM", alpha=0.05)
+
+resAM_OWA <- resAM_OWA[order(resAM_OWA$padj),]
+head(resAM_OWA)  
+
+summary(resAM_OWA)
+
+
+resAM_OW <- results(dds, name="treatment_OW_vs_AM", alpha=0.05)
+
+resAM_OW <- resAM_OW[order(resAM_OW$padj),]
+head(resAM_OW)  
+
+summary(resAM_OW)
+
+
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds, gene="TRINITY_DN3600_c0_g1::TRINITY_DN3600_c0_g1_i2::g.16079::m.16079", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "line")
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+```
+So, the above model finds differences between treatment groups that are largely consistent across generations. We know based on our PCA that the responses to treatments are quite different across generations. So let's try subsetting our data by generation and testing for differential expression.
+
+## Let's try another model for testing DGE 
+
+```R
+
+#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(dds)
+# [1] 130580     38
+
+# Filter 
+dds <- dds[rowSums(counts(dds) >= 30) >= 28,]
+nrow(dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+dds_sub <- subset(dds, select = generation == 'F0')
+dim(dds_sub)
+
+# Perform DESeq2 analysis on the subset
+dds_sub <- DESeq(dds_sub)
+
+resultsNames(dds_sub)
+
+res_F0_AMvOW <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+
+res_F0_AMvOW <- res_F0_AMvOW[order(res_F0_AMvOW$padj),]
+head(res_F0_AMvOW) 
+
+summary(res_F0_AMvOW)
+
+
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds, gene="TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+```
+
+### We can make an MA (or sideways volcano) plot now that we're contrasting just two groups
+```R
+plotMA(res_F0_AMvOW, ylim=c(-4,4))
+```
+
+### We can also make a heatmap of the DEGs
+```R
+########################################
+
+# Heatmap of top 20 genes sorted by pvalue
+
+library(pheatmap)
+
+vsd <- vst(dds_sub, blind=FALSE)
+
+topgenes <- head(rownames(res_F0_AMvOW),20)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds_sub)[,c("generation","treatment")])
+pheatmap(mat, annotation_col=df)
+```
+
+## Let's make a Venn (or Euler) Diagram
+
+Last but not least, since we have three contrasts, let's make a Venn (or Euler) Diagram to see how similar or different the DGE is from Ambient for OA, OW, and OWA at F0!
+
+```R
+#################################################################
+
+#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
+
+#################################################################
+
+# For AM vs OW
+res_F0_AMvOW <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+res_F0_AMvOW <- res_F0_AMvOW[order(res_F0_AMvOW$padj),]
+head(res_F0_AMvOW)
+
+summary(res_F0_AMvOW)
+res_F0_AMvOW <- res_F0_AMvOW[!is.na(res_F0_AMvOW$padj),]
+degs_F0_AMvOW <- row.names(res_F0_AMvOW[res_F0_AMvOW$padj < 0.05,])
+
+# For AM vs OA
+res_F0_AMvOA <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
+res_F0_AMvOA <- res_F0_AMvOA[order(res_F0_AMvOA$padj),]
+head(res_F0_AMvOA)
+
+summary(res_F0_AMvOA)
+res_F0_AMvOA <- res_F0_AMvOA[!is.na(res_F0_AMvOA$padj),]
+degs_F0_AMvOA <- row.names(res_F0_AMvOA[res_F0_AMvOA$padj < 0.05,])
+
+# For AM vs OWA
+res_F0_AMvOWA <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
+res_F0_AMvOWA <- res_F0_AMvOWA[order(res_F0_AMvOWA$padj),]
+head(res_F0_AMvOWA)
+
+summary(res_F0_AMvOWA)
+res_F0_AMvOWA <- res_F0_AMvOWA[!is.na(res_F0_AMvOWA$padj),]
+degs_F0_AMvOWA <- row.names(res_F0_AMvOWA[res_F0_AMvOWA$padj < 0.05,])
+
+library(eulerr)
+
+# Total
+length(degs_F0_AMvOA)  # 520
+length(degs_F0_AMvOW)  # 4841 
+length(degs_F0_AMvOWA)  # 3742
+
+# Intersections
+length(intersect(degs_F0_AMvOA,degs_F0_AMvOW))  # 387
+length(intersect(degs_F0_AMvOA,degs_F0_AMvOWA))  # 340
+length(intersect(degs_F0_AMvOWA,degs_F0_AMvOW))  # 2585
+
+intWA <- intersect(degs_F0_AMvOA,degs_F0_AMvOW)
+length(intersect(degs_F0_AMvOWA,intWA)) # 308
+
+# Number unique
+
+520-387-340+308 # 101 OA
+4841-387-2585+308 # 2177 OW 
+3742-340-2585+308 # 1125 OWA
+
+387-308 # 79 OA & OW
+340-308 # 32 OA & OWA
+2585-308 # 2277 OWA & OW
+
+
+# Note that the names are important and have to be specific to line up the diagram
+fit1 <- euler(c("OA" = 101, "OW" = 2177, "OWA" = 1125, "OA&OW" = 79, "OA&OWA" = 32, "OW&OWA" = 2277, "OA&OW&OWA" = 308))
+
+
+plot(fit1,  lty = 1:3, quantities = TRUE)
+# lty changes the lines
+
+plot(fit1, quantities = TRUE, fill = "transparent",
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+2177+2277+308+79 # 4841, total OW
+1125+2277+308+32 # 3742, total OWA
+101+32+79+308    # 520, total OA
+
+```
