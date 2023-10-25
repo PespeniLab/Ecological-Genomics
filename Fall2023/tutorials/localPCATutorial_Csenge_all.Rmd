@@ -1,0 +1,116 @@
+---
+title: "localPCA Tutorial"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Background
+
+## The reference genome
+
+Scaffolds vs chromosomes, selecting chromosomes.
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/
+21_scaffolds file in the EG2023 folder (show python code that generated it)
+
+# Steps already completed
+
+## Mapped reads to the reference
+
+```{bash}
+while read line ; do
+        F1=$(cut -d ' ' -f1 <<< $line)
+        F2=$(cut -d ' ' -f2 <<< $line)
+        echo "$F1 -- $F2"
+        FILE=$(mktemp)
+        cat header.txt >> $FILE
+        echo "spack load samtools@1.10" >> $FILE
+        echo "spack load bwa@0.7.17" >> $FILE
+        ref="/users/c/p/cpetak/WGS/reference_genome/GCF_000002235.5_Spur_5.0_genomic.fna"
+        out_name=$(cut -d '.' -f1 <<< $F1)
+        echo "bwa mem -t 1 -M $ref /users/c/p/cpetak/WGS/all_fastqs/$F1 /users/c/p/cpetak/WGS/all_fastqs/$F2 | samtools view -S -b > /users/c/p/cpetak/WGS/BWA_out/$out_name.bam" >> $FILE
+        sbatch $FILE
+        sleep 0.5
+        rm $FILE
+done < $1
+```
+
+## Called variants for each chromosome across all individuals
+
+Input: 21_scaffolds
+list_of_files.txt, 140 lines, line 1: /users/c/p/cpetak/WGS/BWA_out/BOD_18170X61_200925_A00421_0244_AHKML5DSXY_S81_L002_R1_001.rmdup.bam
+
+```{bash}
+while read line ; do
+	echo "$line"
+	FILE=$(mktemp)
+  cat header.txt >> $FILE
+  ref="/users/c/p/cpetak/WGS/reference_genome/GCF_000002235.5_Spur_5.0_genomic.fna"
+  echo "echo "${line}" " >> $FILE
+  echo "bcftools mpileup -r $line -f $ref --bam-list list_of_files.txt | bcftools call -mv -Ob -o multi_bam_${line}.bcf" >> $FILE
+  sbatch $FILE
+  sleep 0.5
+  rm $FILE
+done < $1
+```
+
+Output: bcf files in the bcf_files directory
+
+################# DONE WITH STUDENTS
+
+# Each student will get a chromosome to work with
+
+## Filtering the bcf files
+Write a bash script!
+
+```{bash}
+#!/bin/sh
+
+mychr="NW_022145602.1"
+bcftools view -e 'QUAL <= 40 || DP < 560 || MQB < -3 || RPB < -3 || RPB > 3 || AN < 238' /netfiles/ecogen/structural_variation/bcf_files/multi_bam_${mychr}.bcf > /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.vcf
+echo "Filtered bcf"
+bcftools view -Ob /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.vcf > /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.bcf
+echo "Converted to bcf"
+bcftools index /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.bcf
+echo "Indexed bcf"
+echo "Done!"
+```
+Should take 6 minutes.
+
+### Let's look at one of the bcf files
+since we are converting to vcf anyways, which is readable
+Explain filtering
+
+If there is time at the end, explain local PCA code, and if there is more time, start running.
+
+NOTE: have a secret folder with backup files for everything in case someone has a bug.
+# END of DAY 1
+
+## Run local PCA
+
+show run_lostruct.R and summarize_run.Rmd on github, and on the server
+
+mkdir struct_data directory in ~/mydata
+cp /netfiles/ecogen/structural_variation/filtered_bcf_files/NW_022145602.1_filtered.bcf* ~/mydata/struct_data
+Could take a moment
+Now struct_data should have NW_022145602.1_filtered.bcf and NW_022145602.1_filtered.bcf.csi
+cp /netfiles/ecogen/structural_variation/run_lostruct.R ~/myscripts
+cp /netfiles/ecogen/structural_variation/summarize_run.Rmd ~/myscripts
+
+tmux (explain how to use properly)
+Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv
+should take 15 mins
+
+## Check and visualise results
+
+Rscript -e 'templater::render_template("summarize_run.Rmd",output="./lostruct_results/${line}/run_summary.html",change.rootdir=TRUE)'
+
+## Select regions of interest
+
+## Do GO Enrichment
+
+# END of DAY 2
+
+
+
