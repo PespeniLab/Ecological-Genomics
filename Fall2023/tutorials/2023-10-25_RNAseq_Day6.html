@@ -484,8 +484,33 @@ expression patterns</h2>
 <span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>module.membership.measure.pvals <span class="ot">&lt;-</span> <span class="fu">corPvalueStudent</span>(module.membership.measure, nSamples)</span>
 <span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>module.membership.measure.pvals[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>module.membership.measure.pvals[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code></pre></div>
+</div>
+<div id="make-a-heat-map-of-gene-expressions-within-modules" class="section level2">
+<h2>Make a heat map of gene expressions within modules</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a heat map of gene expressions within modules.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the norm.counts matrix, subset based on module membership</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>t_norm.counts <span class="ot">&lt;-</span> norm.counts <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Yellow module</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>yellow_transcripts <span class="ot">&lt;-</span> module.gene.mapping <span class="sc">%&gt;%</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">bwnet$colors</span><span class="st">`</span> <span class="sc">==</span> <span class="st">&#39;yellow&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>t_norm.counts_yellow <span class="ot">&lt;-</span> t_norm.counts <span class="sc">%&gt;%</span> </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row.names</span>(t_norm.counts) <span class="sc">%in%</span> yellow_transcripts)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>t_norm.counts_yellow <span class="ot">&lt;-</span> t_norm.counts_yellow <span class="sc">-</span> <span class="fu">rowMeans</span>(t_norm.counts_yellow)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(dds)[,<span class="fu">c</span>(<span class="st">&quot;eneration&quot;</span>,<span class="st">&quot;treatment&quot;</span>)])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#blue to yellow color scheme</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>paletteLength <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>myColor <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">&quot;dodgerblue&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;yellow&quot;</span>))(paletteLength)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>myBreaks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(<span class="fu">min</span>(t_norm.counts_yellow), <span class="dv">0</span>, <span class="at">length.out=</span><span class="fu">ceiling</span>(paletteLength<span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span> <span class="dv">1</span>), </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>              <span class="fu">seq</span>(<span class="fu">max</span>(t_norm.counts_yellow)<span class="sc">/</span>paletteLength, <span class="fu">max</span>(t_norm.counts_yellow), <span class="at">length.out=</span><span class="fu">floor</span>(paletteLength<span class="sc">/</span><span class="dv">2</span>)))</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(t_norm.counts_yellow, <span class="at">color =</span> myColor, <span class="at">breaks =</span> myBreaks,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">show_colnames =</span> <span class="cn">FALSE</span>, <span class="at">show_rownames =</span> <span class="cn">FALSE</span>, <span class="at">annotation_col =</span> df, <span class="at">main =</span> <span class="st">&quot;Yellow&quot;</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
 </div>
 </div>
 </section>

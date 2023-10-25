@@ -341,5 +341,33 @@ module.membership.measure.pvals <- corPvalueStudent(module.membership.measure, n
 
 module.membership.measure.pvals[1:10,1:10]
 
+```
+
+## Make a heat map of gene expressions within modules
+
+```R
+# Make a heat map of gene expressions within modules.
+# Use the norm.counts matrix, subset based on module membership
+t_norm.counts <- norm.counts %>% t() %>% as.data.frame()
+
+# Yellow module
+yellow_transcripts <- module.gene.mapping %>% 
+  filter(`bwnet$colors` == 'yellow') %>% 
+  rownames()
+
+t_norm.counts_yellow <- t_norm.counts %>% 
+  filter(row.names(t_norm.counts) %in% yellow_transcripts)
+
+t_norm.counts_yellow <- t_norm.counts_yellow - rowMeans(t_norm.counts_yellow)
+df <- as.data.frame(colData(dds)[,c("eneration","treatment")])
+
+#blue to yellow color scheme
+paletteLength <- 50
+myColor <- colorRampPalette(c("dodgerblue", "black", "yellow"))(paletteLength)
+myBreaks <- c(seq(min(t_norm.counts_yellow), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(t_norm.counts_yellow)/paletteLength, max(t_norm.counts_yellow), length.out=floor(paletteLength/2)))
+pheatmap(t_norm.counts_yellow, color = myColor, breaks = myBreaks,
+         show_colnames = FALSE, show_rownames = FALSE, annotation_col = df, main = "Yellow")
+
 
 ```
