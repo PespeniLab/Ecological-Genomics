@@ -33,6 +33,7 @@ fontsize: 18pt
 13. 2023-10-16: [Transcriptomics Day 3](Fall2023/tutorials/2023-10-16_RNAseq_Day3.html)
 14. 2023-10-18: [Transcriptomics Day 4](Fall2023/tutorials/2023-10-18_RNAseq_Day4.html)
 15. 2023-10-23: [Transcriptomics Day 5](Fall2023/tutorials/2023-10-23_RNAseq_Day5.html)
+16. 2023-10-25: [Transcriptomics Day 6](Fall2023/tutorials/2023-10-25_RNAseq_Day6.html)
 
 
 **Structural Variation Module**
