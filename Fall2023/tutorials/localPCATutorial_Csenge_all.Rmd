@@ -6,6 +6,34 @@ output:
 fontsize: 18pt
 ---
 
+#OUTLINE
+2.5 hours - 1.15 x 2
+Session 1:
+Introduction to structural variation, why and how to study it (10 min)
+Introduction to the dataset (5 min)
+Introduction to the local PCA method (15 min)
+30 min total, leaves 45 minutes
+Go through steps to go from reads to large bcf files (10 min)
+Assign chromosomes, explain tmux a bit (5 min)
+Filter bcf files all together (15 min)
+Look at the vcf files (5 min)
+Start running local PCA (10 min)
+Session 2:
+Will depend on how far we get with local PCA
+Explain local PCA code (10 min)
+Look at output files (15 min)
+Run plotting code (10 min)
+Look at plots (15 min)
+
+Select regions of interest
+Do Go Enrichment
+If there is time in the end, show the VACC and colab
+TODO: if I think I'll have time look at WGS assembly and code to get the chromosomes
+
+HOMEWORK:
+different window size, different corners GO enrichment compare
+eg biomineralisation genes share similar pcr clusering and temp related genes share a different PCA pattern
+
 # Background
 
 ## The reference genome
@@ -60,6 +88,7 @@ Output: bcf files in the bcf_files directory
 ################# DONE WITH STUDENTS
 
 # Each student will get a chromosome to work with
+TODO: select best 16 chromosomes
 
 ## Filtering the bcf files
 Write a bash script!
@@ -78,14 +107,9 @@ echo "Done!"
 ```
 Should take 6 minutes.
 
-### Let's look at one of the bcf files
-since we are converting to vcf anyways, which is readable
-Explain filtering
+### Let's look at one of the vcf files we generated in the above step
 
-If there is time at the end, explain local PCA code, and if there is more time, start running.
 
-NOTE: have a secret folder with backup files for everything in case someone has a bug.
-# END of DAY 1
 
 ## Run local PCA
 
@@ -98,19 +122,60 @@ Now struct_data should have NW_022145602.1_filtered.bcf and NW_022145602.1_filte
 cp /netfiles/ecogen/structural_variation/run_lostruct.R ~/myscripts
 cp /netfiles/ecogen/structural_variation/summarize_run.Rmd ~/myscripts
 
-tmux (explain how to use properly)
+tmux new -s run_localPCA
+cd ~/mydata/struct_data
 Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv
 should take 15 mins
+Now you should have a folder called lostruct_results
+cd into lostruct_results
+cd into type_snp_size_1000_weights_none_jobid_166584 - will be called different for you
+Output files:
+config.json  -> check with vim
+mds_coords.csv  -> wc -l 
+NW_022145602.1.pca.csv  -> wc -l and awk -F',' '{print NF}' NW_022145599.1.pca.csv | sort -nu | tail -n 1 -> 283 
+For each window (rows), PC1 and PC2 for each individuals (140) -> input variables for the MDS
+NW_022145602.1.regions.csv -> windows information (will be important later)
+
+
+
+### Tmux
+When you just tmux -> control B then D -> detach from session but it will still exist
+tmux new -s mysession -> make new session and name it mysession
+tmux ls -> list existing sessions
+tmux kill-session -> kills all sessions
+tmux attach-session -> open most recent session
+tmux attach-session -t mysession -> open session called mysession
 
 ## Check and visualise results
 
-Rscript -e 'templater::render_template("summarize_run.Rmd",output="./lostruct_results/${line}/run_summary.html",change.rootdir=TRUE)'
+Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'
+
+Get the run_summary.html through the FileZilla
+Open in your browser
+Look through figure
 
 ## Select regions of interest
+Select a corner you are interested in
+Let's say corner 1 (local region and good PCA separation)
+corner.regions variable in summarize_run.Rmd has a list of regions for each corner, chrom, start, end
+1st corner: corner.regions[[1]]$start
+2nd corner: corner.regions[[2]]$start
+to save coordinates add the following line in the summarize_run.Rmd file
+write.csv(corner.regions[[2]], "second_corner.csv", row.names=FALSE)
+run again the summarize_run.Rmd script
 
 ## Do GO Enrichment
+sed to modify second_corner
 
-# END of DAY 2
+show how i got the annotation file (ncbi)
 
+cd ~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584
+
+/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a second_corner_formatted.csv -b /netfiles/ecogen/structural_variation/genome_annotation.gff -wa -wb > genes_in_regions.bed
+
+sed -n "s/^.*gene=\(LOC[0-9]\+\).*$/\1/p" genes_in_regions.bed > gene_names.txt
+sort gene_names.txt | uniq > uni_gene_names.txt
+
+copy to https://geneontology.org/
 
 
