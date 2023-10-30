@@ -28,7 +28,7 @@ Recall that WGCNA is a useful tool for identifying correlated genes (modules) an
 
 Pick up where you left off in your previous R script.
 
-* If you weren't able to make the blockwise modules (bwnet) object, I've put one on the class server that you can transfer to your machine and load.
+* If you weren't able to make the blockwise modules (bwnet) object, I've put one on the class server that you can transfer to your machine and load. `/data/project_data/RNAseq/analyses/WGCNA/`
 
 ```R
 # What I did to save it:
