@@ -1,0 +1,188 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 8"
+date: 'November 1, 2023'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Objectives for today 
+
+1. Review Homework Assignment #2.
+
+2. Perform Gene Ontology (GO) functional enrichment analyses using [GOMWU](https://github.com/z0on/GO_MWU/tree/master) with our DESeq2 results.
+
+# 1. Homework 2 is live! 
+Find details [here](https://pespenilab.github.io/Ecological-Genomics/Fall2023/assignments/Homework2.html). This assignment is a choose your own adventure (as I mentioned it would be in class). You’ll find 5 different options with specific tasks associated with each (or a 6th that you choose and float by me). Please engage with the options and let me know your choice by Friday. 
+
+# 2. Perform Gene Ontology (GO) functional enrichment analyses using [GOMWU](https://github.com/z0on/GO_MWU/tree/master) with our DESeq2 results.
+
+There are two general types of functional enrichment analyses: those that use a DGE significance cutoff (e.g., dividing genes into differentially expressed, padj < 0.05, and not and running a Fisher's exact test) and those that use the whole distribution (MWU rank-based correlation or Kolmorgorov-Smirnov test). I generally prefer using the whole distribution, more data, and doesn't depend on an arbitrary cutoff.
+
+There are many ways to characterize the function of genes. One of the commonly used databases and classification systems is that of [Gene Ontology (GO)](https://geneontology.org/docs/ontology-documentation/), which is a knowledgebase that "provides a computational representation of our current scientific knowledge about the functions of genes (or, more properly, the protein and non-coding RNA molecules produced by genes) from many different organisms, from humans to bacteria." There are three types of GO categories, those that describe: Molecular Function, Cellular Component, and Biological Process. I find the Biological Process to be most informative.
+
+There are also many ways to test for the non-random distribution of genes with specific functions in a list of scores, such as p-values, logFoldChange, FST, etc. The package we will use for this tutorial is called [GO Mann-Whitney U or GOMWU](https://github.com/z0on/GO_MWU/tree/master) and was created by Dr. Misha Matz of UT Austin.
+
+GOMWU requires all of the following to be in one directory: 
+
+* 2 user provided files: 
+  * 1) a table of measure of interest: two columns of comma-separated values: gene id, continuous measure of change such as log(fold-change).  
+  * 2) table of GO annotations for your sequences: two-column (gene id - GO terms), tab-delimited, one line per gene, multiple GO terms separated by semicolon. 
+* a set of scripts: GO_MWU.R, gomwu_a.pl, gomwu_b.pl, gomwu.functions.R (we only need to edit the first one)
+* a GO database, hierarchy file (go.obo, http://www.geneontology.org/GO.downloads.ontology.shtml) * I've already downloaded the most recent version for us to use.
+
+The scripts, the GO database, and the annotations table are already assembled and can be found in `/data/project_data/RNAseq/analyses/GOMWU`. You can copy all of those files to your personal machine or you can move the files to your home directory on the server and run the code in R on our class server. The only part we need to make is the measures of interest based on DESeq2 results. 
+
+## DESeq2 to GOMWU measure/scores files
+
+We want to save the results files for our contrasts of interest for which we'd like to test for functional enrichment. We'll focus on F0 contrasts of AM vs OW, OWA, and OA. We'll run three tests focused on BP and compare enrichment across these three contrasts. We'll use LFC as our metric, but we could also choose p-value or stat.
+
+```R
+## Set your working directory
+setwd("~/github/hudsonica")
+
+## Import the libraries that we're likely to need in this session
+library(DESeq2)
+
+# Try with new counts table from filtered transcriptome assembly
+countsTable <- read.table("salmon.isoform.counts.matrix.filteredAssembly", header=TRUE, row.names=1)
+
+
+head(countsTable)
+dim(countsTable)
+#[1] 130580     38 - genes
+# [1] 349516     38 - isoforms
+# [1] 67916    38 - filtered assembly
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+head(countsTableRound)
+
+#import the sample discription table
+conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+head(conds)
+
+#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(dds)
+# [1] 130580     38
+
+# Filter 
+dds <- dds[rowSums(counts(dds) >= 30) >= 28,]
+nrow(dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+dds_F0 <- subset(dds, select = generation == 'F0')
+dim(dds_F0)
+
+# Perform DESeq2 analysis on the subset
+dds_F0 <- DESeq(dds_F0)
+
+resultsNames(dds_F0)
+# [1] "Intercept"           "treatment_OA_vs_AM"  "treatment_OW_vs_AM"  "treatment_OWA_vs_AM"
+
+res_F0_OWvAM <- results(dds_F0, name="treatment_OW_vs_AM", alpha=0.05)
+
+res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
+head(res_F0_OWvAM) 
+
+summary(res_F0_OWvAM)
+
+
+res_F0_OWAvAM <- results(dds_F0, name="treatment_OWA_vs_AM", alpha=0.05)
+
+res_F0_OWAvAM <- res_F0_OWAvAM[order(res_F0_OWAvAM$padj),]
+head(res_F0_OWAvAM) 
+
+summary(res_F0_OWAvAM)
+
+
+res_F0_OAvAM <- results(dds_F0, name="treatment_OA_vs_AM", alpha=0.05)
+
+res_F0_OAvAM <- res_F0_OAvAM[order(res_F0_OAvAM$padj),]
+head(res_F0_OAvAM)
+
+summary(res_F0_OAvAM)
+
+
+################## Save all the results as csv to go into GOMWU
+
+library(tidyr)
+
+# Make the rownames a separate column called transcriptID and make it all a dataframe
+res_F0_OWvAM_df <- data.frame(transcriptID = rownames(res_F0_OWvAM), res_F0_OWvAM)
+
+# Split the "transcriptID" column by double colons and create new columns of the parts
+res_F0_OWvAM_df <- separate(res_F0_OWvAM_df, transcriptID, into = c("part1", "part2", "part3", "rest"), sep = "::", remove = FALSE) 
+
+# Create a new column by concatenating "part1" and "part2" with double colons in between
+res_F0_OWvAM_df$transcriptID_trim <- paste(res_F0_OWvAM_df$part1, res_F0_OWvAM_df$part2, sep = "::")
+
+# Optional: Remove the "part1" and "part2" columns from the dataframe
+res_F0_OWvAM_df <- res_F0_OWvAM_df[, !(names(res_F0_OWvAM_df) %in% c("part1", "part2", "part3", "rest"))]
+
+write.table(res_F0_OWvAM_df, file = "res_F0_OWvAM.txt", sep = "\t", row.names = F)   # saves the full original for the records
+
+# Select the two columns we want to save for the GOMWU analysis
+selected_columns_OW <- res_F0_OWvAM_df[c("transcriptID_trim", "log2FoldChange")]
+
+# Save the selected columns as a CSV file
+write.csv(selected_columns_OW, file = "res_F0_OWvAM_LFC.csv", quote = FALSE, row.names = F) # saves the selected columns for GOMWU
+
+
+############ Now for OWA
+
+# Make the rownames a separate column called transcriptID and make it all a dataframe
+res_F0_OWAvAM_df <- data.frame(transcriptID = rownames(res_F0_OWAvAM), res_F0_OWAvAM)
+
+# Split the "transcriptID" column by double colons and create new columns of the parts
+res_F0_OWAvAM_df <- separate(res_F0_OWAvAM_df, transcriptID, into = c("part1", "part2", "part3", "rest"), sep = "::", remove = FALSE) 
+
+# Create a new column by concatenating "part1" and "part2" with double colons in between
+res_F0_OWAvAM_df$transcriptID_trim <- paste(res_F0_OWAvAM_df$part1, res_F0_OWAvAM_df$part2, sep = "::")
+
+# Optional: Remove the "part1" and "part2" columns from the dataframe
+res_F0_OWAvAM_df <- res_F0_OWAvAM_df[, !(names(res_F0_OWAvAM_df) %in% c("part1", "part2", "part3", "rest"))]
+write.table(res_F0_OWAvAM_df, file = "res_F0_OWAvAM.txt", sep = "\t", row.names = F)   # saves the full original for the records
+
+# Select the two columns we want to save for the GOMWU analysis
+selected_columns_OWA <- res_F0_OWAvAM_df[c("transcriptID_trim", "log2FoldChange")]
+
+# Save the selected columns as a CSV file
+write.csv(selected_columns_OWA, file = "res_F0_OWAvAM_LFC.csv", quote = FALSE, row.names = F) # saves the selected columns for GOMWU
+
+
+
+############ Now for OA
+
+# Make the rownames a separate column called transcriptID and make it all a dataframe
+res_F0_OAvAM_df <- data.frame(transcriptID = rownames(res_F0_OAvAM), res_F0_OAvAM)
+
+# Split the "transcriptID" column by double colons and create new columns of the parts
+res_F0_OAvAM_df <- separate(res_F0_OAvAM_df, transcriptID, into = c("part1", "part2", "part3", "rest"), sep = "::", remove = FALSE) 
+
+# Create a new column by concatenating "part1" and "part2" with double colons in between
+res_F0_OAvAM_df$transcriptID_trim <- paste(res_F0_OAvAM_df$part1, res_F0_OAvAM_df$part2, sep = "::")
+
+# Optional: Remove the "part1" and "part2" columns from the dataframe
+res_F0_OAvAM_df <- res_F0_OAvAM_df[, !(names(res_F0_OAvAM_df) %in% c("part1", "part2", "part3", "rest"))]
+write.table(res_F0_OAvAM_df, file = "res_F0_OAvAM.txt", sep = "\t", row.names = F)   # saves the full original for the records
+
+# Select the two columns we want to save for the GOMWU analysis
+selected_columns_OA <- res_F0_OAvAM_df[c("transcriptID_trim", "log2FoldChange")]
+
+# Save the selected columns as a CSV file
+write.csv(selected_columns_OA, file = "res_F0_OAvAM_LFC.csv", quote = FALSE, row.names = F) # saves the selected columns for GOMWU
+```
+
+Make sure your .csv, measures files are in the same directory with your GOMWU scripts.
+
+## Edit the `GO_MWU.R` script and run the program at least three times, one for each contrast!
+
+Open the `GO_MWU.R` in R studio. There we will edit the two input filenames and confirm the sizes of GO categories to which to limit the analysis (e.g., between 10 and 500 gene members in a GO category). Let's discuss why to do this!
+
+## Biological interpretation? 
+What do these results mean? How do enrichment results vary based on treatment contrast? Are there any reasons to be concerned about these results? What next steps would you want to take?
