@@ -1,0 +1,95 @@
+---
+title: "Homework #2 (Transcriptomics)"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Homework assignment #2 -- Due by Tuesday, Nov 7, 2023 (end of day)
+
+During the last four weeks of the transcriptomics module, we’ve built on and extended our bioinformatic skills to work with a new library type (RNASeq) and used these data to quantify differential gene expression in the context of experimental evolution of the cold-adapted copepod, _Acartia hudsonica_. We learned the general workflow or “pipeline” for processing and analyzing RNAseq data. In sum, we: 
+
+* *Cleaned and visualized the quality of our paired-end 150bp Illumina data *
+* *Evaluated the complete and filtered _de novo_ transcriptome assembly*
+* *Mapped our reads to the assembly*
+* *Tested for differential gene expression*
+* *Visualizing patterns globally (PCA) and at the level of individual genes (point plots and heatmaps)*
+* *Built correlation networks and tested for association between gene modules and trait data*
+* *Tested for functional enrichment of differentially expressed genes in Gene Ontology categories*
+
+Wow! That’s a lot! Now let's reinforce that learning with this assignment!
+
+ 
+**Your assignment here is to explore the effects of specific decisions/parameters on downstream, biological results.  The overarching question: Do technical decisions affect biological results; if so, how? ** 
+
+## Choose one of the options below. 
+
+1.	How does the filtration of the de novo assembly (CD-HIT-EST, Transdecoder) affect gene expression results? To address this question, you would need to rerun Salmon mapping to an alternative assembly, e.g., the assembly only filtered by 95% sequence similarity, CD-HIT-EST, then test for differential expression using both salmon matrices, then compare results (how many transcripts included, what proportion differentially expressed, PCAs). You could focus on F0 samples for this.
+
+2.	How does the filtration of transcripts by read depth in DESeq2 affect gene expression results? To address this question, you would need to choose 2-3 ways to filter transcripts by read depth, one of which should be the one we ran in class (75% of samples have at least 15 reads), test for differential expression for each, then compare results, (how many transcripts included, what proportion differentially expressed, PCAs). You could focus on F0 samples for this.
+
+3.	How does the soft-power threshold selected affect module formation (number, size, strength of correlations, association with traits)? To address this question, choose 2 or 3 power thresholds, compare the number of modules, number of genes per module, the strength of correlations with traits, extra credit: test for GO functional enrichment for modules associated with traits.
+
+4.	How do the differences in gene expression between AM and OWA change across the generations (F0, F4, F11)? To address this question, in DESeq2 subset by generation and pull-out specific contrasts, compare results – number of differentially expressed genes, a Venn could be a good tool for visualization here. Does GO functional enrichment change?
+
+5.	How do differences in gene expression between all four groups change between F0 and F4? To address this question, in DESeq2 subset by generation and pull-out specific contrasts comparing OA, OW, OWA to AM, compare results – number of differentially expressed genes, a Venn could be a good tool for visualization here. Do gene expression patterns in the OWA treatment suggest that response to the combined treatment is synergistic, additive, or antagonistic? Does this depend on generation? 
+
+6.	Another question you may have – run it by Melissa via Slack.
+
+### Guidelines and expectations:
+
+* The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.
+* You may work collaboratively, but the final product and all of the writing should be your own defensible work.
+* Approach the writing as a technical report based on the work you’ve done to date.  That is, write for a scientific audience using appropriate technical language and narrative style, with citations used when referring to methods or making factual assertions.
+* Your write-up should include the following essential elements:
+
+#### Background (1-2 paragraphs):
+* A brief description providing the context and motivation of the problem we’re trying to address with these data. The deMayo et al. 2023 Proc. B paper is an excellent resource for this information.
+* A brief background on the experiment, study species, biological samples, library prep, and sequencing strategy. The Transcriptomics Day 1-2 tutorials are excellent resources for this part.
+* A clear statement of the question you have chosen to address in your assignment. We all have appreciated when this is done in our class discussion papers. Now you get to do it!
+
+
+#### Bioinformatics Pipeline (~2 paragraphs):
+* Detailed description of the various steps you used for the analysis of the sequencing data.  Take it from QC assessment of the raw reads up to estimation of differential gene expression. (You can mention the how we evaluated the de novo transcriptome assembly, but for the method of assembly you need only mention that we used the Trinity de novo assembler (v2.13.2).)
+* This section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done.  Include justification for using particular analyses or choices as appropriate (e.g., In DESeq2, did you filter out genes that had fewer than 10 read counts per individual (on average) and why?  Or perhaps you decided to implement a more or less stringent filter -- explain if so.).
+
+
+#### Results (1-2 paragraphs)
+* Report your findings from the different analysis steps.  Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.  
+* You may use a max of 4 tables/figures total (not counted towards the page limit). 
+* Be sure each table/figure has a title, and a very brief legend describing its contents.
+
+
+#### Conclusion (1-2 paragraphs)
+* Give your technical and biological conclusion based on the question you addressed and results you generated. Consider the broader question of capacity for rapid evolution to global change in _Acartia hudsonica_.
+* Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.
+* Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.
+* Discuss opportunities for future directions.
+
+
+#### References (listed on a separate page)
+* Cite papers in APA format.  Example:  
+  <font size="2">*deMayo, J. A., Brennan, R. S., Pespeni, M. H., Finiguerra, M., Norton, L., Park, G., ... & Dam, H. G. (2023). Simultaneous warming and acidification limit population fitness and reveal phenotype costs for a marine copepod. Proceedings of the Royal Society B, 290(2006), 20231033.*</font>
+
+* Only include references to papers that cited in your text.
+
+* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github “scripts” folder. Share a URL link to your Github page with your emailed homework submission.
+
+
+### Guidelines and deadlines:
+
+* You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
+
+* Due by Tuesday, November 7, 2023 (end of day)
+
+* Email your homework in doc AND pdf format to:
+```
+Melissa.Pespeni@uvm.edu
+Stephen.Keller@uvm.edu
+Csenge.Petak@uvm.edu
+```
+
+
+#### Reach out via Slack or office hours if you get stuck, and don't forget to have fun with it!
+
