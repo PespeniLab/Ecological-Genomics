@@ -228,7 +228,23 @@ mapping the raw reads to the S. purpuratus reference genome (Spur ver.
 look at them we will convert them into a vcf format shortly.</p>
 <div id="list-of-chromosomes-to-choose-from" class="section level2">
 <h2>List of chromosomes to choose from:</h2>
-<p>TODO: select best 16 chromosomes</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">1.</span> NW_022145594.1</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">2.</span> NW_022145595.1</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">3.</span> NW_022145596.1</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="ex">4.</span> NW_022145597.1</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="ex">5.</span> NW_022145598.1</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="ex">6.</span> NW_022145601.1</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="ex">7.</span> NW_022145602.1</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="ex">8.</span> NW_022145603.1 <span class="co"># Csenge</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="ex">9.</span> NW_022145604.1</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="ex">10.</span> NW_022145605.1</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="ex">11.</span> NW_022145606.1</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="ex">12.</span> NW_022145610.1</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="ex">13.</span> NW_022145611.1</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="ex">14.</span> NW_022145612.1</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="ex">15.</span> NW_022145613.1</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="ex">16.</span> NW_022145614.1</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="ex">17.</span> NW_022145615.1</span></code></pre></div>
 </div>
 <div id="write-a-bash-script-to-do-the-filtering-for-your-chromosome" class="section level2">
 <h2>Write a bash script to do the filtering for your chromosome</h2>
@@ -239,28 +255,28 @@ look at them we will convert them into a vcf format shortly.</p>
 to enter insert mode</p></li>
 <li><p>copy the following lines:</p></li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">#!/bin/sh</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="va">mychr</span><span class="op">=</span><span class="st">&quot;my_chromosome_number&quot;</span> <span class="co"># Replace this with your chromosome</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co"># use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: Everyone will be writing to the same shared directory, so please make sure that you have the correct chromosome name above</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-e</span> <span class="st">&#39;QUAL &lt;= 40 || DP &lt; 560 || MQB &lt; -3 || RPB &lt; -3 || RPB &gt; 3 || AN &lt; 238&#39;</span> /netfiles/ecogen/structural_variation/bcf_files/multi_bam_<span class="va">${mychr}</span>.bcf <span class="op">&gt;</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.vcf</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Filtered bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># Convert the filtered vcf into the bcf file type which is the type the R package will be expecting</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-Ob</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.vcf <span class="op">&gt;</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.bcf</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Converted to bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co"># Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="ex">bcftools</span> index /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.bcf</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Indexed bcf&quot;</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Done!&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#!/bin/sh</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">mychr</span><span class="op">=</span><span class="st">&quot;my_chromosome_number&quot;</span> <span class="co"># Replace this with your chromosome</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: Everyone will be writing to the same shared directory, so please make sure that you have the correct chromosome name above</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-e</span> <span class="st">&#39;QUAL &lt;= 40 || DP &lt; 560 || MQB &lt; -3 || RPB &lt; -3 || RPB &gt; 3 || AN &lt; 238&#39;</span> /netfiles/ecogen/structural_variation/bcf_files/multi_bam_<span class="va">${mychr}</span>.bcf <span class="op">&gt;</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.vcf</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Filtered bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># Convert the filtered vcf into the bcf file type which is the type the R package will be expecting</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-Ob</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.vcf <span class="op">&gt;</span> /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.bcf</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Converted to bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co"># Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="ex">bcftools</span> index /netfiles/ecogen/structural_variation/filtered_bcf_files/<span class="va">${mychr}</span>_filtered.bcf</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Indexed bcf&quot;</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Done!&quot;</span></span></code></pre></div>
 </div>
 <div id="a-bit-on-tmux" class="section level2">
 <h2>A bit on tmux</h2>
@@ -359,11 +375,11 @@ genotype likelihoods.</p></li>
 </ul>
 <p>Let’s look at an example!</p>
 <p>Example 1:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  1564    .   T   A   129 .   DP=599<span class="kw">;</span><span class="va">VDB</span><span class="op">=</span>0.259328<span class="kw">;</span><span class="va">SGB</span><span class="op">=</span>31.2596<span class="kw">;</span><span class="va">RPB</span><span class="op">=</span>0.70951<span class="kw">;</span><span class="va">MQB</span><span class="op">=</span>0.816143<span class="kw">;</span><span class="va">MQSB</span><span class="op">=</span>0.0194<span class="kw">;</span><span class="va">BQB</span><span class="op">=</span>0.892443<span class="kw">;</span><span class="va">MQ0F</span><span class="op">=</span>0.358932<span class="kw">;</span><span class="va">ICB</span><span class="op">=</span>0.000506821<span class="kw">;</span><span class="va">HOB</span><span class="op">=</span>0.000246914<span class="kw">;</span><span class="va">AC</span><span class="op">=</span>3<span class="kw">;</span><span class="va">AN</span><span class="op">=</span>270<span class="kw">;</span><span class="va">DP4</span><span class="op">=</span>385,98,11,1<span class="kw">;</span><span class="va">MQ</span><span class="op">=</span>21   <span class="ex">GT:PL</span>   ./.:0,0,0   0/0:0,12,76 0/0:0,6,74  0/0:0,15,118    0/0:0,3,4   0/1:31,0,28 0/0:0,9,40  0/0:0,6,7 0/0:0,6,42    0/0:0,12,11 0/0:0,3,4   0/0:0,3,37  0/0:0,21,171    0/0:0,3,4   ./.:0,0,0   0/0:0,15,69 0/0:0,15,41 0/0:0,24,99 0/0:0,6,67  0/</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="ex">0:0,12,77</span>   0/0:0,15,120    0/0:0,15,117    0/0:0,3,37  0/0:0,9,42  0/0:0,9,13  0/0:0,21,98 0/0:0,9,9   0/0:0,3,37  0/0:0,3,40  0/0:0,15,69 0/</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="ex">0:0,15,16</span>   0/0:0,12,43 0/0:0,3,4   0/0:0,9,75  0/0:0,18,119    0/0:0,6,36  0/0:0,6,39  0/0:0,3,37  0/0:0,15,98 0/0:0,6,39  ./.:0,0,0   0/</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="ex">0:0,9,77</span>    0/0:0,9,74  0/0:0,12,60 0/0:0,3,4   0/0:0,6,39  0/0:0,12,44 0/0:0,9,68  0/0:0,15,103    0/0:0,9,71  0/0:0,18,122    0/0:0,9,40  0/</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="ex">0:0,12,59</span>   0/0:0,18,102    0/0:0,6,64  0/0:0,15,71 0/0:0,12,99 0/0:0,6,74  0/0:0,3,37  0/0:0,24,128    0/0:0,18,108    0/1:122,0,34 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  1564    .   T   A   129 .   DP=599<span class="kw">;</span><span class="va">VDB</span><span class="op">=</span>0.259328<span class="kw">;</span><span class="va">SGB</span><span class="op">=</span>31.2596<span class="kw">;</span><span class="va">RPB</span><span class="op">=</span>0.70951<span class="kw">;</span><span class="va">MQB</span><span class="op">=</span>0.816143<span class="kw">;</span><span class="va">MQSB</span><span class="op">=</span>0.0194<span class="kw">;</span><span class="va">BQB</span><span class="op">=</span>0.892443<span class="kw">;</span><span class="va">MQ0F</span><span class="op">=</span>0.358932<span class="kw">;</span><span class="va">ICB</span><span class="op">=</span>0.000506821<span class="kw">;</span><span class="va">HOB</span><span class="op">=</span>0.000246914<span class="kw">;</span><span class="va">AC</span><span class="op">=</span>3<span class="kw">;</span><span class="va">AN</span><span class="op">=</span>270<span class="kw">;</span><span class="va">DP4</span><span class="op">=</span>385,98,11,1<span class="kw">;</span><span class="va">MQ</span><span class="op">=</span>21   <span class="ex">GT:PL</span>   ./.:0,0,0   0/0:0,12,76 0/0:0,6,74  0/0:0,15,118    0/0:0,3,4   0/1:31,0,28 0/0:0,9,40  0/0:0,6,7 0/0:0,6,42    0/0:0,12,11 0/0:0,3,4   0/0:0,3,37  0/0:0,21,171    0/0:0,3,4   ./.:0,0,0   0/0:0,15,69 0/0:0,15,41 0/0:0,24,99 0/0:0,6,67  0/</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">0:0,12,77</span>   0/0:0,15,120    0/0:0,15,117    0/0:0,3,37  0/0:0,9,42  0/0:0,9,13  0/0:0,21,98 0/0:0,9,9   0/0:0,3,37  0/0:0,3,40  0/0:0,15,69 0/</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">0:0,15,16</span>   0/0:0,12,43 0/0:0,3,4   0/0:0,9,75  0/0:0,18,119    0/0:0,6,36  0/0:0,6,39  0/0:0,3,37  0/0:0,15,98 0/0:0,6,39  ./.:0,0,0   0/</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">0:0,9,77</span>    0/0:0,9,74  0/0:0,12,60 0/0:0,3,4   0/0:0,6,39  0/0:0,12,44 0/0:0,9,68  0/0:0,15,103    0/0:0,9,71  0/0:0,18,122    0/0:0,9,40  0/</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="ex">0:0,12,59</span>   0/0:0,18,102    0/0:0,6,64  0/0:0,15,71 0/0:0,12,99 0/0:0,6,74  0/0:0,3,37  0/0:0,24,128    0/0:0,18,108    0/1:122,0,34 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span></span></code></pre></div>
 <p>0/0: homozygote to the alternative allele 0/1: heterozygote. since we
 don’t know which allele is coming from which parent, 0/1 just means
 heterozygote, and you won’t see 1/0 anywhere. 1/1: homozygote for the
@@ -379,18 +395,18 @@ scroll down, this dataset also includes sites with
 duplications/deletions/insertions, as well as triallelic (or even
 quadrallelic) sites.</p>
 <p>Example 2:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  1553    .   ag  a,aGg   999 .   INDEL<span class="kw">;</span><span class="va">IDV</span><span class="op">=</span>7<span class="kw">;</span><span class="va">IMF</span><span class="op">=</span>0.7<span class="kw">;</span><span class="va">DP</span><span class="op">=</span>583<span class="kw">;</span><span class="va">VDB</span><span class="op">=</span>0.0245597<span class="kw">;</span><span class="va">SGB</span><span class="op">=</span>-53.7492<span class="kw">;</span><span class="va">MQSB</span><span class="op">=</span>0.0144647<span class="kw">;</span><span class="va">MQ0F</span><span class="op">=</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">0.447684</span><span class="kw">;</span><span class="va">ICB</span><span class="op">=</span>0.473584<span class="kw">;</span><span class="va">HOB</span><span class="op">=</span>0.0514945<span class="kw">;</span><span class="va">AC</span><span class="op">=</span>79,2<span class="kw">;</span><span class="va">AN</span><span class="op">=</span>274<span class="kw">;</span><span class="va">DP4</span><span class="op">=</span>286,108,161,28<span class="kw">;</span><span class="va">MQ</span><span class="op">=</span>20 <span class="ex">GT:PL</span>   0/0:0,3,4,3,4,4 0/0:0,5,57,9,60,57  0/0:0,9,42</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="ex">,9,42,42</span>    0/1:26,0,1,44,10,35 0/0:0,3,4,3,4,4 0/0:0,12,69,12,69,69    0/1:25,5,0,28,9,25  0/1:7,5,0,10,9,7    1/1:39,6,0</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">,39,6,39</span>    0/0:0,15,12,15,12,12 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span> <span class="ex">1/1:21,8,0,24,12,21</span>  0/0:0,18,33,12,36,33    0/0:0,6,34</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="ex">,6,34,34</span>    0/1:6,0,69,15,72,81 0/1:3,0,25,18,31,35 0/1:55,5,0,61,12,56 0/0:0,9,87,9,87,87  0/0:0,15,60,15,60,60    0/</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="ex">0:0,3,3,6,6,4</span>   0/0:0,3,4,3,4,4 1/1:48,9,0,57,21,49 0/1:16,0,3,22,9,24  1/1:52,6,0,52,6,52  0/0:0,21,81,21,81,81    0/1:0,0,16</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="ex">,6,25,21</span>    0/0:0,9,61,9,61,61  0/1:27,0,42,36,51,74    0/1:44,0,26,59,32,77    0/1:14,0,30,23,33,50    0/1:20,3,0,20,3,20  1/</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="ex">1:72,12,0,72,12,72</span>  0/1:23,3,0,29,9,25  0/0:0,12,13,12,13,13    0/1:26,5,0,29,9,26  0/0:0,9,21,9,21,21  0/1:3,3,0,6,6,4 0/</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="ex">0:0,15,65,15,65,65</span>  0/0:0,5,58,9,61,58  0/0:0,9,15,9,15,15  0/0:0,3,4,3,4,4 0/1:48,0,16,54,28,70    0/0:0,1,22,3,25,24  0/</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="ex">1:11,2,0,17,6,14</span>    1/2:89,62,59,30,0,22    0/1:50,3,0,53,6,51  0/0:0,6,8,6,8,8 0/0:0,3,31,3,31,31  0/0:0,9,37,9,37,37  0/</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="ex">0:0,15,109,15,109,109</span>   0/1:17,0,78,35,81,108   0/0:0,2,78,12,81,85 0/1:47,0,56,59,69,110   1/1:68,6,0,68,6,68  0/0:0,9,55,9,55,55</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="ex">0/0:0,9,65,9,65,65</span>  0/1:2,0,1,14,4,12   0/0:0,9,71,9,71,71  1/1:99,18,0,99,18,99    0/2:62,71,94,0,36,27 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  1553    .   ag  a,aGg   999 .   INDEL<span class="kw">;</span><span class="va">IDV</span><span class="op">=</span>7<span class="kw">;</span><span class="va">IMF</span><span class="op">=</span>0.7<span class="kw">;</span><span class="va">DP</span><span class="op">=</span>583<span class="kw">;</span><span class="va">VDB</span><span class="op">=</span>0.0245597<span class="kw">;</span><span class="va">SGB</span><span class="op">=</span>-53.7492<span class="kw">;</span><span class="va">MQSB</span><span class="op">=</span>0.0144647<span class="kw">;</span><span class="va">MQ0F</span><span class="op">=</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">0.447684</span><span class="kw">;</span><span class="va">ICB</span><span class="op">=</span>0.473584<span class="kw">;</span><span class="va">HOB</span><span class="op">=</span>0.0514945<span class="kw">;</span><span class="va">AC</span><span class="op">=</span>79,2<span class="kw">;</span><span class="va">AN</span><span class="op">=</span>274<span class="kw">;</span><span class="va">DP4</span><span class="op">=</span>286,108,161,28<span class="kw">;</span><span class="va">MQ</span><span class="op">=</span>20 <span class="ex">GT:PL</span>   0/0:0,3,4,3,4,4 0/0:0,5,57,9,60,57  0/0:0,9,42</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="ex">,9,42,42</span>    0/1:26,0,1,44,10,35 0/0:0,3,4,3,4,4 0/0:0,12,69,12,69,69    0/1:25,5,0,28,9,25  0/1:7,5,0,10,9,7    1/1:39,6,0</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="ex">,39,6,39</span>    0/0:0,15,12,15,12,12 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span> <span class="ex">1/1:21,8,0,24,12,21</span>  0/0:0,18,33,12,36,33    0/0:0,6,34</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="ex">,6,34,34</span>    0/1:6,0,69,15,72,81 0/1:3,0,25,18,31,35 0/1:55,5,0,61,12,56 0/0:0,9,87,9,87,87  0/0:0,15,60,15,60,60    0/</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="ex">0:0,3,3,6,6,4</span>   0/0:0,3,4,3,4,4 1/1:48,9,0,57,21,49 0/1:16,0,3,22,9,24  1/1:52,6,0,52,6,52  0/0:0,21,81,21,81,81    0/1:0,0,16</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="ex">,6,25,21</span>    0/0:0,9,61,9,61,61  0/1:27,0,42,36,51,74    0/1:44,0,26,59,32,77    0/1:14,0,30,23,33,50    0/1:20,3,0,20,3,20  1/</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="ex">1:72,12,0,72,12,72</span>  0/1:23,3,0,29,9,25  0/0:0,12,13,12,13,13    0/1:26,5,0,29,9,26  0/0:0,9,21,9,21,21  0/1:3,3,0,6,6,4 0/</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="ex">0:0,15,65,15,65,65</span>  0/0:0,5,58,9,61,58  0/0:0,9,15,9,15,15  0/0:0,3,4,3,4,4 0/1:48,0,16,54,28,70    0/0:0,1,22,3,25,24  0/</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="ex">1:11,2,0,17,6,14</span>    1/2:89,62,59,30,0,22    0/1:50,3,0,53,6,51  0/0:0,6,8,6,8,8 0/0:0,3,31,3,31,31  0/0:0,9,37,9,37,37  0/</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="ex">0:0,15,109,15,109,109</span>   0/1:17,0,78,35,81,108   0/0:0,2,78,12,81,85 0/1:47,0,56,59,69,110   1/1:68,6,0,68,6,68  0/0:0,9,55,9,55,55</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="ex">0/0:0,9,65,9,65,65</span>  0/1:2,0,1,14,4,12   0/0:0,9,71,9,71,71  1/1:99,18,0,99,18,99    0/2:62,71,94,0,36,27 <span class="er">(</span><span class="ex">...</span><span class="kw">)</span></span></code></pre></div>
 <p>In this case, the reference is AG, the first alternative allele has a
 deletion of the G, and the second alternative allele has an addition of
 a G! So for example, 0/2 is a heterozygote where one copy has the
@@ -444,8 +460,8 @@ the bash scripts with the “bash” command. -i specifies the input file
 location, -t specifies the way we are calculating the windows, which is
 based on SNPs for now. -s specifies the window size. -I specifies the
 location of the file I created to link the individual IDs in the bcf
-file with the 3 letter population name. This should take around 15
-minutes to run.</p></li>
+file with the 3 letter population name. This should take 15 minutes to
+an hour to run.</p></li>
 <li><p>Once the script finishes, you should have a folder called
 lostruct_results in <code>~/mydata/struct_data</code>. cd into
 lostruct_results. Then, cd into a folder called something like
@@ -509,8 +525,7 @@ first corner.</p></li>
 <li><p>Hit <code>esc</code> and <code>:wq</code> to save your
 changes.</p></li>
 </ul>
-<p>Repeat steps above to rerun the plotting. TODO: do they need to
-delete the cashe folder?</p>
+<p>Repeat steps above to rerun the plotting.</p>
 <ul>
 <li><p><code>tmux attach-session -t run_localPCA</code></p></li>
 <li><p>cd into
@@ -520,7 +535,10 @@ delete the cashe folder?</p>
 <li><p>Now you should have a new file in
 <code>type_snp_size_1000_weights_none_jobid_166584</code> called
 <code>first_corner.csv</code>. Type <code>head first_corner.csv</code>
-to see the region information.</p></li>
+to see the region information. NOTE: if you are not seeing the new file
+appear, you might have to delete the cache directory
+(<code>rm -r cache</code>) first, and then rerun the Rscript
+again.</p></li>
 </ul>
 </div>
 <div id="do-go-enrichment-for-the-selected-corner" class="section level2">
@@ -542,33 +560,33 @@ modify it.</p>
 if you are not there alread.</p></li>
 <li><p><code>head first_corner.csv</code> -&gt;</p></li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="st">&quot;chrom&quot;</span><span class="ex">,</span><span class="st">&quot;start&quot;</span><span class="ex">,</span><span class="st">&quot;end&quot;</span><span class="ex">,</span><span class="st">&quot;pos&quot;</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,227538,246919,237228.5</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,246921,249982,248451.5</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,250053,258244,254148.5</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,268365,272067,270216</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,283027,289393,286210</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="st">&quot;chrom&quot;</span><span class="ex">,</span><span class="st">&quot;start&quot;</span><span class="ex">,</span><span class="st">&quot;end&quot;</span><span class="ex">,</span><span class="st">&quot;pos&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,227538,246919,237228.5</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,246921,249982,248451.5</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,250053,258244,254148.5</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,268365,272067,270216</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,283027,289393,286210</span></span></code></pre></div>
 <ul>
 <li>Remove 4th column:
 <code>cut -d, -f1-3 first_corner.csv &gt; first_corner_formatted.csv</code>
 -&gt;</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="st">&quot;chrom&quot;</span><span class="ex">,</span><span class="st">&quot;start&quot;</span><span class="ex">,</span><span class="st">&quot;end&quot;</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,227538,246919</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,246921,249982</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,250053,258244</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,268365,272067</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="st">&quot;chrom&quot;</span><span class="ex">,</span><span class="st">&quot;start&quot;</span><span class="ex">,</span><span class="st">&quot;end&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,227538,246919</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,246921,249982</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,250053,258244</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="st">&quot;NW_022145602.1&quot;</span><span class="ex">,268365,272067</span></span></code></pre></div>
 <ul>
 <li><p>Remove “s:
 <code>sed -i &#39;s/&quot;//g&#39; first_corner_formatted.csv</code></p></li>
 <li><p>Replace commas with tabs:
 <code>sed -i &#39;s/,/\t/g&#39; first_corner_formatted.csv</code> -&gt;</p></li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">chrom</span>   start   end</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  227538  246919</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  246921  249982</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  250053  258244</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  268365  272067</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">chrom</span>   start   end</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  227538  246919</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  246921  249982</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  250053  258244</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="ex">NW_022145602.1</span>  268365  272067</span></code></pre></div>
 <p>Now that we have the correct file format, let’s run the intersectBed
 algorythm:
 <code>/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a first_corner_formatted.csv -b /netfiles/ecogen/structural_variation/genome_annotation.gff -wa -wb &gt; genes_first_corner.bed</code>.

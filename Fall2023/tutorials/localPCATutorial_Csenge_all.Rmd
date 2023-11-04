@@ -88,7 +88,26 @@ Before we do anything else, let's filter these bcf files. In order to look at th
 
 ## List of chromosomes to choose from:
 
-TODO: select best 16 chromosomes
+```{bash, eval = FALSE}
+1. NW_022145594.1
+2. NW_022145595.1
+3. NW_022145596.1
+4. NW_022145597.1
+5. NW_022145598.1
+6. NW_022145601.1
+7. NW_022145602.1
+8. NW_022145603.1 # Csenge
+9. NW_022145604.1
+10. NW_022145605.1
+11. NW_022145606.1
+12. NW_022145610.1
+13. NW_022145611.1
+14. NW_022145612.1
+15. NW_022145613.1
+16. NW_022145614.1
+17. NW_022145615.1
+```
+
 
 ## Write a bash script to do the filtering for your chromosome
 
@@ -244,7 +263,7 @@ Type vim run_lostruct.R in the \~/myscripts directory.
 
 -   `cd ~/mydata/struct_data`. This way the results will automatically end up in this directory.
 
--   `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv`. We are running the Rscript with the "Rscript" command, just like we run the bash scripts with the "bash" command. -i specifies the input file location, -t specifies the way we are calculating the windows, which is based on SNPs for now. -s specifies the window size. -I specifies the location of the file I created to link the individual IDs in the bcf file with the 3 letter population name. This should take around 15 minutes to run.
+-   `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv`. We are running the Rscript with the "Rscript" command, just like we run the bash scripts with the "bash" command. -i specifies the input file location, -t specifies the way we are calculating the windows, which is based on SNPs for now. -s specifies the window size. -I specifies the location of the file I created to link the individual IDs in the bcf file with the 3 letter population name. This should take 15 minutes to an hour to run.
 
 -   Once the script finishes, you should have a folder called lostruct_results in `~/mydata/struct_data`. cd into lostruct_results. Then, cd into a folder called something like type_snp_size_1000_weights_none_jobid_166584 (will be called different for you). Type `ll`.
 
@@ -286,7 +305,7 @@ In order to be able to get the genomic regions corresponding to a specific corne
 
 -   Hit `esc` and `:wq` to save your changes.
 
-Repeat steps above to rerun the plotting. TODO: do they need to delete the cashe folder?
+Repeat steps above to rerun the plotting.
 
 -   `tmux attach-session -t run_localPCA`
 
@@ -294,7 +313,7 @@ Repeat steps above to rerun the plotting. TODO: do they need to delete the cashe
 
 -   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
 
--   Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information.
+-   Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information. NOTE: if you are not seeing the new file appear, you might have to delete the cache directory (`rm -r cache`) first, and then rerun the Rscript again.
 
 ## Do GO Enrichment for the selected corner
 
