@@ -250,13 +250,13 @@ Type vim run_lostruct.R in the \~/myscripts directory.
 
 -   Output files:
 
-    -   config.json -> check with vim
+    -   config.json -\> check with vim
 
-    -   mds_coords.csv -> wc -l -> how many lines are there? each line corresponds to a window
-    
-    - mychromosome.pca.csv -> wc -l to check the number of rows and `awk -F',' '{print NF}' mychromosome.pca.csv | sort -nu | tail -n 1` to check the number of columns -> should be 283. For each window (rows), PC1 and PC2 for each individuals (140) -> input variables for the MDS 
-    
-    - mychromosome.regions.csv -> windows information (will be important later)
+    -   mds_coords.csv -\> wc -l -\> how many lines are there? each line corresponds to a window
+
+    -   mychromosome.pca.csv -\> wc -l to check the number of rows and `awk -F',' '{print NF}' mychromosome.pca.csv | sort -nu | tail -n 1` to check the number of columns -\> should be 283. For each window (rows), PC1 and PC2 for each individuals (140) -\> input variables for the MDS
+
+    -   mychromosome.regions.csv -\> windows information (will be important later)
 
 ## Visualise results
 
@@ -264,54 +264,98 @@ NOTE: Make sure to change the `type_snp_size_1000_weights_none_jobid_166584` dir
 
 Now we'll use another script provided by the local PCA package to make an html with a series of plots.
 
-- `tmux attach-session -t run_localPCA`
+-   `tmux attach-session -t run_localPCA`
 
-- cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+-   cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
 
-- type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+-   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
 
-- This should only take a few minutes. Once done, you should have new files in your `type_snp_size_1000_weights_none_jobid_166584` directory.
+-   This should only take a few minutes. Once done, you should have new files in your `type_snp_size_1000_weights_none_jobid_166584` directory.
 
-- Open FileZilla on your computer. Move run_summary.html in the `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` directory to your computer.
+-   Open FileZilla on your computer. Move run_summary.html in the `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` directory to your computer.
 
-- Find that file on your computer and open it in your favorite browser (e.g. Chrome).
+-   Find that file on your computer and open it in your favorite browser (e.g. Chrome).
 
 ## Select regions of interest
 
 In order to be able to get the genomic regions corresponding to a specific corner in the MDS plot, we will need to modify the plotting script (summarize_run.Rmd) such that it writes a csv file with the coordinates.
 
-- `cd ~/myscripts`, `vim summarize_run.Rmd`, hit I to enter the insert mode.
+-   `cd ~/myscripts`, `vim summarize_run.Rmd`, hit I to enter the insert mode.
 
-- Around line 195, the script creates a variable called corner.regions based on the mds corners. This variable contains a list of chromosome, start, end information for each window in each corners of the mds plot. So, all we need to do is insert a line `write.csv(corner.regions[[1]], "first_corner.csv", row.names=FALSE)` under the line 198 (`}`) to save the genomic regions in the first corner.
+-   Around line 195, the script creates a variable called corner.regions based on the mds corners. This variable contains a list of chromosome, start, end information for each window in each corners of the mds plot. So, all we need to do is insert a line `write.csv(corner.regions[[1]], "first_corner.csv", row.names=FALSE)` under the line 198 (`}`) to save the genomic regions in the first corner.
 
-- Hit `esc` and `:wq` to save your changes.
+-   Hit `esc` and `:wq` to save your changes.
 
 Repeat steps above to rerun the plotting. TODO: do they need to delete the cashe folder?
 
-- `tmux attach-session -t run_localPCA`
+-   `tmux attach-session -t run_localPCA`
 
-- cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+-   cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
 
-- type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+-   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
 
-- Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information.
+-   Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information.
 
 ## Do GO Enrichment for the selected corner
 
-In order to get a list of genes that are present in the selected windows, we will use an annotation file from ncbi: https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/. GFF is a standard file format to store genomic annotation information in. I have already downloaded this file and moved it to `/netfiles/ecogen/structural_variation/`, and named it genome_annotation.gff. Let's take a look!
+In order to get a list of genes that are present in the selected windows, we will use an annotation file from ncbi: <https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/>. GFF is a standard file format to store genomic annotation information in. I have already downloaded this file and moved it to `/netfiles/ecogen/structural_variation/`, and named it genome_annotation.gff. Let's take a look!
 
-To find an intersect between genes specified in the GFF file and coordinates in our first_corner.csv, we will us a package called bedtools. I have already installed this package for you. The intersectBed algorithm required the first_corner.csv to be in a specific format, so we'll need to modify it.
+To find an intersect between genes specified in the GFF file and coordinates in our first_corner.csv, we will us a package called bedtools. I have already installed this package for you. The intersectBed algorithm required the first_corner.csv to be in a specific format (tab deliminated, chromosome, start, end), so we'll need to modify it.
+
+-   `cd ~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` if you are not there alread.
+
+-   `head first_corner.csv` -\>
+
+```{bash}
+"chrom","start","end","pos"
+"NW_022145602.1",227538,246919,237228.5
+"NW_022145602.1",246921,249982,248451.5
+"NW_022145602.1",250053,258244,254148.5
+"NW_022145602.1",268365,272067,270216
+"NW_022145602.1",283027,289393,286210
+```
+
+-   Remove 4th column: `cut -d, -f1-3 first_corner.csv > first_corner_formatted.csv` -\>
+
+```{bash}
+"chrom","start","end"
+"NW_022145602.1",227538,246919
+"NW_022145602.1",246921,249982
+"NW_022145602.1",250053,258244
+"NW_022145602.1",268365,272067
+```
+
+-   Remove "s: `sed -i 's/"//g' first_corner_formatted.csv`
+
+-   Replace commas with tabs: `sed -i 's/,/\t/g' first_corner_formatted.csv` -\>
+
+```{bash}
+chrom	start	end
+NW_022145602.1	227538	246919
+NW_022145602.1	246921	249982
+NW_022145602.1	250053	258244
+NW_022145602.1	268365	272067
+```
+
+Now that we have the correct file format, let's run the intersectBed algorythm: `/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a first_corner_formatted.csv -b /netfiles/ecogen/structural_variation/genome_annotation.gff -wa -wb > genes_first_corner.bed`. Look at the genes_first_corner.bed file.
+
+To extract the gene names: `sed -n "s/^.*gene=\(LOC[0-9]\+\).*$/\1/p" genes_first_corner.bed > gene_names_first_corner.txt`
+
+You'll see that a lot of the gene names are repeated. To discard repeats, type: `sort gene_names_first_corner.txt | uniq > uni_gene_names_first_corner.txt`. 
+
+Go to FileZilla on your computer and download this file (mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/uni_gene_names_first_corner.txt). 
+
+Now we can run a gene ontology analysis on these genes! 
+
+- Open the txt file above, select all, copy (Ctrl C). 
+
+- Go to: https://geneontology.org/, paste the LOC names into the window on the right.
+
+- Select Strongylocentrotus purpuratus (purple sea urchin) from the drop down menu instead of Homo sapiens. Click Launch.
+
+- If you don't get any significantly enriched biological processes, you can change the Annotation Data Set in the drop down menu and click Launch analysis. You can also play around with the Test type and the correction method. Don't worry if you still don't get anything, that is also a valid result!
+
+Congrats! You are all done with this tutorial! :)
 
 
 
-sed to modify second_corner
-
-
-
-cd \~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584
-
-/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a second_corner_formatted.csv -b /netfiles/ecogen/structural_variation/genome_annotation.gff -wa -wb \> genes_in_regions.bed
-
-sed -n "s/\^.*gene=*$LOC[0-9]\+$.\$/\\1/p" genes_in_regions.bed \> gene_names.txt sort gene_names.txt \| uniq \> uni_gene_names.txt
-
-copy to <https://geneontology.org/>
