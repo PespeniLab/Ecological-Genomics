@@ -16,7 +16,7 @@ fontsize: 18pt
 
 ### Local PCA
 
-Here is the paper describing the method: https://academic.oup.com/genetics/article/211/1/289/5931130?login=true
+Here is the paper describing the method: <https://academic.oup.com/genetics/article/211/1/289/5931130?login=true>
 
 # The dataset
 
@@ -161,7 +161,7 @@ I decided on these values based on similar literature I found, and also the perc
 
 Now let's look further down in the file. You should see a header line that lists the column names:
 
-`#CHROM    POS ID  REF ALT QUAL    FILTER  INFO    FORMAT` followed by a 140 long names. This is a standard format. Keep pressing enter until you find the first line. - CHROM is the chromosome name
+`#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT` followed by a 140 long names. This is a standard format. Keep pressing enter until you find the first line. - CHROM is the chromosome name
 
 -   POS is the position in the chromosome
 
@@ -214,35 +214,99 @@ NW_022145602.1	1553	.	ag	a,aGg	999	.	INDEL;IDV=7;IMF=0.7;DP=583;VDB=0.0245597;SG
 	0/0:0,9,65,9,65,65	0/1:2,0,1,14,4,12	0/0:0,9,71,9,71,71	1/1:99,18,0,99,18,99	0/2:62,71,94,0,36,27 (...)
 ```
 
-In this case, the reference is has AG, the first alternative has a deletion of the G, and the second allele has an addition of a G! So for example, 0/2 is a heterozygote where one copy has the insertion, and 1/1 is a homozygote for the deletion.
+In this case, the reference is AG, the first alternative allele has a deletion of the G, and the second alternative allele has an addition of a G! So for example, 0/2 is a heterozygote where one copy has the insertion, and 1/1 is a homozygote for the deletion.
 
 # Running local PCA
 
-Local PCA is an R package, here is the GitHub page: https://github.com/petrelharp/local_pca. I already install this package on the class server following the instructions in the README.md. You should be able to use it without doing anything.
+Local PCA is an R package, here is the GitHub page: <https://github.com/petrelharp/local_pca>. I already installed this package on the class server following the instructions in the README.md. You should be able to use it without doing anything.
 
-On the page, they also have an Rscript to use the package and a separate one to visualise the results, which I copied to the server (and slightly modified): `/netfiles/ecogen/structural_variation`.
+On the page, they also provide an Rscript to use the package and a separate one to visualise the results, which I copied to the server (and slightly modified): `/netfiles/ecogen/structural_variation`.
 
-show run_lostruct.R and summarize_run.Rmd on github, and on the server
+## Copy files you will be working with
 
-mkdir struct_data directory in \~/mydata cp /netfiles/ecogen/structural_variation/filtered_bcf_files/NW_022145602.1_filtered.bcf\* \~/mydata/struct_data Could take a moment Now struct_data should have NW_022145602.1_filtered.bcf and NW_022145602.1_filtered.bcf.csi cp /netfiles/ecogen/structural_variation/run_lostruct.R \~/myscripts cp /netfiles/ecogen/structural_variation/summarize_run.Rmd \~/myscripts
+-   Make a new directory in `~/mydata` called struct_data (use the mkdir command)
 
-tmux new -s run_localPCA cd \~/mydata/struct_data Rscript \~/myscripts/run_lostruct.R -i \~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv should take 15 mins Now you should have a folder called lostruct_results cd into lostruct_results cd into type_snp_size_1000_weights_none_jobid_166584 - will be called different for you Output files: config.json -\> check with vim mds_coords.csv -\> wc -l NW_022145602.1.pca.csv -\> wc -l and awk -F',' '{print NF}' NW_022145599.1.pca.csv \| sort -nu \| tail -n 1 -\> 283 For each window (rows), PC1 and PC2 for each individuals (140) -\> input variables for the MDS NW_022145602.1.regions.csv -\> windows information (will be important later)
+-   Create a new tmux session, e.g. `tmux new -s copying`, hit Enter.
 
-## Check and visualise results
+-   Copy your filtered and indexed bcf files into that new directory. You can do this by typing the following, and replacing the chromosome number with YOURS: `cp /netfiles/ecogen/structural_variation/filtered_bcf_files/mychrnumber_filtered.bcf* ~/mydata/struct_data` This could take a moment to run, which is why we are doing it in tmux.
 
-Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'
+-   Check that you have the data you'll need in `~/mydata/struct_data`, a .bcf file and a .bcf.csi file.
 
-Get the run_summary.html through the FileZilla Open in your browser Look through figure
+-   Copy the R scripts over: `cp /netfiles/ecogen/structural_variation/run_lostruct.R ~/myscripts` and `cp /netfiles/ecogen/structural_variation/summarize_run.Rmd ~/myscripts`
+
+## Let's look at the scripts
+
+Type vim run_lostruct.R in the \~/myscripts directory.
+
+## Run local PCA
+
+-   `tmux new -s run_localPCA`
+
+-   `cd ~/mydata/struct_data`. This way the results will automatically end up in this directory.
+
+-   `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv`. We are running the Rscript with the "Rscript" command, just like we run the bash scripts with the "bash" command. -i specifies the input file location, -t specifies the way we are calculating the windows, which is based on SNPs for now. -s specifies the window size. -I specifies the location of the file I created to link the individual IDs in the bcf file with the 3 letter population name. This should take around 15 minutes to run.
+
+-   Once the script finishes, you should have a folder called lostruct_results in `~/mydata/struct_data`. cd into lostruct_results. Then, cd into a folder called something like type_snp_size_1000_weights_none_jobid_166584 (will be called different for you). Type `ll`.
+
+-   Output files:
+
+    -   config.json -> check with vim
+
+    -   mds_coords.csv -> wc -l -> how many lines are there? each line corresponds to a window
+    
+    - mychromosome.pca.csv -> wc -l to check the number of rows and `awk -F',' '{print NF}' mychromosome.pca.csv | sort -nu | tail -n 1` to check the number of columns -> should be 283. For each window (rows), PC1 and PC2 for each individuals (140) -> input variables for the MDS 
+    
+    - mychromosome.regions.csv -> windows information (will be important later)
+
+## Visualise results
+
+NOTE: Make sure to change the `type_snp_size_1000_weights_none_jobid_166584` directory name everywhere in this tutorial to your directory name!
+
+Now we'll use another script provided by the local PCA package to make an html with a series of plots.
+
+- `tmux attach-session -t run_localPCA`
+
+- cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+
+- type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+
+- This should only take a few minutes. Once done, you should have new files in your `type_snp_size_1000_weights_none_jobid_166584` directory.
+
+- Open FileZilla on your computer. Move run_summary.html in the `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` directory to your computer.
+
+- Find that file on your computer and open it in your favorite browser (e.g. Chrome).
 
 ## Select regions of interest
 
-Select a corner you are interested in Let's say corner 1 (local region and good PCA separation) corner.regions variable in summarize_run.Rmd has a list of regions for each corner, chrom, start, end 1st corner: corner.regions[[1]]$start 2nd corner: corner.regions[[2]]$start to save coordinates add the following line in the summarize_run.Rmd file write.csv(corner.regions[[2]], "second_corner.csv", row.names=FALSE) run again the summarize_run.Rmd script
+In order to be able to get the genomic regions corresponding to a specific corner in the MDS plot, we will need to modify the plotting script (summarize_run.Rmd) such that it writes a csv file with the coordinates.
 
-## Do GO Enrichment
+- `cd ~/myscripts`, `vim summarize_run.Rmd`, hit I to enter the insert mode.
+
+- Around line 195, the script creates a variable called corner.regions based on the mds corners. This variable contains a list of chromosome, start, end information for each window in each corners of the mds plot. So, all we need to do is insert a line `write.csv(corner.regions[[1]], "first_corner.csv", row.names=FALSE)` under the line 198 (`}`) to save the genomic regions in the first corner.
+
+- Hit `esc` and `:wq` to save your changes.
+
+Repeat steps above to rerun the plotting. TODO: do they need to delete the cashe folder?
+
+- `tmux attach-session -t run_localPCA`
+
+- cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+
+- type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+
+- Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information.
+
+## Do GO Enrichment for the selected corner
+
+In order to get a list of genes that are present in the selected windows, we will use an annotation file from ncbi: https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/. GFF is a standard file format to store genomic annotation information in. I have already downloaded this file and moved it to `/netfiles/ecogen/structural_variation/`, and named it genome_annotation.gff. Let's take a look!
+
+To find an intersect between genes specified in the GFF file and coordinates in our first_corner.csv, we will us a package called bedtools. I have already installed this package for you. The intersectBed algorithm required the first_corner.csv to be in a specific format, so we'll need to modify it.
+
+
 
 sed to modify second_corner
 
-show how i got the annotation file (ncbi)
+
 
 cd \~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584
 
