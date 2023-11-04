@@ -38,7 +38,7 @@ These are steps that are already done for you, you will not need to run any of t
 
 Input: List of read files (R1 and R2)
 
-```{bash}
+```{bash, eval = FALSE}
 while read line ; do
         F1=$(cut -d ' ' -f1 <<< $line)
         F2=$(cut -d ' ' -f2 <<< $line)
@@ -66,7 +66,7 @@ Input:
 
 -   list_of_files.txt, 140 lines, line 1: `/users/c/p/cpetak/WGS/BWA_out/BOD_18170X61_200925_A00421_0244_AHKML5DSXY_S81_L002_R1_001.rmdup.bam`
 
-```{bash}
+```{bash, eval = FALSE}
 while read line ; do
 	echo "$line"
 	FILE=$(mktemp)
@@ -98,7 +98,7 @@ TODO: select best 16 chromosomes
 
 -   copy the following lines:
 
-```{bash}
+```{bash, eval = FALSE}
 #!/bin/sh
 
 mychr="my_chromosome_number" # Replace this with your chromosome
@@ -183,7 +183,7 @@ Let's look at an example!
 
 Example 1:
 
-```{bash}
+```{bash, eval = FALSE}
 NW_022145602.1	1564	.	T	A	129	.	DP=599;VDB=0.259328;SGB=31.2596;RPB=0.70951;MQB=0.816143;MQSB=0.0194;BQB=0.892443;MQ0F=0.358932;ICB=0.000506821;HOB=0.000246914;AC=3;AN=270;DP4=385,98,11,1;MQ=21	GT:PL	./.:0,0,0	0/0:0,12,76	0/0:0,6,74	0/0:0,15,118	0/0:0,3,4	0/1:31,0,28	0/0:0,9,40	0/0:0,6,7 0/0:0,6,42	0/0:0,12,11	0/0:0,3,4	0/0:0,3,37	0/0:0,21,171	0/0:0,3,4	./.:0,0,0	0/0:0,15,69	0/0:0,15,41	0/0:0,24,99	0/0:0,6,67	0/
 0:0,12,77	0/0:0,15,120	0/0:0,15,117	0/0:0,3,37	0/0:0,9,42	0/0:0,9,13	0/0:0,21,98	0/0:0,9,9	0/0:0,3,37	0/0:0,3,40	0/0:0,15,69	0/
 0:0,15,16	0/0:0,12,43	0/0:0,3,4	0/0:0,9,75	0/0:0,18,119	0/0:0,6,36	0/0:0,6,39	0/0:0,3,37	0/0:0,15,98	0/0:0,6,39	./.:0,0,0	0/
@@ -199,7 +199,7 @@ NOTE: in module 1, population genetics on red spruce data, we were looking at SN
 
 Example 2:
 
-```{bash}
+```{bash, eval = FALSE}
 NW_022145602.1	1553	.	ag	a,aGg	999	.	INDEL;IDV=7;IMF=0.7;DP=583;VDB=0.0245597;SGB=-53.7492;MQSB=0.0144647;MQ0F=
 0.447684;ICB=0.473584;HOB=0.0514945;AC=79,2;AN=274;DP4=286,108,161,28;MQ=20	GT:PL	0/0:0,3,4,3,4,4	0/0:0,5,57,9,60,57	0/0:0,9,42
 ,9,42,42	0/1:26,0,1,44,10,35	0/0:0,3,4,3,4,4	0/0:0,12,69,12,69,69	0/1:25,5,0,28,9,25	0/1:7,5,0,10,9,7	1/1:39,6,0
@@ -306,7 +306,7 @@ To find an intersect between genes specified in the GFF file and coordinates in 
 
 -   `head first_corner.csv` -\>
 
-```{bash}
+```{bash, eval = FALSE}
 "chrom","start","end","pos"
 "NW_022145602.1",227538,246919,237228.5
 "NW_022145602.1",246921,249982,248451.5
@@ -317,7 +317,7 @@ To find an intersect between genes specified in the GFF file and coordinates in 
 
 -   Remove 4th column: `cut -d, -f1-3 first_corner.csv > first_corner_formatted.csv` -\>
 
-```{bash}
+```{bash, eval = FALSE}
 "chrom","start","end"
 "NW_022145602.1",227538,246919
 "NW_022145602.1",246921,249982
@@ -329,7 +329,7 @@ To find an intersect between genes specified in the GFF file and coordinates in 
 
 -   Replace commas with tabs: `sed -i 's/,/\t/g' first_corner_formatted.csv` -\>
 
-```{bash}
+```{bash, eval = FALSE}
 chrom	start	end
 NW_022145602.1	227538	246919
 NW_022145602.1	246921	249982
