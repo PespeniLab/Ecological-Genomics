@@ -1,18 +1,56 @@
 ---
-title: "localPCA Tutorial"
+title: "Structural variation in purple sea urchins"
 output:
   prettydoc::html_pretty:
     theme: cayman
 fontsize: 18pt
 ---
 
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("my_urchin.jpg")
+```
+
 # Background
 
 ## What is structural variation?
 
-## Why is it interesting?
+The types of genomic structural variations are: 
+
+- deletions 
+
+- insertions
+
+- duplications
+
+- inversions
+
+- translocations
+
+, of at least 50 bp in size. Small variants, variants that are less than 50bp in length (single nucleotide variants (SNVs) and short insertions, and deletions (indels)), are often considered separately because then are the result of other mechanisms. Invertions and translocations are called balanced forms, while deletions, insertions, and duplications are imbalanced forms that are commonly also referred to as copy number variations.^[Kosugi, S., Momozawa, Y., Liu, X., Terao, C., Kubo, M., & Kamatani, Y. (2019). Comprehensive evaluation of structural variation detection algorithms for whole genome sequencing. Genome biology, 20, 1-18.]
+
+Structural variants can result from a range of mutational mechanisms, like DNA recombination-, replication- and repair-associated processes. Here is a figure summarising these processes^[Currall, B. B., Chiangmai, C., Talkowski, M. E., & Morton, C. C. (2013). Mechanisms for structural variation in the human genome. Current genetic medicine reports, 1, 81-90.]: https://www.ncbi.nlm.nih.gov/core/lw/2.0/html/tileshop_pmc/tileshop_pmc_inline.html?title=Click%20on%20image%20to%20zoom&p=PMC3&id=3665418_nihms456963f1.jpg
+
+## Why are structural variants interesting?
+
+Evolution and disease SVs are largely responsible for the diversity and evolu- tion of human genomes at both individual and popula- tion level [3--6]. The genomic difference between individuals caused by SVs has been estimated to be 3--10 times higher than that by SNVs [2, 6, 7]. Consequently, SVs could have higher impacts on gene functions and phenotypic changes than do SNVs and short indels. Ac- cordingly, SVs are associated with a number of human diseases, including neurodevelopmental disorders and cancers [3, 8--11].
+
+This paragraph: Soto, D. C., Uribe‐Salazar, J. M., Shew, C. J., Sekar, A., McGinty, S. P., & Dennis, M. Y. (2023). Genomic structural variation: A complex but important driver of human evolution. American Journal of Biological Anthropology. In this review ,wehighlighttheimportanceofSVsin human evolution by (1) how they have shaped great ape genomes resulting in sensitized regions associated with traits and diseases, (2) their impact on gene functions and regulation, which subsequently has played a role in natural selec- tion, and (3) the role of gene duplications in human brain evolution
 
 ## Methods for detecting them
+
+Two types of methods have been used to detect SVs: (1) array-based detection, including microarray com- parative genome hybridization (array CGH), and (2) sequencing-based computational methods [2, 12]. Array- based methods are advantageous for high-throughput analysis, but they only detect certain types of SVs, have a lower sensitivity for small SVs, and have a lower reso- lution for determining breakpoints (BPs) than the sequencing-based methods. Although sequencing re- quires more time and money than the array-based method, it would be necessary for detecting a broad range of SVs to adopt the sequencing-based methods, as in recent projects aimed at identifying SVs on a popula- tion scale [6, 13--15].
+
+Sequencing-based methods take several conceptual ap- proaches to derive information about SVs from short read sequencing data [2, 9, 16--18]. Read pairs (RP) and read depth (RD) approaches utilize the discordant align- ment features and depth features of paired-end reads that encompass or overlap an SV, respectively. The split read (SR) approach uses split (soft-clipped) alignment features of single-end or paired-end reads that span a BP of a SV. The assembly (AS) approach detects SVs by aligning the contigs, assembled with the entire or un- mapped sequencing reads, to the reference sequence. A number of recently developed SV detection algorithms use a combination (CB) of the above four methods
+
+Irrespective of the strategy, sequencing-based methods suffer from a high rate of miscalling of SVs be- cause they involve errors in base call, alignment, or de novo assembly, especially in repetitive regions unable to be spanned with short reads. To overcome the short- comings of short read sequencing, long reads generated using single-molecule sequencing technology have re- cently been used to detect SVs in a human sample using the AS and/or SR approach [19--22].
+
+Although the sequencing-based methods can in theory detect any type of SV, no single computational algorithm can accurately and sensitively detect all types and all sizes of SVs [23]. Therefore, most projects use multiple algorithms to call SVs, then merge the outputs to in- crease the precision and/or the recall
+
+This below: Medvedev, P., Stanciu, M., & Brudno, M. (2009). Computational methods for discovering structural variation with next-generation sequencing. Nature methods, 6(Suppl 11), S13-S20. More recently, sequencing-based methods have used mate-pair or paired-end reads for structural variant discovery2,3,5,9 (Box 1). In this approach, two paired reads are generated at an approximately known distance in the donor genome. The reads are mapped to a ref- erence genome, and pairs mapping at a distance that is substantially different from the expected length, or with anomalous orientation, suggest structural variants. Paired-end mapping (PEM)
+
+signatures based on depth of coverage
+
+![PEM signatures](pem_signatures.png)
 
 ### Local PCA
 
@@ -31,6 +69,10 @@ These are steps that are already done for you, you will not need to run any of t
 ### The reference genome
 
 <https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/>
+
+N50: 37.3 Mb
+
+"Length of the shortest contig for which longer and equal length contigs cover at least 50 % of the assembly".
 
 21_scaffolds file in the `/netfiles/ecogen/structural_variation/`
 
@@ -108,6 +150,15 @@ Before we do anything else, let's filter these bcf files. In order to look at th
 17. NW_022145615.1
 ```
 
+## Copy files you will be working with
+
+-   Make a new directory in `~/mydata` called str_data (use the mkdir command)
+
+-   Do the following in tmux as it could take some time for the copying to finish.
+
+-   Copy your bcf file into that new directory. You can do this by typing the following, and replacing the chromosome number with YOURS: `cp /netfiles/ecogen/structural_variation/bcf_files/multi_bam_mychromosome.bcf ~/mydata/str_data`
+
+-   Check that you have the data you'll need in `~/mydata/str_data`, a multi_bam_mychromosome.bcf file.
 
 ## Write a bash script to do the filtering for your chromosome
 
@@ -120,27 +171,29 @@ Before we do anything else, let's filter these bcf files. In order to look at th
 ```{bash, eval = FALSE}
 #!/bin/sh
 
-mychr="my_chromosome_number" # Replace this with your chromosome
+mychr="NW_022145603.1" # Replace this with your chromosome
 
 # use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at
 # NOTE: Everyone will be writing to the same shared directory, so please make sure that you have the correct chromosome name above
 
-bcftools view -e 'QUAL <= 40 || DP < 560 || MQB < -3 || RPB < -3 || RPB > 3 || AN < 238' /netfiles/ecogen/structural_variation/bcf_files/multi_bam_${mychr}.bcf > /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.vcf
+bcftools view -e 'QUAL <= 40 || DP < 560 || MQB < -3 || RPB < -3 || RPB > 3 || AN < 238' ~/mydata/str_data/multi_bam_${mychr}.bcf > ~/mydata/str_data/${mychr}_filtered.vcf
 
 echo "Filtered bcf" # Some printing to keep track of progress
 
 # Convert the filtered vcf into the bcf file type which is the type the R package will be expecting
 
-bcftools view -Ob /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.vcf > /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.bcf
+bcftools view -Ob ~/mydata/str_data/${mychr}_filtered.vcf > ~/mydata/str_data/${mychr}_filtered.bcf
 
 echo "Converted to bcf" # Some printing to keep track of progress
 
 # Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.
 
-bcftools index /netfiles/ecogen/structural_variation/filtered_bcf_files/${mychr}_filtered.bcf
+bcftools index ~/mydata/str_data/${mychr}_filtered.bcf
 echo "Indexed bcf"
 echo "Done!"
 ```
+
+-   Hit `esc`, then type `:wq`
 
 ## A bit on tmux
 
@@ -148,7 +201,7 @@ Before running the script above in tmux, I wanted to go over how to use tmux in 
 
 Tmux is a great package that allows you to switch easily between several programs in one terminal, detach them (they keep running in the background) and reattach them when you want to look at it again.
 
-When you type tmux and hit enter, you create a new session that you can detach from using `Ctrl B + D`. However, if you type tmux again in the future, you will again create a new session instead of opening the previous one. If you do this repeatedly, you will end up creating a lot of sessions in the background at the same time. In order to be able to navigate back to a specific session later, you should instead type:
+When you type `tmux` and hit enter, you create a new session that you can detach from using `Ctrl B + D`. However, if you type tmux again in the future, you will again create a new session instead of opening the previous one. If you do this repeatedly, you will end up creating a lot of sessions in the background at the same time. In order to be able to navigate back to a specific session later, you should instead type:
 
 `tmux new -s mysession` where mysession is the name of your session. So, for example now you can type:
 
@@ -180,7 +233,9 @@ I decided on these values based on similar literature I found, and also the perc
 
 Now let's look further down in the file. You should see a header line that lists the column names:
 
-`#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT` followed by a 140 long names. This is a standard format. Keep pressing enter until you find the first line. - CHROM is the chromosome name
+`#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT` followed by a 140 long names. This is a standard format. Keep pressing enter until you find the first line.
+
+-   CHROM is the chromosome name
 
 -   POS is the position in the chromosome
 
@@ -241,17 +296,7 @@ Local PCA is an R package, here is the GitHub page: <https://github.com/petrelha
 
 On the page, they also provide an Rscript to use the package and a separate one to visualise the results, which I copied to the server (and slightly modified): `/netfiles/ecogen/structural_variation`.
 
-## Copy files you will be working with
-
--   Make a new directory in `~/mydata` called struct_data (use the mkdir command)
-
--   Create a new tmux session, e.g. `tmux new -s copying`, hit Enter.
-
--   Copy your filtered and indexed bcf files into that new directory. You can do this by typing the following, and replacing the chromosome number with YOURS: `cp /netfiles/ecogen/structural_variation/filtered_bcf_files/mychrnumber_filtered.bcf* ~/mydata/struct_data` This could take a moment to run, which is why we are doing it in tmux.
-
--   Check that you have the data you'll need in `~/mydata/struct_data`, a .bcf file and a .bcf.csi file.
-
--   Copy the R scripts over: `cp /netfiles/ecogen/structural_variation/run_lostruct.R ~/myscripts` and `cp /netfiles/ecogen/structural_variation/summarize_run.Rmd ~/myscripts`
+-   Copy the R scripts over to your myscripts directory: `cp /netfiles/ecogen/structural_variation/run_lostruct.R ~/myscripts` and `cp /netfiles/ecogen/structural_variation/summarize_run.Rmd ~/myscripts`
 
 ## Let's look at the scripts
 
@@ -259,13 +304,15 @@ Type vim run_lostruct.R in the \~/myscripts directory.
 
 ## Run local PCA
 
+-   IMPORTANT: make sure to remove the original unfiltered bcf file from your `~/mydata/str_data` directory, `rm multi_bam_mychromosome.bcf`, because the package will read all .bcf files in the directory that you give it and we only want to run the package on the filtered bcf file.
+
 -   `tmux new -s run_localPCA`
 
--   `cd ~/mydata/struct_data`. This way the results will automatically end up in this directory.
+-   `cd ~/mydata/str_data`. This way the results will automatically end up in this directory.
 
--   `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/struct_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv`. We are running the Rscript with the "Rscript" command, just like we run the bash scripts with the "bash" command. -i specifies the input file location, -t specifies the way we are calculating the windows, which is based on SNPs for now. -s specifies the window size. -I specifies the location of the file I created to link the individual IDs in the bcf file with the 3 letter population name. This should take 15 minutes to an hour to run.
+-   `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/str_data -t snp -s 1000 -I /netfiles/ecogen/structural_variation/sample_info.tsv` We are running the Rscript with the "Rscript" command, just like we run the bash scripts with the "bash" command. -i specifies the input file location, -t specifies the way we are calculating the windows, which is based on SNPs for now. -s specifies the window size. -I specifies the location of the file I created to link the individual IDs in the bcf file with the 3 letter population name. This should take 15 minutes to an hour to run.
 
--   Once the script finishes, you should have a folder called lostruct_results in `~/mydata/struct_data`. cd into lostruct_results. Then, cd into a folder called something like type_snp_size_1000_weights_none_jobid_166584 (will be called different for you). Type `ll`.
+-   Once the script finishes, you should have a folder called lostruct_results in `~/mydata/str_data`. cd into lostruct_results. Then, cd into a folder called something like type_snp_size_1000_weights_none_jobid_166584 (will be called different for you). Type `ll`.
 
 -   Output files:
 
@@ -273,7 +320,7 @@ Type vim run_lostruct.R in the \~/myscripts directory.
 
     -   mds_coords.csv -\> wc -l -\> how many lines are there? each line corresponds to a window
 
-    -   mychromosome.pca.csv -\> wc -l to check the number of rows and `awk -F',' '{print NF}' mychromosome.pca.csv | sort -nu | tail -n 1` to check the number of columns -\> should be 283. For each window (rows), PC1 and PC2 for each individuals (140) -\> input variables for the MDS
+    -   mychromosome.pca.csv -\> wc -l to check the number of rows and `awk -F',' '{print NF}' mychromosome.pca.csv | sort -nu | tail -n 1` to check the number of columns -\> should be 283. For each window (rows), PC1 and PC2 for each individual (140) -\> input variables for the MDS
 
     -   mychromosome.regions.csv -\> windows information (will be important later)
 
@@ -285,13 +332,13 @@ Now we'll use another script provided by the local PCA package to make an html w
 
 -   `tmux attach-session -t run_localPCA`
 
--   cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+-   cd into `~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
 
--   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+-   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
 
 -   This should only take a few minutes. Once done, you should have new files in your `type_snp_size_1000_weights_none_jobid_166584` directory.
 
--   Open FileZilla on your computer. Move run_summary.html in the `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` directory to your computer.
+-   Open FileZilla on your computer. Move run_summary.html in the `~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` directory to your computer.
 
 -   Find that file on your computer and open it in your favorite browser (e.g. Chrome).
 
@@ -309,19 +356,21 @@ Repeat steps above to rerun the plotting.
 
 -   `tmux attach-session -t run_localPCA`
 
--   cd into `~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
+-   cd into `~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/`
 
--   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
+-   type `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd",output="~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/run_summary.html",change.rootdir=TRUE)'`
 
 -   Now you should have a new file in `type_snp_size_1000_weights_none_jobid_166584` called `first_corner.csv`. Type `head first_corner.csv` to see the region information. NOTE: if you are not seeing the new file appear, you might have to delete the cache directory (`rm -r cache`) first, and then rerun the Rscript again.
 
 ## Do GO Enrichment for the selected corner
 
-In order to get a list of genes that are present in the selected windows, we will use an annotation file from ncbi: <https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/>. GFF is a standard file format to store genomic annotation information in. I have already downloaded this file and moved it to `/netfiles/ecogen/structural_variation/`, and named it genome_annotation.gff. Let's take a look!
+In order to get a list of genes that are present in the selected windows, we will use an annotation file from ncbi: <https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002235.5/>. GFF is a standard file format to store genomic annotation information in. I have already downloaded this file and moved it to `/netfiles/ecogen/structural_variation/`, and named it genome_annotation.gff. 
 
-To find an intersect between genes specified in the GFF file and coordinates in our first_corner.csv, we will us a package called bedtools. I have already installed this package for you. The intersectBed algorithm required the first_corner.csv to be in a specific format (tab deliminated, chromosome, start, end), so we'll need to modify it.
+Copy this file into your directory, `cp /netfiles/ecogen/structural_variation/genome_annotation.gff ~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` Let's take a look!
 
--   `cd ~/mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` if you are not there alread.
+To find an intersect between genes specified in the GFF file and coordinates in our first_corner.csv, we will use a package called bedtools. I have already installed this package for you. The intersectBed algorithm requires the first_corner.csv to be in a specific format (tab delimited, chromosome, start, end), so we'll need to modify it.
+
+-   `cd ~/mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584` if you are not there alread.
 
 -   `head first_corner.csv` -\>
 
@@ -356,25 +405,24 @@ NW_022145602.1	250053	258244
 NW_022145602.1	268365	272067
 ```
 
-Now that we have the correct file format, let's run the intersectBed algorythm: `/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a first_corner_formatted.csv -b /netfiles/ecogen/structural_variation/genome_annotation.gff -wa -wb > genes_first_corner.bed`. Look at the genes_first_corner.bed file.
+Now that we have the correct file format, let's run the intersectBed algorythm: `/netfiles/ecogen/structural_variation/bedtools2/bin/intersectBed -a first_corner_formatted.csv -b genome_annotation.gff -wa -wb > genes_first_corner.bed` Look at the genes_first_corner.bed file.
 
 To extract the gene names: `sed -n "s/^.*gene=\(LOC[0-9]\+\).*$/\1/p" genes_first_corner.bed > gene_names_first_corner.txt`
 
-You'll see that a lot of the gene names are repeated. To discard repeats, type: `sort gene_names_first_corner.txt | uniq > uni_gene_names_first_corner.txt`. 
+You'll see that a lot of the gene names are repeated. To discard repeats, type: `sort gene_names_first_corner.txt | uniq > uni_gene_names_first_corner.txt`
 
-Go to FileZilla on your computer and download this file (mydata/struct_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/uni_gene_names_first_corner.txt). 
+Go to FileZilla on your computer and download this file (mydata/str_data/lostruct_results/type_snp_size_1000_weights_none_jobid_166584/uni_gene_names_first_corner.txt).
 
-Now we can run a gene ontology analysis on these genes! 
+Now we can run a gene ontology analysis on these genes!
 
-- Open the txt file above, select all, copy (Ctrl C). 
+-   Open the txt file above, select all, copy (Ctrl C).
 
-- Go to: https://geneontology.org/, paste the LOC names into the window on the right.
+-   Go to: <https://geneontology.org/>, paste the LOC names into the window on the right.
 
-- Select Strongylocentrotus purpuratus (purple sea urchin) from the drop down menu instead of Homo sapiens. Click Launch.
+-   Select Strongylocentrotus purpuratus (purple sea urchin) from the drop down menu instead of Homo sapiens. Click Launch.
 
-- If you don't get any significantly enriched biological processes, you can change the Annotation Data Set in the drop down menu and click Launch analysis. You can also play around with the Test type and the correction method. Don't worry if you still don't get anything, that is also a valid result!
+-   If you don't get any significantly enriched biological processes, you can change the Annotation Data Set in the drop down menu and click Launch analysis. You can also play around with the Test type and the correction method. Don't worry if you still don't get anything, that is also a valid result!
 
 Congrats! You are all done with this tutorial! :)
 
-
-
+References:
