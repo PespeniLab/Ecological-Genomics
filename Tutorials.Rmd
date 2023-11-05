@@ -40,3 +40,4 @@ fontsize: 18pt
 
 **Structural Variation Module**
 
+19. 2023-11-06 and 2023-11-08: [Structural Variation](Fall2023/tutorials/Csenge_structural_variation.html)
