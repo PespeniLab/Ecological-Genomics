@@ -14,7 +14,7 @@ knitr::include_graphics("my_urchin.jpg")
 
 ## What is structural variation?
 
-The types of genomic structural variations are: 
+The types of genomic structural variations (SVs) are: 
 
 - deletions 
 
@@ -26,31 +26,55 @@ The types of genomic structural variations are:
 
 - translocations
 
-, of at least 50 bp in size. Small variants, variants that are less than 50bp in length (single nucleotide variants (SNVs) and short insertions, and deletions (indels)), are often considered separately because then are the result of other mechanisms. Invertions and translocations are called balanced forms, while deletions, insertions, and duplications are imbalanced forms that are commonly also referred to as copy number variations.^[Kosugi, S., Momozawa, Y., Liu, X., Terao, C., Kubo, M., & Kamatani, Y. (2019). Comprehensive evaluation of structural variation detection algorithms for whole genome sequencing. Genome biology, 20, 1-18.]
+, of at least 50 bp in size. Small variants, variants that are less than 50bp in length (single nucleotide variants (SNVs) and short insertions, and deletions (indels)), are often considered separately because then are the result of other mechanisms. Invertions and translocations are called balanced forms, while deletions, insertions, and duplications are imbalanced forms that are commonly also referred to as copy number variations.
 
 Structural variants can result from a range of mutational mechanisms, like DNA recombination-, replication- and repair-associated processes. Here is a figure summarising these processes^[Currall, B. B., Chiangmai, C., Talkowski, M. E., & Morton, C. C. (2013). Mechanisms for structural variation in the human genome. Current genetic medicine reports, 1, 81-90.]: https://www.ncbi.nlm.nih.gov/core/lw/2.0/html/tileshop_pmc/tileshop_pmc_inline.html?title=Click%20on%20image%20to%20zoom&p=PMC3&id=3665418_nihms456963f1.jpg
 
 ## Why are structural variants interesting?
 
-Evolution and disease SVs are largely responsible for the diversity and evolu- tion of human genomes at both individual and popula- tion level [3--6]. The genomic difference between individuals caused by SVs has been estimated to be 3--10 times higher than that by SNVs [2, 6, 7]. Consequently, SVs could have higher impacts on gene functions and phenotypic changes than do SNVs and short indels. Ac- cordingly, SVs are associated with a number of human diseases, including neurodevelopmental disorders and cancers [3, 8--11].
+More and more studies are being published showing that SVs are an important source of genetic diversity in humans and primates (species we have the most sequence data for), contributing to their evolution. Surprisingly, it was reported that genomic differences caused by SVs are 2 to 10 times higher than differences cause by single nucleotide variants (SNVs) between human individuals. It has also been hypothesized that SVs could have a higher impact on phenotypic changes than SNVs. Given these new discoveries it is unsurprising that a lot of human diseases, including neurodevelopmental disorders and cancers, have recently been associated with SVs.^[Soto, D. C., Uribe‐Salazar, J. M., Shew, C. J., Sekar, A., McGinty, S. P., & Dennis, M. Y. (2023). Genomic structural variation: A complex but important driver of human evolution. American Journal of Biological Anthropology.]
 
-This paragraph: Soto, D. C., Uribe‐Salazar, J. M., Shew, C. J., Sekar, A., McGinty, S. P., & Dennis, M. Y. (2023). Genomic structural variation: A complex but important driver of human evolution. American Journal of Biological Anthropology. In this review ,wehighlighttheimportanceofSVsin human evolution by (1) how they have shaped great ape genomes resulting in sensitized regions associated with traits and diseases, (2) their impact on gene functions and regulation, which subsequently has played a role in natural selec- tion, and (3) the role of gene duplications in human brain evolution
+## Methods for detecting SVs
 
-## Methods for detecting them
+There are two main methods for detecting SVs:^[Kosugi, S., Momozawa, Y., Liu, X., Terao, C., Kubo, M., & Kamatani, Y. (2019). Comprehensive evaluation of structural variation detection algorithms for whole genome sequencing. Genome biology, 20, 1-18.]
 
-Two types of methods have been used to detect SVs: (1) array-based detection, including microarray com- parative genome hybridization (array CGH), and (2) sequencing-based computational methods [2, 12]. Array- based methods are advantageous for high-throughput analysis, but they only detect certain types of SVs, have a lower sensitivity for small SVs, and have a lower reso- lution for determining breakpoints (BPs) than the sequencing-based methods. Although sequencing re- quires more time and money than the array-based method, it would be necessary for detecting a broad range of SVs to adopt the sequencing-based methods, as in recent projects aimed at identifying SVs on a popula- tion scale [6, 13--15].
+1. Array-based detection - such as microarray comparative genome hybridization (array CGH)
+  - Pros: 
+    - high-throughput analysis
+    - time and money efficient
+  - Cons: 
+    - they only detect certain types of SVs
+    - lower sensitivity for small SVs
+    - lower resolution for determining breakpoints (BPs)
 
-Sequencing-based methods take several conceptual ap- proaches to derive information about SVs from short read sequencing data [2, 9, 16--18]. Read pairs (RP) and read depth (RD) approaches utilize the discordant align- ment features and depth features of paired-end reads that encompass or overlap an SV, respectively. The split read (SR) approach uses split (soft-clipped) alignment features of single-end or paired-end reads that span a BP of a SV. The assembly (AS) approach detects SVs by aligning the contigs, assembled with the entire or un- mapped sequencing reads, to the reference sequence. A number of recently developed SV detection algorithms use a combination (CB) of the above four methods
+2. Sequencing-based computational methods
+  - Pros:
+    - can detect a range of SV types
+    - higher resolution
+  - Cons:
+    - more expensive
+    - high rate of miscalling of SVs (errors in base call, alignment, or de novo assembly)
+    - especially in repetitive regions (though this can be overcome by long read sequencing)
 
-Irrespective of the strategy, sequencing-based methods suffer from a high rate of miscalling of SVs be- cause they involve errors in base call, alignment, or de novo assembly, especially in repetitive regions unable to be spanned with short reads. To overcome the short- comings of short read sequencing, long reads generated using single-molecule sequencing technology have re- cently been used to detect SVs in a human sample using the AS and/or SR approach [19--22].
+Main computational approaches:
 
-Although the sequencing-based methods can in theory detect any type of SV, no single computational algorithm can accurately and sensitively detect all types and all sizes of SVs [23]. Therefore, most projects use multiple algorithms to call SVs, then merge the outputs to in- crease the precision and/or the recall
+  a) Read pairs (PEM)
+  
+  b) Read depth 
+  
+  c) Split read
+  
+Studies investigating structural variation usually use a combination of the above mentioned approaches.
 
-This below: Medvedev, P., Stanciu, M., & Brudno, M. (2009). Computational methods for discovering structural variation with next-generation sequencing. Nature methods, 6(Suppl 11), S13-S20. More recently, sequencing-based methods have used mate-pair or paired-end reads for structural variant discovery2,3,5,9 (Box 1). In this approach, two paired reads are generated at an approximately known distance in the donor genome. The reads are mapped to a ref- erence genome, and pairs mapping at a distance that is substantially different from the expected length, or with anomalous orientation, suggest structural variants. Paired-end mapping (PEM)
+a) Uses paired-end sequencing. After the reads are mapped to the reference genome, "pairs mapping at a distance that is substantially different from the expected length, or with anomalous orientation, suggest structural variants."^[Medvedev, P., Stanciu, M., & Brudno, M. (2009). Computational methods for discovering structural variation with next-generation sequencing. Nature methods, 6(Suppl 11), S13-S20.] See image below.
 
-signatures based on depth of coverage
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("pem_signatures.png")
+```
 
-![PEM signatures](pem_signatures.png)
+b) More reads mapped -> duplication, less reads mapped -> deletion.
+
+c) Only half of the read maps.
 
 ### Local PCA
 
