@@ -78,15 +78,63 @@ c) Only half of the read maps.
 
 ### Local PCA
 
-Here is the paper describing the method: <https://academic.oup.com/genetics/article/211/1/289/5931130?login=true>
+Today, we will be using a fourth method to find large inversions and to explore the structure of genetic variation in sea urchin populations in general. We are going to be using a package developed for this purpose; called local PCA. Essentially, what it does is that it creates a PCA for each genomic window (width specified by the user) in our dataset, then it creates a super PCA (well, multidimensional scaling (MDS) which is kind of the same thing) of those PCAs. Finally, it identifies a subset of windows that cluster together in the super PCA. Here is the paper describing the method: <https://academic.oup.com/genetics/article/211/1/289/5931130?login=true>. Using these results, we will identify some putative inversions and look at GO enrichment of genes that fall into those subsets of windows identified by local PCA.
+
+Here is a visual representation of the workflow from the paper:
+
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("local_pca_fig.png")
+```
+
+Example results with known inversions:
+
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("inversion_sign.png")
+```
+
+In a nutshell, this pattern comes to be because the rate of recombination in the inverted region is reduced. Therefore, SNPs that were together prior to inversion stay together, even as the genetic variation changes due to recombination outside of the inverted region.
+
+Imagine a mother that gets an original inversion in a germline cell through some mutational mechanism. When that copy pairs up during recombination, the inverted region won't recombine. Thus, whatever combination of SNPs happened to be in that region gets "preserved". In the end, if this inversion spreads in the population, every individual will one of the 3 possible genotypes:
+
+1. Be a homozygote to the inversion and thus to that specific combination of SNPs.
+
+2. Be homozygote without an inversion and thus have a diverse set of SNPs in that region.
+
+3. Be a heterozygote and have a copy which is inverted and a copy that is not inverted.
+
+Thus, if we were to make a PCA with the SNPs that are in that inverted region, we would get a figure such as this:^[Ma, J., & Amos, C. I. (2012). Investigation of inversion polymorphisms in the human genome using principal components analysis. PloS one, 7(7), e40224.]
+
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("pca_inversion.png")
+```
+
+Where the number of points in each group will depend on how many individuals there are in the population for each of the above categories.
+
+On the other hand, if we make a PCA with SNPs outside of this region, the pattern will likely be different, as individuals will cluster differently on the PCA. That is why you can see windows that plot similarly on a PCA within the inverted region on the figure above (the second figure in this section).
 
 # The dataset
 
-WGS of sea urchins
+The paper describing the urchin dataset that we will be analyzing is available here: https://www.journals.uchicago.edu/doi/10.1086/726013
+
+We collected, shipped, extracted DNA, and sequenced the whole genomes of 140 purple sea urchins (Strongylocentrotus purpuratus), 20 from each of seven sites (figure below). Coordinates for collection sites were chosen on the basis of pH data collected by autonomous pH sensors mounted submerged in the water at ecologically relevant depth for this sea urchin species. Paired-end sequencing using NovaSeq S2 Flow Cell 150 × 150 bp on a single lane resulted in high-quality reads, such that no trimming was necessary.
+
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("map.jpeg")
+```
+
+Relevant results:
+
+  - High genetic diversity
+  
+  - No overall population structure due to high gene flow
+  
+```{r, echo=FALSE, out.width = "600px", fig.align="center"}
+knitr::include_graphics("pca_all.jpeg")
+```
 
 # Steps already completed
 
-These are steps that are already done for you, you will not need to run any of this.
+The following steps are already completed for you, you will not need to run any of this (mapping and variant calling).
 
 ## Mapped reads to the reference
 
