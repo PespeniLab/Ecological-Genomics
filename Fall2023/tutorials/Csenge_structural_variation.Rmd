@@ -246,7 +246,6 @@ Before we do anything else, let's filter these bcf files. In order to look at th
 mychr="NW_022145603.1" # Replace this with your chromosome
 
 # use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at
-# NOTE: Everyone will be writing to the same shared directory, so please make sure that you have the correct chromosome name above
 
 bcftools view -e 'QUAL <= 40 || DP < 560 || MQB < -3 || RPB < -3 || RPB > 3 || AN < 238' ~/mydata/str_data/multi_bam_${mychr}.bcf > ~/mydata/str_data/${mychr}_filtered.vcf
 

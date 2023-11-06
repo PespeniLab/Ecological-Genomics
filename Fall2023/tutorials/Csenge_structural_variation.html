@@ -425,23 +425,22 @@ to enter insert mode</p></li>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">mychr</span><span class="op">=</span><span class="st">&quot;NW_022145603.1&quot;</span> <span class="co"># Replace this with your chromosome</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: Everyone will be writing to the same shared directory, so please make sure that you have the correct chromosome name above</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-e</span> <span class="st">&#39;QUAL &lt;= 40 || DP &lt; 560 || MQB &lt; -3 || RPB &lt; -3 || RPB &gt; 3 || AN &lt; 238&#39;</span> ~/mydata/str_data/multi_bam_<span class="va">${mychr}</span>.bcf <span class="op">&gt;</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.vcf</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Filtered bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># Convert the filtered vcf into the bcf file type which is the type the R package will be expecting</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-Ob</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.vcf <span class="op">&gt;</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.bcf</span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Converted to bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co"># Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a></span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="ex">bcftools</span> index ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.bcf</span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Indexed bcf&quot;</span></span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Done!&quot;</span></span></code></pre></div>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-e</span> <span class="st">&#39;QUAL &lt;= 40 || DP &lt; 560 || MQB &lt; -3 || RPB &lt; -3 || RPB &gt; 3 || AN &lt; 238&#39;</span> ~/mydata/str_data/multi_bam_<span class="va">${mychr}</span>.bcf <span class="op">&gt;</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.vcf</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Filtered bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co"># Convert the filtered vcf into the bcf file type which is the type the R package will be expecting</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-Ob</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.vcf <span class="op">&gt;</span> ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.bcf</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Converted to bcf&quot;</span> <span class="co"># Some printing to keep track of progress</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co"># Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="ex">bcftools</span> index ~/mydata/str_data/<span class="va">${mychr}</span>_filtered.bcf</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Indexed bcf&quot;</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Done!&quot;</span></span></code></pre></div>
 <ul>
 <li>Hit <code>esc</code>, then type <code>:wq</code></li>
 </ul>
