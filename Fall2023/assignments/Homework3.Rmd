@@ -1,0 +1,88 @@
+---
+title: "Homework #3 (Structural Variation)"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Homework assignment #3 -- Due by TODO
+
+We have run the local PCA R package with a window size of a 1000, 5% cutoff for what we consider *similar* windows to be, and looked at genes in windows belonging to one of the three corner on the MDS plot. However, the logical next step would be to look at:
+
+- Genes in other corners of the MDS plot. I.e., what other groups of genes have the most similar genetic population structure? Are the enriched GO categories different in different corners of the MDS plot?
+
+- What happens if we increase or decrease the corner similarity cutoff? You will see that based on the distribution of points on the MDS plot, some cutoff values will make more sense than others. Do you see different GO categories enriched? Or do you see more/fewer?
+
+- What about different window sizes? Larger window sizes can give us more accurate PCAs, but they are also lower resolution and might change the GO enrichment results.
+
+So for your homework you will:
+
+1) Run GO enrichment for the second and third corners (separately) and compare the results with the enrichment results for the first corner (that we did in class). Save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner) and include it in your write up. Describe any observation you might have (distribution of corners along the chromosome, structure of PCAs, and clustering or putative inversion, etc.).
+
+2) Repeat the analysis (GO for all 3 corners) with a smaller OR larger cutoff value. Make an argument for the specific cutoff value you decided on. Hint: you will only need to rerun the visualization step with summarize_run.Rmd. Save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
+
+3) Repeat the analysis (GO for all 3 corners) with a different window size. I suggest going bigger rather than smaller, as decreasing the window size will make it so that you'll need to run many more PCA calculations... But you can always try and see what happens :) Worst case scenario, you crush the server... Hint: you will need to go back in the tutorial to the line that calls the run_lostruct.R script. For this step, you can just use the default 5% cutoff threshold. Again, save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
+
+In sum, for this homework, you will complete the analysis we started in class by doing GO enrichment to the second and third corners. Then, you will compare these results (the GO results and the MDS + PCA plots) to the results that you obtained after changing the cutoff and the window size. In the end you should have results (GO for all 3 corners + MDS + PCA plots) for the following combination of parameters: [window size 1000, cutoff 5%] and [window size 1000, cutoff > or < 5%] and [window size > 1000, cutoff 5%].
+
+**Extra credit:** Try adjusting the cutoff value for your altered window size and see what happens. 
+
+**Disclaimer**: It might very well be that you get no GO categories in biological processes that are enriched. If that happens, you can change the Annotation Data Set in the drop down menu and click Launch analysis. You can also play around with the Test type and the correction method. However, you might still not find any enrichment. That is totally fine! Write it down, it is still useful information. This will not affect your grade.
+
+**Disclaimer 2**: You might find that changing the window size or the cutoff value doesn't change your results regarding the GO enrichment. This is also totally fine. However, it is unlikely that the MDS and the PCA plots don't change, so if that is the case, you might have done something wrong.
+
+I slightly altered the paragraphs below (copied from the first assignment description) to match the specifics of this homework.
+
+### Guidelines and expectations:
+
+* The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.
+* You may work collaboratively, but the final product and all of the writing should be your own defensible work
+* Approach the writing as a technical report based on the work you’ve done to date.  That is, write for a scientific audience using appropriate technical language and narrative style, with citations used when referring to methods or making factual assertions.
+* Your write-up should include the following essential elements:
+
+#### Background (1-2 paragraphs):
+* A brief description providing context and motivation of the problem we’re trying to address with these data
+* Brief background on the study species, biological samples and sequencing strategy (look through early tutorials for info, plus your notes from class)
+
+#### Bioinformatics Pipeline (~1 paragraph):
+* Detailed description of the various steps you used for the analysis of the sequencing data. Include: filtering the bcf files, running the local PCA analysis, and doing the GO enrichment.
+
+* This will section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done. Include justification for using particular analysis approaches or choices as appropriate.
+
+#### Results (3 paragraphs, 1 for each step outlined above)
+* Report your findings from the different analysis steps. Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.  
+* There is no limit on the number of tables/figures you can include (not counted towards the page limit). 
+* Be sure each table/figure has a title, and a very brief legend describing its contents.
+
+#### Conclusion (1-2 paragraphs)
+* Give your biological conclusion so far from the data: What have you learned about changing the window size and cutoff value in this set of populations? Did you find any interesting patterns in terms of GO enrichment and PCA plots? Any putative inversions? Relate back to your motivation given in the Background section.
+* Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.
+* Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.
+* Discuss opportunities for future directions.
+
+#### References (listed on a separate page)
+* Cite papers in APA format.  Example:  
+  <font size="0.75">*Capblancq, T., Butnor, J. R., Deyoung, S., Thibault, E., Munson, H., Nelson, D. M., ... & Keller, S. R. (2020). Whole‐exome sequencing reveals a long‐term decline in effective population size of red spruce (Picea rubens). Evolutionary Applications, 13(9), 2190-2205.*</font>
+
+
+* Only include references to papers you cite in your text
+
+* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github “scripts” folder. Share a URL link to your Github page with your emailed homework submission.
+
+
+### Guidelines and deadlines:
+
+* You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
+
+* Due by TODO
+
+* Email your homework in doc or pdf format to:
+```
+Stephen.Keller@uvm.edu
+Melissa.Pespeni@uvm.edu
+Csenge.Petak@uvm.edu
+```
+
+#### Reach out via Slack or office hours if you get stuck, and don't forget to have fun with it!
+
