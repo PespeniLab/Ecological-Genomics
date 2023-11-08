@@ -16,17 +16,23 @@ We have run the local PCA R package with a window size of a 1000, 5% cutoff for 
 
 - What about different window sizes? Larger window sizes can give us more accurate PCAs, but they are also lower resolution and might change the GO enrichment results.
 
+**UPDATE**: You will all be doing step 1) but you can choose between steps 2) and 3) for your homework! So you can either choose to do 1) and 2) OR 1) and 3). 
+
 So for your homework you will:
 
 1) Run GO enrichment for the second and third corners (separately) and compare the results with the enrichment results for the first corner (that we did in class). Save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner) and include it in your write up. Describe any observation you might have (distribution of corners along the chromosome, structure of PCAs, and clustering or putative inversion, etc.).
 
-2) Repeat the analysis (GO for all 3 corners) with a smaller OR larger cutoff value. Make an argument for the specific cutoff value you decided on. Hint: you will only need to rerun the visualization step with summarize_run.Rmd. Save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
+  - Hint: To do this, open the summarize_run.Rmd file in myscripts and change the line that we added in class: `write.csv(corner.regions[[1]], "first_corner.csv", row.names=FALSE)` to `write.csv(corner.regions[[2]], "second_corner.csv", row.names=FALSE)` to get the second corner. Run the `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd"...` line again in tmux, just like we did in the tutorial "Select regions of interest" section. If your new csv files don't appear in the folder, you might have to remove the cache folder first in the `type_snp_size_1000_weights_none_jobid_166584` folder by typing `rm -r cache`. Follow the tutorial to with the new csv file.
 
-3) Repeat the analysis (GO for all 3 corners) with a different window size. I suggest going bigger rather than smaller, as decreasing the window size will make it so that you'll need to run many more PCA calculations... But you can always try and see what happens :) Worst case scenario, you crush the server... Hint: you will need to go back in the tutorial to the line that calls the run_lostruct.R script. For this step, you can just use the default 5% cutoff threshold. Again, save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
+2) Repeat the analysis (GO for all 3 corners) with a smaller OR larger cutoff value. Make an argument for the specific cutoff value you decided on. Save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
 
-In sum, for this homework, you will complete the analysis we started in class by doing GO enrichment to the second and third corners. Then, you will compare these results (the GO results and the MDS + PCA plots) to the results that you obtained after changing the cutoff and the window size. In the end you should have results (GO for all 3 corners + MDS + PCA plots) for the following combination of parameters: [window size 1000, cutoff 5%] and [window size 1000, cutoff > or < 5%] and [window size > 1000, cutoff 5%].
+  - Hint: To do this, open the summarize_run.Rmd file in myscripts, navigate to line 144 (line number is shown in vim in the bottom right corner as you move around in the file), and change the prop = .05 to another number. Run the `Rscript -e 'templater::render_template("~/myscripts/summarize_run.Rmd"...` line again in tmux, just like we did in the tutorial "Select regions of interest" section.
 
-**Extra credit:** Try adjusting the cutoff value for your altered window size and see what happens. 
+3) Repeat the analysis (GO for all 3 corners) with a different window size. I suggest going bigger rather than smaller, as decreasing the window size will make it so that you'll need to run many more PCA calculations... But you can always try and see what happens :) Worst case scenario, you crush the server... For this step, you can just use the default 5% cutoff threshold. Again, save the MDS plot with the chromosome plot, and the first row of PCA plots (PC1 vs PC2 for each corner). Describe any changes that you might see in any of the plots or GO enrichment.
+
+  - Hint: you will need to go back in the tutorial to the line that calls the run_lostruct.R script. It is within the "Run local PCA" section, `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/str_data -t snp -s 1000...`. You will need to change the 1000 to another number and run the `Rscript ~/myscripts/run_lostruct.R -i ~/mydata/str_data -t snp -s NEW_NUMBER -I /netfiles/ecogen/structural_variation/sample_info.tsv` line in tmux again. This will create a new folder that will be called something like type_snp_size_NEW_NUMBER_weights_none_jobid_NEW_AUTOMATICALLY_GENERATED_ID. Repeat the rest of the steps in the tutorial.
+
+In sum, for this homework, you will complete the analysis we started in class by doing GO enrichment to the second and third corners. Then, you will compare these results (the GO results and the MDS + PCA plots) to the results that you obtained after changing the cutoff **OR** window size. In the end you should have results (GO for all 3 corners + MDS + PCA plots) for the following combination of parameters: [window size 1000, cutoff 5%] and [window size 1000, cutoff > or < 5%] **OR** [window size 1000, cutoff 5%] and [window size > 1000, cutoff 5%].
 
 **Disclaimer**: It might very well be that you get no GO categories in biological processes that are enriched. If that happens, you can change the Annotation Data Set in the drop down menu and click Launch analysis. You can also play around with the Test type and the correction method. However, you might still not find any enrichment. That is totally fine! Write it down, it is still useful information. This will not affect your grade.
 
@@ -50,13 +56,13 @@ I slightly altered the paragraphs below (copied from the first assignment descri
 
 * This will section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done. Include justification for using particular analysis approaches or choices as appropriate.
 
-#### Results (3 paragraphs, 1 for each step outlined above)
+#### Results (~2 paragraphs)
 * Report your findings from the different analysis steps. Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.  
 * There is no limit on the number of tables/figures you can include (not counted towards the page limit). 
 * Be sure each table/figure has a title, and a very brief legend describing its contents.
 
 #### Conclusion (1-2 paragraphs)
-* Give your biological conclusion so far from the data: What have you learned about changing the window size and cutoff value in this set of populations? Did you find any interesting patterns in terms of GO enrichment and PCA plots? Any putative inversions? Relate back to your motivation given in the Background section.
+* Give your biological conclusion so far from the data: What have you learned about changing the window size **OR** cutoff value in this set of populations? Did you find any interesting patterns in terms of GO enrichment and PCA plots? Any putative inversions? Relate back to your motivation given in the Background section.
 * Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.
 * Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.
 * Discuss opportunities for future directions.
