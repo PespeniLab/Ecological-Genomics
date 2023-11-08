@@ -6,7 +6,7 @@ output:
 fontsize: 18pt
 ---
 
-# Homework assignment #3 -- Due by TODO
+# Homework assignment #3 -- Due by midnight Tuesday, 14th of Nov
 
 We have run the local PCA R package with a window size of a 1000, 5% cutoff for what we consider *similar* windows to be, and looked at genes in windows belonging to one of the three corner on the MDS plot. However, the logical next step would be to look at:
 
@@ -75,7 +75,7 @@ I slightly altered the paragraphs below (copied from the first assignment descri
 
 * You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
 
-* Due by TODO
+* Due by midnight Tuesday, 14th of Nov
 
 * Email your homework in doc or pdf format to:
 ```
