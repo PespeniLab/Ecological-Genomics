@@ -9,4 +9,8 @@ fontsize: 18pt
 # Homework assignments:
 
 1. [Homework #1 ~ Population & Landscape Genomics](Fall2023/assignments/Homework1.html)
-1. [Homework #3 ~ Structural Variation](Fall2023/assignments/Homework3.html)
+2. [Homework #2 ~ Transcriptomics](Fall2023/assignments/Homework2.html)
+3. [Homework #3 ~ Structural Variation](Fall2023/assignments/Homework3.html)
+
+# Group project:
+1. [Final presentation](Fall2023/assignments/GroupPres.html)
