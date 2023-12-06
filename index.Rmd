@@ -11,7 +11,7 @@ fontsize: 18pt
 1. [Getting Started](Getting_started.html)
 2. [Tutorials and scripts](Tutorials.html) 
 3. [Student github repos](Class_members.html)
-4. [Homework Assignments](Homework.html) 
+4. [Assignments](Homework.html) 
 
 
 
