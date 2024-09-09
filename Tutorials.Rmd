@@ -12,7 +12,7 @@ fontsize: 18pt
 
 **Intro**
 
-1. 2024-08-29: [GitHub Tutorial](Fall2024/tutorials/EcoGeno_GitHub_Initial_Walkthrough.md)
+1. 2024-08-29: [GitHub Tutorial](Fall2024/tutorials/EcoGeno_GitHub_Initial_Walkthrough.html)
 2. 2024-09-05: [Intro to R Tutorial](Fall2024/tutorials/RIntroTutorial_Sep2024.pdf)
 
 **Population Genomics Module**
