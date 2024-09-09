@@ -1,5 +1,5 @@
 ---
-title: "Tutorials and Scripts"
+title: "Coding Tutorials"
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -12,32 +12,12 @@ fontsize: 18pt
 
 **Intro**
 
-1. 2023-08-30: [Bash Tutorial](Fall2023/tutorials/BashTutorial.html)
-2. 2023-09-06: [Git Tutorial](Fall2023/tutorials/GithubTutorial_Csenge.html)
+1. 2024-08-29: [GitHub Tutorial](Fall2024/tutorials/EcoGeno_GitHub_Initial_Walkthrough.md)
+2. 2024-09-05: [Intro to R Tutorial](Fall2024/tutorials/RIntroTutorial_Sep2024.pdf)
 
-**Population & Landscape Genomics Module**
+**Population Genomics Module**
 
-3. 2023-09-11: [PopGen Day 1](Fall2023/tutorials/2023-09-11_PopGenomics_Day1_v2.html)
-4. 2023-09-13: [PopGen Day 2](Fall2023/tutorials/2023-09-13_PopGenomics_Day2.html)
-5. 2023-09-18: [PopGen Day 3](Fall2023/tutorials/2023-09-18_PopGenomics_Day3.html)
-6. 2023-09-20: [PopGen Day 4](Fall2023/tutorials/2023-09-20_PopGenomics_Day4.html)
-7. 2023-09-25: [PopGen Day 5](Fall2023/tutorials/2023-09-25_PopGenomics_Day5.html)
-8. 2023-09-27: [PopGen Day 6](Fall2023/tutorials/2023-09-27_PopGenomics_Day6.html)
-9. 2023-10-02: [PopGen Day 7](Fall2023/tutorials/2023-10-02_PopGenomics_Day7.1.html)
-10. 2023-10-04: [PopGen Day 8](Fall2023/tutorials/2023-10-04_PopGenomics_Day8.html)
+3. 2024-09-10: [PopGen Day 1](Fall2024/tutorials/2024-09-10_PopGenomics_Day1.html)
 
 **Transcriptomics Module**
 
-11. 2023-10-09: [Transcriptomics Day 1](Fall2023/tutorials/2023-10-09_RNAseq_Day1v2.html)
-12. 2023-10-11: [Transcriptomics Day 2](Fall2023/tutorials/2023-10-11_RNAseq_Day2.html)
-13. 2023-10-16: [Transcriptomics Day 3](Fall2023/tutorials/2023-10-16_RNAseq_Day3.html)
-14. 2023-10-18: [Transcriptomics Day 4](Fall2023/tutorials/2023-10-18_RNAseq_Day4.html)
-15. 2023-10-23: [Transcriptomics Day 5](Fall2023/tutorials/2023-10-23_RNAseq_Day5.html)
-16. 2023-10-25: [Transcriptomics Day 6](Fall2023/tutorials/2023-10-25_RNAseq_Day6.html)
-17. 2023-10-30: [Transcriptomics Day 7](Fall2023/tutorials/2023-10-30_RNAseq_Day7.html)
-18. 2023-11-01: [Transcriptomics Day 8](Fall2023/tutorials/2023-11-01_RNAseq_Day8.html)
-
-
-**Structural Variation Module**
-
-19. 2023-11-06 and 2023-11-08: [Structural Variation](Fall2023/tutorials/Csenge_structural_variation.html)
