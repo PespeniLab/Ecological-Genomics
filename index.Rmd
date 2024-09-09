@@ -1,17 +1,16 @@
 ---
-title: "Ecological Genomics (PBIO6800 / BIO6200) Fall 2023"
+title: "Ecological Genomics (PBIO3990 / BIO3990) Fall 2024"
 output:
   prettydoc::html_pretty:
     theme: cayman
 fontsize: 18pt
 ---
 
-**This webpage serves as a reference and resource for the Ecological Genomics course at the University of Vermont** 
+**This webpage serves as a reference and resource for the 2024 Intro to Ecological Genomics course at the University of Vermont** 
 
-1. [Getting Started](Getting_started.html)
-2. [Tutorials and scripts](Tutorials.html) 
-3. [Student github repos](Class_members.html)
-4. [Assignments](Homework.html) 
+1. [Tutorials and scripts](Tutorials.html) 
+2. [Student github repos](Class_members.html)
+3. [Assignments](Homework.html) 
 
 
 
