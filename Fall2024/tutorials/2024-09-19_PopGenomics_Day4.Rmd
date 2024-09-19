@@ -20,7 +20,7 @@ Now that we've filtered our vcf file based on a combo of depth (min and max), mi
 
 The `vcfR` package we've been working with has a nice function for estimating some of the diversity metrics we talked about in class last time -- namely expected heterozygoisty (also known as 'gene diversity') and Fst, the latter being a measure of differentiation among groups.  We'll use the function in vcfR called `genetic_diff`.  
 
-Out workflow will look something like this (file names ):
+Out workflow will look something like this:
 
 ```
 Step 1: Read in our filtered VCF file (in your repo)
@@ -44,4 +44,4 @@ Step 6.b: Visualize genetic differentiation (Gst) across the genome and among ou
 Step 7: Tweak plots -- save interesting ones to our outputs/ directories in our repo!
 ```
 
-In addition to vcfR, we'll learn to use the ``qqman` package (already installed!) for making mahattan plots today!
+In addition to vcfR, we'll learn to use the [qqman](https://cran.r-project.org/web/packages/qqman/vignettes/qqman.html) package (already installed!) for making mahattan plots today!
