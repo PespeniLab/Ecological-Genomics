@@ -11,8 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+<meta name="date" content="2024-09-10" />
 
-<title>Coding Tutorials</title>
+<title>Ecological Genomics Tutorials: Population Genomics 1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,30 +47,60 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Ecological Genomics Tutorials:
+Population Genomics 1</h1>
+<h4 class="date project-date">September 10, 2024</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="learning-objectives-for-091924" class="section level1">
+<h1>Learning Objectives for 09/19/24</h1>
 <ol style="list-style-type: decimal">
-<li>2024-08-29: <a href="Fall2024/tutorials/EcoGeno_GitHub_Initial_Walkthrough.html">GitHub
-Tutorial</a></li>
-<li>2024-09-05: <a href="Fall2024/tutorials/RIntroTutorial_Sep2024.pdf">Intro to R
-Tutorial</a></li>
+<li>To work with our filtered vcf file to estimate genomic diversity and
+differentiation</li>
+<li>To appreciate the variability that occurs across each chromosome
+(the genomic landscape) as well as among samples (the ecological
+landscape)</li>
+<li>To get practice working with tidyverse and several plotting
+functions (qqman, ggplot) to visualize genomic diversity</li>
 </ol>
-<p><strong>Population Genomics Module</strong></p>
-<ol start="3" style="list-style-type: decimal">
-<li>2024-09-10: <a href="Fall2024/tutorials/2024-09-10_PopGenomics_Day1.html">PopGen Days
-1-3</a></li>
-<li>2024-09-19: <a href="Fall2024/tutorials/2024-09-19_PopGenomics_Day4.html">PopGen Day
-4</a></li>
-</ol>
-<p><strong>Transcriptomics Module</strong></p>
+<div id="estimating-genomic-diversity-from-our-filtered-vcf" class="section level2">
+<h2>Estimating genomic diversity from our filtered vcf</h2>
+<p>Now that we’ve filtered our vcf file based on a combo of depth (min
+and max), missingness (individual and SNP-wise) and allele frequency
+(bi-allelic and min_mac (aka, minor allele count)), we’re ready to
+estimate some diversity parameters!</p>
+<p>The <code>vcfR</code> package we’ve been working with has a nice
+function for estimating some of the diversity metrics we talked about in
+class last time – namely expected heterozygoisty (also known as ‘gene
+diversity’) and Fst, the latter being a measure of differentiation among
+groups. We’ll use the function in vcfR called
+<code>genetic_diff</code>.</p>
+<p>Out workflow will look something like this (file names ):</p>
+<pre><code>Step 1: Read in our filtered VCF file (in your repo)
+
+Step 2: Read in our metadata file (in the class datashare on /gpfs1)
+
+Step 3: Make sure they&#39;re the same # of samples 
+(remember...we filtered some out!  This is only something you have to dbl-check)
+
+Step 4: Run genetic_diff() on the vcf file with the sample metadata provided for grouping 
+-- which groups should we run? We have options...
+
+Step 5: Process the resulting output to get it ready for plotting using tidyverse commands...
+
+Step 6.a: Visualize gene diversity (Hs) across the genome and among our different groups.  
+*Note that Hs is equivalent to Hexp (expected heterozygosity) when loci are biallelic (max 2 alleles)*
+
+Step 6.b: Visualize genetic differentiation (Gst) across the genome and among our different groups.  
+*Note that Gst is equivalent to Fst when loci are biallelic*
+
+Step 7: Tweak plots -- save interesting ones to our outputs/ directories in our repo!</code></pre>
+<p>In addition to vcfR, we’ll learn to use the `<code>qqman</code>
+package (already installed!) for making mahattan plots today!</p>
+</div>
 </div>
 </section>
 
