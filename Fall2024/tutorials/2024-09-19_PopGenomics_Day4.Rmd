@@ -1,0 +1,47 @@
+---
+title: "Ecological Genomics Tutorials: Population Genomics 1"
+date: 'September 10, 2024'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for 09/19/24
+
+1. To work with our filtered vcf file to estimate genomic diversity and differentiation
+2. To appreciate the variability that occurs across each chromosome (the genomic landscape) as well as among samples (the ecological landscape)
+3. To get practice working with tidyverse and several plotting functions (qqman, ggplot) to visualize genomic diversity
+
+
+## Estimating genomic diversity from our filtered vcf
+
+Now that we've filtered our vcf file based on a combo of depth (min and max), missingness (individual and SNP-wise) and allele frequency (bi-allelic and min_mac (aka, minor allele count)), we're ready to estimate some diversity parameters!
+
+The `vcfR` package we've been working with has a nice function for estimating some of the diversity metrics we talked about in class last time -- namely expected heterozygoisty (also known as 'gene diversity') and Fst, the latter being a measure of differentiation among groups.  We'll use the function in vcfR called `genetic_diff`.  
+
+Out workflow will look something like this:
+
+```
+Step 1: Read in our filtered VCF file (in your repo)
+
+Step 2: Read in our metadata file (in the class datashare on /gpfs1)
+
+Step 3: Make sure they're the same # of samples 
+(remember...we filtered some out!  This is only something you have to dbl-check)
+
+Step 4: Run genetic_diff() on the vcf file with the sample metadata provided for grouping 
+-- which groups should we run? We have options...
+
+Step 5: Process the resulting output to get it ready for plotting using tidyverse commands...
+
+Step 6.a: Visualize gene diversity (Hs) across the genome and among our different groups.  
+*Note that Hs is equivalent to Hexp (expected heterozygosity) when loci are biallelic (max 2 alleles)*
+
+Step 6.b: Visualize genetic differentiation (Gst) across the genome and among our different groups.  
+*Note that Gst is equivalent to Fst when loci are biallelic*
+
+Step 7: Tweak plots -- save interesting ones to our outputs/ directories in our repo!
+```
+
+In addition to vcfR, we'll learn to use the [qqman](https://cran.r-project.org/web/packages/qqman/vignettes/qqman.html) package (already installed!) for making mahattan plots today!

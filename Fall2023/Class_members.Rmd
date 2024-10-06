@@ -1,0 +1,11 @@
+---
+title: "Ecological Genomics Class Members"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+[Back to main page](index.html)
+
+**List of participants and their Github portfolio** 

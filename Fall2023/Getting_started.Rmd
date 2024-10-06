@@ -1,0 +1,19 @@
+---
+title: "Getting Started in Ecological Genomics"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+### Things you'll need to download:
+
+1.  Install [R](https://www.r-project.org/) and [Rstudio](https://www.rstudio.com/) (be sure to install and load the "knitr"" package)
+2.  Create a [github](https://github.com/) account and download github desktop [desktop](https://desktop.github.com/).
+3.  Install [Filezilla](https://filezilla-project.org) for transferring files between the server and your laptop
+4.  Install a basic text editor like [BBEdit](https://www.barebones.com/products/bbedit/) for MacOS users or [Notepad++](https://notepad-plus-plus.org) for PC users
+5.  PC Users only: You'll need a terminal shell capable of connecting to a remote Linux server. There are 2 options:
+    1.  [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) is a simple program that lets you establish a connection to a Linux server using 'ssh'
+    2.  For more functionality, you can install [Windows System For Linux (WSL)](https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10) that gives you a functioning Linux system on your PC. You can then install a Linux-based terminal shell like [Terminus](https://apps.microsoft.com/store/detail/termius-ssh-sftp-client/9NK1GDVPX09V?hl=en-us&gl=us&ocid=pdpshare) to connect to the server and perform other Linux-based commands.
+
+[Back to main page](https://pespenilab.github.io/Ecological-Genomics/)
