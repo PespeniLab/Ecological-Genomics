@@ -22,3 +22,4 @@ fontsize: 18pt
 
 **Transcriptomics Module**
 
+5. 2024-10-08: [Transcriptomics Day 1](Fall2024/tutorials/2024-10-08_RNAseq_Day1.Rmd)
