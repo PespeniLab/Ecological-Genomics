@@ -1,0 +1,85 @@
+---
+title: "Ecological Genomics Tutorials: Transcriptomics - Day 1"
+date: 'October 8, 2024'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today: 
+#### _By the end of this class, students will be able to..._
+
+1. Explain the difference between population genomics and transcriptomics.
+2. Evaluate how mapping and the "reference" differs for population genomics and transcriptomics.
+3. Conceptualize a "counts" file.
+4. Understand the work flow or "pipeline" for processing and analyzing RNAseq data.
+5. Conceptualize a "model" with respect to testing for differential gene expression.
+
+#### Activities to achieve these objectives:
+1. Interactive introduction to transcriptomics and RNAseq data analysis.
+2. Introduction of the study system and experiment.
+3. Generate questions that can be addresses with these data.
+4. Work in R to import, assess, and visualize the data.
+5. Begin to test for differential gene expression.
+
+## 1. Copepod developmental plasticity of thermal tolerance trait 
+### What are the genomic mechanisms which underly thermal tolerance ?
+![https://www.diark.org/diark/species_list/Acartia_tonsa](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Atonsa.png)
+
+Copepods are one of the most abundant animals on planet. Calenoid copepods, particularly in the genus Acartia, are critical for ecosystem functioning and biogeochemical cycling. They are primary consumers at the base of the oceanic food chain, eating phytoplankton and transferring the energy up the food chain starting with larval fish. _Acartia tonsa_ is a widespread estuarine and near-shore coastal species. It is most abundant along east Coast of the US, and has a global distribution. With the rapidly rising temperatures in the ocean, it is critical to understand how such ecologically important species will tolerate these changes.
+
+Rapid acclimation to changing temperature conditions can be achieved through phenotypic plasticity. Plasticity refers to an organism's ability to adjust its physiology or behavior in response to environmental changes without a change in DNA composition. Developmental plasticity occurs when environmental conditions experienced during an organism's development induce changes in its phenotype. In relatively short-lived species, such as copepods, developmental plasticity may play a critical role in supporting acclimatory responses to rapid environmental changes, such as those associated with global warming ([Ashlock _et al._ _Ecology and Evolution_](https://onlinelibrary.wiley.com/doi/10.1002/ece3.10995). Despite its importance, the genomic mechanisms underlying plasticity remain poorly understood. Key questions include which genes plastically respond to changes in thermal environments and which specific genes are critical for the upper lethal temperature response. 
+
+## New Data!
+We measured gene expression of _Acartia tonsa_ after development for one generation at one of two temperatures: 18 degrees C and 22 degrees C. When those animals were adults we sampled for RNA extraction at baseline and after two acute thermal exposures at 28 degrees C and 33 degrees C. 
+
+
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/Fall2024/tutorials/pics/Transcriptomics_samples.png)
+
+#### Additional experimental details:
+
+* Animals were collected from Cape May, NJ and reared in the lab for 3 generations before the start of the experiment.
+* For each developmental temperature, there were four replicate vessels with ~1,000 individuals per vessel. 
+* To sample for RNA, pools of 25 adults created, one per replicate vessel. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified TRIzol extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Illumina Novoseq 6000 platform with >6 Gb (gigabase pairs = >6 billion base pairs) per sample.  
+
+  
+### Realized sample replication after sequencing:  N=38 x 2 = 76 (left and right reads)
+
+Samples are named in a 4-5 sequence of letters and numbers. Most start with a N refering to New Jersey. If there is a 's' before the N, that sample was resequencd. Following the N is a number. '1' means animals in that sample was developed at 18 degrees C, 2 means animals in that sample were developed at 22 degrees C. Following the 1 or 2, is either: a C which means that the animals in that sample did not undergo an acute heat exposure; L which means that the animals in that sample experienced an hour exposure to 28 degrees C, or H meaning they experienced exposure to 33 degrees C.  
+
+## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+
+## 3. Our general workflow for analyzing gene expression data (Transcriptomics pipeline):
+### Clean the raw sequence data (complete)
+* [FastP](https://github.com/OpenGene/fastp) on raw reads --> cleaned reads
+
+### Generate and annotate a de novo reference transcriptome assembly (complete)
+* Used [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki)
+* Evaluated transcriptome assembly for quality (length and completeness) using [BUSCO](https://busco.ezlab.org/).
+
+### Map the clean reads to the reference assembly (complete)
+* Use [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) to simulateously map reads to reference transcriptome and quantify abundance.
+
+### Test for differential expression among groups - _This is us!_
+* [Import](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#3%E2%80%99_tagged_rna-seq) the data into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) in R for data normalization, visualization, and statistical tests for differential gene expression.
+
+### Perform more advanced analyses - _This is us!_
+* Identify clusters of genes with correlated expression using Weighted Gene Correlation Network Analysis ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)).
+* Test for functional enrichment among genes differentially expressed between groups using [TopGO](https://bioconductor.org/packages/release/bioc/html/topGO.html) or GO Mann-Whitney U  [GO_MWU](https://github.com/z0on/GO_MWU)
+
+
+## 4. Let's get started in R!
+- Open up VACC OpenOnDemand and initiate an RStudio session.
+- Let's create a file structure for `transcriptomics` in our repo with `scripts`, `outputs`, and `figures`.
+- Open an R script and we'll start live coding in class!
