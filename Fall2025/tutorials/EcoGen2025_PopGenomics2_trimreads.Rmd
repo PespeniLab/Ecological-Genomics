@@ -16,7 +16,7 @@ Whenever you get a new batch of NGS data, the first step is to look at the data 
 
 The fastq files for our project are stored in this path: 
 
-`/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/fastq/red_spruce`
+`/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/fastq/red_spruce`
 
 `cd` over there and `ll` to see the files. There should be 190 fastq files: 2 for each of the 95 red spruce. 
 
@@ -30,7 +30,7 @@ Together, `<PopCode>_<RowID>_<ColumnID>` define the unique individual ID for eac
 
 You'll also see a folder with black spruce fastq files here:
 
-`/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/fastq/black_spruce`
+`/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/fastq/black_spruce`
 
 with paired-end sequences for 18 black spruce samples (=36 fastq files)
 
@@ -196,7 +196,7 @@ bash fastp.sh
 
 Note that the output (the trimmed and cleaned reads) are going to get saved to a folder on the network drive that you've been given write access to:
 
-`/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/cleanreads`
+`/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/cleanreads`
 
 ---
 
