@@ -56,41 +56,40 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="main-content">
-<p>Our previous analysis finished with (hopefully) cleaned fastq files
-that are free of low quality bases and adapter sequences. We’r enow
-ready to map these reads to the reference genome!</p>
+<p>Our previous analysis finished (hopefully!) with cleaned fastq files
+that are free of low quality bases and adapter sequences. We’re now
+ready to map these reads to the spruce reference genome!</p>
 <div id="mapping-cleaned-and-trimmed-reads-against-the-reference-genome" class="section level2">
 <h2>1. Mapping cleaned and trimmed reads against the reference
 genome</h2>
-<p>Now that we have cleaned and trimmed read pairs, we’re ready to map
-them against the reference genome.</p>
-<p>The first step of read mapping is downloading the reference
-genome.</p>
+<p>The first step of read mapping is downloading and preparing the
+reference genome.</p>
 <p>The black spruce (<em>Picea mariana</em>) reference genome was <a href="https://academic.oup.com/g3journal/article/14/1/jkad247/7329279">published
 by Lo et al. (2024)</a>.</p>
-<p><img src="data:text/html; charset=UTF-8;charset=utf-8,%3C%21DOCTYPE%20html%3E%3Chtml%20lang%3D%22en%2DUS%22%3E%3Chead%3E%3Ctitle%3EJust%20a%20moment%2E%2E%2E%3C%2Ftitle%3E%3Cmeta%20http%2Dequiv%3D%22Content%2DType%22%20content%3D%22text%2Fhtml%3B%20charset%3DUTF%2D8%22%3E%3Cmeta%20http%2Dequiv%3D%22X%2DUA%2DCompatible%22%20content%3D%22IE%3DEdge%22%3E%3Cmeta%20name%3D%22robots%22%20content%3D%22noindex%2Cnofollow%22%3E%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3Ddevice%2Dwidth%2Cinitial%2Dscale%3D1%22%3E%3Cstyle%3E%2A%7Bbox%2Dsizing%3Aborder%2Dbox%3Bmargin%3A0%3Bpadding%3A0%7Dhtml%7Bline%2Dheight%3A1%2E15%3B%2Dwebkit%2Dtext%2Dsize%2Dadjust%3A100%25%3Bcolor%3A%23313131%3Bfont%2Dfamily%3Asystem%2Dui%2C%2Dapple%2Dsystem%2CBlinkMacSystemFont%2C%22Segoe%20UI%22%2CRoboto%2C%22Helvetica%20Neue%22%2CArial%2C%22Noto%20Sans%22%2Csans%2Dserif%2C%22Apple%20Color%20Emoji%22%2C%22Segoe%20UI%20Emoji%22%2C%22Segoe%20UI%20Symbol%22%2C%22Noto%20Color%20Emoji%22%7Dbody%7Bdisplay%3Aflex%3Bflex%2Ddirection%3Acolumn%3Bheight%3A100vh%3Bmin%2Dheight%3A100vh%7D%2Emain%2Dcontent%7Bmargin%3A8rem%20auto%3Bpadding%2Dleft%3A1%2E5rem%3Bmax%2Dwidth%3A60rem%7D%40media%20%28width%20%3C%3D%20720px%29%7B%2Emain%2Dcontent%7Bmargin%2Dtop%3A4rem%7D%7D%2Eh2%7Bline%2Dheight%3A2%2E25rem%3Bfont%2Dsize%3A1%2E5rem%3Bfont%2Dweight%3A500%7D%40media%20%28width%20%3C%3D%20720px%29%7B%2Eh2%7Bline%2Dheight%3A1%2E5rem%3Bfont%2Dsize%3A1%2E25rem%7D%7D%23challenge%2Derror%2Dtext%7Bbackground%2Dimage%3Aurl%28%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI%2BPHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8%2BPC9zdmc%2B%22%29%3Bbackground%2Drepeat%3Ano%2Drepeat%3Bbackground%2Dsize%3Acontain%3Bpadding%2Dleft%3A34px%7D%40media%20%28prefers%2Dcolor%2Dscheme%3A%20dark%29%7Bbody%7Bbackground%2Dcolor%3A%23222%3Bcolor%3A%23d9d9d9%7D%7D%3C%2Fstyle%3E%3Cmeta%20http%2Dequiv%3D%22refresh%22%20content%3D%22360%22%3E%3C%2Fhead%3E%3Cbody%3E%3Cdiv%20class%3D%22main%2Dwrapper%22%20role%3D%22main%22%3E%3Cdiv%20class%3D%22main%2Dcontent%22%3E%3Cnoscript%3E%3Cdiv%20class%3D%22h2%22%3E%3Cspan%20id%3D%22challenge%2Derror%2Dtext%22%3EEnable%20JavaScript%20and%20cookies%20to%20continue%3C%2Fspan%3E%3C%2Fdiv%3E%3C%2Fnoscript%3E%3C%2Fdiv%3E%3C%2Fdiv%3E%3Cscript%3E%28function%28%29%7Bwindow%2E%5Fcf%5Fchl%5Fopt%20%3D%20%7BcvId%3A%20%273%27%2CcZone%3A%20%27academic%2Eoup%2Ecom%27%2CcType%3A%20%27managed%27%2CcRay%3A%20%2797c2ed63cf7b8c6b%27%2CcH%3A%20%27GPjIElCiq20GM5TT29eoQNBvstQnkLbvkSNb1KNJOzg%2D1757381499%2D1%2E2%2E1%2E1%2DwW1bcMRaA%5F%2EvrTXSJE4%2EOiaDgESp0neAIMHwNiN9rYk2kGqzcLvWKErQICuGauAN%27%2CcUPMDTk%3A%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Ftk%3Ddzf4RTQl%5FGfD%5Fh0MFCXwHSPpIUWBmauQ7007r4rk1kA%2D1757381499%2D1%2E0%2E1%2E1%2Dcdc8XZWcWDUHvQvSEi5DU25ZKwoV4wVFgHV1b5ezBbw%22%2CcFPWv%3A%20%27g%27%2CcITimeS%3A%20%271757381499%27%2CcTplC%3A0%2CcTplV%3A5%2CcTplB%3A%20%27cf%27%2Cfa%3A%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Ff%5Ftk%3Ddzf4RTQl%5FGfD%5Fh0MFCXwHSPpIUWBmauQ7007r4rk1kA%2D1757381499%2D1%2E0%2E1%2E1%2Dcdc8XZWcWDUHvQvSEi5DU25ZKwoV4wVFgHV1b5ezBbw%22%2Cmd%3A%20%27r3gIVKhIDl0hAgK5LNF3TLt8EuBW1eV8FrpdAAQq92Y%2D1757381499%2D1%2E2%2E1%2E1%2DHX9lG6%2E2cOm%2ErXEbpVUXpxSjikUS1fMqZYWmLg1kAuzA4A8NxHx%2EHSnZ7r4pOifzUk%5FysKslzUpBFEXO%2EaIImk5KOHwHIjAuvuOemuKESHsSb6XDCJmK0zWAeyGOv30%5FG%5FDdSKiWUc7iLyj%5Fa3aV0oM%5FnfA9mjiP4ZGMTZ2mR%2E1g8GeTvixMP2JM8ixG0tEswfek8PcdYOdmTI6%2EaS6DhuWxE5Guoh%5F2cNqyiPZQFKlNaSJvaqokmGe%5F6FsFKPiR%5FZap11ITny9PzIWm4Ci6pDtifIZwz1CInzKRvRzIKh5UpLeP5gyp56I%2EoYDrWTJMYcabPBRVqWQfKUq9TlD8ajAcH7WvcGpxpVGbIoyPFgacb8G3UZDtUi6Cavqo%2EzyYqCCd%2EktFByU%2EjG%5FyULWN9MnQ%5F5jigPSUtNdWerqFeeLyjAKSEq4BuJQGhRi1j5cxNEBnfvOyEJRvcIyXtcLeXV5PrlJxoeXerNW2xG7xkSAOg4N08oREKn8lMeds1rU2I02%2EXRYcuK%2EyS2STJ1lhOnxB3S%5Fl8nFPh71NRJQqFdFGsEKiSpdWj0Hewl%5FRcTU8UyABtJBXOKS3VoorzgwVErA7hGTZ4kzGkiEz4jNke5Lvl0cVnObA%2EJ2ZHi7bDwg%2E75gtzrPJ%5FyEcOjXOaI1Ptwud09900kePmZ1K96ExSlxhSdG4mAbQJAoVGDWFuXgpim1ERy1%5FEvNObNqHLBmdrgJVzRs%2ERj%2EKTbIHIifL6ST9xEMCQSQDDCSExaaDZ8LzYmzuPUcLQjTz3sXyAhuxhEWYa6v8rczM%5F94qSvrKnwaxVKxAa%2E4QgvfBxlmajCkMCh23yiGgInlHUQCUsjzROXF3taGFx3WJbNMzJXIRDVYXZqve9ycygF5%5Fh9TIGw9QjSaufH2BKORNWnCtOHA%5FL0eeaTvUJqZcOdV%2E6cXsmUcSycbI78Fzy0O2%2EWfx0keK%27%2Cmdrd%3A%20%277vwuW8g1HFUsoXVhKaciR8EWec6LpAAOPr%2EQNwOS1lQ%2D1757381499%2D1%2E2%2E1%2E1%2DSxqjNVX2NewMqk9yilZR06glbJFRnvmaEHz2GZnafud1ebMSlEPv6EViddBnbVP7%2EtWmmb%5FgO%5FRfB516rsdD4zMwIqB8LTPKNSncPRGiMB4ykfJSiyEBCAB2sAkSRPLeKlTNXbLCdKeG3u2hfAs3eIBAyHziPm2CGmF9Z7f5XZErpvFIFFsYL3iyMgeabrv6BjAwX3Dv%2EkUKVzJFNozV7KK2cqexIkluVOTGwqscEOsxis22q7AfQUmoyCBGABVdVW9k9zITEI39kiX%5Feb%2EfTRgfiRbxTOXoEfOGlU0WqBrdLljLlZcJQ9iN0uQCVOpyszNli%5FHnkE9WTHWpN1qg%5Fw1U9rOc9qohYPc%5FOETK1YyQDVS2dylEUNv9UPYk1CiXUMRBS0927JCg0xEwbHa8zWgVWC7splMQQG73ybmUk7TTEBQJtvaK8pT3xUAxltXKE2rcnQpmOd0kDxo1E3GRLS%5FNEIa%2EK0EsAbCeTRj3Gd%2EWH0B1qCUeihQAhuw%2EYLZ%5FfdJMFUQ9hLJIP4HgAdIbYbh99FdSE%5FRtpVgfqe%2EMtOmxijxy2g5DSdmL3mSzAGITGQY%5Fj2%2EXErChufU7O6caQbqrqdhXqEA3oRpLze0NTYtbNKlJf4GJK%5FBWRyvzR5IyeVJJR6pvLYLwqYYkEWGTDwOJESiwVQ3mHIizc4y5Fwfl0LwIjSKmXIUfCuy6LdEoycDvPSaZ8W2G7209Qs0LwhJhTJwrPXDYmpHF2RazQv6BkaRl%5FiVSh94Y3w51a4OxeDqlCn1kBWd3y3HmIpzQfhF4T4F8cAT2eKuIAp99V4kMAjgPf4PzrI41OAnfI5VEEcFpcFF%2EYvbBr%5FUQUkvuElFcStpnpzPIuQepKMdYosHzVe2F9pdyg5aUcF8ar1y7n7qJN%5FE8rkp6WcOtb3Br0IabbQdpGeC55IDag9SZPL26q%2ELUQOys13giDmhteTW2AWhqLYY4oKARr9ttmyqN0Axs4eqW52%5FVtPbbUDqwrGJIf%5Fsup4xkEt65gNMxfwux19a%5Fhezmd%5Fe1Ev%5FSj1x%5FQAJiqKVFD%2EPL1Z5cDaakZYHs0hXR%2EykAfS9d4YbFfT%2EOHnhtaWuzKJ3PL7dN54Rh%2EKq01Y9PMYeAAHpu9O7ROa7yK2HDVmksAXz%2E9pbCuJHc3KeGSNlBzVH47rKJOCt9DNAHr01lf%5Fn%2EjUUOcNHOpo5I3%5FrvYHqlx%2EPI7fHoZZYaBUMKAEY%2ELAUXgeizQuhLgZfxx90rGG%2EX4TuS2AjMTjvGL5zAlVoOTXGTkjZrh1iKbGtRTcR0mmuYH0xqmj9iPvKI0dm8g3adLVlXyEnBYx3puZ66l6hYY64FwBxBF1UIUjrEeJs%2E5IeXU5yiOmrRAV4RJVHfjOZT%5FthJl%5FYRfVnkvQuu0qOt%2E9D9m%5Fc%2EtTxNhHwg4WQQcWPfzZ218GntzxBadtcjapu4%5FzE7VrSMNihd7VjM%5F4oGcK22OjKmxgQqdbqWh3udXNROq%2En2PhYkb9ti4LPBgvYjhuIVmf5xxs58kJPxwwUdpZa8xPMDtc4rNteoefb5ruAEmsj357t0XgZppYR5LQb7UDEFEn5ZbrfY%2EUln3CSJIjQu6OtTE65o3AhwyGc9Dy%5FCkskaKhS%2EmP3VlC%5FtiBr%5F5TMjVaWLzD0ZiJ0dp8EO1%5F5Vpg5kwnQSFRoOIkxLGZOJ6CwKKAjzYQjzWa0s9dJmPGDscblHL2vVXThSNZkVLuQsvTxFDYrzLJVFWgjONweEYQ60N9R%2EYlmi16BTV6ZkIrBmpNOmeEaqAc%5Foj8kLUKxCnEOS%5FR408yktmm%2EjpKPKwk9mPB9qLxgAJAmLQ2x%2Elo6D%5F0Fabtax1SlcsaUoWPVzgtCtLOeGdSVRvb%5FXj1hg7d6qZc0X0MnSf6SZ5yjFP%5FUy9ne%2EV%5FvRRRpQf3sTWgU18OY4b2E3HQ7fIDsQAG7lB2VNyGu%2EbMGS4PJpm%2E5lDO4fneZdJsQpXDG2AisdsjRozWOwD2%5FfESipuTBtZG26kPnCBUOhfF2f9a34Eii9cPS5Y71xsWL2ywz5imGDLbI0vmMKKpfO6vDwqRyC6T6Qt1axGVsAF6tt%5FYYdG3fR4qbyHGg05dIz53%2EUqGhBq2nriLwvVyNQmOzoaVMK7uitBxNlISYFdQ%27%2C%7D%3Bvar%20a%20%3D%20document%2EcreateElement%28%27script%27%29%3Ba%2Esrc%20%3D%20%27%2Fcdn%2Dcgi%2Fchallenge%2Dplatform%2Fh%2Fg%2Forchestrate%2Fchl%5Fpage%2Fv1%3Fray%3D97c2ed63cf7b8c6b%27%3Bwindow%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%20%3D%20location%2Ehash%20%3D%3D%3D%20%27%27%20%26%26%20location%2Ehref%2EindexOf%28%27%23%27%29%20%21%3D%3D%20%2D1%20%3F%20%27%23%27%20%3A%20location%2Ehash%3Bwindow%2E%5Fcf%5Fchl%5Fopt%2EcOgUQuery%20%3D%20location%2Esearch%20%3D%3D%3D%20%27%27%20%26%26%20location%2Ehref%2Eslice%280%2C%20location%2Ehref%2Elength%20%2D%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%2Elength%29%2EindexOf%28%27%3F%27%29%20%21%3D%3D%20%2D1%20%3F%20%27%3F%27%20%3A%20location%2Esearch%3Bif%20%28window%2Ehistory%20%26%26%20window%2Ehistory%2EreplaceState%29%20%7Bvar%20ogU%20%3D%20location%2Epathname%20%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUQuery%20%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%3Bhistory%2EreplaceState%28null%2C%20null%2C%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Frt%5Ftk%3Ddzf4RTQl%5FGfD%5Fh0MFCXwHSPpIUWBmauQ7007r4rk1kA%2D1757381499%2D1%2E0%2E1%2E1%2Dcdc8XZWcWDUHvQvSEi5DU25ZKwoV4wVFgHV1b5ezBbw%22%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%29%3Ba%2Eonload%20%3D%20function%28%29%20%7Bhistory%2EreplaceState%28null%2C%20null%2C%20ogU%29%3B%7D%7Ddocument%2EgetElementsByTagName%28%27head%27%29%5B0%5D%2EappendChild%28a%29%3B%7D%28%29%29%3B%3C%2Fscript%3E%3C%2Fbody%3E%3C%2Fhtml%3E" /></p>
+<p><img src="data:text/html; charset=UTF-8;charset=utf-8,%3C%21DOCTYPE%20html%3E%3Chtml%20lang%3D%22en%2DUS%22%3E%3Chead%3E%3Ctitle%3EJust%20a%20moment%2E%2E%2E%3C%2Ftitle%3E%3Cmeta%20http%2Dequiv%3D%22Content%2DType%22%20content%3D%22text%2Fhtml%3B%20charset%3DUTF%2D8%22%3E%3Cmeta%20http%2Dequiv%3D%22X%2DUA%2DCompatible%22%20content%3D%22IE%3DEdge%22%3E%3Cmeta%20name%3D%22robots%22%20content%3D%22noindex%2Cnofollow%22%3E%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3Ddevice%2Dwidth%2Cinitial%2Dscale%3D1%22%3E%3Cstyle%3E%2A%7Bbox%2Dsizing%3Aborder%2Dbox%3Bmargin%3A0%3Bpadding%3A0%7Dhtml%7Bline%2Dheight%3A1%2E15%3B%2Dwebkit%2Dtext%2Dsize%2Dadjust%3A100%25%3Bcolor%3A%23313131%3Bfont%2Dfamily%3Asystem%2Dui%2C%2Dapple%2Dsystem%2CBlinkMacSystemFont%2C%22Segoe%20UI%22%2CRoboto%2C%22Helvetica%20Neue%22%2CArial%2C%22Noto%20Sans%22%2Csans%2Dserif%2C%22Apple%20Color%20Emoji%22%2C%22Segoe%20UI%20Emoji%22%2C%22Segoe%20UI%20Symbol%22%2C%22Noto%20Color%20Emoji%22%7Dbody%7Bdisplay%3Aflex%3Bflex%2Ddirection%3Acolumn%3Bheight%3A100vh%3Bmin%2Dheight%3A100vh%7D%2Emain%2Dcontent%7Bmargin%3A8rem%20auto%3Bpadding%2Dleft%3A1%2E5rem%3Bmax%2Dwidth%3A60rem%7D%40media%20%28width%20%3C%3D%20720px%29%7B%2Emain%2Dcontent%7Bmargin%2Dtop%3A4rem%7D%7D%2Eh2%7Bline%2Dheight%3A2%2E25rem%3Bfont%2Dsize%3A1%2E5rem%3Bfont%2Dweight%3A500%7D%40media%20%28width%20%3C%3D%20720px%29%7B%2Eh2%7Bline%2Dheight%3A1%2E5rem%3Bfont%2Dsize%3A1%2E25rem%7D%7D%23challenge%2Derror%2Dtext%7Bbackground%2Dimage%3Aurl%28%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI%2BPHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8%2BPC9zdmc%2B%22%29%3Bbackground%2Drepeat%3Ano%2Drepeat%3Bbackground%2Dsize%3Acontain%3Bpadding%2Dleft%3A34px%7D%40media%20%28prefers%2Dcolor%2Dscheme%3A%20dark%29%7Bbody%7Bbackground%2Dcolor%3A%23222%3Bcolor%3A%23d9d9d9%7D%7D%3C%2Fstyle%3E%3Cmeta%20http%2Dequiv%3D%22refresh%22%20content%3D%22360%22%3E%3C%2Fhead%3E%3Cbody%3E%3Cdiv%20class%3D%22main%2Dwrapper%22%20role%3D%22main%22%3E%3Cdiv%20class%3D%22main%2Dcontent%22%3E%3Cnoscript%3E%3Cdiv%20class%3D%22h2%22%3E%3Cspan%20id%3D%22challenge%2Derror%2Dtext%22%3EEnable%20JavaScript%20and%20cookies%20to%20continue%3C%2Fspan%3E%3C%2Fdiv%3E%3C%2Fnoscript%3E%3C%2Fdiv%3E%3C%2Fdiv%3E%3Cscript%3E%28function%28%29%7Bwindow%2E%5Fcf%5Fchl%5Fopt%20%3D%20%7BcvId%3A%20%273%27%2CcZone%3A%20%27academic%2Eoup%2Ecom%27%2CcType%3A%20%27managed%27%2CcRay%3A%20%2797d96cdefd64c5dc%27%2CcH%3A%20%27NnLpwQQHwCKG%2E%5FSPLWRzMxKWQ%2EzbCfv%2EN7R76%5F1YqSo%2D1757617407%2D1%2E2%2E1%2E1%2D9pl5dK%5FAoEzIri6z%5FsP7YbjMV5iprLLJrbGXqnTRc%2EVUWb4DLNOSP1ooYLo22YaK%27%2CcUPMDTk%3A%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Ftk%3DYIPxkNuFvtdH4zePxj3sQXdclbDnch%2E%5FWIBBse2X1l8%2D1757617407%2D1%2E0%2E1%2E1%2DiGcx%5Fq%5Fhsvr5%5Fv8Nmn6UuAr1uQf%5F1VC%5F7AXzO%5FJRky4%22%2CcFPWv%3A%20%27g%27%2CcITimeS%3A%20%271757617407%27%2CcTplC%3A0%2CcTplV%3A5%2CcTplB%3A%20%27cf%27%2Cfa%3A%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Ff%5Ftk%3DYIPxkNuFvtdH4zePxj3sQXdclbDnch%2E%5FWIBBse2X1l8%2D1757617407%2D1%2E0%2E1%2E1%2DiGcx%5Fq%5Fhsvr5%5Fv8Nmn6UuAr1uQf%5F1VC%5F7AXzO%5FJRky4%22%2Cmd%3A%20%27yW0b39oiFSv3%2EW5s7pOapKEgRzfN5Drq90rQfATs174%2D1757617407%2D1%2E2%2E1%2E1%2DPWvTaKUUwXSRIpzO%2EUiO2RPjhMcEM%5FkfqbqQzUUNWdCMaO%2ENzKJf9I4vMYwMjKeVW7duyAww2upeGTHgi4ogmDE0PRRNaJxFxVyhraC1jCTHyFodVzyxYvtqrihSmK5IPuSEjs3JPWiCFciehZdUbpLZ%2Eb1862GedWzkdB7McH%2EHhhZEO%5F3JTaQh4U5ha%2EPr0NyQee0lY%2E6zVnnKlrxpnUgabauvw%2EXfoEFcfh8XrJdLKOb6De%5FoYeKPY8dWg0CVxSk%5FMvipF6nUGjSfTPBdwp%5FNs3nSq60f34loGZwM4S6WwAL0fMR8ei7G3XiDtUWcElqXYFpM8Mk%2EHHwOSyQn3Px%2EjY2u2iU%2EJr5QZ6llWhUV25yz9Bb%2Er7mdYxpNtcxMuPvwXzF7%5FJS8cGcJrbyttLeDPTXmkjk4O6uVMHanyv17nnYrNP8e%5FTAPfFKnkq5K7ykU39qXDWv4dVbYUnc%2EZjA5FLlMSVtOktp7q8sX8RQ%5F4HJ8%2EqcHaT0HDcZ1Fw1Wdlg1umR2BU%5FB6LGADAx%2E8pfkC%2ECeJbc%2ENS3VSLcqqqtHPE4bNJXoaE3CrdQl1NFCjShMGK6HwG1z4AaH7XAj6fBGjuutnWKeBXKB%5FA%5FLIi8GlQJ%2EEcZpfLGkjkfSmgkulGDryV4unKcKjLCpoDmXhQLhREB7f%5FRnk0NBuEtAEJk0b7BXjTh%5F5NjdkLlGO9nZDdxxhB5oABKWYBYbP9vgn%5F6qTvsDXKoQ%5FZjQS0goZVh4ViNFveuPVVvLA58M9L%2EEBfX7iHE9DsqIXJs3%5FX7dJbI8%2ELtqmm9r6KAYUkjeoM4hWXt%2EnJPsw0L46DLW3rt14ymnytrqSrq1u8oWIm4sIafW22t0gpVN4RXE9hAffX2OKlh4NmpX72Zr94fKmJmuaFRr4xBXwAs%5FBX2O%5FKX1fs9ip2egXiqARkkpskw%2EunRIu3ZU6o%5FKDi7AbHa%5FrDOK%27%2Cmdrd%3A%20%27RWLOtKAlcEmzFdWGIrHH62pkDFKCcWz7Lw0%5FelHFX%5Fw%2D1757617407%2D1%2E2%2E1%2E1%2DCQrkvL4tsSlphY%2ELZiJ%2EY3BsMMR%2EXcrRll7JbMq%5FH2PHtJ2Jocw9zuXYrh723mmH4Yto9Ee80apxmW0KqcI9B0vrL%2EBWh2k7XMKcVOXWVLZfkIGwTlEKwmpyNOHhWU9nywhXTdit0prJUWDY2uTd%2EG3Fl%5F6XRoPro7nMY0gb7xkgMesiA3vH3fGRrg2UYEPxZ8FlnKrVLkZeUKRQYiijfcPS7WWRCaguGA70JQG%5FHF3ykoQhHOl5cTuQBh4fgjBFnJn8C9qWiCVMqok5t0Zo7azHTELCKben3lHFuKkYv9A7%5Fg8C2sSQL3xUNVDJLpuscmJxiOZ2gfumyDaP%2E%5FhBdRGuaUlfp8l1PjoaoqB7Hr%5FJwzOR35uUdUXDOF7l%5FL1xAx55Ko3BoONCxegERqL4g0DVtO2GLjdbmVxeR9S%5FZzF66uVZnI0d8f6QUdZmYX3aNO%2ERgWxjOarLw3WY3WvAucqaUaooqM7NYhFS%2EVFJWQ6ygag6PPOIe5Cu0S45HhGyjT8qRDkk3D0kLNiz%2EdrAib2vl4UhC4xAuZURC9Eh5HL2TnFT15jDZbiXVZ2ulyczmDJSgYvTa2CTQdX%5FBBqt0IQAoVPbZipenrXUzpOSk%2E4SA%5FsrH6ucLNgwEVi%5FR6J4QtH9X5kuIGzMtvnNH7uOYQi0KZ2MWIUQA50Aex7AhdG2bHfG8CehE7tO1dTA%2E%5FRwk2uZ9beRennB0mrvxkfgSZ5U9ZFBjhfcigzbZPphgYscN0MEckggDiabKuVyI7wvSQ%2EuuSdiUTgf%2E0%2Er57MXCAYYssJQMD3f3HDbX6ByakDU8LL7%5FEDmhn7e0qbJG2v%5FDOBv4uHRYHeJHq2NY8m6Rm6NQxFCwDFhfr%5FYQXy2rLmkW%5F362XZWJOrX56uDh6UvhReyuRxB6UZM5XGOUV9nECHIhbFNwwNuLJtCPaMG4JehuCOCctcFn1jEoaXNA5xXnpCw2PSmzxFdIkBQ4trrtVxhJTLLHUYx42EzToB42pR50rS6wiqvOAN23mcf6BfdZjouu1AICzH2Y6LWHHszEh5ljit0vq%5Fwdlo7esUjTraKN5l%2EErA7hKukSdlqf1fGi2BHnicQUFc5kqFkF8QaYk0kuJyYFmIbQHrUUofKNk8gysY8jy6L1aZJ1xozxymczCaKdFm1ggGcojitAhl44JEt01%5FfHiT1Xpf1wHqh5pYWoJEwcu68Psl40QvcdXA1%2E5vp2fyKdmhTLgVcGdA9jpgDiy1kpCo1SEs5UXk%2Eu3l8%2Euvx1ciBz1zchQGxkF%5FbXjShsYiTvjLlDDgZzKBAsrCyFXnsIOlCssl4A9n%2EAALRkx4IelYL4hVBAFnGWNMvMx0Mv4lFNZdEEwjJgVtfpMtB2ikWan09dp6GsQBpjtrys3pZrxc68fgnHsbvhU%2EO4FKeY9s9aVprYgmpBd3IJtkGltHZUElhYq9s3800jUfJlSL35z14ZBYWY6gFGaXpuKM1UFkx85wVaHgT8n5utNraR1fMKS5KA5YGPSfoZvRF0epo0mQQwKZEiqFApu%2EP4DNxn37q2bIttnRCMP5MK6ZfofZnFlvR7DyZ6rH0ULvyWXtZepy2DKuTBxDnC%5FX1FDwjRDBCBsSCpfjCVlpr0br1OtBGj%5FCgmW5vFsla773S9WtdZVyUgg9wExdGotg%2EMty3aTwrYMROZ57EOf1sMd6jx4tQJHg8dGSDnU0MAC%5F%2EXf%2EB%5FVKkdvE%2E%2EckV9VY0iMz9xOYm77%5FR7jiUcgyW0TAnfdQDKukrrGWwc5z1UXuZVENtWu9nDgiMpLRxCmeuQ9TvbcNFUtAf8SdcuPrVcF6OH4fxk7BcuO4CkdFORqeJYfvYxbGFBm3yUj34VQaSvdDgIjDnsE9gzzAQ8bNJVy2%5FfUS%2EBIXIBwklesh31DINceq6q6fB9KsmiGFLXHqG0LAnRbDPGFkcNm7%2EN5%2EZpGgD%5FzR%5FMbIZsG5Hgs8COTCPj%5FDqvdmt1ZcOGhATBUd4TEuoRKYYubJ%2ETSfcDivW1aU2B%5F0v7NeNOM3MVnQ32lJaNwK0HFmYRTVp8CTY8FUTJUcxRXC9hEVVoH1Ve7o%2Ed6XoSRoApMbK4FuV%2Eskh6EsMECFi2Y%2E32ni%5F5pCBl0rH%5FXTa67btdQL%2EsHyNz4QeJQ%27%2C%7D%3Bvar%20a%20%3D%20document%2EcreateElement%28%27script%27%29%3Ba%2Esrc%20%3D%20%27%2Fcdn%2Dcgi%2Fchallenge%2Dplatform%2Fh%2Fg%2Forchestrate%2Fchl%5Fpage%2Fv1%3Fray%3D97d96cdefd64c5dc%27%3Bwindow%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%20%3D%20location%2Ehash%20%3D%3D%3D%20%27%27%20%26%26%20location%2Ehref%2EindexOf%28%27%23%27%29%20%21%3D%3D%20%2D1%20%3F%20%27%23%27%20%3A%20location%2Ehash%3Bwindow%2E%5Fcf%5Fchl%5Fopt%2EcOgUQuery%20%3D%20location%2Esearch%20%3D%3D%3D%20%27%27%20%26%26%20location%2Ehref%2Eslice%280%2C%20location%2Ehref%2Elength%20%2D%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%2Elength%29%2EindexOf%28%27%3F%27%29%20%21%3D%3D%20%2D1%20%3F%20%27%3F%27%20%3A%20location%2Esearch%3Bif%20%28window%2Ehistory%20%26%26%20window%2Ehistory%2EreplaceState%29%20%7Bvar%20ogU%20%3D%20location%2Epathname%20%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUQuery%20%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%3Bhistory%2EreplaceState%28null%2C%20null%2C%22%5C%2Fview%2Dlarge%5C%2F440632030%3F%5F%5Fcf%5Fchl%5Frt%5Ftk%3DYIPxkNuFvtdH4zePxj3sQXdclbDnch%2E%5FWIBBse2X1l8%2D1757617407%2D1%2E0%2E1%2E1%2DiGcx%5Fq%5Fhsvr5%5Fv8Nmn6UuAr1uQf%5F1VC%5F7AXzO%5FJRky4%22%2B%20window%2E%5Fcf%5Fchl%5Fopt%2EcOgUHash%29%3Ba%2Eonload%20%3D%20function%28%29%20%7Bhistory%2EreplaceState%28null%2C%20null%2C%20ogU%29%3B%7D%7Ddocument%2EgetElementsByTagName%28%27head%27%29%5B0%5D%2EappendChild%28a%29%3B%7D%28%29%29%3B%3C%2Fscript%3E%3C%2Fbody%3E%3C%2Fhtml%3E" /></p>
 <p>You don’t actually need to download the genome because we already
 have the file in the directory below. But for future reference
 <code>wget</code> is a useful command to ownload files from the web.</p>
-<pre><code>cd `/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/ref_genome
+<pre><code>cd /gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome
+
 wget &quot;ftp://plantgenie.org:980/Data/PlantGenIE/Picea_abies/v1.0/fasta/GenomeAssemblies/Pabies01-genome.fa.gz&quot;</code></pre>
 <p>Rather than trying to map to the entire 18+ Gbp reference (yikes!),
 we first subsetted the <em>P. mariana</em> reference to include
-<strong>just the contigs that contain one or more probes</strong> from
-our exome capture experiment. For this, we did a BLAST search of each
-probe against the <em>P. mariana</em> reference genome, and then
-retained all scaffolds that had a best hit.</p>
+<strong>just the contigs that contain one or more of our 80,000
+probes</strong> from our exome capture experiment. For this, we did a
+BLAST search of each probe against the <em>P. mariana</em> reference
+genome, and then retained all scaffolds that had a best hit.</p>
 <ul>
 <li>This reduced reference contains:
 <ul>
-<li>1,376,182,454 bp (~1.38 Gbp) in 33,679 contigs</li>
-<li>The mean (median) contig size is 10.5 (12.9) kbp</li>
-<li>The N50 of the reduced reference is 101,375 bp</li>
+<li>2,927,599,912 bp (~2.93 Gbp) in 28,953 contigs</li>
+<li>The largest contig is 3,698,311 (~3.7 Mbp)</li>
+<li>The N50 of the reduced reference is 250,906 bp</li>
 </ul></li>
 <li>The indexed reduced reference genome to use for your mapping is on
 our server here:</li>
 </ul>
-<p>`<code>/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/ref_genome/Pmariana-genome_reduced.fa</code></p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana/Pmariana-genome_reduced.fa</code></p>
 <div id="to-help-make-our-scripting-approach-efficient-were-going-to-write-several-short-scripts-optimizing-each-one-at-a-time-then-put-them-together-at-the-end" class="section level3">
 <h3>To help make our scripting approach efficient, we’re going to write
 several short scripts, optimizing each one at a time, then put them
@@ -102,25 +101,22 @@ variables in bash, like so:</p></li>
 <li><p>Each student gets assigned a population to work with:</p></li>
 <li><p><code>MYPOP=&quot;XXXX&quot;</code></p></li>
 <li><p>Directory with the cleaned fastq files</p></li>
-<li><p><code>INPUT=&quot;/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/cleanreads&quot;</code></p></li>
+<li><p><code>INPUT=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/cleanreads&quot;</code></p></li>
 <li><p>Output dir to store mapping files (bam)</p></li>
-<li><p><code>OUT=&quot;/gpfs1/cl/ecogen/data/pbio6800/PopulationGenomics/bam&quot;</code></p></li>
-<li><p>For mapping, we’ll use the program <a href="https://github.com/lh3/bwa">bwa</a>, which is a very efficient and
-very well vetted read mapper. Lots of others exist and can be useful to
-explore for future datasets. We tried several, and for our exome data,
-bwa seems to be the best.</p></li>
+<li><p><code>OUT=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/bams&quot;</code></p></li>
+<li><p>For mapping, we’ll use the program <a href="https://github.com/bwa-mem2/bwa-mem2">bwa-mem2</a>, which is a
+very efficient and very well vetted read mapper. Lots of others exist
+and can be useful to explore for future datasets. We tried several, and
+for our exome data, bwa seems to be the best.</p></li>
 <li><p>Let’s write a bash script called <code>mapping.sh</code> that
 calls the R1 and R2 reads for each individual in your population, and
-uses the <a href="https://github.com/bwa-mem2/bwa-mem2"><code>bwa-mem2</code></a>
-algorithm to map reads to the reference genome. We can test this out
-using one sample (individual) at a time, and then once the syntax is
-good and the bugs all worked out, we can scale this up to all the inds
-in our populations.</p></li>
+uses the <code>bwa-mem2</code> algorithm to map reads to the reduced
+black spruce reference genome. We can test this out using one sample
+(individual) at a time, and then once the syntax is good and the bugs
+all worked out, we can scale this up to all the inds in our
+populations.</p></li>
 </ul>
-<p>The basic <code>bwa-mem2</code> command we’ll use is below. Think
-about how we should write this into a loop to call all the fastq files
-for our population of interest…(hint, look back at the
-<code>fastp.sh</code> script)</p>
+<p>The basic <code>bwa-mem2</code> command we’ll use is below:</p>
 <pre><code>bwa-mem2 mem -t 1 ${REF} ${READ1} ${READ2} &gt; ${OUT}${NAME}.sam</code></pre>
 <p>where</p>
 <pre><code>-t 10 is the number of threads, or computer cpus to use (in this case, 10)
@@ -128,85 +124,110 @@ for our population of interest…(hint, look back at the
 ${READ1} specifies the path and filename for the cleaned and trimmed R1 reads 
 ${READ2} specifies the path and filename for the cleaned and trimmed R2 reads 
 &gt;${OUT}/${NAME}.sam  specifies the path and filenam for the .sam file to be saved into a new directory</code></pre>
-<ul>
-<li>Other bwa options detailed here: <a href="https://bio-bwa.sourceforge.net/bwa.shtml">bwa manual
-page</a></li>
-</ul>
+<p>Think about how we should write this into a loop to call all the
+fastq files for our population of interest…(hint, look back at the
+<code>fastp.sh</code> script)</p>
 <p>Because you’re each mapping sequences from multiple samples
 (N=8/pop), it’s going to take a little while.</p>
 <p>Whenever you have a job that will take a long time, you’re going to
 want to run it on the cluster by writing a batch script and submitting
-to the SKLURM scheduler (remember Shelly and Bennet’s VACC
-tutorial?)</p>
+to the SLURM scheduler (remember Shelly and Bennet’s VACC tutorial?)</p>
 <p>You’ll find a version of the SBATCH header that you need to put at
 the top of your bash script here:</p>
-<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/mapping.sh</code></p>
-<p>Edit it to customize and then run:</p>
-<p><code>sbatch mapping.sh</code></p>
-<div id="while-thats-running-lets-take-a-look-at-a-sequence-alignment-sam-file-already-available-in-netfilesecogenpopulationgenomicsfastqred_sprucecleanreadsbam" class="section level4">
-<h4>While that’s running, let’s take a look at a Sequence AlignMent
-(SAM) file already available in
-<code>/netfiles/ecogen/PopulationGenomics/fastq/red_spruce/cleanreads/bam/</code></h4>
-<ul>
-<li>First, try looking at a SAM file using <code>head</code> and
-<code>tail</code>.</li>
-</ul>
-<pre><code>tail -n 100 FILENAME.sam</code></pre>
-<p>A SAM file is a tab delimited text file that stores information about
-the alignment of reads in a FASTQ file to a reference genome or
-transcriptome. For each read in a FASTQ file, there’s a line in the SAM
-file that includes</p>
-<ul>
-<li>the read, aka. query, name,</li>
-<li>a FLAG (number with information about mapping success and
-orientation and whether the read is the left or right read),</li>
-<li>the reference sequence name to which the read mapped</li>
-<li>the leftmost position in the reference where the read mapped</li>
-<li>the mapping quality (Phred-scaled)</li>
-<li>a CIGAR string that gives alignment information (how many bases
-Match (M), where there’s an Insertion (I) or Deletion (D))</li>
-<li>an ‘=’, mate position, inferred insert size (columns 7,8,9),</li>
-<li>the query sequence and Phred-scaled quality from the FASTQ file
-(columns 10 and 11),</li>
-<li>then Lots of good information in TAGS at the end, if the read
-mapped, including whether it is a unique read (XT:A:U), the number of
-best hits (X0:i:1), the number of suboptimal hits (X1:i:0).</li>
-</ul>
-<p>The left (R1) and right (R2) reads alternate through the file. SAM
-files usually have a header section with general information where each
-line starts with the ‘@’ symbol. SAM and BAM files contain the same
-information; SAM is human readable and BAM is in binary code and
-therefore has a smaller file size.</p>
-<p>Find the official Sequence AlignMent file documentation can be found
-<a href="https://en.wikipedia.org/wiki/SAM_(file_format)">here</a> or <a href="https://samtools.github.io/hts-specs/SAMtags.pdf">more
-officially</a>.</p>
-<ul>
-<li><p><a href="http://seqanswers.com/forums/showthread.php?t=17314">Some useful
-FLAGs to know</a> - for example what do the numbers in the second column
-of data mean?</p></li>
-<li><p><a href="https://broadinstitute.github.io/picard/explain-flags.html">Here’s
-a SAM FLAG decoder</a> by the Broad Institute.</p></li>
-</ul>
-</div>
-<div id="how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level4">
-<h4>How can we get a summary of how well our reads mapped to the
-reference?</h4>
-<ul>
-<li><p>We can use the program <a href="https://lomereiter.github.io/sambamba/">sambamba</a> for
-manipulating sam/bam files. <a href="https://lomereiter.github.io/sambamba/">sambamba</a>. Sambamba is
-closely related to its progenitor program <code>samtools</code> which is
-written by the same scientist who develop <code>bwa</code>, Heng Li.
-<code>sambamba</code> has been re-coded to increase efficiency
-(speed).</p></li>
-<li><p>First we have to convert the sam file to bam format:</p></li>
-<li><p><code>sambamba view -S -f bam IN.sam -o OUT.bam</code></p></li>
-<li><p>Then we can use the command <code>flagstats</code> gets us some
-basic info on how well the mapping worked:</p></li>
-<li><p><code>sambamba flagstat FILENAME.bam</code></p></li>
-</ul>
-<p>Let’s talk about how our mapping went!</p>
+<p><code>gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/SBATCH_header.txt</code></p>
+<p>You should make a copy of it (use the <code>cp</code> command) and
+put in your <code>myscripts/</code> directory:</p>
+<p><code>cp gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/SBATCH_header.txt ~/projects/eco_genomics_2025/populations_genomics/myscripts</code></p>
+<p>You’ll also want to copy the following template scripts from the same
+directory into your <code>myscripts/</code> folder:</p>
+<pre><code>mapping.sh
+process_bams.sh
+bam_stats.sh</code></pre>
+<p>You can then open the mapping.sh script. Open up the
+<code>mapping.sh</code> script and let’s customize the fields
+together.</p>
 </div>
 </div>
+<div id="process-the-alignment-files" class="section level2">
+<h2>2. Process the alignment files</h2>
+<p>The second step will be to process the sequence alignment files (SAM
+files) that are outputs of the <code>mapping.sh</code> script.</p>
+<ul>
+<li>We can use the program <a href="https://lomereiter.github.io/sambamba/">sambamba</a> for
+manipulating sam/bam files. <a href="https://lomereiter.github.io/sambamba/">sambamba</a>.</li>
+</ul>
+<p>Sambamba is closely related to its progenitor program
+<code>samtools</code> which is written by the same scientist who develop
+<code>bwa</code>, Heng Li. <code>sambamba</code> has been re-coded to
+increase efficiency (speed).</p>
+<ul>
+<li><p>There are several steps we need to do:</p>
+<ul>
+<li>convert sam alignment file to (binary) bam format</li>
+<li>sort the bam file by its read coordinates</li>
+<li>mark and remove PCR duplicate reads</li>
+<li>index the sorted, duplicate removed alignment for quick lookup</li>
+</ul></li>
+<li><p>Open up the <code>process_bams.sh</code> script and we’ll
+customize the fields together</p></li>
+</ul>
+</div>
+<div id="calculate-mapping-stats-how-can-we-get-a-summary-of-how-well-our-reads-mapped-to-the-reference" class="section level2">
+<h2>3. Calculate mapping stats: How can we get a summary of how well our
+reads mapped to the reference?</h2>
+<ul>
+<li><p>We can use the program <a href="https://github.com/samtools/samtools">samtools</a> Written by Heng
+Li, the same person who wrote bwa. It is a powerful tool for
+manipulating sam/bam files.</p></li>
+<li><p>The samtools command <code>flagstat</code> gets us some basic
+info on how well the mapping worked</p></li>
+<li><p>We can also estimate depth of coverage (avg. number of
+reads/site) using the samtools command <code>depth</code></p></li>
+<li><p>We’ll use both of these commands in loops to assess the mapping
+stats on each sample in our population.</p></li>
+<li><p>We’ll also use the <code>awk</code> tool to help format the
+output.</p></li>
+<li><p>Open up the <code>bam_stats.sh</code> script and let’s customize
+it together.</p></li>
+</ul>
+<p><code>sbatch bam_stats.sh</code></p>
+</div>
+<div id="put-it-all-together-in-a-pipeline-and-submit-to-slurm" class="section level2">
+<h2>4. Put it all together in a pipeline and submit to SLURM</h2>
+<p>Now that we have each of our mapping, processing, and stats scripts
+written, we can put these into a single pipeline script and submit to
+the cluster.</p>
+<ol style="list-style-type: decimal">
+<li>Open a new text file in RStudio</li>
+<li>On the first line, write <code>#!/bin/bash</code> to let it know
+this is a bash script</li>
+<li>Paste the SBATCH_header.txt to the top</li>
+<li>Let’s code the lines below into the body of the script:</li>
+</ol>
+<pre><code>
+# cd to your `scripts/` folder in your repo:
+
+cd ~/projects/eco_genomics_2025/population_genomics/myscripts
+
+# Step 1: map reads to the reference
+
+bash mapping.sh
+
+# Step 2: process the alignment files
+
+bash process_bams.sh
+
+# Step 3. get stats onour alignments
+
+bash bam_stats.sh
+</code></pre>
+<p>Once done, save as <code>mypipeline.sh</code></p>
+<p>At the terminal, cd too your <code>scripts/</code> folder and submit
+by writing:</p>
+<p><code>sbatch mypipeline.sh</code></p>
+<p>You can then check the status of your job with the
+<code>squeue</code> command:</p>
+<p><code>squeue --me</code></p>
 </div>
 </section>
 
