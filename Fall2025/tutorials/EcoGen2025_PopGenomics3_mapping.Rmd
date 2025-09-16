@@ -10,13 +10,13 @@ fontsize: 18pt
 
 Our previous analysis finished (hopefully!) with cleaned fastq files that are free of low quality bases and adapter sequences. We're now ready to map these reads to the spruce reference genome!
 
-## 1. Mapping cleaned and trimmed reads against the reference genome
+## 1. Obtaining and indexing the reference genome
 
 The first step of read mapping is downloading and preparing the reference genome.
 
 The black spruce (*Picea mariana*) reference genome was [published by Lo et al. (2024)](https://academic.oup.com/g3journal/article/14/1/jkad247/7329279).
 
-![](https://academic.oup.com/view-large/440632030)
+![](../pics/BlackSpruce_RefGenome_Table.png)
 
 You don't actually need to download the genome because we already have the file in the directory below. But for future reference `wget` is a useful command to ownload files from the web.
 
@@ -29,37 +29,51 @@ wget "ftp://plantgenie.org:980/Data/PlantGenIE/Picea_abies/v1.0/fasta/GenomeAsse
 Rather than trying to map to the entire 18+ Gbp reference (yikes!), we first subsetted the *P. mariana* reference to include **just the contigs that contain one or more of our 80,000 probes** from our exome capture experiment. For this, we did a BLAST search of each probe against the *P. mariana* reference genome, and then retained all scaffolds that had a best hit.
 
 -   This reduced reference contains:
-    -   2,927,599,912 bp (\~2.93 Gbp) in 28,953 contigs
-    -   The largest contig is 3,698,311 (\~3.7 Mbp)
+    -   2,927,599,912 bp (\~2.93 Gbp) in 28,953 scaffolds
+    -   The largest scaffold is 3,698,311 (\~3.7 Mbp)
     -   The N50 of the reduced reference is 250,906 bp
 -   The indexed reduced reference genome to use for your mapping is on our server here:
 
 `/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana/Pmariana-genome_reduced.fa`
 
-### To help make our scripting approach efficient, we're going to write several short scripts, optimizing each one at a time, then put them together at the end
+## 2. Mapping our cleaned and trimmed reads against the reference genome!
 
--   First, we want to specify the population of interest and the paths to the input and output directories. We can do this by defining variables in bash, like so:
+Let's cd to the class directory where shared files live:
 
--   Each student gets assigned a population to work with:
+`cd /gpfs1/cl/ecogen/pbio6800/PopulationGenomics/`
 
--   `MYPOP="XXXX"`
+Become familiar with this part of the filesystem -- it's where a lot of our shared data and scripts will reside.  
 
--   Directory with the cleaned fastq files
+Take a peek inside each directory:
 
--   `INPUT="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/cleanreads"`
+`cleanreads/`
 
--   Output dir to store mapping files (bam)
+`bams/` 
 
--   `OUT="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/bams"`
+`scripts/`
 
--   For mapping, we'll use the program [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2), which is a very efficient and very well vetted read mapper. Lots of others exist and can be useful to explore for future datasets. We tried several, and for our exome data, bwa seems to be the best.
+### To help make our scripting approach efficient, we're going to use several short scripts, running each one at a time. In the future, we could put them all together into a single pipeline
 
--   Let's write a bash script called `mapping.sh` that calls the R1 and R2 reads for each individual in your population, and uses the `bwa-mem2` algorithm to map reads to the reduced black spruce reference genome. We can test this out using one sample (individual) at a time, and then once the syntax is good and the bugs all worked out, we can scale this up to all the inds in our populations.
+From the `scripts/` directory, copy the following files over to your repo and save them into your `myscripts/` directory:
+
+```
+mapping.sh  
+process_bam.sh  
+bam_stats.sh 
+SBATCH_header.txt
+```
+
+
+
+-   For mapping, we'll use the program [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2), which is a very efficient and very well vetted read mapper. Lots of others exist and can be useful to explore for future datasets. We tried several, and for our exome data, bwa seems to be the best. the citation info for bwa-mem2 is here: [Vasimuddin et al. 2019](https://ieeexplore.ieee.org/document/8820962)
+
+
+-   Let's customize the bash script called `mapping.sh` that calls the R1 and R2 reads for each individual in your population, and uses the `bwa-mem2` algorithm to map reads to the reduced black spruce reference genome. 
 
 The basic `bwa-mem2` command we'll use is below:
 
 ```         
-bwa-mem2 mem -t 1 ${REF} ${READ1} ${READ2} > ${OUT}${NAME}.sam
+bwa-mem2 mem -t 10 ${REF} ${READ1} ${READ2} > ${OUT}${NAME}.sam
 ```
 
 where
@@ -74,50 +88,59 @@ ${READ2} specifies the path and filename for the cleaned and trimmed R2 reads
 
 Think about how we should write this into a loop to call all the fastq files for our population of interest...(hint, look back at the `fastp.sh` script)
 
+Open up the `mapping.sh` script and let's customize the fields together.
+
 Because you're each mapping sequences from multiple samples (N=8/pop), it's going to take a little while.
 
 Whenever you have a job that will take a long time, you're going to want to run it on the cluster by writing a batch script and submitting to the SLURM scheduler (remember Shelly and Bennet's VACC tutorial?)
 
-You'll find a version of the SBATCH header that you need to put at the top of your bash script here:
+You'll find a version of the SBATCH header in this file you copied to your `myscripts/` directory: 
 
-`gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/SBATCH_header.txt`
+`SBATCH_header.txt`
 
-You should make a copy of it (use the `cp` command) and put in your `myscripts/` directory:
+Open that in RStudio text editor and copy/paste it into your mapping.sh script.  Be sure to paste the header *below* the top line `#!/bin/bash`
 
-`cp gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/SBATCH_header.txt ~/projects/eco_genomics_2025/populations_genomics/myscripts` 
+Custom the SBATCH settings to your run and resource needs!
 
-You'll also want to copy the following template scripts from the same directory into your `myscripts/` folder:
+When we're ready, cd to your `scripts/` folder and submit to SLURM like so:
 
 ```
-mapping.sh
-process_bams.sh
-bam_stats.sh
+cd ~/projects/eco_genomics_2025/population_genomics/myscripts
+
+sbatch mapping.sh
 ```
 
-You can then open the mapping.sh script. Open up the `mapping.sh` script and let's customize the fields together.
+We can check on the status of our submission"
+
+`squeue --me`
+
+And if you ever need to stop the run:
+
+`scancel jobID` where jobID is the unique ID number assigned to your job
 
 
-## 2. Process the alignment files
+
+## 3. Process the alignment files
 
 The second step will be to process the sequence alignment files (SAM files) that are outputs of the `mapping.sh` script.
 
--   We can use the program [sambamba](https://lomereiter.github.io/sambamba/) for manipulating sam/bam files. [sambamba](https://lomereiter.github.io/sambamba/). 
-
-Sambamba is closely related to its progenitor program `samtools` which is written by the same scientist who develop `bwa`, Heng Li. `sambamba` has been re-coded to increase efficiency (speed).
+-   We can use the program [sambamba](https://lomereiter.github.io/sambamba/) for manipulating sam/bam files. This program was published by [Tarasov et al. 2015](https://academic.oup.com/bioinformatics/article/31/12/2032/214758?login=true). 
 
 - There are several steps we need to do: 
 
   -  convert sam alignment file to (binary) bam format
   -  sort the bam file by its read coordinates
   -  mark and remove PCR duplicate reads
-  -  index the sorted, duplicate removed alignment for quick lookup
+  -  index the processed alignment file for quick lookup
 
 - Open up the `process_bams.sh` script and we'll customize the fields together
 
+- Add the SBATCH header and submit to SLURM!
 
-## 3. Calculate mapping stats: How can we get a summary of how well our reads mapped to the reference? 
 
-- We can use the program [samtools](https://github.com/samtools/samtools) Written by Heng Li, the same person who wrote bwa. It is a powerful tool for manipulating sam/bam files.  
+## 4. Calculate mapping stats: How can we get a summary of how well our reads mapped to the reference? 
+
+- We can use the program [samtools](https://github.com/samtools/samtools) Written by Heng Li, the same person who wrote bwa. It is a powerful tool for manipulating sam/bam files.  The citation is here: [Danecek et al. 2021](https://academic.oup.com/gigascience/article/10/2/giab008/6137722?login=true)
 
 - The samtools command `flagstat` gets us some basic info on how well the mapping worked
 
@@ -129,19 +152,21 @@ Sambamba is closely related to its progenitor program `samtools` which is writte
 
 - Open up the `bam_stats.sh` script and let's customize it together.
 
-`sbatch bam_stats.sh`
+- Add the SBATCH header and submit to SLURM!
 
 
 
-## 4. Put it all together in a pipeline and submit to SLURM
+### Something for the future: You could put it all together in one pipeline
 
-Now that we have each of our mapping, processing, and stats scripts written, we can put these into a single pipeline script and submit to the cluster.
+Now that we have each of our mapping, processing, and stats scripts written, if we ran this again in the future or on other data, we could put these separate scripts into a single pipeline script and submit to the cluster.
+
+Here's how we'd do it:
 
 
 1. Open a new text file in RStudio
 2. On the first line, write `#!/bin/bash` to let it know this is a bash script
 3. Paste the SBATCH_header.txt to the top
-4. Let's code the lines below into the body of the script:
+4. Code the lines below into the body of the script:
 
 ```
 
@@ -157,21 +182,39 @@ bash mapping.sh
 
 bash process_bams.sh
 
-# Step 3. get stats onour alignments
+# Step 3. get stats on our alignments
 
 bash bam_stats.sh
 
 ```
 
-Once done, save as `mypipeline.sh`
+Save as `mypipeline.sh`
 
-At the terminal, cd too your `scripts/` folder and submit by writing:
+At the terminal, cd to your `scripts/` folder and submit by writing:
 
 `sbatch mypipeline.sh`
 
-You can then check the status of your job with the `squeue` command:
+Check the status of your job:
 
 `squeue --me`
+
+## 5. Visually inspect the alignment using samtools tview
+
+We can get a sense of how the data look after they're aligned by using the alignment viewer `tview` built into `samtools`
+
+We just need a indexed bam file and an indexed reference genome.
+
+Here's an example using a previously processed bam file, but you can use your own once they're done being mapped:
+
+```
+module load gcc samtools 
+
+samtools tview \
+/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/examples/2030_57_O.sorted.rmdup.bam \
+/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana/Pmariana1.0-genome_reduced.fa
+
+```
+
 
 
 
