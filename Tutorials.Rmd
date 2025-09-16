@@ -22,6 +22,8 @@ fontsize: 18pt
 
 * [03: Mapping to Reference Genome](Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html)
 
+* [04: Estimating Nucleotide Diversity](Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html)
+
 
 **Transcriptomics Module**
 

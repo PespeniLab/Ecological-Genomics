@@ -65,7 +65,7 @@ OUTPUT="ANGSD"
 
 REF="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana1.0-genome_reduced.fa"
 
-MYPOP=""
+MYPOP="XXX"
 
 ls ${INPUT}/${MYPOP}*sorted.rmdup.bam >${OUTPUT}/${MYPOP}_bam.list
 
@@ -85,7 +85,10 @@ Estimate your GL's and allele freqs, optionally filtering for base and mapping q
 Add the following code chunk at the bottom of your script:
 
 ```         
+module load gcc angsd/0.935-4asngpy
+
 # File suffix to distinguish analysis choices, like "All" or "Poly" depending on whether you're analyzing all the sites or just the polymorphic ones
+
 SUFFIX=""
 
 # Estimating GL's and allele frequencies for all sites with ANGSD
@@ -151,9 +154,9 @@ What do all these options mean?
 At the end of this run, you should have the following output files in your `myresults/ANGSD` directory:
 
 ```
-9999_.saf.gz
-9999_.saf.idx
-9999_.saf.pos.gz
+XXXX_.saf.gz
+XXXX_.saf.idx
+XXXX_.saf.pos.gz
 ```
 
 These "saf" files contain "site allele frequency" likelihoods, and are the info needed to estimate stats that depend on population allele frequencies, like nucleotide diversities, neutrality stats like Tajima's D, and population divergence stats like Fst. Each of these stats depends on the *SFS -- the Site Frequency Spectrum*
