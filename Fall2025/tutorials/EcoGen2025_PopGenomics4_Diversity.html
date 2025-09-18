@@ -390,7 +390,9 @@ end of your <code>ANGSD_doTheta.sh</code> script:</p>
 
 realSFS saf2theta ${INPUT}/${MYPOP}_${SUFFIX}.saf.idx \
         -sfs ${OUT}/${MYPOP}_${SUFFIX}.sfs \
-        -outname ${OUT}/${MYPOP}_${SUFFIX}
+        -outname ${INPUT}/${MYPOP}_${SUFFIX}
+
+# Note the strange use of ${INPUT} in the -outname -- this is b/c the file is too large to include in your `myresults/` folder (github won&#39;t like it) so we have to store it in `mydata/`
 
 #### Calculate diversity stats along sliding windows 
 
@@ -400,7 +402,7 @@ realSFS saf2theta ${INPUT}/${MYPOP}_${SUFFIX}.saf.idx \
 WIN=50000
 STEP=50000
 
-thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx \
+thetaStat do_stat ${INPUT}/${MYPOP}_${SUFFIX}.thetas.idx \
 -win $WIN \
 -step $STEP \
 -outnames ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetasWindow.gz
