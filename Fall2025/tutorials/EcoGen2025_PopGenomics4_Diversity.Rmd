@@ -47,30 +47,38 @@ These probabilities are modeled explicitly in the calculation of population dive
 3.  Use GL's to:
     (a) estimate the site frequency spectrum (SFS)
 
-    (b) estimate nucleotide diversities and neutrality stats (Thetas, Tajima's D, ...)
+    (b) estimate theta's and related statistics (Nucleotide diversity, Tajima's D, ...)
 
 
-#### 1. In your `myscripts/` folder, create a new text file called `ANGSD.sh`
+#### 1. Prepare the scripts for ANGSD:
 
-Create the header for your inputs and outputs
+-  First `cd` into your `myscripts/` folder in your repo, then create a new text file called `ANGSD.sh`
 
-```         
-cd ~/projects/eco_genomics_2025/population_genomics/myresults
+-  Add you bash header to the first line!
 
-mkdir ANGSD
+-  Paste the following code to define your inputs and outputs:
+
+```
+### load modules
+
+module purge
+module load gcc angsd
+
+
+### Set up directories and variables
+
+mkdir ~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD
 
 INPUT="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/bams"
 
-OUTPUT="ANGSD"
+OUT="/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics/mydata/ANGSD"
 
 REF="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana1.0-genome_reduced.fa"
 
-MYPOP="XXX"
+MYPOP="XXXX"
 
-ls ${INPUT}/${MYPOP}*sorted.rmdup.bam >${OUTPUT}/${MYPOP}_bam.list
-
+ls ${INPUT}/${MYPOP}*sorted.rmdup.bam >${OUT}/${MYPOP}_bam.list
 ```
-Save your file and try running it at the command line.
 
 *Check your output bamlist to see it was made properly!* 
 
@@ -78,26 +86,27 @@ Save your file and try running it at the command line.
 -  How would you verify its contents? (hint: use `head` or `cat` or even open in a text file in RStudio OOD)
 
 
-#### 2. Open your `ANGSD.sh` script back up in RStudio
+#### 2. Edit your `ANGSD.sh` script to run ANGSD
 
-Estimate your GL's and allele freqs, optionally filtering for base and mapping quality, sequencing depth, SNP probability, minor allele frequency, etc.
+We now want to tell ANGSD to estimate your genotype likelihoods (GLs) and allele frequencies, filtering for base and mapping quality, numbers of individuals with data, sequencing depth, (and optionally, SNP probability, minor allele frequency, etc.)
 
 Add the following code chunk at the bottom of your script:
 
 ```         
-module load gcc angsd/0.935-4asngpy
 
 # File suffix to distinguish analysis choices, like "All" or "Poly" depending on whether you're analyzing all the sites or just the polymorphic ones
 
 SUFFIX=""
 
-# Estimating GL's and allele frequencies for all sites with ANGSD
 
-######################
+###########################################
+#  Estimating Genotype Likelihoods (GLs)  #
+###########################################
 
-ANGSD -b ${OUTPUT}/${MYPOP}_bam.list \
--ref ${REF} -anc ${REF} \
--out ${OUTPUT}/${MYPOP}_${SUFFIX} \
+ANGSD -b ${OUT}/${MYPOP}_bam.list \
+-ref ${REF} \
+-anc ${REF} \
+-out ${OUT}/${MYPOP}_${SUFFIX} \
 -nThreads 10 \
 -remove_bads 1 \
 -C 50 \
@@ -106,19 +115,19 @@ ANGSD -b ${OUTPUT}/${MYPOP}_bam.list \
 -minQ 20 \
 -GL 2 \
 -doSaf 1 \
-##### below filters require `do-Counts`
-#-doCounts 1 \
-#-minInd 4 \
-#-setMinDepthInd 1 \
-#-setMaxDepthInd 40 \
-#-setMinDepth 20 \
-#-skipTriallelic 1 \
-#-doMajorMinor 1 \
+-doCounts 1 \
+-minInd 4 \
+-setMinDepthInd 1 \
+-setMaxDepthInd 40 \
+-setMinDepth 10 \
+-skipTriallelic 1 \
+-doMajorMinor 4 \
 ##### below filters require `doMaf`
 #-doMaf 1 \
 #-SNP_pval 1e-6 \
 #-minMaf 0.01
 ```
+
 
 What do all these options mean?
 
@@ -136,27 +145,29 @@ What do all these options mean?
 | -minInd 4          | min number of individuals to keep a site (see also ext 2 filters)   |
 | -setMinDepthInd 1  | min read depth for an individual to count towards a site            |
 | -setMaxDepthInd 40 | max read depth for an individual to count towards a site            |
-| -setMinDepth 20    | min read depth across ALL individual to keep a site                 |
+| -setMinDepth 10    | min read depth across ALL individual to keep a site                 |
 | -skipTriallelic 1  | don't use sites with \>2 alleles                                    |
-| -doMajorMinor 1    | fix major and minor alleles the same across all samples             |
-| -doMaf 4           | Use the reference allele as the major allele.                       |
-| -SNP_pval 1e-6     | Keep only site highly likely to be polymorphic (SNPs)               |
-| -minMaf 0.01       | Keep only sites with minor allele freq > some proportion (e.g., 1%) |
+| -doMajorMinor 4    | use the reference allele as major                                   |
+| -doMaf 1           | calculate per-site allele frequencies based on the likelihoods      |
+| -SNP_pval 1e-6     | keep only site highly likely to be polymorphic (SNPs)               |
+| -minMaf 0.01       | keep only sites with minor allele freq > some proportion (e.g., 1%) |
 
 **NOTES**
 
 -   If you want to restrict the estimation of the genotype likelihoods to a particular set of sites you're interested in, add the option `-sites selected_sites.txt` (tab delimited file with the position of the site in column 1 and the chromosome in column 2) or use `-rf selected_chromosome.chrs` (if listing just the unique "chromosomes" or contigs you want to anlayze)
 -   Some popgen stats you want to estimate only the polymorphic sites; for this you should include the `-SNP_pval 1e-6` option to eliminate monomorphic sites when calculating your GL's
--   There are good reasons to do it BOTH ways, with and without the `-SNP_pval 1e-6` option. Keeping the monomorphic sites is essential for getting proper estimates of nucleotide diversity and Tajima's D. But other analyses such as PCA or GWAS want only the SNPs.
+-   There are good reasons to do it BOTH ways, with and without the `-SNP_pval 1e-6` option. Keeping the monomorphic sites is essential for getting proper estimates of nucleotide diversity and Tajima's D. But other analyses such as PCA or GWAS want only the polymorhpic sites -- the SNPs?
 
-*Save your script. Then run at the command line**
+*Save your script. Then give it a test run at the command line*
 
-At the end of this run, you should have the following output files in your `myresults/ANGSD` directory:
+If the test run doesn't fail after a few minutes, then you're good!  Let's kill the test run so we can submit to the cluster.  To kill a run in progress, type `ctrl-C`
+
+At the end of the test run, you should have the following output files in your `mydata/ANGSD` directory:
 
 ```
-XXXX_.saf.gz
-XXXX_.saf.idx
-XXXX_.saf.pos.gz
+XXXX.saf.gz
+XXXX_saf.idx
+XXXX.saf.pos.gz
 ```
 
 These "saf" files contain "site allele frequency" likelihoods, and are the info needed to estimate stats that depend on population allele frequencies, like nucleotide diversities, neutrality stats like Tajima's D, and population divergence stats like Fst. Each of these stats depends on the *SFS -- the Site Frequency Spectrum*
@@ -164,24 +175,43 @@ These "saf" files contain "site allele frequency" likelihoods, and are the info 
 So, our workflow will be to (1) use the .saf files to estimate the SFS, and (2) to then use the SFS to estimate nucleotide diversity and associated statistics.
 
 
-#### 3a. In your `myscripts` folder, create `ANGSD_doTheta.sh` to estimate the SFS and nucleotide diversity stats for your pop
+#### 3. Write a new script to estimate nucleotide diversities!
+
+-  In your `myscripts/` folder, create `ANGSD_doTheta.sh` to estimate the SFS and nucleotide diversity stats for your pop
+
+-  Add you bash header to the first line!
 
 Based on the saf.idx files from ANGSD GL calls, you can estimate the Site Frequency Spectrum (SFS), which is the precursor to many other analyses such as nucleotide diversities (as well as Fst, demographic history analysis, etc.)
 
+-  Paste the following text and edit to customize
 
 ```         
-REPO="~/projects/eco_genomics_2025/population_genomics/"
+### load modules
+
+module purge
+module load gcc angsd
+
+
+### Set up directories and variables
+
+REPO="/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics/"
+
+mkdir ${REPO}/myresults/ANGSD
+
+mkdir ${REPO}/myresults/ANGSD/diversity
+
+INPUT="${REPO}/mydata/ANGSD"
+
+OUT="${REPO}/myresults/ANGSD/diversity"
 
 REF="/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana1.0-genome_reduced.fa"
 
-OUT="${REPO}/myresults/ANGSD"
-
 MYPOP=""
 
-SUFFIX=""   # All sites or just polymorphic sites?
+SUFFIX=""   # All sites (=ALL) or just polymorphic sites (=POLY)?
 
-#Estimation of the SFS for all sites using the FOLDED SFS
-realSFS ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+#Estimation of the SFS
+realSFS ${INPUT}/${MYPOP}_${SUFFIX}.saf.idx \
         -maxIter 1000 \
         -tole 1e-6 \
         -P 1 \
@@ -189,40 +219,39 @@ realSFS ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
 
 ```
 
-#### 3b. After the SFS, estimate the theta diversity stats:
-
-Once you have the SFS, you can estimate the thetas and neutrality stats by adding the following code chunk at the end of your `ANGSD_doTheta.sh` script:
+Once ANGSD is done estimating the SFS, you can have it estimate the thetas and neutrality stats by adding the following code chunk at the end of your `ANGSD_doTheta.sh` script:
 
 ```         
-# Estimate thetas and stats using the SFS
+# Estimate thetas using the SFS
 
-realSFS saf2theta ${OUT}/${MYPOP}_${SUFFIX}.saf.idx \
+realSFS saf2theta ${INPUT}/${MYPOP}_${SUFFIX}.saf.idx \
         -sfs ${OUT}/${MYPOP}_${SUFFIX}.sfs \
         -outname ${OUT}/${MYPOP}_${SUFFIX}
 
-thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx
+#### Calculate diversity stats along sliding windows 
 
-```
-If we wanted to analyze this on sliding windows, we could instead replace the above code chunk with the following:
+# Set window size and step interval (in bp)
+# Decide if you want windows overlapping (step<win) or non-overlapping (step=win):
 
-```
-# For sliding window analysis:
+WIN=50000
+STEP=50000
 
 thetaStat do_stat ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx \
--win 50000 \
--step 10000 \
--outnames ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz
+-win $WIN \
+-step $STEP \
+-outnames ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetasWindow.gz
+
 ```
 
+For the results files above, the first column of the results file (*.thetasWindow.gz.pestPG) is formatted a bit funny and we don't really need it. There are also a bunch of other neutrality stats that we don't need right now. We can use the `cut` command to get rid of these extra columns and prepare the file for import to R. 
 
-
-#### Now we have some diversity results!
-
-For the results files above, the first column of the results file (*.thetas.idx.pestPG) is formatted a bit funny and we don't really need it. There are also a bunch of other neutrality stats that we don't need right now. We can use the `cut` command to get rid of these extra columns. The below `cut` command retains columns 2-5, 9 and 14 
+Add the below `cut` command to the bottom of your script to retain just columns 2-5, 9 and 14 
 
 
 ```         
-cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}.thetas.idx.pestPG > ${OUT}/${MYPOP}_${SUFFIX}.thetas
+### Cut out the relevant columns for downstream input to R:
+
+cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz.pestPG > ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetas
 ```
 
 
@@ -238,7 +267,26 @@ The columns correspond to the following stats:
 | 14  | nSites       | The number of base pairs being analyzed along this stretch of the genome            |
 
 
-### 2. Summarize diversity stats in R
+Be sure to save your file!
+
+
+#### 4. Create a wrapper for submission to SLURM
+
+Our last step is to create a wrapper script just like we did last time for the mapping pipeline.  
+
+The basic recipe:
+
+1. Create a new file, start with the bash header line
+2. Paste the SBATCH header in and customize (use 10 cpus and 64g RAM)
+3. Call your 2 bash scripts on separate lines (`bash filename.sh`): do `ANGSD.sh` first then do `ANGSD_doTheta.sh`
+4. Save with .sh extension and submit to SLURM for running: `sbatch wrapper-filename.sh`
+
+It will take about 6+ hours to run!!  Go have a cup of tea...  :)
+
+
+#### 5. (6+ hours later...) Now we have some diversity results!
+
+Let' summarize our diversity stats in R
 
 We're now ready to use `RStudio OOD` to visualize the results:
 
@@ -250,21 +298,23 @@ setwd("") # set your path to your results folder in your repo where you saved yo
 list.files() # list out the files in this folder to make sure you're in the right spot.
 
 # First let's read in the diversity stats
-theta <- read.table("_.thetas",sep="\t",header=T)
+theta <- read.table("XXXX.thetas",sep="\t",header=T)
 
 theta$tWsite = theta$tW/theta$nSites #scales the theta-W by the number of sites
 theta$tPsite = theta$tP/theta$nSites #scales the theta-Pi by the number of sites
 
 summary(theta)
 
-# You can order the contig list to show you the windows/contigs with the highest values of Tajima's D, or the lowest
+# You can order the list to show you the windows with the highest values of Tajima's D, or the lowest
 
 head(theta[order(theta$Tajima, decreasing = TRUE),]) # top 10 Tajima's D values
 
 head(theta[order(theta$Tajima, decreasing = FALSE),]) # bottom 10 Tajima's D values
 
 #You can also look for windows/contigs that have combinations of high Tajima's D and low diversity -- these could represent outliers for selection!
-#theta[which(theta$Tajima<1.5 & theta$tPsite<0.001),]
+
+theta[which(theta$Tajima<0 & theta$tPsite<0.001),]
+
 
 # We may want to visualize the site frequency spectrum (SFS) as a barplot of the site frequencies
 # Be sure to replace "9999" with your pop code in the "main" legend below
@@ -293,9 +343,18 @@ dev.off()
 
 # We could also plot the nucleotide diversities and Tajima's D as sliding windows along the genome:
 
-library(ggplot2)
+library(tidyverse)
 
-ggplot()
+theta2 <- theta %>%
+  arrange(Chr, WinCenter)
+
+plot(theta2$tPsite,cex=0.1,col="red",xlim=c(0,1e3),type="l")
+
+# which windows show very high nucleotide diversities?
+
+Pi_outliers=quantile(theta2$tPsite,0.99)
+
+theta2[which(theta2$tPsite>Pi_outliers),]
 
 ```
 
