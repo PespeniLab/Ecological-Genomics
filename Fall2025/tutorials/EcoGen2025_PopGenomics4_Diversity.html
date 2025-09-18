@@ -158,7 +158,7 @@ INPUT=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/bams&quot;
 
 OUT=&quot;/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics/mydata/ANGSD&quot;
 
-REF=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana1.0-genome_reduced.fa&quot;
+REF=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana/Pmariana1.0-genome_reduced.fa&quot;
 
 MYPOP=&quot;XXXX&quot;
 
@@ -188,7 +188,7 @@ SUFFIX=&quot;&quot;
 #  Estimating Genotype Likelihoods (GLs)  #
 ###########################################
 
-ANGSD -b ${OUT}/${MYPOP}_bam.list \
+angsd -b ${OUT}/${MYPOP}_bam.list \
 -ref ${REF} \
 -anc ${REF} \
 -out ${OUT}/${MYPOP}_${SUFFIX} \
@@ -370,7 +370,7 @@ INPUT=&quot;${REPO}/mydata/ANGSD&quot;
 
 OUT=&quot;${REPO}/myresults/ANGSD/diversity&quot;
 
-REF=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana1.0-genome_reduced.fa&quot;
+REF=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ref_genome/Pmariana/Pmariana1.0-genome_reduced.fa&quot;
 
 MYPOP=&quot;&quot;
 
