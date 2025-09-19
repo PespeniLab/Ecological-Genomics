@@ -194,7 +194,7 @@ module load gcc angsd
 
 ### Set up directories and variables
 
-REPO="/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics/"
+REPO="/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics"
 
 mkdir ${REPO}/myresults/ANGSD
 
@@ -253,7 +253,7 @@ Add the below `cut` command to the bottom of your script to retain just columns 
 ```         
 ### Cut out the relevant columns for downstream input to R:
 
-cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz.pestPG > ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetas
+cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetasWindow.gz.pestPG > ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetas
 ```
 
 

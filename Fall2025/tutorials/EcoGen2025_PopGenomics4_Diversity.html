@@ -360,7 +360,7 @@ module load gcc angsd
 
 ### Set up directories and variables
 
-REPO=&quot;/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics/&quot;
+REPO=&quot;/users/X/X/XXXX/projects/eco_genomics_2025/population_genomics&quot;
 
 mkdir ${REPO}/myresults/ANGSD
 
@@ -416,7 +416,7 @@ these extra columns and prepare the file for import to R.</p>
 to retain just columns 2-5, 9 and 14</p>
 <pre><code>### Cut out the relevant columns for downstream input to R:
 
-cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}.thetasWindow.gz.pestPG &gt; ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetas</code></pre>
+cut -f2-5,9,14 ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetasWindow.gz.pestPG &gt; ${OUT}/${MYPOP}_${SUFFIX}_win${WIN}_step${STEP}.thetas</code></pre>
 <p>The columns correspond to the following stats:</p>
 <table>
 <colgroup>
