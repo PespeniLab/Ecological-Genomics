@@ -286,13 +286,7 @@ The basic recipe:
 It will take about 6+ hours to run!!  Go have a cup of tea...  :)
 
 
-#### 5. (6+ hours later...) Now we have some diversity results!
 
-Let' summarize our diversity stats in R
-
-We're now ready to use `RStudio OOD` to visualize the results!
-
-We'll live code this part in RMarkdown in class...
 
 
 
