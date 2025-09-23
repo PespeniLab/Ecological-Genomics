@@ -491,71 +491,8 @@ RAM)</li>
 <h4>5. (6+ hours later…) Now we have some diversity results!</h4>
 <p>Let’ summarize our diversity stats in R</p>
 <p>We’re now ready to use <code>RStudio OOD</code> to visualize the
-results:</p>
-<p>Here’s some basic R code to help you along:</p>
-<pre><code>setwd(&quot;&quot;) # set your path to your results folder in your repo where you saved your diversity stats file
-
-list.files() # list out the files in this folder to make sure you&#39;re in the right spot.
-
-# First let&#39;s read in the diversity stats
-theta &lt;- read.table(&quot;XXXX.thetas&quot;,sep=&quot;\t&quot;,header=T)
-
-theta$tWsite = theta$tW/theta$nSites #scales the theta-W by the number of sites
-theta$tPsite = theta$tP/theta$nSites #scales the theta-Pi by the number of sites
-
-summary(theta)
-
-# You can order the list to show you the windows with the highest values of Tajima&#39;s D, or the lowest
-
-head(theta[order(theta$Tajima, decreasing = TRUE),]) # top 10 Tajima&#39;s D values
-
-head(theta[order(theta$Tajima, decreasing = FALSE),]) # bottom 10 Tajima&#39;s D values
-
-#You can also look for windows/contigs that have combinations of high Tajima&#39;s D and low diversity -- these could represent outliers for selection!
-
-theta[which(theta$Tajima&lt;0 &amp; theta$tPsite&lt;0.001),]
-
-
-# We may want to visualize the site frequency spectrum (SFS) as a barplot of the site frequencies
-# Be sure to replace &quot;9999&quot; with your pop code in the &quot;main&quot; legend below
-barplot(sfs,xlab=&quot;Chromosomes&quot;,
-        names=1:length(sfs),
-        ylab=&quot;Proportions&quot;,
-        main=&quot;Pop 9999 Site Frequency Spectrum&quot;,
-        col=&#39;blue&#39;)
-        
-
-# We may also want to know how many sites are monomorphic (not variable):
-sfs&lt;-scan(&#39;9999_.sfs&#39;)
-sfs&lt;-sfs[-c(1,which(sfs==0))]
-sfs&lt;-sfs/sum(sfs)
-
-# Put the nucleotide diversities, Tajima&#39;s D, and SFS into a 4-panel figure
-par(mfrow=c(2,2))
-hist(theta$tWsite, xlab=&quot;theta-W&quot;, main=&quot;Watterson&#39;s theta&quot;)
-hist(theta$tPsite, xlab=&quot;theta-Pi&quot;, main=&quot;Pairwise Nucleotide Diversity&quot;)
-hist(theta$Tajima, xlab=&quot;D&quot;, main=&quot;Tajima&#39;s D&quot;)
-barplot(sfs,names=1:length(sfs),main=&#39;Site Frequency Spectrum&#39;)
-
-
-# To reset the panel plotting, execute the line below:
-dev.off()
-
-# We could also plot the nucleotide diversities and Tajima&#39;s D as sliding windows along the genome:
-
-library(tidyverse)
-
-theta2 &lt;- theta %&gt;%
-  arrange(Chr, WinCenter)
-
-plot(theta2$tPsite,cex=0.1,col=&quot;red&quot;,xlim=c(0,1e3),type=&quot;l&quot;)
-
-# which windows show very high nucleotide diversities?
-
-Pi_outliers=quantile(theta2$tPsite,0.99)
-
-theta2[which(theta2$tPsite&gt;Pi_outliers),]
-</code></pre>
+results!</p>
+<p>We’ll live code this part in RMarkdown in class…</p>
 </div>
 </div>
 </div>

@@ -290,75 +290,9 @@ It will take about 6+ hours to run!!  Go have a cup of tea...  :)
 
 Let' summarize our diversity stats in R
 
-We're now ready to use `RStudio OOD` to visualize the results:
+We're now ready to use `RStudio OOD` to visualize the results!
 
-Here's some basic R code to help you along:
-
-```
-setwd("") # set your path to your results folder in your repo where you saved your diversity stats file
-
-list.files() # list out the files in this folder to make sure you're in the right spot.
-
-# First let's read in the diversity stats
-theta <- read.table("XXXX.thetas",sep="\t",header=T)
-
-theta$tWsite = theta$tW/theta$nSites #scales the theta-W by the number of sites
-theta$tPsite = theta$tP/theta$nSites #scales the theta-Pi by the number of sites
-
-summary(theta)
-
-# You can order the list to show you the windows with the highest values of Tajima's D, or the lowest
-
-head(theta[order(theta$Tajima, decreasing = TRUE),]) # top 10 Tajima's D values
-
-head(theta[order(theta$Tajima, decreasing = FALSE),]) # bottom 10 Tajima's D values
-
-#You can also look for windows/contigs that have combinations of high Tajima's D and low diversity -- these could represent outliers for selection!
-
-theta[which(theta$Tajima<0 & theta$tPsite<0.001),]
-
-
-# We may want to visualize the site frequency spectrum (SFS) as a barplot of the site frequencies
-# Be sure to replace "9999" with your pop code in the "main" legend below
-barplot(sfs,xlab="Chromosomes",
-        names=1:length(sfs),
-        ylab="Proportions",
-        main="Pop 9999 Site Frequency Spectrum",
-        col='blue')
-        
-
-# We may also want to know how many sites are monomorphic (not variable):
-sfs<-scan('9999_.sfs')
-sfs<-sfs[-c(1,which(sfs==0))]
-sfs<-sfs/sum(sfs)
-
-# Put the nucleotide diversities, Tajima's D, and SFS into a 4-panel figure
-par(mfrow=c(2,2))
-hist(theta$tWsite, xlab="theta-W", main="Watterson's theta")
-hist(theta$tPsite, xlab="theta-Pi", main="Pairwise Nucleotide Diversity")
-hist(theta$Tajima, xlab="D", main="Tajima's D")
-barplot(sfs,names=1:length(sfs),main='Site Frequency Spectrum')
-
-
-# To reset the panel plotting, execute the line below:
-dev.off()
-
-# We could also plot the nucleotide diversities and Tajima's D as sliding windows along the genome:
-
-library(tidyverse)
-
-theta2 <- theta %>%
-  arrange(Chr, WinCenter)
-
-plot(theta2$tPsite,cex=0.1,col="red",xlim=c(0,1e3),type="l")
-
-# which windows show very high nucleotide diversities?
-
-Pi_outliers=quantile(theta2$tPsite,0.99)
-
-theta2[which(theta2$tPsite>Pi_outliers),]
-
-```
+We'll live code this part in RMarkdown in class...
 
 
 
