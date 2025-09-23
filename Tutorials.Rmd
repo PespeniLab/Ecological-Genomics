@@ -24,6 +24,8 @@ fontsize: 18pt
 
 * [04: Estimating Nucleotide Diversity](Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html)
 
+* [05: Visualizing Diversity and Intro to Population Structure](Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html)
+
 
 **Transcriptomics Module**
 
