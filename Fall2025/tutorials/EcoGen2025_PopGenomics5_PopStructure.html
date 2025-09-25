@@ -79,13 +79,19 @@ pairs of populations; we can each contribute to the overall analysis by
 looking at how our focal pop is divergent from the others.</p>
 <ul>
 <li><p>For this analysis, let’s calculate Fst between our focal red
-spruce population (MYPOP) and the black spruce samples…this could tell
-us which of our pops might be hybridizing. What would we expect for Fst
-in this case?</p></li>
+spruce population (MYRSPOP) and the black spruce samples (MYBSPOP)…this
+could tell us which of our pops might be hybridizing. What would we
+expect for Fst in this case?</p></li>
 <li><p>Let’s write a bash script called ANGSD_Fst.sh that includes the
 following code:</p></li>
 </ul>
 <pre><code># Start with the usual bash script header
+
+# load your modules
+
+module purge
+
+module load gcc angsd
 
 # Give yourself some notes
 
@@ -93,11 +99,7 @@ following code:</p></li>
 
 REPO=&quot;&quot;
 
-# Path to your `population_genomics/mydata` folder where your allele counts file (.saf.idx) lives
-
-INPUT=&quot;${REPO}/mydata&quot;
-
-# Path to the Black Spruce (BS) input saf.idx data
+# Path to the Black Spruce (BS) input saf.idx data (I made this file for you using the ANGSD.sh script)
 
 BLKSPR=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD/black_spruce&quot;
 
@@ -105,38 +107,43 @@ BLKSPR=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD/black_spruce&quo
 
 mkdir ${REPO}/myresults/ANGSD/Fst
 
-OUT=&quot;${REPO}/myresults/ANGSD/Fst&quot;
-
-MYBSPOP=&quot;MN&quot;  
+MYBSPOP=&quot;WISC&quot;  
 
 MYRSPOP=&quot;&quot;
 
 SUFFIX=&quot;ALL&quot;
 
-# Estimate Fst between my red spruce pop and black spruce:
+### Estimate Fst between my red spruce pop and black spruce:
 
-realSFS $INPUT/${MYRSPOP}_${SUFFIX}.saf.idx \
-  ${BLKSPR}/${MYBSPOP}_${SUFFIX}.saf.idx \
-  -P 10 \
-  &gt;${OUT}/${MYRSPOP}_${MYBSPOP}_2D.sfs
+# Step 1: estimate the 2D site frequency spectrum for BS and your RS pop
+realSFS \
+$REPO/mydata/ANGSD/${MYRSPOP}_${SUFFIX}.saf.idx \
+${BLKSPR}/${MYBSPOP}_${SUFFIX}.saf.idx \
+&gt;${REPO}/myresults/ANGSD/Fst/${MYRSPOP}_${MYBSPOP}_2D.sfs \
+-P 10
 
+# Step 2: Calculate Fst for all SNPs and store it in a binary format (.fst.idx)
 realSFS fst index \
-  ${INPUT}/${MYRSPOP}_${SUFFIX}.saf.idx \
-  ${BLKSPR}/${MYBSPOP}_${SUFFIX}.saf.idx \
-  -sfs ${OUT}/${MYRSPOP}_${MYBSPOP}_2D.sfs \
-  -P 10 \
-  -fstout ${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP} \
-  -whichFst 1
+${REPO}/mydata/ANGSD/${MYRSPOP}_${SUFFIX}.saf.idx \
+${BLKSPR}/${MYBSPOP}_${SUFFIX}.saf.idx \
+-sfs ${REPO}/myresults/ANGSD/Fst/${MYRSPOP}_${MYBSPOP}_2D.sfs \
+-fstout ${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP} \
+-whichFst 1 \
+-P 10
 
+# Step 3: Caclulate the average Fst across all sites (we use the weighted average)
 realSFS fst stats \
-  ${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP}.fst.idx \
-  &gt;${OUT}/${MYRSPOP}_${MYBSPOP}_Fst.txt
+${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP}.fst.idx \
+&gt;${REPO}/myresults/ANGSD/Fst/${MYRSPOP}_${MYBSPOP}_Fst.txt \
+-P 10
 
+# Step 4 (optional): Calculate the averate Fst in sliding windows
 realSFS fst stats2 \
-  ${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP}.fst.idx \
-  -win 50000 \
-  -step 50000 \
-  &gt;${OUT}/${MYRSPOP}_${MYBSPOP}_Fst_50kbWindows.txt
+${REPO}/mydata/ANGSD/${MYRSPOP}_${MYBSPOP}.fst.idx \
+-win 50000 \
+-step 50000 \
+&gt;${REPO}/myresults/ANGSD/Fst/${MYRSPOP}_${MYBSPOP}_Fst_50kbWindows.txt \
+-P 10
 </code></pre>
 <div id="after-a-few-minutes-you-should-get-some-resultswe-can-talk-about-the-calculation-and-interpretation-of-fst-in-the-meantime" class="section level4">
 <h4>After a few minutes you should get some results…we can talk about
@@ -146,11 +153,15 @@ the calculation and interpretation of Fst in the meantime</h4>
 your pop. What’s the trend?</p></li>
 <li><p>Do you see any relationships between Fst with black spruce and
 other diversity metrics for your red spruce populations?</p></li>
+<li><p>(Optional/if time allows): If you ran the sliding window
+analysis, I’ve placed some R code you can use to explore the results
+here:</p></li>
 </ul>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/Fst.R</code></p>
 </div>
 </div>
-<div id="visualize-popualtion-structure-across-the-landscape-using-pca-and-admixture" class="section level3">
-<h3>3. Visualize popualtion structure across the landscape using PCA and
+<div id="visualize-population-structure-across-the-landscape-using-pca-and-admixture" class="section level3">
+<h3>3. Visualize population structure across the landscape using PCA and
 Admixture</h3>
 <p>We often want to visualize differences in the genetic structure or
 genetic ancestry in our sample, and lots of papers we’ve read approach
@@ -174,9 +185,9 @@ admixture are here: <a href="https://academic.oup.com/genetics/article/210/2/719
 </ul>
 <p>Since we want to run <code>PCAngsd</code> for the entire set of
 samples – not just your focal pop – we need the genotype likelihoods
-from ANGSD for all 95 red spruce samples. That would take a long time to
-run (about 24 hrs) and would be redundant for each of you to do, so I
-ran these once for the class.</p>
+from ANGSD for all 95 red spruce + 18 black spruce samples. That would
+take a long time to run (about 24 hrs) and would be redundant for each
+of you to do, so I ran these once for the class.</p>
 <p>For your reference (and future work), the code I used to estimate the
 genotype likelihoods is here: (you don’t have to run this now!)</p>
 <p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/ANGSD_RSBS_poly.sh</code></p>
@@ -188,6 +199,11 @@ all 95 red spruce + 18 black spruce samples as input to
 go:</p>
 <pre><code># Start with the usual bash script header
 
+# load modules
+
+module purge
+module load pcangsd/1.36.1
+
 # Give yourself some notes
 
 # Path to your input data (where the beagle file lives)
@@ -198,67 +214,75 @@ INPUT=&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD&quot;
 
 mkdir ~/x/x/xxxx/population_genomics/myresults/ANGSD/PCA_ADMIX
 
-OUT=&quot;~/x/x/xxxx/population_genomics/myresults/ANGSD/PCA_ADMIX&quot;
+OUT=&quot;/x/x/xxxx/population_genomics/myresults/ANGSD/PCA_ADMIX&quot;
 
 SUFFIX=&quot;RSBS_poly&quot;
-
 
 # Make a copy of the list of bam files for all the red + black spruce samples and place in your repo. You&#39;ll need this later for making figures.
 
 cp ${INPUT}/RSBS_bam.list ${OUT}
 
 
+# Set value of K and number of PCA eigenvalues (=K-1)
+# K corresponds to the number of distinct ancestry groups you want to cluster genotypes into
+
+K=2
+E=$((K-1))
+
 # Then, run PCA and admixture scores with pcangsd:
 
 pcangsd -b ${INPUT}/${SUFFIX}.beagle.gz \
-        -o ${OUT}/${SUFFIX} \
-        -e 1 \
+        -o ${OUT}/${SUFFIX}_K${K} \
+        -e $E \
         --admix \
-        --sites-save \
+        --admix-K $K \
+        --maf 0.05 \
         --threads 10 </code></pre>
 <p>This will run PCAngsd assuming it fits a single “eigenvalue” (the
 <code>-e 1</code> option) to split your samples into K=2 clusters. If
 you want to explore higher levels of clustering in the future, you can
-increase the <code>-e &lt;int&gt;</code> flag, where <int> is a number
-that is K-1 number of clusters you want to fit.</p>
+increase the <code>-e &lt;int&gt;</code> flag and the
+<code>--admix-K &lt;int&gt;</code> flag to test different numbers of
+clusters you want to fit to the data.</p>
 <p>Add your SBATCH header to it and submit to the cluster with 10 cpus
 and 64G RAM requested</p>
 <p>Once the run is finished, you should see the following files in your
 <code>myresults/ANGSD/PCA_Admix/</code></p>
 <ul>
-<li>allRS_bam.list</li>
-<li>allRS_poly.cov</li>
-<li>allRS_poly.admix.2.Q</li>
+<li>RSBS_bam.list</li>
+<li>RSBS_poly.cov</li>
+<li>RSBS_poly.admix.2.Q</li>
 </ul>
 <p>When you have these files transferred (don’t forget where you saved
 them to on your laptop!), open up RStudio and let’s start making some
-figures!</p>
+figures in an RMarkdown document!</p>
 <p>Just a reminder, the following is R code, not bash. ;)</p>
+<p>Remember to set your path in your RMarkdown using:</p>
+<pre><code>knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir=&quot;&lt;path to your repo&gt;/population_genomics/myresults/ANGSD/PCA_ADMIX/&quot;) </code></pre>
+<div id="load-your-libraries" class="section level4">
+<h4>Load your libraries</h4>
 <pre><code>library(ggplot2) # plotting
-library(ggpubr) # plotting
+library(ggpubr) # plotting</code></pre>
+<p>First, let’s work on the genetic PCA:</p>
+<pre><code>COV &lt;- as.matrix(read.table(&quot;RSBS_poly.cov&quot;)) # read in the genetic covariance matrix
 
-
-setwd(&quot;&lt;path to your repo&gt;/population_genomics/myresults/ANGSD/PCA_ADMIX/&quot;) # set the path to where you saved the pcANGSD results on your laptop
-
-## First, let&#39;s work on the genetic PCA:
-
-COV &lt;- as.matrix(read.table(&quot;RSBS_poly.cov&quot;)) # read in the genetic covariance matrix
-
-PCA &lt;- eigen(COV) # extract the principal components from the COV matrix
-
-## How much variance is explained by the first few PCs?
-
-var &lt;- round(PCA$values/sum(PCA$values),3)
+PCA &lt;- eigen(COV) # extract the principal components from the COV matrix</code></pre>
+</div>
+<div id="how-much-variance-is-explained-by-the-first-few-pcs" class="section level4">
+<h4>How much variance is explained by the first few PCs?</h4>
+<pre><code>var &lt;- round(PCA$values/sum(PCA$values),3)
 
 var[1:3]</code></pre>
 <p>A “screeplot” of the eigenvalues of the PCA hows you how each axis
 explains variance in the genotypes:</p>
 <pre><code>barplot(var, 
         xlab=&quot;Eigenvalues of the PCA&quot;, 
-        ylab=&quot;Proportion of variance explained&quot;)
-</code></pre>
-<p>Bring in the bam.list file and extract the sample info to prepare for
-pliotting:</p>
+        ylab=&quot;Proportion of variance explained&quot;)</code></pre>
+</div>
+<div id="bring-in-the-bam.list-file-and-extract-the-sample-info-to-prepare-for-plotting" class="section level4">
+<h4>Bring in the bam.list file and extract the sample info to prepare
+for plotting:</h4>
 <pre><code>names &lt;- read.table(&quot;RSBS_bam.list&quot;)
 names &lt;- unlist(strsplit(basename(as.character(names[,1])), split = &quot;.sorted.rmdup.bam&quot;))
 split = strsplit(names, &quot;_&quot;)
@@ -267,18 +291,18 @@ names(pops) = c(&quot;Ind&quot;, &quot;Pop&quot;, &quot;Row&quot;, &quot;Col&quo
 
 data=as.data.frame(PCA$vectors)
 data=data[,c(1:3)]
-data= cbind(data, pops)
-</code></pre>
-<p>Now we can plot the PCA using ggplot</p>
-<pre><code># A simple ggplot:
-
-ggscatter(data, x = &quot;V1&quot;, y = &quot;V2&quot;,
+data= cbind(data, pops)</code></pre>
+</div>
+<div id="now-we-can-plot-the-pca-using-ggplot" class="section level4">
+<h4>Now we can plot the PCA using ggplot</h4>
+<pre><code>ggscatter(data, x = &quot;V1&quot;, y = &quot;V2&quot;,
           color = &quot;Pop&quot;,
           mean.point = TRUE,
           star.plot = TRUE,
           main=&quot;Red spruce-Black spruce genetic PCA&quot;) +
   theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
   labs(x = paste0(&quot;PC1: (&quot;,var[1]*100,&quot;%)&quot;), y = paste0(&quot;PC2: (&quot;,var[2]*100,&quot;%)&quot;))</code></pre>
+</div>
 <div id="next-we-can-look-at-the-admixture-clustering-at-k2" class="section level4">
 <h4>Next, we can look at the admixture clustering at K=2</h4>
 <p>Import the ancestry scores (these are the .Q files)</p>
@@ -286,7 +310,7 @@ ggscatter(data, x = &quot;V1&quot;, y = &quot;V2&quot;,
 
 K=dim(q)[2] #Find the level of K modeled
 
-## order according to population code
+## rank order the samples according to population code
 ord&lt;-order(pops[,2])
 </code></pre>
 <p>Now make the plot:</p>
