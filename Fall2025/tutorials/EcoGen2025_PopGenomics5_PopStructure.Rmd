@@ -63,7 +63,7 @@ SUFFIX="ALL"
 
 # Step 1: estimate the 2D site frequency spectrum for BS and your RS pop
 realSFS \
-$REPO/mydata/ANGSD/${MYRSPOP}_${SUFFIX}.saf.idx \
+${REPO}/mydata/ANGSD/${MYRSPOP}_${SUFFIX}.saf.idx \
 ${BLKSPR}/${MYBSPOP}_${SUFFIX}.saf.idx \
 >${REPO}/myresults/ANGSD/Fst/${MYRSPOP}_${MYBSPOP}_2D.sfs \
 -P 10
