@@ -26,6 +26,10 @@ fontsize: 18pt
 
 * [05: Visualizing Diversity and Intro to Population Structure](Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html)
 
+* [06: Genomc scans for selection](Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html)
+
+
+
 
 **Transcriptomics Module**
 
