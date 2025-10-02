@@ -99,13 +99,13 @@ it exceeds the expectation due to neutral drift.</p></li>
 samples, but the results would be dominated by loci that are strongly
 divergent between the species (potentially owing to reproductive
 isolation). What we’d like to find is evidence of adaptive
-introgression, where alleles from blask spruce hae contributed to
+introgression, where alleles from black spruce have contributed to
 divergence and local adaptation <em>within</em> red spruce</p></li>
 <li><p>To do this, we can run <code>PCAngsd</code> on just the 95 red
 spruce sampls and look at the resulting PCA to see how the PC axes
 capture the genetic divergence within red spruce. Is one of the axes
 related to the degree of introgression with black spruce?</p></li>
-<li><p>If so, we can have PCAngsd run a selection scan to identify lociu
+<li><p>If so, we can have PCAngsd run a selection scan to identify loci
 under selection along 1 or more of the PC axes it identifies within red
 spruce. Knowing which PC axis relates to introgression should then let
 us test outlier loci within red spruce due to introgression from its
@@ -170,7 +170,7 @@ axis</td>
 </tr>
 </tbody>
 </table>
-<p>After we’ve got these resiults files, we can go over to
+<p>After we’ve got these results files, we can go over to
 <strong>RStudio</strong> and start exploring the results.</p>
 <p>Note: In RStudio, you’ll need to read in a file with minor allele
 frequencies (“maf”) that ANGSD makes when estimating genotype
@@ -230,7 +230,7 @@ ggscatter(data, x = &quot;V1&quot;, y = &quot;V2&quot;,
           color = &quot;Pop&quot;,
           mean.point = TRUE,
           star.plot = TRUE,
-          main=&quot;Red spruce-Black spruce genetic PCA&quot;) +
+          main=&quot;Red spruce genetic PCA&quot;) +
   theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
   labs(x = paste0(&quot;PC1: (&quot;,var[1]*100,&quot;%)&quot;), y = paste0(&quot;PC2: (&quot;,var[2]*100,&quot;%)&quot;)</code></pre>
 <p>What do you see in terms of clustering with the PCA using only red
@@ -244,13 +244,13 @@ data2 &lt;- cbind(q_K2[1:95,1:2],data)
   
 p1 &lt;- ggscatter(data2, x =&quot;qBS&quot;, y = &quot;V1&quot;,
           color=&quot;Pop&quot;,
-          main=&quot;Red spruce-Black spruce genetic PCA&quot;) +
+          main=&quot;Red spruce genetic PC1 v. % ancestry from black spruce&quot;) +
   theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
   labs(x = &quot;Black spruce ancestry&quot;, y = &quot;PC1 score&quot;)
 
 p2 &lt;- ggscatter(data2, x =&quot;qBS&quot;, y = &quot;V2&quot;,
                 color=&quot;Pop&quot;,
-                main=&quot;Red spruce-Black spruce genetic PCA&quot;) +
+                main=&quot;Red spruce genetic PC2 v. % ancestry from black spruce&quot;) +
   theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
   labs(x = &quot;Black spruce ancestry&quot;, y = &quot;PC2 score&quot;)
 
@@ -258,7 +258,7 @@ ggarrange(p1,p2)
 </code></pre>
 <div id="read-in-selection-statistics-these-are-chi2-distributed" class="section level3">
 <h3>read in selection statistics (these are chi^2 distributed)</h3>
-<pre><code>!!!You&#39;ll need to edit the value you used for K here!!!
+<pre><code># !!!You&#39;ll need to edit the value you used for K here!!!
 
 s &lt;- readtable(&quot;allRS_poly_K3.selection&quot;)
 
@@ -288,8 +288,8 @@ dim(pos_filtered)
 <div id="how-many-sites-got-filtered-out-when-testing-for-selection-why" class="section level1">
 <h1>How many sites got filtered out when testing for selection?
 Why?</h1>
-<div id="make-a-manhattan-plot" class="section level2">
-<h2>make a manhattan plot</h2>
+<div id="make-a-simple-manhattan-plot" class="section level2">
+<h2>make a simple manhattan plot</h2>
 <pre><code>
 plot(-log10(pval_PC1), col=&quot;black&quot;, cex=0.8, xlab=&quot;Locus position&quot;, main=&quot;Selection outliers: PCAngsd PC1&quot;)
 
@@ -300,26 +300,84 @@ plot(-log10(pval_PC2), col=&quot;black&quot;, cex=0.8, xlab=&quot;Locus position
 <div id="we-can-zoom-in-if-theres-something-interesting-near-a-position" class="section level1">
 <h1>We can zoom in if there’s something interesting near a
 position…</h1>
-<pre><code>plot(-log10(pval$p_PC1[2e05:2.01e05]),
-  col=p_filtered$chromo, 
+<pre><code>plot(-log10(pval_PC1$p_PC1[2e05:2.01e05]),
+  col=as.factor(pos_filtered$chromo), 
   xlab=&quot;Position&quot;, 
   ylab=&quot;-log10(p-value)&quot;, 
-  main=&quot;Selection outliers: pcANGSD e=1 (K2)&quot;)
+  main=&quot;Selection outliers: PCAngsd PC1&quot;)
+
+# Combine the locus info with the PC outlier p-values:
+
+loci_pvals = cbind(pos_filtered, pval_PC1, pval_PC2)
 
 # get the contig with the lowest p-value for selection
-sel_contig &lt;- p_filtered[which(pval==min(pval$p_PC1)),c(&quot;chromo&quot;,&quot;position&quot;)]
-sel_contig
+loci_pvals %&gt;%
+  filter(p_PC1==min(p_PC1)) %&gt;%
+  select(chromo,position)
 
 # get all the outliers with p-values below some cutoff
-cutoff=1e-3   # equals a 1 in 5,000 probability
-outlier_contigs &lt;- p_filtered[which(pval&lt;cutoff),c(&quot;chromo&quot;,&quot;position&quot;)]
-outlier_contigs
+cutoff=1e-3   # equals p&lt;0.001
+
+outliers_PC1 &lt;- loci_pvals %&gt;%
+                    filter(p_PC1&lt;cutoff) %&gt;%
+                    select(chromo,position)
+                    
+outliers_PC2 &lt;- loci_pvals %&gt;%
+                    filter(p_PC2&lt;cutoff) %&gt;%
+                    select(chromo,position)
+
 
 # how many outlier loci &lt; the cutoff?
-dim(outlier_contigs)[1]
+dim(outliers_PC1)[1]
 
-# how many unique contigs harbor outlier loci?
-length(unique(outlier_contigs$chromo))
+dim(outliers_PC2)[1]</code></pre>
+</div>
+<div id="we-can-export-these-outlier-lists-out-to-text-files-for-future-use" class="section level1">
+<h1>We can export these outlier lists out to text files for future
+use</h1>
+<pre><code>
+write.table(outliers_PC1,
+            &quot;~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS&quot;,
+            quote=F,
+            row.names=F,
+            sep=&quot;\t&quot;)
+
+
+write.table(outliers_PC2,
+            &quot;~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS&quot;,
+            quote=F,
+            row.names=F,
+            sep=&quot;\t&quot;)
+</code></pre>
+</div>
+<div id="we-can-also-get-info-on-the-of-unique-contigs-containing-selection-outliers" class="section level1">
+<h1>We can also get info on the # of unique contigs containing selection
+outliers</h1>
+<pre><code># how many unique contigs harbor outlier loci?
+outlier_contigs_PC1 = unique(outliers_PC1$chromo)
+
+length(outlier_contigs_PC1)
+
+outlier_contigs_PC2 = unique(outliers_PC2$chromo)
+
+length(outlier_contigs_PC2)
+</code></pre>
+</div>
+<div id="there-may-be-some-black-spruce-loci-coming-in-from-introgression-that-are-fueling-the-adaptive-divergence-between-the-red-spruce-pops-along-pc2-latitudinal-divergence.-to-look-for-this-we-can-calculate-overlap-between-the-selection-outliers-on-pc1-and-outliers-on-pc2." class="section level1">
+<h1>There may be some black spruce loci coming in from introgression
+that are fueling the adaptive divergence between the red spruce pops
+along PC2 (latitudinal divergence). To look for this, we can calculate
+overlap between the selection outliers on PC1 and outliers on PC2.</h1>
+<pre><code>library(ggVennDiagram)
+
+outliers_venn = list(outlier_contigs_PC1, outlier_contigs_PC2)
+
+# And make the Venn Diagram
+
+ggVennDiagram(outliers_venn,
+                  color = &quot;black&quot;, # Border color of sets
+                  lwd = 1.5) + # Line width of set borders
+                  scale_fill_gradient(low=&quot;grey&quot;,high=&quot;red&quot;)
 </code></pre>
 </div>
 </section>

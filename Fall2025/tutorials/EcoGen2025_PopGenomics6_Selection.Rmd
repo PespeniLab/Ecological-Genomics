@@ -27,11 +27,11 @@ When selection acts in response to local environmental conditions, we observe an
 
 * The approach essentially uses the SNP weights or "loadings" on a given genetic PC axis to determine the strength of association, and if it exceeds the expectation due to neutral drift.
 
-* We could run this on our full set of 113 red + black spruce samples, but the results would be dominated by loci that are strongly divergent between the species (potentially owing to reproductive isolation).  What we'd like to find is evidence of adaptive introgression, where alleles from blask spruce hae contributed to divergence and local adaptation *within* red spruce
+* We could run this on our full set of 113 red + black spruce samples, but the results would be dominated by loci that are strongly divergent between the species (potentially owing to reproductive isolation).  What we'd like to find is evidence of adaptive introgression, where alleles from black spruce have contributed to divergence and local adaptation *within* red spruce
 
 * To do this, we can run `PCAngsd` on just the 95 red spruce sampls and look at the resulting PCA to see how the PC axes capture the genetic divergence within red spruce.  Is one of the axes related to the degree of introgression with black spruce?
 
-* If so, we can have PCAngsd run a selection scan to identify lociu under selection along 1 or more of the PC axes it identifies within red spruce.  Knowing which PC axis relates to introgression should then let us test outlier loci within red spruce due to introgression from its sister species.
+* If so, we can have PCAngsd run a selection scan to identify loci under selection along 1 or more of the PC axes it identifies within red spruce.  Knowing which PC axis relates to introgression should then let us test outlier loci within red spruce due to introgression from its sister species.
 
 
 ## Run the PCA on the 95 Red Spruce samples
@@ -68,7 +68,7 @@ It should run quickly! Once finished, you'll the see a new set of files, includi
 | allRS_poly.weights | weights that show how strongly each locus "loads" on each PC axis |
 | allRS_poly.sites | for each locus shows whether it got tested (1) or not (0)  |
 
-After we've got these resiults files, we can go over to **RStudio** and start exploring the results.
+After we've got these results files, we can go over to **RStudio** and start exploring the results.
 
 Note: In RStudio, you'll need to read in a file with minor allele frequencies ("maf") that ANGSD makes when estimating genotype likelihoods. You have one of these files from when you worked on your focal pops, but we need one for the "allRS_poly" run of all red spruce individuals for just polymorphic sites.  I've provided this here:
 
@@ -132,7 +132,7 @@ ggscatter(data, x = "V1", y = "V2",
           color = "Pop",
           mean.point = TRUE,
           star.plot = TRUE,
-          main="Red spruce-Black spruce genetic PCA") +
+          main="Red spruce genetic PCA") +
   theme_bw(base_size = 13, base_family = "Times") +
   labs(x = paste0("PC1: (",var[1]*100,"%)"), y = paste0("PC2: (",var[2]*100,"%)")
 ```  
@@ -149,13 +149,13 @@ data2 <- cbind(q_K2[1:95,1:2],data)
   
 p1 <- ggscatter(data2, x ="qBS", y = "V1",
           color="Pop",
-          main="Red spruce-Black spruce genetic PCA") +
+          main="Red spruce genetic PC1 v. % ancestry from black spruce") +
   theme_bw(base_size = 13, base_family = "Times") +
   labs(x = "Black spruce ancestry", y = "PC1 score")
 
 p2 <- ggscatter(data2, x ="qBS", y = "V2",
                 color="Pop",
-                main="Red spruce-Black spruce genetic PCA") +
+                main="Red spruce genetic PC2 v. % ancestry from black spruce") +
   theme_bw(base_size = 13, base_family = "Times") +
   labs(x = "Black spruce ancestry", y = "PC2 score")
 
@@ -166,7 +166,7 @@ ggarrange(p1,p2)
 ### read in selection statistics (these are chi^2 distributed)
 
 ```
-!!!You'll need to edit the value you used for K here!!!
+# !!!You'll need to edit the value you used for K here!!!
 
 s <- readtable("allRS_poly_K3.selection")
 
@@ -199,7 +199,7 @@ dim(pos_filtered)
 
 # How many sites got filtered out when testing for selection? Why?
 
-## make a manhattan plot
+## make a simple manhattan plot
 
 ```
 
@@ -212,26 +212,86 @@ plot(-log10(pval_PC2), col="black", cex=0.8, xlab="Locus position", main="Select
 # We can zoom in if there's something interesting near a position...
 
 ```
-plot(-log10(pval$p_PC1[2e05:2.01e05]),
-  col=p_filtered$chromo, 
+plot(-log10(pval_PC1$p_PC1[2e05:2.01e05]),
+  col=as.factor(pos_filtered$chromo), 
   xlab="Position", 
   ylab="-log10(p-value)", 
-  main="Selection outliers: pcANGSD e=1 (K2)")
+  main="Selection outliers: PCAngsd PC1")
+
+# Combine the locus info with the PC outlier p-values:
+
+loci_pvals = cbind(pos_filtered, pval_PC1, pval_PC2)
 
 # get the contig with the lowest p-value for selection
-sel_contig <- p_filtered[which(pval==min(pval$p_PC1)),c("chromo","position")]
-sel_contig
+loci_pvals %>%
+  filter(p_PC1==min(p_PC1)) %>%
+  select(chromo,position)
 
 # get all the outliers with p-values below some cutoff
-cutoff=1e-3   # equals a 1 in 5,000 probability
-outlier_contigs <- p_filtered[which(pval<cutoff),c("chromo","position")]
-outlier_contigs
+cutoff=1e-3   # equals p<0.001
+
+outliers_PC1 <- loci_pvals %>%
+                    filter(p_PC1<cutoff) %>%
+                    select(chromo,position)
+                    
+outliers_PC2 <- loci_pvals %>%
+                    filter(p_PC2<cutoff) %>%
+                    select(chromo,position)
+
 
 # how many outlier loci < the cutoff?
-dim(outlier_contigs)[1]
+dim(outliers_PC1)[1]
 
-# how many unique contigs harbor outlier loci?
-length(unique(outlier_contigs$chromo))
+dim(outliers_PC2)[1]
+```
+
+# We can export these outlier lists out to text files for future use
 
 ```
+
+write.table(outliers_PC1,
+            "~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS",
+            quote=F,
+            row.names=F,
+            sep="\t")
+
+
+write.table(outliers_PC2,
+            "~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS",
+            quote=F,
+            row.names=F,
+            sep="\t")
+
+```
+
+# We can also get info on the # of unique contigs containing selection outliers
+
+```
+# how many unique contigs harbor outlier loci?
+outlier_contigs_PC1 = unique(outliers_PC1$chromo)
+
+length(outlier_contigs_PC1)
+
+outlier_contigs_PC2 = unique(outliers_PC2$chromo)
+
+length(outlier_contigs_PC2)
+
+```
+
+# There may be some black spruce loci coming in from introgression that are fueling the adaptive divergence between the red spruce pops along PC2 (latitudinal divergence). To look for this, we can calculate overlap between the selection outliers on PC1 and outliers on PC2.
+
+```
+library(ggVennDiagram)
+
+outliers_venn = list(outlier_contigs_PC1, outlier_contigs_PC2)
+
+# And make the Venn Diagram
+
+ggVennDiagram(outliers_venn,
+                  color = "black", # Border color of sets
+                  lwd = 1.5) + # Line width of set borders
+                  scale_fill_gradient(low="grey",high="red")
+
+```
+
 
