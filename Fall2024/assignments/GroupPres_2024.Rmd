@@ -1,0 +1,95 @@
+---
+title: "Ecological Genomics (PBIO3990 / BIO3990) Fall 2024"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Presentation Guidelines for Final Group Project:
+
+Over the last three weeks you have developed a project, made a
+pitch/project plan, and worked to carry out your proposed research
+working as a team. There are two culminating assessment pieces for this
+final group project: a group presentation and a group final paper. Your
+assignment for the presentation is to present your study, your question,
+methods, results, conclusions, and challenges/future directions.
+
+**The purposes of the presentation are to:** 1) give your group an
+opportunity to share the results of your project, 2) give each group and
+person an opportunity to demonstrate your understanding of the field and
+techniques of Ecological Genomics gained through the semester, and 3)
+give each student practice in giving an oral presentation and practice
+with science communication.
+
+**Skills:** This assignment will help you practice the following skills
+
+-   Articulate visually and orally the motivation for your project and
+    question/s
+
+-   Present data/results with care in explaining axes and methods
+    utilized beyond what was reviewed in class
+
+-   Interpret results inferring biological meaning
+
+-   Link results to initial questions
+
+-   Practice in the timing of an oral presentation such that each member
+    participates and you finish on time.
+
+**Knowledge:** This assignment will reinforce your learning in the
+following important knowledge areas in the field of ecological genomics:
+
+-   How to carry out an independent research project using the course
+    resources, resources from outside the course, and your teammates.
+
+-   Next generation sequence data processing and visualization tools.
+
+-   Computational biology/Bioinformatics
+
+-   Science communication
+
+-   Teamwork
+
+**Guidelines/Criteria:**
+
+-   Each presentation should be 20 minutes plus 5 minutes for questions
+    and discussion.
+
+-   Each member of the team should contribute to the oral presentation.
+
+-   The presentation should include:
+
+    -   **Background** - this can be relatively brief given that you
+        recently made your pitches introducing the systems and you have
+        lots of results to share.
+
+    -   Statement of the **major question/s or hypotheses** -- include any
+        specific predictions if you had them
+
+    -   Presentation of **Methods** utilized to test your questions. For
+        methods that were very similar to what we did during class, you
+        can describe these more briefly. If you used new methods that we
+        did not cover, give these a bit more background so your audience
+        can understand your pipeline
+
+    -   **Results** with tables and/or figures; make sure axes are labeled and explained
+        and provide your *biological* interpretations of the results
+
+    -   **Conclusions**, be sure to address the initial question proposed.
+        What is the broader significance of your findings?
+
+    -   **Challenges/Future Directions** - what questions your results
+        suggest asking next; what you might do to address them
+
+- The above outline is not a strict format but rather a set of
+        guidelines to help you structure your thinking and
+        presentations. More importantly, consider a narrative thread
+        throughout your presentation, making sure to revisit and hopefully
+        answer/address your major question/s again at the end of the
+        presentation.
+
+-   To improve science communication, make your presentation and figures aesthetically pleasing. Reduce the amount of text on a slide. Consider color schemes. Consider using images, symbols, and/or icons to give your audience guideposts for following your questions and results.

@@ -12,7 +12,7 @@
 
 
 
-<title>Coding Tutorials</title>
+<title>Population Genomics Tutorial 6: Genome scan for selection</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,36 +46,339 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Population Genomics Tutorial
+6: Genome scan for selection</h1>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="what-have-we-learned-about-the-genetic-structure-from-the-pca-and-admixture-plots" class="section level3">
+<h3>1. What have we learned about the genetic structure from the PCA and
+admixture plots?</h3>
+<p>Let’s take a look at the PCA and admixture figures</p>
 <ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
+<li><p><em>What does the PCA seem to be telling us?</em></p></li>
+<li><p><em>What different picture does the admixture plot reveal? How
+does it relate to the PCA?</em></p></li>
+<li><p><em>Would we want to look for higher levels of K in the admixture
+analysis? How do we do that??</em></p></li>
 </ul>
-<p><strong>Population Genomics Module</strong></p>
+</div>
+<div id="how-has-selection-acted-to-drive-divergence-of-individual-loci-in-excess-of-the-population-structure-weve-observed" class="section level3">
+<h3>2. How has selection acted to drive divergence of individual loci in
+excess of the population structure we’ve observed?</h3>
+<p>When selection acts in response to local environmental conditions, we
+observe an excess of population structure at certain loci. This can be
+thought of as Fst at a single locus exceeding some background level of
+divergence that exists across the genome as a whole. We call these “Fst
+outliers” and identifying these outliers is a major goal in ecological
+genomic studies. But, a major challenge is how best to control for
+background population structure – in other words, how can we sift out
+the “outliers” from the rest of the population structure in the
+genome?</p>
 <ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
+<li><p>One approach to identifying Fst outliers is using genetic PCA to
+(a) identify the major axes of population structure, and then (b) find
+loci that “load” very strongly on these axes, indicating their
+exceptional divergence is probably driven by the action of selection in
+excess of genetic drift.</p></li>
+<li><p>We can run a scan for Fst outliers using <code>PCAngsd</code>,
+just like we did for the genetic PCA, but here we initiate a selection
+scan for loci that are exceptionally divergent along one or more of the
+inferred genetic PC axes. This method is especially helpful when it’s
+hard to define what are genetic “populations”, since it uses the genetic
+PCA to infer the genetic structure directly. The method employed in
+<code>PCAngsd</code> follows the “FastPCA” selection scan method
+described by <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(16)00003-3">Galinsky
+et al. 2015</a></p></li>
+<li><p>The approach essentially uses the SNP weights or “loadings” on a
+given genetic PC axis to determine the strength of association, and if
+it exceeds the expectation due to neutral drift.</p></li>
+<li><p>We could run this on our full set of 113 red + black spruce
+samples, but the results would be dominated by loci that are strongly
+divergent between the species (potentially owing to reproductive
+isolation). What we’d like to find is evidence of adaptive
+introgression, where alleles from black spruce have contributed to
+divergence and local adaptation <em>within</em> red spruce</p></li>
+<li><p>To do this, we can run <code>PCAngsd</code> on just the 95 red
+spruce sampls and look at the resulting PCA to see how the PC axes
+capture the genetic divergence within red spruce. Is one of the axes
+related to the degree of introgression with black spruce?</p></li>
+<li><p>If so, we can have PCAngsd run a selection scan to identify loci
+under selection along 1 or more of the PC axes it identifies within red
+spruce. Knowing which PC axis relates to introgression should then let
+us test outlier loci within red spruce due to introgression from its
+sister species.</p></li>
 </ul>
-<p><strong>Transcriptomics Module</strong></p>
+</div>
+<div id="run-the-pca-on-the-95-red-spruce-samples" class="section level2">
+<h2>Run the PCA on the 95 Red Spruce samples</h2>
+<ul>
+<li>Let’s write a bash script called
+<code>PCAngsd_allRS_selection.sh</code> that includes the following
+code. Recall that <code>PCAngsd</code> uses genotype likelihoods in
+“beagle” format, which have been calculated for you (see tutorial 5) and
+can be found here:</li>
+</ul>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD/allRS_poly.beagle.gz</code></p>
+<p>Try creating this script yourself based on the
+<code>PCANgsd_RSBS.sh</code> script you wrote last week…</p>
+<p>You’ll want to hink about what level of K to test…</p>
+<pre><code>K=
+E=$((K-1))</code></pre>
+<p>To tell PCAngsd to test for selection, you’ll need to add the
+following options after the call to <code>pcangsd</code>. Also, you’
+don’t need the options about <code>amix</code> or <code>admix-K</code>
+anymore, so can remove those. All other options should stay the
+same.</p>
+<pre><code>--selection-eig $E \
+--selection \
+--sites-save \
+--maf-save \
+--snp-weights \</code></pre>
+<p>Note the <code>minMaf 0.05</code> option tests only those loci that
+have a minor allele frequency of 0.05 of greater. That’s because there’s
+little statistical power for testing association of alleles that are
+very rare (&lt;5% in the sample).</p>
+<p>It should run quickly! Once finished, you’ll the see a new set of
+files, including:</p>
+<table>
+<colgroup>
+<col width="29%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File name</th>
+<th>contents</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>allRS_poly.selection</td>
+<td>selection scores for each locus on each tested PC axis</td>
+</tr>
+<tr class="even">
+<td>allRS_poly.weights</td>
+<td>weights that show how strongly each locus “loads” on each PC
+axis</td>
+</tr>
+<tr class="odd">
+<td>allRS_poly.sites</td>
+<td>for each locus shows whether it got tested (1) or not (0)</td>
+</tr>
+</tbody>
+</table>
+<p>After we’ve got these results files, we can go over to
+<strong>RStudio</strong> and start exploring the results.</p>
+<p>Note: In RStudio, you’ll need to read in a file with minor allele
+frequencies (“maf”) that ANGSD makes when estimating genotype
+likelihoods. You have one of these files from when you worked on your
+focal pops, but we need one for the “allRS_poly” run of all red spruce
+individuals for just polymorphic sites. I’ve provided this here:</p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD/allRS_poly.mafs.gz</code></p>
+<div id="identify-and-visualize-outlier-loci" class="section level3">
+<h3>3. Identify and visualize outlier loci</h3>
+<p>We’ll use R to import the selection scan results and associated
+meta-data, assign p-values for each tested locus, and visualize the
+results!</p>
+<p>We’ll create this in RMarkdown, annotating in between code chunks.
+But here’s some useful code if you’re doing it on your own again
+later.</p>
+<p>Make sure your working directory is set using root.dir option in the
+initial RMarkdown setup chunk.</p>
+<p>Set the
+`root.dir=“~/projects/eco_genomics_2025/population_genomics/myresults/ANGSD/PCA_Admix”</p>
+<pre><code>library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+library(qqman)</code></pre>
+<pre><code>allRScov &lt;- as.matrix(read.table(&quot;allRS_poly_K3.cov&quot;))
+
+allRSPCA &lt;- eigen(allRScov)
+
+var &lt;- round(allRSPCA$values/sum(allRSPCA$values),3)
+
+var[1:3]
+
+# A &quot;screeplot&quot; of the eigenvalues of the PCA:
+
+barplot(var, 
+        xlab=&quot;Eigenvalues of the PCA&quot;, 
+        ylab=&quot;Proportion of variance explained&quot;)
+</code></pre>
+</div>
+</div>
+<div id="bring-in-the-bam.list-file-and-extract-the-sample-info" class="section level2">
+<h2>Bring in the bam.list file and extract the sample info:</h2>
+<pre><code>names &lt;- read.table(&quot;allRS_bam.list&quot;)
+names &lt;- unlist(strsplit(basename(as.character(names[,1])), split = &quot;.sorted.rmdup.bam&quot;))
+split = strsplit(names, &quot;_&quot;)
+pops &lt;- data.frame(names[1:95], do.call(rbind, split[1:95]))
+names(pops) = c(&quot;Ind&quot;, &quot;Pop&quot;, &quot;Row&quot;, &quot;Col&quot;)</code></pre>
+</div>
+<div id="plot-the-pca-using-ggplot" class="section level2">
+<h2>Plot the PCA using ggplot</h2>
+<pre><code>data = as.data.frame(allRSPCA$vectors)
+data = data[,c(1:3)]
+data = cbind(data, pops)
+
+# PCA with just red spruce (95 samples):
+
+ggscatter(data, x = &quot;V1&quot;, y = &quot;V2&quot;,
+          color = &quot;Pop&quot;,
+          mean.point = TRUE,
+          star.plot = TRUE,
+          main=&quot;Red spruce genetic PCA&quot;) +
+  theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
+  labs(x = paste0(&quot;PC1: (&quot;,var[1]*100,&quot;%)&quot;), y = paste0(&quot;PC2: (&quot;,var[2]*100,&quot;%)&quot;)</code></pre>
+<p>What do you see in terms of clustering with the PCA using only red
+spruce samples?</p>
+<p>We could see if there are correlations with the Admixture ancestry
+scores from the RSBS analysis we ran last week:</p>
+<pre><code>q_K2 &lt;- read.table(&quot;RSBS_poly.admix.2.Q&quot;)
+names(q_K2) = c(&quot;qBS&quot;,&quot;qRS&quot;)
+
+data2 &lt;- cbind(q_K2[1:95,1:2],data)
+  
+p1 &lt;- ggscatter(data2, x =&quot;qBS&quot;, y = &quot;V1&quot;,
+          color=&quot;Pop&quot;,
+          main=&quot;Red spruce genetic PC1 v. % ancestry from black spruce&quot;) +
+  theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
+  labs(x = &quot;Black spruce ancestry&quot;, y = &quot;PC1 score&quot;)
+
+p2 &lt;- ggscatter(data2, x =&quot;qBS&quot;, y = &quot;V2&quot;,
+                color=&quot;Pop&quot;,
+                main=&quot;Red spruce genetic PC2 v. % ancestry from black spruce&quot;) +
+  theme_bw(base_size = 13, base_family = &quot;Times&quot;) +
+  labs(x = &quot;Black spruce ancestry&quot;, y = &quot;PC2 score&quot;)
+
+ggarrange(p1,p2)
+</code></pre>
+<div id="read-in-selection-statistics-these-are-chi2-distributed" class="section level3">
+<h3>read in selection statistics (these are chi^2 distributed)</h3>
+<pre><code># !!!You&#39;ll need to edit the value you used for K here!!!
+
+s &lt;- readtable(&quot;allRS_poly_K3.selection&quot;)
+
+# convert test statistic to p-value
+pval_PC1 &lt;- as.data.frame(1-pchisq(s[,1],1))
+names(pval_PC1) = &quot;p_PC1&quot;
+
+pval_PC2 &lt;- as.data.frame(1-pchisq(s[,2],1))
+names(pval_PC2) = &quot;p_PC2&quot;
+
+## read positions
+pos &lt;- read.table(&quot;allRS_poly_mafs.sites&quot;,sep=&quot;\t&quot;,header=T, stringsAsFactors=T)
+dim(p)
+</code></pre>
+<p>Get the info on the sites tested:</p>
+<pre><code>## read in site positions
+
+PCAngsd_sites &lt;- read.table(&quot;allRS_poly_K3.sites&quot;)
+MAF_all_sites &lt;- read.table(&quot;/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/ANGSD/allRS_poly.mafs.gz&quot;, header=T)
+
+pos_filtered &lt;- cbind(MAF_all_sites,PCAngsd_sites)[which(PCAngsd_sites==1),]
+
+dim(pos_filtered)
+</code></pre>
+</div>
+</div>
+<div id="how-many-sites-got-filtered-out-when-testing-for-selection-why" class="section level1">
+<h1>How many sites got filtered out when testing for selection?
+Why?</h1>
+<div id="make-a-simple-manhattan-plot" class="section level2">
+<h2>make a simple manhattan plot</h2>
+<pre><code>
+plot(-log10(pval_PC1), col=&quot;black&quot;, cex=0.8, xlab=&quot;Locus position&quot;, main=&quot;Selection outliers: PCAngsd PC1&quot;)
+
+plot(-log10(pval_PC2), col=&quot;black&quot;, cex=0.8, xlab=&quot;Locus position&quot;, main=&quot;Selection outliers: PCAngsd PC2&quot;)
+</code></pre>
+</div>
+</div>
+<div id="we-can-zoom-in-if-theres-something-interesting-near-a-position" class="section level1">
+<h1>We can zoom in if there’s something interesting near a
+position…</h1>
+<pre><code>plot(-log10(pval_PC1$p_PC1[2e05:2.01e05]),
+  col=as.factor(pos_filtered$chromo), 
+  xlab=&quot;Position&quot;, 
+  ylab=&quot;-log10(p-value)&quot;, 
+  main=&quot;Selection outliers: PCAngsd PC1&quot;)
+
+# Combine the locus info with the PC outlier p-values:
+
+loci_pvals = cbind(pos_filtered, pval_PC1, pval_PC2)
+
+# get the contig with the lowest p-value for selection
+loci_pvals %&gt;%
+  filter(p_PC1==min(p_PC1)) %&gt;%
+  select(chromo,position)
+
+# get all the outliers with p-values below some cutoff
+cutoff=1e-3   # equals p&lt;0.001
+
+outliers_PC1 &lt;- loci_pvals %&gt;%
+                    filter(p_PC1&lt;cutoff) %&gt;%
+                    select(chromo,position)
+                    
+outliers_PC2 &lt;- loci_pvals %&gt;%
+                    filter(p_PC2&lt;cutoff) %&gt;%
+                    select(chromo,position)
+
+
+# how many outlier loci &lt; the cutoff?
+dim(outliers_PC1)[1]
+
+dim(outliers_PC2)[1]</code></pre>
+</div>
+<div id="we-can-export-these-outlier-lists-out-to-text-files-for-future-use" class="section level1">
+<h1>We can export these outlier lists out to text files for future
+use</h1>
+<pre><code>
+write.table(outliers_PC1,
+            &quot;~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS&quot;,
+            quote=F,
+            row.names=F,
+            sep=&quot;\t&quot;)
+
+
+write.table(outliers_PC2,
+            &quot;~/projects/eco_genomics_2025/population_genomics/mydata/ANGSD/outliers_PC1_RS&quot;,
+            quote=F,
+            row.names=F,
+            sep=&quot;\t&quot;)
+</code></pre>
+</div>
+<div id="we-can-also-get-info-on-the-of-unique-contigs-containing-selection-outliers" class="section level1">
+<h1>We can also get info on the # of unique contigs containing selection
+outliers</h1>
+<pre><code># how many unique contigs harbor outlier loci?
+outlier_contigs_PC1 = unique(outliers_PC1$chromo)
+
+length(outlier_contigs_PC1)
+
+outlier_contigs_PC2 = unique(outliers_PC2$chromo)
+
+length(outlier_contigs_PC2)
+</code></pre>
+</div>
+<div id="there-may-be-some-black-spruce-loci-coming-in-from-introgression-that-are-fueling-the-adaptive-divergence-between-the-red-spruce-pops-along-pc2-latitudinal-divergence.-to-look-for-this-we-can-calculate-overlap-between-the-selection-outliers-on-pc1-and-outliers-on-pc2." class="section level1">
+<h1>There may be some black spruce loci coming in from introgression
+that are fueling the adaptive divergence between the red spruce pops
+along PC2 (latitudinal divergence). To look for this, we can calculate
+overlap between the selection outliers on PC1 and outliers on PC2.</h1>
+<pre><code>library(ggVennDiagram)
+
+outliers_venn = list(outlier_contigs_PC1, outlier_contigs_PC2)
+
+# And make the Venn Diagram
+
+ggVennDiagram(outliers_venn,
+                  color = &quot;black&quot;, # Border color of sets
+                  lwd = 1.5) + # Line width of set borders
+                  scale_fill_gradient(low=&quot;grey&quot;,high=&quot;red&quot;)
+</code></pre>
 </div>
 </section>
 

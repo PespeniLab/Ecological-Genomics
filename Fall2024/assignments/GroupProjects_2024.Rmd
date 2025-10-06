@@ -1,0 +1,150 @@
+---
+title: "Ecological Genomics (PBIO3990 / BIO3990) Fall 2024"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Guidelines for Final Group Project:
+
+Over the last three weeks you have developed a project, made a
+pitch/project plan, and worked to carry out your proposed research
+working as a team. There are two culminating assessment pieces for this
+final group project: a group presentation and a group final paper. Your
+assignment is to present your study, your question, methods, results,
+conclusions, and challenges/future directions.
+
+**The purposes of the presentation and final paper are to:** 1) give
+your group an opportunity to share the results of your project, 2) give
+each group and person an opportunity to demonstrate your understanding
+of the field and techniques of Ecological Genomics gained through the
+semester, and 3) give each student practice with science communication
+in the form of an oral presentation and written paper .
+
+**Skills:** This assignment will help you practice the following skills
+
+-   Articulate the motivation for your project and question/s
+
+-   Present approaches/data/results with care in explaining methods
+    utilized beyond what was reviewed in class
+
+-   Interpret results inferring biological meaning
+
+-   Link results to initial questions/hypotheses
+
+-   Practice collaborative team science such that each member
+    participates equitably.
+
+**Knowledge:** This assignment will reinforce your learning in the
+following important knowledge areas in the field of ecological genomics:
+
+-   How to carry out an independent research project using the course
+    resources, resources from outside the course, and your teammates.
+
+-   Next generation sequence data processing and visualization tools.
+
+-   Computational biology/Bioinformatics
+
+-   Science communication
+
+-   Teamwork
+
+-----
+
+**PRESENTATION Guidelines/Criteria:** DUE: Thursday 12/5 in class
+
+-   Each presentation should be 20 minutes plus 5 minutes for questions
+    and discussion.
+
+-   Each member of the team should contribute to the oral presentation.
+
+-   The presentation should include:
+
+    -   **Background (15 pts)** - this can be relatively brief given that you
+        recently made your pitches introducing the systems and you have
+        lots of results to share.
+
+    -   **Major question/s or hypotheses (15 pts)** -- include
+        any specific predictions if you had them
+
+    -   **Methods (20 pts)** Present the approaches you used to test your questions. For
+        methods that were very similar to what we did during class, you
+        can describe these more briefly. If you used new methods that we
+        did not cover, give these a bit more background so your audience
+        can understand your pipeline
+
+    -   **Results (20 pts)** with tables and/or figures; make sure axes are
+        labeled and explained and provide your *biological*
+        interpretations of the results
+
+    -   **Conclusions (15 pts)**, be sure to address the initial question
+        proposed. What is the broader significance of your findings?
+
+    -   **Challenges/Future Directions (15 pts)** - what questions do your results
+        suggest asking next; what you might do to address them?
+
+-   Work towards having a narrative thread throughout your
+    presentation, making sure to revisit and hopefully answer/address
+    your major question/s again at the end of the presentation.
+
+-   To improve science communication, make your presentation and figures
+    aesthetically pleasing. Reduce the amount of text on a slide.
+    Consider color schemes. Consider using images, symbols, and/or icons
+    to give your audience guideposts for following your questions and
+    results.
+
+-----
+
+**PAPER Guidelines/Criteria:** DUE: Thursday 12/12 (midnight) by email to
+
+Melissa.Pespeni@uvm.edu 
+Stephen.Keller@uvm.edu
+Alison.Hall@uvm.edu
+
+-   Each paper should be in the style of the journal, Molecular Ecology.
+    Formatting should follow that of an Original Article [see author
+    guidelines on the journal's website](https://onlinelibrary.wiley.com/page/journal/1365294x/homepage/ForAuthors.html) 
+
+-   The maximum length of the paper [should not exceed 4500
+    words]{.underline}, not including abstract, references, tables, and
+    figure captions.
+
+-   You may include a **combined total** of 5 figures and tables. In
+    other words, you could do 3 figures + 2 tables, or 4 figures and 1
+    table, etc.
+
+-   Each member of the team should contribute to both the data/results
+    that the paper presents, and the writing of the paper itself.
+    
+-   In general, the format of the paper and tone of the writing will be similar to your written homework assignments (think of these as 'practice' for the final paper), but with greater detail and length needed for the final paper.
+
+-   The paper **must** include the following sections:
+
+    -   **Title** - Title should be informative but not overly long.
+        Include on your title page the names of each group member
+
+    -   **Abstract (5 pts)** - A concise summary of all the major parts of the paper, including conceptual background/motivation, major question, methods, results, and conclusions. Each section should only be 1-2 sentences, and the total length of the Abstract should be about 250 words.
+
+    -   **Introduction (15 pts)** - Provides the conceptual background to motivate your study. Start broad (what is the big picture issue you're addressing and why is it important) and then narrow down to your specific problem. Finish with a clear statement of your questions/hypotheses. Include predictions here if you had them.
+
+    -   **Methods (15 pts)** - Covers the experimental and analytical pipelines necessary to reproduce the results. Can also include a section on the study system, as relevant (note, some papers choose to write about the study system towards the end of the Introduction; either is fine). 
+
+    -   **Results (15 pts)** - Summarize your major results in narrative form in the text, referring to figures/tables parenthetically. Save interpretation of the results for the Discussion.
+
+    -   **Figures and/or Tables (15 pts)** - Maximum of 5 (combined). Similar to your homework assignments, use figures/tables to "tell the story" of your results. Be sure that all axes are labeled. Each figure/table should have a title and brief descriptive text legend. Figure titles and legends go below Figures, whereas Table titles and legends go above Tables. 
+
+    -   **Discussion (15 pts)** - Here is where you interpret what your results mean and how they inform your major questions/hypotheses. This is also your opportunity to place your results in the context of what others have found in similar studies -- do your results largely agree with previous work, or do they suggest a different outcome/intepretation? Towards the end of your Discussion, you should address any caveats that should accompany your interpretations, and share any challenges experienced that may have affected the outcomes you report. Additionally the end of the Discussion is a good place to suggest future directions or next steps you or others could take to followup on your study and its findings.
+
+    -   **References (10 pts)** - in APA format, same as the homeworks. Include in your References section all the studies you cited in your text, and only those you cited. In other words, there should be a 1-to-1 correspondence between citations in your text and those appearing in your References section. Include both citations used during your analysis pipelines as well as citations needed to provide conceptual background and interpretation. References should go beyond the papers identified in class to include citations needed to support the ideas you develop in your Introduction and Discussion and to place your findins in the broader context of other studies.
+
+    -   **Organization (10 pts)** - A well organized paper is neatly presented, has correct grammar and spelling, and flows well between sections.
+
+    -   **Author Contributions** - For each group member, briefly state what their major contribution to the group project was in terms of conceptualization, analysis, and writing.  
+
+-   In addition, each group member should have their **Github lab
+    notebooks** up to date documenting their contributions to the group
+    project.

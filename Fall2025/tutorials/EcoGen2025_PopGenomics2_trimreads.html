@@ -10,9 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<meta name="author" content="SRK" />
 
 
-<title>Coding Tutorials</title>
+<title>Population Genomics Tutorial 2: Trim and QC the raw sequence reads</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -29,6 +30,97 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </script>
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+
+a.sourceLine {
+pointer-events: auto;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -46,36 +138,304 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Population Genomics Tutorial
+2: Trim and QC the raw sequence reads</h1>
+<h4 class="author project-author">SRK</h4>
+<h4 class="date project-date">Fall 2025</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
-<ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
-</ul>
-<p><strong>Population Genomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
-</ul>
-<p><strong>Transcriptomics Module</strong></p>
+<p>In Bioinformatics, we create pipelines that represent our analysis
+workflow, from raw data to intermediate data outputs to final results
+and figures. For our spruce data, the first part of our pipeline will be
+doing some QC on our raw data then mapping the reads to the reference
+genome.</p>
+<div id="intro-to-fastq-files" class="section level2">
+<h2>1. Intro to fastq files</h2>
+<p>Whenever you get a new batch of NGS data, the first step is to look
+at the data quality of coming off the sequencer and see if we notice any
+problems with base quality, sequence length, PCR duplicates, or adapter
+contamination. A lot of this info is stored in the raw data files you
+get from the core lab after sequencing, which are in <strong>“fastq”
+format</strong>.</p>
+<p>The fastq files for our project are stored in this path:</p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/fastq/red_spruce</code></p>
+<p><code>cd</code> over there and <code>ll</code> to see the files.
+There should be 190 fastq files: 2 for each of the 95 red spruce.</p>
+<p><strong>Note:</strong> there are 2 files/sample because these are
+paired-end reads, and each sample gets a file with the forward reads
+(R1) and another with the reverse reads (R2).</p>
+<p>The naming convention for our data is:</p>
+<p><code>&lt;PopCode&gt;_&lt;RowID&gt;_&lt;ColumnID&gt;_&lt;ReadDirection&gt;.fast.gz</code></p>
+<p>Together, <code>&lt;PopCode&gt;_&lt;RowID&gt;_&lt;ColumnID&gt;</code>
+define the unique individual ID for each DNA sample, and there should be
+2 files per sample (an R1 and an R2)</p>
+<p>You’ll also see a folder with black spruce fastq files here:</p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/fastq/black_spruce</code></p>
+<p>with paired-end sequences for 18 black spruce samples (=36 fastq
+files)</p>
+<div id="sowhat-is-a-.fastq-file-anyway" class="section level3">
+<h3>So…what is a .fastq file anyway?</h3>
+<p><a href="https://en.wikipedia.org/wiki/FASTQ_format">A fastq file is
+the standard sequence data format for NGS</a>. It contains the sequence
+of the read itself, the corresponding quality scores for each base, and
+some meta-data about the read.</p>
+<p>The files are big (typically many Gb compressed), so we can’t open
+them completely. Instead, we can peek inside the file using
+<code>head</code>. But size these files are compressed (note the .gz
+ending in the filenames), and we want them to stay compressed while we
+peek. Bash has a solution to that called <code>zcat</code>. This lets us
+look at the .gz file without decompressing it all the way. Let’s peek
+inside a file:</p>
+<pre><code>zcat 2505_9_C_R2.fastq.gz | head -n 4
+
+@A00354:455:HYG3FDSXY:1:1101:3893:1031 2:N:0:CATCAAGT+TACTCCTT
+GTGGAAAATCAAAACCCTAATGCTGAAAGGAATCCAAATCAAATAAATATTTTCACCGACCTGTTTCGATGCCAGAATTGTCTGCGCAGAAGACTCGTGAAATTTCGCCAGCAGGTAAAATTAAAAGGCTAGAATTAACCGCTGAAATGGA
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:F:F</code></pre>
+<p><strong>Note:</strong> <code>zcat</code> lets us open a .gz (gzipped)
+file; we then “pipe” <code>|</code> this output from <code>zcat</code>
+to the <code>head</code> command and print just the top 4 lines
+<code>-n4</code></p>
+<p>The fastq file format has 4 lines for each read:</p>
+<table>
+<colgroup>
+<col width="36%" />
+<col width="63%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Line</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Always begins with ‘@’ and then information about the read</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>The actual DNA sequence</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Always begins with a ‘+’ and sometimes the same info in line 1</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>A string of characters which represent the <strong>quality</strong>
+scores; always has same number of characters as line 2</td>
+</tr>
+</tbody>
+</table>
+<p><a href="http://www.drive5.com/usearch/manual/quality_score.html">Here’s a
+useful reference for understanding Quality (Phred) scores</a>. If P is
+the probability that a base call is an error, then:</p>
+<p>Q = -10*log10(P)</p>
+<p>So:</p>
+<table>
+<colgroup>
+<col width="27%" />
+<col width="45%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phred Quality Score</th>
+<th>Probability of incorrect base call</th>
+<th>Base call accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10</td>
+<td>1 in 10</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>1 in 100</td>
+<td>99%</td>
+</tr>
+<tr class="odd">
+<td>30</td>
+<td>1 in 1000</td>
+<td>99.9%</td>
+</tr>
+<tr class="even">
+<td>40</td>
+<td>1 in 10,000</td>
+<td>99.99%</td>
+</tr>
+</tbody>
+</table>
+<p><em>The Phred Q score is translated to ASCII characters so that a two
+digit number can be represented by a single character.</em></p>
+<pre><code> Quality encoding: !&quot;#$%&amp;&#39;()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHI
+                   |         |         |         |         |
+    Quality score: 0........10........20........30........40   </code></pre>
+<p><em>What kind of characters do you want to see in your quality
+score?</em></p>
+<hr />
+</div>
+</div>
+<div id="clean-and-visualize-fastq-data-quality-using-fastp" class="section level2">
+<h2>2. Clean and visualize fastq data quality using Fastp</h2>
+<p>We’ll use the <a href="https://github.com/OpenGene/fastp"><strong>Fastp</strong>
+program</a> to clean the reads for each file. See also the <a href="https://onlinelibrary.wiley.com/doi/10.1002/imt2.107">paper
+published by Chen in May 2023</a>. <strong>Fastp</strong> looks at the
+quality collectively across all reads in a sample. The program is
+already installed on the VACC.</p>
+<p>Open a terminal and at the command-line type:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">module</span> load gcc fastp</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">fastp</span> <span class="at">-h</span></span></code></pre></div>
+<p>You should see a help menu printed out with lots of options to run
+the program!</p>
+<hr />
+</div>
+<div id="set-up-our-directory-structure" class="section level2">
+<h2>3. Set up our directory structure</h2>
+<p>OK, now we need to set up our directories to hold our work.</p>
+<p>First, let’s <code>cd</code> to our repo
+<code>~/projects/eco_genomics2025</code>, make a new directory to store
+the work for the Population Genomics module:</p>
+<p><code>mkdir population_genomics</code></p>
+<p>and lastly set up some new directories to store our work. We’ll make
+directories to store our data, scripts, results, documents, and log
+files:</p>
+<pre><code>mkdir mydata
+mkdir myscripts
+mkdir myresults
+mkdir mydocs
+mkdir mylogs</code></pre>
+<p>Then let’s cd into the <code>myresults/</code> folder then use
+<code>pwd</code> to prove to yourself that you’re in the
+<code>myresults/</code> folder within your home directory. It should
+look like this (but with your home directory info instead of mine):</p>
+<p><code>/users/s/r/srkeller/projects/eco_genomics2025/population_genomics/myresults</code></p>
+<p>Now within <code>myresults/</code> let’s make another folder called
+<code>fastp_reports/</code> to hold the QC outputs from our
+<strong>Fastp</strong> analysis. Do that on your own, just like we did
+above, then cd into the <code>fastp_reports/</code> folder and type
+<code>pwd</code> again to prove to yourself you did it right.</p>
+<p>Now, we’re ready to run <strong>Fastp</strong> to look at the quality
+of our sequencing.</p>
+<hr />
+</div>
+<div id="write-a-bash-script-to-run-fastp-for-multiple-samples" class="section level2">
+<h2>4. Write a bash script to run Fastp for multiple samples</h2>
+<p>We <em>could</em> do these 1 sample at a time, but that’d be
+inefficient.</p>
+<p>Since we’re doing multiple samples from the same population, we want
+to be clever and process in a batch instead of manually one at a time.
+We can do this by writing a bash script that contains a loop. This is
+the first taste of how bash scripting is powerful!</p>
+<p>The basic syntax of a bash loop is like this:</p>
+<pre><code>cd &lt;path to the input data&gt;
+
+for FILE in somelist
+
+do
+
+  command1 -options ${FILE} -moreOptions
+  command2 -options ${FILE} -moreOptions
+
+done</code></pre>
+<p>Note the use of variable assignment using ${}. We define the word
+<code>FILE</code> in the “for loop” as the variable of interest, and
+then call the iterations of it using ${FILE}. For example, we could use
+the wildcard character (*) in a loop to call all files that include the
+ID code for your population and then pass those filenames in a loop to
+the commands.</p>
+<p>If your pop was “2505”, then you could write a loop that would
+process all the R1 fastq files in that population like this:</p>
+<pre><code>cd &lt;path to the input data&gt;
+
+MYPOP=&quot;2505&quot;
+
+for FILE in ${MYPOP}*R1.fastq.gz
+
+do
+
+  command1 -options ${FILE} -moreOptions
+  command2 -options ${FILE} -moreOptions
+
+done</code></pre>
+<p>That’s the basic idea! Let’s do it…</p>
+<p>We’ve provided a partially completed example script here:</p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/scripts/fastp.sh</code></p>
+<ol style="list-style-type: decimal">
+<li><p>Make a copy of the script using <code>cp</code> and put it into
+your <code>myscripts/</code> directory</p></li>
+<li><p>Open and edit your copied script using the RStudio file
+editor.</p></li>
+<li><p>Edit the file so that you’re trimming the fastq files for the
+population code assigned to you; you can add annotations as notes to
+yourself using the hashtag (#)</p></li>
+<li><p>Save the file after you’re done making changes.</p></li>
+</ol>
+<p><strong>Note:</strong> A quirk with <strong>Fastp</strong> is that it
+needs both read pairs (i.e., R1 and R2 files) given to it at the
+<em>same</em> time. This makes the use of name variables in the loop a
+bit tougher since we can’t rely just on the population name (example,
+<code>2505</code>) but also need each individual name too (example,
+<code>2505_9_C</code>).</p>
+<p>We’ll use a couple of tricks to recycle the R1 file name to quickly
+create a matching R2 file name within the loop. We’ll do a similar trick
+to quickly name the output files adding “_clean” to the end. We’ll talk
+about this in class together, but there are also annotations in the
+script itself explaining what’s happening.</p>
+<p>Once you’re ready, go ahead and cd into your ‘myscripts/’ folder and
+run your bash script:</p>
+<pre><code>bash fastp.sh</code></pre>
+<p>Note that the output (the trimmed and cleaned reads) are going to get
+saved to a folder on the network drive that you’ve been given write
+access to:</p>
+<p><code>/gpfs1/cl/ecogen/pbio6800/PopulationGenomics/cleanreads</code></p>
+<hr />
+</div>
+<div id="visualize-pre--and-post-trimming-read-quality-with-the-fastp-html-output" class="section level2">
+<h2>5. Visualize pre- and post-trimming read quality with the
+<code>fastp</code> html output</h2>
+<p>Conveniently, <code>fastp</code> is not only fast, but also produces
+a summary of the change in quality pre- and post-trimming. The output is
+in an html file that we can look at in a browser. Pretty cool!</p>
+<p><em>How does the quality look?</em></p>
+<p>Also, since we made some changes (added files) to our github repo, we
+should practice staging, committing, and then pushing to GitHub! Don’t
+forget to pull first to make sure you’re up to date with main ;)</p>
+<hr />
+</div>
+<div id="be-sure-to-take-notes-on-your-workflow-so-you-can-remember-what-you-did-for-the-future" class="section level2">
+<h2>6. Be sure to take notes on your workflow so you can remember what
+you did for the future!</h2>
+<p>An important final step is taking good notes on your workflow so you
+can remember what you did down the road (your “future self”) and share
+your process with others (reproducible science!). It’s also really
+important once you start making detailed decisions that will affect the
+analysis outcome of your data, so you can recreate the results and
+explore the effect of different assumptions/decisions.</p>
+<p>We want you to keep such a notebook for each module in the course
+(kind of like you would for each experiment, or each thesis chapter you
+will work on).</p>
+<p>You can create this as a plain text file in RStudio on the OnDemand
+VACC server. Let’s name this file:</p>
+<p><code>popgen_notes.md</code></p>
+<p>and save it within your
+<code>eco_genomics2025/population_genomics/</code> repo directory.</p>
+<p>You can edit this file directly within RStudio, taking notes using
+either the <code>Source</code> interface if you know the markdown
+language (or want to learn) or you can use RStudio’s built-in markdown
+GUI editor under the <code>Visual</code> tab. This works very similar to
+Word.</p>
+<p>Here’s a cheatsheet for markdown language if you want to write using
+<code>Source</code> code:</p>
+<p><a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax">Markdown
+cheatsheet</a></p>
 </div>
 </section>
 

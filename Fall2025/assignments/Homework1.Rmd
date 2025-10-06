@@ -1,5 +1,5 @@
 ---
-title: "Homework #1 (Population & Landscape Genomics)"
+title: "Homework #1 (Population Genomics)"
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -24,10 +24,11 @@ Along the way, we've learned and discussed what these results mean for the genet
 
 **The picture that is emerging is one of complex population structure in the north vs. south part of the range, but also clear evidence of hybridization in different areas that also correspond with selection acting along those gradients of population structure.** 
 
-## Your first homework assignment is to more fully explore these results by choosing ONE of options below:
+## Your first homework assignment is to more fully explore these results by choosing ONE of the options below:
 
-(a) *Option A: Sensitivity of nucleotide diversity and genetic structure to different filtering strategies.*
-To address this question, you'll want to look back at the ANGSD filters we used when we first called the genotype likelihoods in preparation for estimating nucleotide diversity (Tutorial 3). Choose **any 2** of the following filters, read about them on the ANGSD manual page, and **choose 2 different values** of each filter to explore (beyond the value we did together in class). You should do each new filtering value on its own without changing any of the other values (total of 4 runs). Then choose 1 additional run where you change 2 of the filtering options at the same time.  The filters you can choose among are:
+(a) ***Option A: Sensitivity of nucleotide diversity and Tajima's D to different filtering strategies.***
+
+To address this question, you'll want to look back at the ANGSD filters we used when we first called the genotype likelihoods in preparation for estimating nucleotide diversity (Tutorial 3). Choose **any 2** of the following filters, read about them on the ANGSD manual page, and **choose 2 different values** of each filter to explore. You should do each new filtering value on its own without changing any of the other values (total of 4 runs). Then choose 1 additional run where you change 2 of the filtering options at the same time.  The filters you can choose among are:
 
 * remove_bads
 * minInd
@@ -37,11 +38,13 @@ To address this question, you'll want to look back at the ANGSD filters we used 
 
 For each new run you do with changed filter parameters, calculate nucleotide diversity (Pi and theta-W) and Tajima's D using ANGSD just like we did in class.  Then synthesize the results from each run in terms of the number of sites/contig, estimated nucleotide diversity and Tajima's D, and compare across the different filter options.  Were the results robust to the different values you chose?  Which do you think are most reliable and why?
 
-(b) *Option B: Testing for the presence of additional genetic structure and ancestry at higher levels of K*
-To address this question, you'll want to look at several different values of K and run separate models for each one to investigate how it affects our interpretation of the population structure within our sampling.  You can choose to run your evaluation on just the 95 red spuce samples or the combined red + black spruce samples (N=113).  Test from K=2 to K=5. Summarize the results in terms of how much the variance explained by the eigenvalues change. You may also find it interesting to look at how the likelihood score of the overall model fit changes -- this can be gleaned from the end of the log file of the PCAngsd run. Lastly, create Admixture plots for each level of K and compare the inference of genetic structure across the different levels.  How does this relate to the geography of the sample popualtoins, and the contribution of hybridization from black spruce?
+(b) ***Option B: Testing for additional genetic structure and ancestry at higher levels of K***
 
-(c) *Option C: Layers of evidence for selection*
-To address this question, you'll want to compare selection outliers from PCAngsd (outliers on PC1 and PC2) to estimates of nucleotide diversity (Pi) and Tajima's D.  To do this, you'll need to figure out which contigs harbor selection outliers from PC1 and PC2 (separately) and then look for overlap in which contigs show either strongly negative D (using a threshold of -1.5) or very low nucleotide diversity (using a threshold of tPsite<0.001).  You should base your estimation of nucleotide diversity on the entire set of 95 red spruce samples!  That will mean running ANGSD again to estimate genotype likelihoods and thetas for all 95 samples, not just your pop!  Summarize the final results with interesting figures, include one or more Venn diagrams
+To address this question, you'll want to look at several different values of K and run separate models for each one to investigate how it affects our interpretation of the population structure within our sampling.  You can choose to run your evaluation on just the 95 red spuce samples or the combined red + black spruce samples (N=113).  Test from K=2 to K=5. Summarize the results in terms of how much the variance explained by the eigenvalues change. You may also find it interesting to look at how the likelihood score of the overall model fit changes -- this can be gleaned from the end of the log file of the PCAngsd run. (Note, Likelihood values are usually negative, and less negative values = better fit to the data). Lastly, create Admixture plots for each level of K and compare the inference of genetic structure across the different levels.  How does this relate to the geography of the sample populations, and the contribution of hybridization from black spruce?
+
+(c) ***Option C: Layers of evidence for selection***
+
+To address this question, you'll want to compare selection outliers from PCAngsd (outliers on PC1 and PC2) to estimates of nucleotide diversity (Pi) and Tajima's D to see if there's evidence for selective sweeps.  To do this, you'll need to figure out which contigs harbor selection outliers from PC1 and PC2 (separately) and then look for overlap in which contigs show either strongly negative D (using a threshold of -1.5) or very low nucleotide diversity (using a threshold of tPsite<0.001).  You should base your estimation of nucleotide diversity on the entire set of 95 red spruce samples!  That will mean running ANGSD again to estimate genotype likelihoods and thetas for all 95 samples, not just your pop!  Summarize the final results with interesting figures/tables, include one or more Venn diagrams.
 
 
 # Criteria:
@@ -73,12 +76,13 @@ To address this question, you'll want to compare selection outliers from PCAngsd
 
 #### References (listed on a separate page)
 * Cite papers in APA format.  Example:  
-  <font size="0.75">*Capblancq, T., Butnor, J. R., Deyoung, S., Thibault, E., Munson, H., Nelson, D. M., ... & Keller, S. R. (2020). Whole‐exome sequencing reveals a long‐term decline in effective population size of red spruce (Picea rubens). Evolutionary Applications, 13(9), 2190-2205.*</font>
+
+*Capblancq, T., Butnor, J. R., Deyoung, S., Thibault, E., Munson, H., Nelson, D. M., ... & Keller, S. R. (2020). Whole‐exome sequencing reveals a long‐term decline in effective population size of red spruce (Picea rubens). Evolutionary Applications, 13(9), 2190-2205.*
 
 
 * Only include references to papers you cite in your text
 
-* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github “scripts” folder and any markdowns you used to provess your results are in your `mydocs` folder. 
+* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github `myscripts` folder. Create a single Rmarkdown to process all your results and save in your `mydocs` folder. Have a dedicated entry in your popgen_notes.md notebook documenting your notes for yourself about your workflow and decisions made. 
 
 
 ### Guidelines and deadlines:

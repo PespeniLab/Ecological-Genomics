@@ -12,7 +12,7 @@
 
 
 
-<title>Coding Tutorials</title>
+<title>Homework #1 (Population Genomics)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,36 +46,262 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Homework #1 (Population
+Genomics)</h1>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="homework-assignment-1-due-by-monday-october-07-2024" class="section level1">
+<h1>Homework assignment #1 – Due by Monday October 07, 2024</h1>
+<p>We’ve now completed our first module of coding sessions. Let’s review
+all you’ve learned!</p>
 <ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
+<li><em>Understanding the format of raw sequencing reads (fastq files)
+and interpreting their quality (Q-scores)</em></li>
+<li><em>How to work with variant call format (VCF) files, read them into
+R and filter them based on different quality metrics</em></li>
+<li><em>Estimating population genomic diversity in terms of expected
+heterozygosity within subpopulations (Hs) and across the entire sample
+(Ht) and estimating levels of genetic differentiation between a-priori
+defined groups (Fst)</em></li>
+<li><em>Estimating and visualizing population structure in the form of
+genetic PCA and Admixture analyses</em></li>
+<li><em>Testing for selection on specific genomic loci using outlier
+analyses</em></li>
 </ul>
-<p><strong>Population Genomics Module</strong></p>
+<p>You’ve accomplished a lot! :)</p>
+<p>Along the way, we’ve learned and discussed how sequencing quality
+affects various inferences in population genomics, and started to get a
+picture of the genomic diversity, structure, and selection that may be
+acting on these <em>Centaurea</em> populations in their native range and
+where they’ve been introduced.</p>
+<p>An important <u>question</u> among biologists studying introduced
+species is whether hybridization/admixture among populations increases
+genetic variation in the introduced range and allows those populations
+to respond to novel selection pressures. The hypothesis that admixture
+may increase introduction success has been discussed and tested across
+many different types of taxa (classically reviewed by <a href="https://www.pnas.org/doi/abs/10.1073/pnas.97.13.7043">Ellstrand
+&amp; Schirenbeck, 2000</a> and more recently by <a href="https://royalsocietypublishing.org/doi/full/10.1098/rspb.2016.1329">Pfenning
+et al., 2016</a>), and tested by many studies, including some older ones
+by your professor :) (<a href="https://academic.oup.com/jeb/article-abstract/23/8/1720/7325056">Keller
+et al., 2010</a>; <a href="https://academic.oup.com/jeb/article-abstract/27/3/616/7318649">Keller
+et al., 2014</a>), and genomics tools are increasingly applied in this
+space (<a href="https://academic.oup.com/gbe/article/16/1/evad230/7477876">McGaughran
+et al., 2024</a>) These studies often find evidence of genetic mixing in
+PCA/Admixture analyses, increased levels of genome-wide diversity, and
+evidence of selection on introduced populations, all consistent with the
+hypothesis of admixture increasing the evolutionary potential of
+introduced populations. Is this true for <em>Centaurea</em> as well?</p>
+<p>One important <u>issue</u> is <strong>individual-level
+missingness</strong> (i.e., for each individual, what % of SNP loci are
+they missing data?), since this has been shown to affect inference of
+population structure in PCA (<a href="https://onlinelibrary.wiley.com/doi/full/10.1111/1755-0998.13498">Yi
+and Latch, 2022</a>), and may affect other aspects of diversity as well.
+For example, we saw differences among regions in average Hs and the
+proportion of loci with non-zero Hs. Is this difference in diversity
+real or an artifact of too much missing data? Similarly, we saw some
+genetic clustering by region in the PCA and Admixture analyses, but also
+many individuals near the center of the PCA or with mixed ancestry in
+the Admixture analysis. Is this real evidence of gene flow through
+hybridization or artifacts from missingness?</p>
+<div id="your-first-homework-assignment-is-to-assess-the-sensitivity-of-population-diversity-and-structure-to-invididual-level-missingness." class="section level2">
+<h2>Your first homework assignment is to assess the sensitivity of
+population diversity and structure to invididual-level missingness.</h2>
+<p>The basic approach:</p>
+<ol style="list-style-type: decimal">
+<li><p>Go back to the filtering stage on our original VCF file. Keeping
+all other filters constant, vary the level of individual missingness to
+evaluate its effects. Recall we originally allowed individuals with 75%
+missing data. <strong>Choose 2 other thresholds to evaluate, and
+generate 2 new filtered vcf files</strong> (again, keeping all other
+filters the same as before).</p></li>
+<li><p>For each new VCF file representing different levels of individual
+missingness, <strong>estimate</strong> the following:</p></li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>The number of individuals and SNP loci after filtering</li>
+<li>Genome-wide diversity for each region (Hs) and its standard
+deviation (SD)</li>
+<li>The number of loci with Hs=0 vs. Hs&gt;0 for each region</li>
+<li>Genetic structure using <strong>either</strong> PCA
+<strong>or</strong> Admixture analysis</li>
+</ol>
+<ol start="3" style="list-style-type: decimal">
+<li><p><strong>Compare</strong> the effect that the 3 different levels
+of individual missingness (the original 75% threshold, and the 2 new
+thresholds you choose) have on the above measures of diversity and
+structure in this <em>Centaurea</em> dataset.</p></li>
+<li><p><strong>Interpret</strong> your findings in light of the
+hypothesis that hybridization/admixture is increasing diversity in the
+introduced range of <em>Centaurea</em>.</p></li>
+</ol>
+<hr />
+<div id="guidelines-and-expectations" class="section level3">
+<h3>Guidelines and expectations:</h3>
 <ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
+<li>The main text of the write-up should be 2 pages (max) single spaced.
+Tables, figures, and references can be on separate pages.</li>
+<li>You may collaborate with each other to discuss details and share
+notes, but your write-up should be done independently and represent your
+own work.<br />
+</li>
+<li>Approach the writing as a technical report based on the work you’ve
+done to date. That is, write for a scientific audience using appropriate
+technical language and narrative style, with citations used when
+referring to methods or making factual assertions.</li>
+<li>Your write-up should include the following essential elements:</li>
 </ul>
-<p><strong>Transcriptomics Module</strong></p>
+<div id="background-1-2-paragraphs" class="section level4">
+<h4>Background (1-2 paragraphs):</h4>
+<ul>
+<li>A brief description providing context and motivation of the problem
+we’re trying to address with these data, including a clear statement of
+your objective for this analysis.</li>
+<li>Brief background on the study species, biological samples, library
+prep, and sequencing strategy (look through the first tutorial for info,
+plus your notes from class)</li>
+</ul>
+</div>
+<div id="bioinformatics-pipeline-2-paragraphs" class="section level4">
+<h4>Bioinformatics Pipeline (~2 paragraphs):</h4>
+<ul>
+<li>Description of the various steps you used for the analysis of the
+sequencing data. Take it from the initial VCF file you were given up to
+estimation of population diversity and structure. No need to include
+things we did in class that aren’t used explicitly in your homework
+analysis unless you think it’s relevant. Write this section at a level
+of detail similar to what we’ve seen in papers we’ve read for
+Discussion. That is, write with enough detail that a capable person with
+training similar to yours could reproduce your work. No need to include
+minutia (e.g., “First, I logged into the VACC. Then I opened up RStudio,
+…”).</li>
+<li>This section should demonstrate both your technical knowledge of the
+flow of the different steps in the pipeline, and your level of
+proficiency in understanding why each step was done.</li>
+</ul>
+</div>
+<div id="results-1-2-paragraphs" class="section level4">
+<h4>Results (1-2 paragraphs)</h4>
+<ul>
+<li>Report your findings from the different analysis steps. Use a
+combination of reporting results in-line in your text and summarizing
+more detailed information in tables and/or figures.<br />
+</li>
+<li>You may use a <strong>max of 3 tables/figures total</strong> (not
+counted towards the page limit). These should be placed at the end of
+your document.</li>
+<li>Be sure each table/figure has a title, and a very brief legend
+describing its contents.</li>
+</ul>
+</div>
+<div id="conclusion-1-2-paragraphs" class="section level4">
+<h4>Conclusion (1-2 paragraphs)</h4>
+<ul>
+<li>Give your conclusion so far from the data: How did your levels
+individual-level missingness affect your results? What can we conclude
+at this point about evidence for/against the admixture hypothesis and
+invasive species?</li>
+<li>Discuss any caveats or uncertainties that should be considered when
+interpreting your results.</li>
+<li>Discuss any methodological challenges encountered along the way that
+are relevant to your results and their interpretation.</li>
+<li>Discuss opportunities for future directions.</li>
+</ul>
+</div>
+<div id="references-listed-on-a-separate-page" class="section level4">
+<h4>References (listed on a separate page)</h4>
+<ul>
+<li>You need to cite peer-reviewed literature in your homework.
+Somewhere between 3-5 references is expected, not including citations of
+R packages.</li>
+<li>In addition to your 3-5 references, be sure to cite any R packages
+you use in your analysis (citations provided at the bottom of this
+document)</li>
+<li>Only include references to papers you cite in your text!</li>
+<li>Cite papers in APA format. Example:</li>
+</ul>
+<p><font size="3"><em>Lachmuth, S., Molofsky, J., Milbrath, L., Suda,
+J., &amp; Keller, S. R. (2019). Associations between genomic ancestry,
+genome size and capitula morphology in the invasive meadow knapweed
+hybrid complex (Centaurea× moncktonii) in eastern North America. AoB
+Plants, 11(5), plz055.</em></font></p>
+</div>
+<div id="github-have-your-github-lab-notebook-and-scripts-up-to-date." class="section level4">
+<h4>Github: Have your github lab notebook and scripts up to date.</h4>
+<ul>
+<li>For your homework, combine your analyses into a single script named
+<code>homework1_yourlastname.r</code> and save it to your
+<code>docs/</code> folder on github.</li>
+<li>Also be sure your in-class scripts are available in your github
+<code>docs/</code> folder inside your <code>population_genomics/</code>
+folder.</li>
+<li>Your lab notebook should also be up to date</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="submission-and-deadlines" class="section level3">
+<h3>Submission and deadlines:</h3>
+<ul>
+<li><p>Due by Monday Oct 07, 2024 (end of day)</p></li>
+<li><p>Upload your homework as a Word doc or pdf to Brightspace</p></li>
+</ul>
+<hr />
+</div>
+<div id="extra-credit-10-pts-possible-nte-100-pts-total" class="section level3">
+<h3><em>Extra Credit! (10 pts possible; NTE 100 pts total)</em></h3>
+<ul>
+<li>Include a selection analysis using <code>PCAdapt</code> in your
+evaluation of the effect of individual missingness.</li>
+<li>For this, you’d want to run your selection analysis as we did in
+class and determine the number of significant outliers on each PC axis
+tested</li>
+<li>Significance can be determined from the <code>pvalues</code> slot in
+the results object that <code>PCAdapt</code> returns. Best practice
+would be to adjust those p-values for multiple testing using the
+“p.adjust” function in <code>PCAdapt</code> and base the number of
+significant loci on the adjusted p-values. Like so:</li>
+</ul>
+<pre><code>padj = p.adjust(pcadapt.pca$pvalues, method=&quot;BH&quot;)
+outliers = which(padj &lt; 0.05) 
+length(outliers)</code></pre>
+<hr />
+</div>
+<div id="reach-out-via-email-office-hours-or-schedule-an-appointment-if-you-get-stuck-and-dont-forget-to-have-fun-with-it" class="section level3">
+<h3>Reach out via email, office hours, or schedule an appointment if you
+get stuck, and don’t forget to have fun with it!</h3>
+<hr />
+<p><strong>R package citations:</strong></p>
+<p><code>vcfR</code> <em>– For reading/writing VCF files and calculating
+genetic diversity and differentiation</em></p>
+<p>Knaus, B. J., &amp; Grünwald, N. J. (2017). vcfr: a package to
+manipulate and visualize variant call format data in R. Molecular
+ecology resources, 17(1), 44-53.</p>
+<p><code>SNPfiltR</code> <em>– For filtering and thinning VCF
+files</em></p>
+<p>DeRaad, D. A. (2022). SNPfiltR: an R package for interactive and
+reproducible SNP filtering. Molecular Ecology Resources, 22(6),
+2443-2453.</p>
+<p><code>LEA</code> <em>– for doing PCA and Admixture (‘snmf’)
+analyses</em></p>
+<p>Gain, C., &amp; François, O. (2021). LEA 3: Factor models in
+population genetics and ecological genomics with R. Molecular Ecology
+Resources, 21(8), 2738-2748.</p>
+<p><code>PCAdapt</code> <em>(only if you choose to do selection analysis
+for extra credit)</em></p>
+<p>Privé, F., Luu, K., Vilhjálmsson, B. J., &amp; Blum, M. G. (2020).
+Performing highly efficient genome scans for local adaptation with R
+package pcadapt version 4. Molecular Biology and Evolution, 37(7),
+2153-2154.</p>
+<p><code>tidyverse</code> (which includes <code>ggplot2</code>) <em>–
+for general data wrangling/plotting</em></p>
+<p>Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D. A.,
+François, R., … &amp; Yutani, H. (2019). Welcome to the Tidyverse.
+Journal of open source software, 4(43), 1686.</p>
+</div>
+</div>
 </div>
 </section>
 

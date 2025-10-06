@@ -12,7 +12,7 @@
 
 
 
-<title>Coding Tutorials</title>
+<title>Homework #1 (Population Genomics)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,36 +46,233 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Homework #1 (Population
+Genomics)</h1>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="homework-assignment-1-due-by-thursday-october-09-2025-end-of-day" class="section level1">
+<h1>Homework assignment #1 – Due by Thursday October 09, 2025 (end of
+day)</h1>
+<p>We’ve now completed our first module of coding sessions. Let’s review
+all you’ve learned!</p>
 <ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
+<li><em>How to log in and move around a Unix server and the VACC OOD
+interface</em></li>
+<li><em>How to write bash scripts and execute them at the command
+line</em></li>
+<li><em>How to submit jobs via SLURM and sbatch to the cluster</em></li>
+<li><em>Working with raw Illumina NGS data, from QC to read trimming to
+mapping to a reference genome</em></li>
+<li><em>Using the ANGSD pipeline to analyze low-coverage sequencing for
+estimates of nucleotide diversity, Tajima’s D, and Fst</em></li>
+<li><em>Estimating and visualizing population structure in the form of
+genetic PCA and admixture plots</em></li>
+<li><em>Testing for selection using outlier analyses (PCAngsd)</em></li>
 </ul>
-<p><strong>Population Genomics Module</strong></p>
+<p>You’ve accomplished a lot! :)</p>
+<p>Along the way, we’ve learned and discussed what these results mean
+for the genetic history of red spruce and its adaptation.</p>
+<p><strong>The picture that is emerging is one of complex population
+structure in the north vs. south part of the range, but also clear
+evidence of hybridization in different areas that also correspond with
+selection acting along those gradients of population
+structure.</strong></p>
+<div id="your-first-homework-assignment-is-to-more-fully-explore-these-results-by-choosing-one-of-the-options-below" class="section level2">
+<h2>Your first homework assignment is to more fully explore these
+results by choosing ONE of the options below:</h2>
+<ol style="list-style-type: lower-alpha">
+<li><strong><em>Option A: Sensitivity of nucleotide diversity and
+Tajima’s D to different filtering strategies.</em></strong></li>
+</ol>
+<p>To address this question, you’ll want to look back at the ANGSD
+filters we used when we first called the genotype likelihoods in
+preparation for estimating nucleotide diversity (Tutorial 3). Choose
+<strong>any 2</strong> of the following filters, read about them on the
+ANGSD manual page, and <strong>choose 2 different values</strong> of
+each filter to explore. You should do each new filtering value on its
+own without changing any of the other values (total of 4 runs). Then
+choose 1 additional run where you change 2 of the filtering options at
+the same time. The filters you can choose among are:</p>
 <ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
+<li>remove_bads</li>
+<li>minInd</li>
+<li>setMinDepthInd</li>
+<li>setMaxDepthInd</li>
+<li>skipTriallelic</li>
 </ul>
-<p><strong>Transcriptomics Module</strong></p>
+<p>For each new run you do with changed filter parameters, calculate
+nucleotide diversity (Pi and theta-W) and Tajima’s D using ANGSD just
+like we did in class. Then synthesize the results from each run in terms
+of the number of sites/contig, estimated nucleotide diversity and
+Tajima’s D, and compare across the different filter options. Were the
+results robust to the different values you chose? Which do you think are
+most reliable and why?</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li><strong><em>Option B: Testing for additional genetic structure and
+ancestry at higher levels of K</em></strong></li>
+</ol>
+<p>To address this question, you’ll want to look at several different
+values of K and run separate models for each one to investigate how it
+affects our interpretation of the population structure within our
+sampling. You can choose to run your evaluation on just the 95 red spuce
+samples or the combined red + black spruce samples (N=113). Test from
+K=2 to K=5. Summarize the results in terms of how much the variance
+explained by the eigenvalues change. You may also find it interesting to
+look at how the likelihood score of the overall model fit changes – this
+can be gleaned from the end of the log file of the PCAngsd run. (Note,
+Likelihood values are usually negative, and less negative values =
+better fit to the data). Lastly, create Admixture plots for each level
+of K and compare the inference of genetic structure across the different
+levels. How does this relate to the geography of the sample populations,
+and the contribution of hybridization from black spruce?</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li><strong><em>Option C: Layers of evidence for
+selection</em></strong></li>
+</ol>
+<p>To address this question, you’ll want to compare selection outliers
+from PCAngsd (outliers on PC1 and PC2) to estimates of nucleotide
+diversity (Pi) and Tajima’s D to see if there’s evidence for selective
+sweeps. To do this, you’ll need to figure out which contigs harbor
+selection outliers from PC1 and PC2 (separately) and then look for
+overlap in which contigs show either strongly negative D (using a
+threshold of -1.5) or very low nucleotide diversity (using a threshold
+of tPsite&lt;0.001). You should base your estimation of nucleotide
+diversity on the entire set of 95 red spruce samples! That will mean
+running ANGSD again to estimate genotype likelihoods and thetas for all
+95 samples, not just your pop! Summarize the final results with
+interesting figures/tables, include one or more Venn diagrams.</p>
+</div>
+</div>
+<div id="criteria" class="section level1">
+<h1>Criteria:</h1>
+<ul>
+<li>The main text of the write-up should be 2 pages (max) single spaced.
+Tables, figures, and references can be on separate pages.</li>
+<li>You may work collaboratively, but the final product and all of the
+writing should be your own defensible work</li>
+<li>Approach the writing as a technical report based on the work you’ve
+done to date. That is, write for a scientific audience using appropriate
+technical language and narrative style, with citations used when
+referring to methods or making factual assertions.</li>
+<li>Your write-up should include the following essential elements:</li>
+</ul>
+<div id="background-1-2-paragraphs" class="section level4">
+<h4>Background (1-2 paragraphs):</h4>
+<ul>
+<li>A brief description providing context and motivation of the problem
+we’re trying to address with these data. <em>Capblancq et al. (2020)
+Evolutionary Applications</em> and <em>Capblancq et al. (2023) New
+Phytologist</em> are excellent resources for this information.</li>
+<li>Brief background on the study species, Geographic sampling, library
+prep, and sequencing strategy (look through early tutorials for info,
+plus your notes from class)</li>
+<li>A celar statement of the question you’re trying to address.</li>
+</ul>
+</div>
+<div id="bioinformatics-pipeline-2-paragraphs" class="section level4">
+<h4>Bioinformatics Pipeline (~2 paragraphs):</h4>
+<ul>
+<li>Detailed description of the various steps you used for the analysis
+of the sequencing data. Take it from QC assessment of the raw reads up
+to estimation of population structure and selection. You <strong>DO
+NOT</strong> need to include analyses or steps that aren’t relevant to
+your specific analysis for this homework.</li>
+<li>This will section should demonstrate both your technical knowledge
+of the flow of the different steps in the pipeline, and your level of
+proficiency in understanding why each step was done. Include
+justification for using particular analysis approaches or choices as
+appropriate (e.g., Why did we map to a reduced ref instead of the entire
+<em>P. marianca</em> reference genome?; Why did we use genotype
+likelihoods with ANGSD instead of analyzing “hard called” genotypes?,
+etc…).</li>
+</ul>
+</div>
+<div id="results-1-2-paragraphs" class="section level4">
+<h4>Results (1-2 paragraphs)</h4>
+<ul>
+<li>Report your findings from the different analysis steps. Use a
+combination of reporting results in-line in your text and summarizing
+more detailed information in tables and/or figures.<br />
+</li>
+<li>You may use a max of 3 tables/figures total (not counted towards the
+page limit).</li>
+<li>Be sure each table/figure has a title, and a very brief legend
+describing its contents. Table legends go <strong>above</strong> tables
+while figure legends go <strong>below</strong> figures.</li>
+</ul>
+</div>
+<div id="conclusion-1-2-paragraphs" class="section level4">
+<h4>Conclusion (1-2 paragraphs)</h4>
+<ul>
+<li>Give your biological conclusion so far from the data: What did you
+learn from your analysis about the diversity, genetic structure, or
+selection in red spruce as it relates to your question? Be sure you
+relate back to your motivation given in the Background section.</li>
+<li>Discuss any caveats or uncertainties that should be considered when
+interpreting the biological conclusions.</li>
+<li>Discuss any methodological challenges encountered along the way that
+are relevant to your results and their interpretation.</li>
+<li>Discuss opportunities for future directions.</li>
+</ul>
+</div>
+<div id="references-listed-on-a-separate-page" class="section level4">
+<h4>References (listed on a separate page)</h4>
+<ul>
+<li>Cite papers in APA format. Example:</li>
+</ul>
+<p><em>Capblancq, T., Butnor, J. R., Deyoung, S., Thibault, E., Munson,
+H., Nelson, D. M., … &amp; Keller, S. R. (2020). Whole‐exome sequencing
+reveals a long‐term decline in effective population size of red spruce
+(Picea rubens). Evolutionary Applications, 13(9), 2190-2205.</em></p>
+<ul>
+<li><p>Only include references to papers you cite in your text</p></li>
+<li><p>Github: Have your github lab notebook up to date. Make sure any
+scripts used for your analysis are available in your github
+<code>myscripts</code> folder. Create a single Rmarkdown to process all
+your results and save in your <code>mydocs</code> folder. Have a
+dedicated entry in your popgen_notes.md notebook documenting your notes
+for yourself about your workflow and decisions made.</p></li>
+</ul>
+</div>
+<div id="guidelines-and-deadlines" class="section level3">
+<h3>Guidelines and deadlines:</h3>
+<ul>
+<li><p>You may collaborate with each other to discuss details and share
+notes, but your write-up should be done independently and represent your
+own work.</p></li>
+<li><p>Due by Thursday Oct 09, 2025 (end of day)</p></li>
+</ul>
+</div>
+<div id="submission" class="section level3">
+<h3>Submission:</h3>
+<ul>
+<li>Upload your homework in doc or pdf format to the Brightspace page.
+:</li>
+</ul>
+</div>
+<div id="advice-and-hints" class="section level3">
+<h3>Advice and hints :)</h3>
+<ul>
+<li><p>You do <strong>NOT</strong> need to run everything starting from
+step 1. Think carefully about what scripts you really need to run before
+you start and don’t spend time on running analyses that aren’t relevant
+to your specific question.</p></li>
+<li><p>Think about when you want to work with all the RS samples vs. RS
++ BS samples vs. just your “MYPOP” population.</p></li>
+<li><p>If you use the R code from the tutorials for plotting PCA or
+admixture, you’ll probably need to tweak some of the plot settings
+(e.g., which PC axes are getting plotted), colors, axis labels and plot
+titles, etc. Ask for help if you’re unfamiliar with plotting in
+R.</p></li>
+</ul>
+<div id="reach-out-via-email-or-office-hours-if-you-get-stuck-and-dont-forget-to-have-fun-with-it" class="section level4">
+<h4>Reach out via email or office hours if you get stuck, and don’t
+forget to have fun with it!</h4>
+</div>
+</div>
 </div>
 </section>
 
