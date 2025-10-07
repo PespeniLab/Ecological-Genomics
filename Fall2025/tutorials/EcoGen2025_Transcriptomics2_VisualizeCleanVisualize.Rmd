@@ -1,0 +1,110 @@
+---
+title: "Transcriptomics Tutorial 2: Clean & Visualize reads"
+author: "MHP"
+date: 'Fall 2025'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Let's get started!
+- Open up VACC OpenOnDemand and initiate an RStudio session.
+- In your `projects/eco_genomics2025` repo, create a directory `transcriptomics` and within that, create `myscripts`, `mydata`, `mydocs`, `mylogs`, `myresults` 
+
+## Visualize the quality of the raw data
+
+The fastq files for our project are stored in this path: 
+
+`/gpfs1/cl/ecogen/pbio6800/Transcriptomics/RawData`
+
+## Choose samples to visualize for quality and clean (fastp)  
+
+There are 8 groups of samples (based on the table above, 8 treatment x generation combinations). Every student takes one group to process, some samples will be processed twice so append your initials to you output files. 
+ 
+### Refresher on fastq format
+Recall that .fastq (or .fq) files are sequence data files that include quality scores for each base pair. We can check out the reads using `zcat FILENAME.fq.gz | head -n 4`. Recall that letters early in the alphabet indicate good quality on the ASCII score.
+*The Phred Q score is translated to ASCII characters so that a two digit number can be represented by a single character.*
+
+```         
+ Quality encoding: !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHI
+                   |         |         |         |         |
+    Quality score: 0........10........20........30........40   
+```
+
+If P is the probability that a base call is an error, then: Q = -10\*log10(P)
+
+So:
+
+| Phred Quality Score | Probability of incorrect base call | Base call accuracy |
+|--------------------|---------------------------------|-------------------|
+| 10                  | 1 in 10                            | 90%                |
+| 20                  | 1 in 100                           | 99%                |
+| 30                  | 1 in 1000                          | 99.9%              |
+| 40                  | 1 in 10,000                        | 99.99%             |
+
+## Use fastp to clean and visualize the read data
+We will use [the program fastp](https://github.com/OpenGene/fastp) to clean and visualize the data.
+
+We will use a bash script to loop through the replicates from your treatment group `$MYSAMP`. 
+
+* There's an example script for you to edit in `/gpfs1/cl/ecogen/pbio6800/Transcriptomics/scripts/fastp_tonsa.sh`. 
+* Copy this to your `~/transcriptomics/myscripts` directory. 
+  * **Take a moment to meditate on working in linux. Can you copy this file from anywhere to anywhere? What is important?**
+* Edit the script: All you need to do is define your samples with `$MYSAMP`. 
+* I've already made a `/cleanreads/` directory that hopefully you all should be able to write to.
+
+But let's talk through the code first:
+
+``` bash
+#!/bin/bash   
+
+# This script loops through a set of files defined by MYSAMP, matching left and right reads
+# and cleans the raw data using fastp according to parameters set below
+
+# cd to the location (path) to the fastq data:
+
+cd /gpfs1/cl/ecogen/pbio6800/Transcriptomics/RawData
+
+# Define the sample code to anlayze
+# Be sure to replace with your 4-digit sample code
+
+MYSAMP="XXXX"
+
+# for each file that has "MYSAMP" and "_1.fq.gz" (read 1) in the name
+# the wildcard here * allows for the different reps to be captured in the list
+# start a loop with this file as the input:
+
+for READ1 in ${MYSAMP}*_1.fq.gz
+do
+
+# the partner to this file (read 2) can be found by replacing the _1.fq.gz with _2.fq.gz
+# second part of the input for PE reads
+
+READ2=${READ1/_1.fq.gz/_2.fq.gz}
+
+# make the output file names: print the fastq name, replace _# with _#_clean
+
+NAME1=$(echo $READ1 | sed "s/_1/_1_clean/g")
+NAME2=$(echo $READ2 | sed "s/_2/_2_clean/g")
+
+# print the input and output to screen 
+
+echo $READ1 $READ2
+echo $NAME1 $NAME2
+
+# call fastp
+/data/popgen/fastp -i ${READ1} -I ${READ2} -o /gpfs1/cl/ecogen/pbio6800/Transcriptomics/cleandata/${NAME1} -O /gpfs1/cl/ecogen/pbio6800/Transcriptomics/cleandata/${NAME2} \
+--detect_adapter_for_pe \
+--trim_poly_g \
+--thread 1 \
+--cut_right \
+--cut_window_size 6 \
+--qualified_quality_phred 20 \
+--length_required 35 \
+--html ~/myresults/fastqc/${NAME1}.html
+
+done
+```
+

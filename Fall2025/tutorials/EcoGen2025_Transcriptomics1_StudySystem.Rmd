@@ -1,0 +1,83 @@
+---
+title: "Transcriptomics Tutorial 1: Intro to the copepod study system & dataset"
+author: "MHP"
+date: 'Fall 2025'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Learning Objectives for today: 
+#### _By the end of this class, you will be able to..._
+
+1. Explain the difference between population genomics and transcriptomics.
+2. Evaluate how mapping and the "reference" differs for population genomics and transcriptomics.
+3. Conceptualize a "counts" file.
+4. Understand the work flow or "pipeline" for processing and analyzing RNAseq data.
+
+#### Activities to achieve these objectives:
+1. Interactive introduction to transcriptomics and RNAseq data analysis.
+2. Introduction of the study system and experiment.
+3. Generate questions that can be addresses with these data.
+4. Run MultiQC to assess and visualize the data.
+5. Run FastP to clean the data.
+6. Start mapping the reads (Salmon).
+
+## 1. What are the molecular mechanisms underlying transgenerational plasticity? 
+![https://www.diark.org/diark/species_list/Acartia_tonsa](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Atonsa.png)
+
+Copepods are one of the most abundant animals on planet. Calenoid copepods, particularly in the genus Acartia, are critical for ecosystem functioning and biogeochemical cycling. They are primary consumers at the base of the oceanic food chain, eating phytoplankton and transferring the energy up the food chain starting with larval fish. _Acartia tonsa_ is a widespread estuarine and near-shore coastal species. It is most abundant along east Coast of the US, and has a global distribution. With the rapidly rising temperatures in the ocean, it is critical to understand how such ecologically important species will tolerate these changes.
+
+Rapid acclimation to changing temperature conditions can be achieved through phenotypic plasticity. Plasticity refers to an organism's ability to adjust its physiology or behavior in response to environmental changes without a change in DNA composition. Sometimes the environment a parent experiences can affect the phenotype of their offspring -- this is called intergenerational plasticity. Even further, the environment of a parent can affect the phenotype of their grandoffspring -- this is called transgenerational plasticity. If there is no selection at play, i.e., no selective mortality or differential reproduction, the mechanisms underlying transgenerational plasticity have to be epigenetic inheritance, such as small RNAs, changes in DNA methylation or chromatin structure. We recently showed that both epigenetic and genetic changes seem to play a role in adaptation to global change conditions in these copepods across 25 generations ([Brennan et al. 2025 PNAS](https://www.pnas.org/doi/10.1073/pnas.2422782122); read press release [here](https://www.uvm.edu/uvmnews/news/molecular-hope-tiny-ocean-creatures-reveal-dual-paths-climate-resilience)). We've also shown that these copepods can achieve a boost in their thermal tolerance in just one generation -- as beneficial as three or >40 generations ([Ashlock et al. 2024 Ecology & Evolution](https://onlinelibrary.wiley.com/doi/full/10.1002/ece3.10995)). Taken together, we know that these copepods have substantial plasticty and that it may be inherited across generations, but no one has tested for transgenerational plasticity... until...
+
+## Brand New Data from PhD candidate and your TA, Alison Hall!
+Alison measured gene expression of _Acartia tonsa_ after development for one generation at one of two temperatures: 18 degrees C and 22 degrees C. Then the animals at 22 degrees C were returned to 18 degrees C and phenotyped for their Critical Thermal maximum (CTmax) as adults for each of the four generations of the experiment. Alison flash froze adults, stored them at -80C with as much water removed as possible, then later performed dual DNA/RNA extractions. She sent the RNA for RNAsequencing and the DNA for a type of DNA methylation sequencing (EMseq). We get to analyze these RNAseq data in this course! 
+
+
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/Fall2025/pics/TGP_AEH.png)
+
+#### Additional experimental details:
+
+* Animals were collected from Cape May, NJ and reared in the lab for 3 generations before the start of the experiment.
+* For each treatment, there were four replicate vessels with ~1,000 individuals per vessel. 
+* To sample for RNA, pools of 25 adults created, one per replicate vessel. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified Qiagen extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Illumina Novoseq 6000 platform generating an average of 55 million reads per sample.
+* We have reference transcriptome for Acartia tonsa that has ~24,000 genes.
+
+  
+### Realized sample replication after sequencing:  N=24 x 2 = 48 (left and right reads)
+
+Samples are named in a sequence of four letters and numbers. 
+
+  1. First character: C or T for the first generation at 18 or 22 degrees C, respectively
+  2. Second character: 1, 2, 3, or 4 for the generation
+  3. Third character: R - same for all samples
+  4. Replicate sample number: 1, 2, 3, 4, or 5
+
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/Fall2025/pics/sampleIDs.png)
+
+## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
+1.
+2.
+3.
+4.
+5.
+...
+
+
+## 3. Our general workflow for analyzing gene expression data (Transcriptomics pipeline):
+### Clean the raw sequence data
+* [FastP](https://github.com/OpenGene/fastp) on raw reads --> cleaned reads
+
+### Map the clean reads to the reference assembly
+* Use [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) to simulateously map reads to reference transcriptome and quantify abundance.
+
+### Test for differential expression among groups
+* [Import](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#3%E2%80%99_tagged_rna-seq) the data into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) in R for data normalization, visualization, and statistical tests for differential gene expression.
+
+### Perform more advanced analyses 
+* Identify clusters of genes with correlated expression using Weighted Gene Correlation Network Analysis ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)).
+* Test for functional enrichment among genes differentially expressed between groups using [TopGO](https://bioconductor.org/packages/release/bioc/html/topGO.html) or GO Mann-Whitney U  [GO_MWU](https://github.com/z0on/GO_MWU)

@@ -33,3 +33,7 @@ fontsize: 18pt
 
 **Transcriptomics Module**
 
+* [01: Intro to Study System](Fall2025/tutorials/EcoGen2025_Transcriptomics1_StudySystem.html)
+
+* [02: Triming and Cleaning Reads](Fall2025/tutorials/EcoGen2025_Transcriptomics2_VisualizeCleanVisualize.html)
+
