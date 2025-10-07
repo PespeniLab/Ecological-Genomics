@@ -57,7 +57,7 @@ Samples are named in a sequence of four letters and numbers.
   3. Third character: R - same for all samples
   4. Replicate sample number: 1, 2, 3, 4, or 5
 
-![](/Users/mpespeni/Documents/github/Ecological-Genomics/Fall2025/pics/sampleIDs.png)
+![](/Users/mpespeni/Documents/github/Ecological-Genomics/Fall2025/pics/sampleIDs.png){width=50%}
 
 ## 2. What questions can we ask or hypotheses can we test with this experimental design, with these data?
 1.
