@@ -39,13 +39,13 @@ Alison measured gene expression of _Acartia tonsa_ after development for one gen
 
 #### Additional experimental details:
 
-* Animals were collected from Cape May, NJ and reared in the lab for 3 generations before the start of the experiment.
-* For each treatment, there were four replicate vessels with ~1,000 individuals per vessel. 
-* To sample for RNA, pools of 25 adults created, one per replicate vessel. Water was removed and animals were flash frozen in liquid nitrogen. 
-* RNA was extracted using a modified Qiagen extraction protocol. 
-* Library preparation and sequencing was carried out by Novogene using standard Illumina RNAseq library prep protocols (TruSeq3).
+* Animals were collected from Esker Point, CT and reared in the lab for >3 generations before the start of the experiment.
+* For each treatment, there were five replicate vessels with ~1,000 individuals per vessel. 
+* To sample for RNA, pools of 30 adults created, one per replicate vessel. Water was removed and animals were flash frozen in liquid nitrogen. 
+* RNA was extracted using a modified Qiagen AllPrep DNA/RNA Micro Kit extraction protocol. 
+* Library preparation and sequencing was carried out by Novogene using ultra-low input mRNA-seq library prep protocols.
 * Samples were sequenced 150 base pair paired-end reads (2 x 150bp) using the Illumina Novoseq 6000 platform generating an average of 55 million reads per sample.
-* We have reference transcriptome for Acartia tonsa that has ~24,000 genes.
+* We have reference transcriptome for _Acartia tonsa_ that has ~24,000 genes.
 
   
 ### Realized sample replication after sequencing:  N=24 x 2 = 48 (left and right reads)
