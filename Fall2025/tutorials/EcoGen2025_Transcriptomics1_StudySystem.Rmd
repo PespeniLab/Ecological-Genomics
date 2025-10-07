@@ -20,9 +20,8 @@ fontsize: 18pt
 1. Interactive introduction to transcriptomics and RNAseq data analysis.
 2. Introduction of the study system and experiment.
 3. Generate questions that can be addresses with these data.
-4. Run MultiQC to assess and visualize the data.
-5. Run FastP to clean the data.
-6. Start mapping the reads (Salmon).
+4. Run FastP to clean and visualize the quality of the data.
+5. Start mapping the reads (Salmon).
 
 ## 1. What are the molecular mechanisms underlying transgenerational plasticity? 
 ![https://www.diark.org/diark/species_list/Acartia_tonsa](/Users/mpespeni/Documents/github/Ecological-Genomics/images/Atonsa.png)
