@@ -44,7 +44,7 @@ To address this question, you'll want to look at several different values of K a
 
 (c) ***Option C: Layers of evidence for selection***
 
-To address this question, you'll want to compare selection outliers from PCAngsd (outliers on PC1 and PC2) to estimates of nucleotide diversity (Pi) and Tajima's D to see if there's evidence for selective sweeps.  To do this, you'll need to figure out which contigs harbor selection outliers from PC1 and PC2 (separately) and then look for overlap in which contigs show either strongly negative D (using a threshold of -1.5) or very low nucleotide diversity (using a threshold of tPsite<0.001).  You should base your estimation of nucleotide diversity on the entire set of 95 red spruce samples!  That will mean running ANGSD again to estimate genotype likelihoods and thetas for all 95 samples, not just your pop!  Summarize the final results with interesting figures/tables, include one or more Venn diagrams.
+To address this question, you'll want to compare selection outliers from PCAngsd (outliers on PC1 and PC2) to estimates of nucleotide diversity (Pi) and Tajima's D to see if there's evidence for selective sweeps.  To do this, you'll need to figure out which contigs harbor selection outliers from PC1 and PC2 (separately) and then look for overlap in which contigs show either strongly negative D (using a threshold of -1.5) or very low nucleotide diversity (using a threshold of tPsite<0.001).  You should base your estimation of nucleotide diversity on the entire set of 95 red spruce samples!  That will mean running ANGSD again to estimate genotype likelihoods and thetas for all 95 samples, not just your pop!  Summarize the final results with interesting figures/tables, include one or more Venn diagrams.  Refer to code at end of Tutorial 6 to help you with generating lists of outliers for investigating overlaps and plotting Venn diagrams.
 
 
 # Criteria:
@@ -90,6 +90,14 @@ To address this question, you'll want to compare selection outliers from PCAngsd
 * You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
 
 * Due by Thursday Oct 09, 2025 (end of day)
+
+* Reminder about AI use (excerpted from the syllabus):
+
+●	Disclosure: Any AI use must be disclosed in a brief statement at the end of each assignment (e.g., “I used ChatGPT to help debug this part of my R script and to suggest alternate phrasing in paragraph 3.”).
+●	Accountability: Students are responsible for understanding and being able to explain all code and text in their assignments, whether produced by AI or not.
+●	Writing assignments: Homework and final project papers must be written by you or members of your group. AI may be used for grammar and style editing, but not for generating substantive content.
+●	Misuse: Undisclosed or excessive reliance on AI that undermines demonstration of your own learning will be considered academic misconduct.
+
 
 ### Submission:
 
