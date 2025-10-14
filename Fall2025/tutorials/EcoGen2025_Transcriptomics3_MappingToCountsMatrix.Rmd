@@ -27,7 +27,7 @@ Mapping reads using the program Salmon involves three steps and a mapping check 
 
 This step only needs to be performed once so I have done this for us. But for your records, below is the code.
 
-```bash
+```{bash}
 #!/bin/sh
 #SBATCH --partition=general
 #SBATCH --nodes=1
@@ -62,7 +62,7 @@ Now we each get to map our selected samples to the indexed reference transcripto
 
 Copy this script to your `myscripts` directory in your repo. You can open it in RStudio in VACC OOD and start editing.
 
-```bash
+```{bash}
 #!/bin/sh
 #SBATCH --partition=general
 #SBATCH --nodes=1
@@ -127,13 +127,13 @@ echo "Salmon quantification completed at: `date`"
 ## Explore mapping rate
 For each sample mapped, we now have directories with several output files including a log of the run. In that log, the mapping rate (% of reads mapped with sufficient quality) is reported. We can view the contents of the file using `cat`. 
 We can also use `grep` (i.e., regular expressions) to pull out the mapping rate for all the samples. Though there's probably a more elegant solution, here is one:
-```
+```{bash}
 grep -r --include \*.log -e 'Mapping rate'
 ```
 * How could we save this output?
 
 * What if want just the sample name and mapping rate? We can use `sed` again.
-```bash
+```{bash}
 grep -r --include "*.log" -e "Mapping rate" \
   | sed -E 's|/logs/.*:.*Mapping rate = ([0-9.]+)%|\t\1|'
 ```
@@ -150,7 +150,7 @@ We provide a file list to point to just the `quant.sf` files called `salmon_resu
 
 * **NOTE: The two chunks of code below only need to be run once. I've done this for you.  **
 
-```
+```{bash}
 cd /gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant
 
 echo "sample,path" > /gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant/samples.csv
@@ -164,7 +164,7 @@ We can each copy the samples list file `samples.csv` to your repo into `myresult
 
 This list of files is used to create our counts matrix in R using the `tximport` program. You can edit the script below to create your own counts matrix in your `mydata` directory.
 
-```r
+```{r}
 # Load libraries
 library(tximport)
 library(readr)

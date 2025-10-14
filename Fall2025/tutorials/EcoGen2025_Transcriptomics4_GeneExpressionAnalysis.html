@@ -10,9 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<meta name="author" content="MHP" />
 
 
-<title>Coding Tutorials</title>
+<title>Transcriptomics Tutorial 4: Gene expression analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,46 +47,168 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Transcriptomics Tutorial 4:
+Gene expression analysis</h1>
+<h4 class="author project-author">MHP</h4>
+<h4 class="date project-date">Fall 2025</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
-<ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
-</ul>
-<p><strong>Population Genomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
-</ul>
-<p><strong>Transcriptomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics2_VisualizeCleanVisualize.html">02:
-Trimming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics3_MappingToCountsMatrix.html">03:
-Mapping and Creating the Counts Matrix</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics4_GeneExpressionAnalysis.html">04:
-Import to DESeq2 and visualize</a></p></li>
-</ul>
+<div id="objectives-of-this-tutorial" class="section level2">
+<h2>Objectives of this tutorial</h2>
+<ol style="list-style-type: decimal">
+<li>Start an <code>.rmd</code> file to keep your differential gene
+expression analysis together and annotated.</li>
+<li>Import the counts matrix into <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html">DESeq2</a></li>
+<li>Visualize reads and variation.</li>
+<li>Visualize global variation in gene expression using PCA.</li>
+</ol>
+<div id="open-an-.rmd-file-and-give-it-a-pre-amble." class="section level3">
+<h3>1. Open an <code>.rmd</code> file and give it a pre-amble.</h3>
+<p>Make notes on: What is the experiment, what are the data, what do we
+know so far, what are we planning to do/test?</p>
+<p>Import libraries and the data.</p>
+<pre><code>## Set your working directory
+setwd(&quot;~/projects/eco_genomics2025/transcriptomics&quot;)
+
+## Import the libraries that we&#39;re likely to need in this session
+
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(vsn)  
+library(&quot;pheatmap&quot;)
+library(&quot;vsn&quot;)
+
+####################################################
+
+### Import our data
+
+####################################################
+
+ 
+# Import the counts matrix
+countsTable &lt;- read.table(&quot;counts_matrix&quot;, header=TRUE, row.names=1)
+head(countsTable)
+dim(countsTable)
+
+countsTableRound &lt;- round(countsTable) # bc DESeq2 doesn&#39;t like decimals (and Salmon outputs data with decimals)
+head(countsTableRound)
+
+#import the sample description table
+conds &lt;- read.delim(&quot;metadata.txt&quot;, header=TRUE, stringsAsFactors = TRUE, row.names=1)
+head(conds)
+</code></pre>
+<p>Explore patterns in the data - evenness among samples…</p>
+<pre><code>####################################################
+
+### Explore data distributions
+
+####################################################
+
+# Let&#39;s see how many reads we have from each sample
+colSums(countsTableRound)
+mean(colSums(countsTableRound))
+
+barplot(colSums(countsTableRound), names.arg=colnames(countsTableRound),cex.names=0.5, las=3,ylim=c(0,21000000)) #change dims
+abline(h=mean(colSums(countsTableRound)), col=&quot;blue&quot;, lwd=2)
+
+# the average number of counts per gene
+rowSums(countsTableRound)
+mean(rowSums(countsTableRound)) # 
+median(rowSums(countsTableRound)) #
+
+apply(countsTableRound,2,mean) # 2 in the apply function does the action across columns
+apply(countsTableRound,1,mean) # 1 in the apply function does the action across rows
+hist(apply(countsTableRound,1,mean),xlim=c(0,10000), ylim=c(0,60000),breaks=10000)</code></pre>
+<p>Define our model and create a DESeq2 object</p>
+<pre><code>####################################################
+
+### Start working with DESeq2!
+
+####################################################
+
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds &lt;- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + line)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts &lt; 15 in more than 75% of 24 samples, so 18)
+## suggested by WGCNA on RNAseq FAQ
+
+dds &lt;- dds[rowSums(counts(dds) &gt;= 15) &gt;= 18,]
+nrow(dds) 
+# How many transcripts have at least 15 reads (a.k.a counts) in 75% of the samples
+
+# Run the DESeq model to test for differential gene expression
+dds &lt;- DESeq(dds)
+
+# List the results you&#39;ve generated
+resultsNames(dds)
+# Copy the results names </code></pre>
+<p>Let’s make a PCA plot to visualize gene expression variation among
+samples. What patterns do we expect <em>a priori</em>?</p>
+<pre><code>####################################################
+
+### Check the quality of the data by sample clustering and visualization
+
+####################################################
+
+# The goal of transformation &quot;is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low.&quot;
+
+library(&quot;pheatmap&quot;)
+library(&quot;vsn&quot;)
+
+# this gives log2(n + 1)
+ntd &lt;- normTransform(dds)
+meanSdPlot(assay(ntd))
+
+# Variance stabilizing transformation
+vsd &lt;- vst(dds, blind=FALSE)
+meanSdPlot(assay(vsd))
+
+
+sampleDists &lt;- dist(t(assay(vsd)))
+
+library(&quot;RColorBrewer&quot;)
+sampleDistMatrix &lt;- as.matrix(sampleDists)
+rownames(sampleDistMatrix) &lt;- paste(vsd$line, vsd$generation, sep=&quot;-&quot;)
+colnames(sampleDistMatrix) &lt;- NULL
+colors &lt;- colorRampPalette( rev(brewer.pal(9, &quot;Blues&quot;)) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+
+# Note any outliers
+
+###############################################################
+
+# PCA to visualize global gene expression patterns
+
+# first transform the data for plotting using variance stabilization
+vsd &lt;- vst(dds, blind=FALSE)
+
+pcaData &lt;- plotPCA(vsd, intgroup=c(&quot;line&quot;,&quot;generation&quot;), returnData=TRUE)
+percentVar &lt;- round(100 * attr(pcaData,&quot;percentVar&quot;))
+
+ggplot(pcaData, aes(PC1, PC2, color=line, shape=generation)) +
+  geom_point(size=3) +
+  xlab(paste0(&quot;PC1: &quot;,percentVar[1],&quot;% variance&quot;)) +
+  ylab(paste0(&quot;PC2: &quot;,percentVar[2],&quot;% variance&quot;)) + 
+  coord_fixed()
+</code></pre>
+<p>From here we can play around with colors and shapes to optomize the
+data visualization.</p>
+<p>How else do we want to visualize the data and test hypotheses?</p>
+</div>
 </div>
 </section>
 

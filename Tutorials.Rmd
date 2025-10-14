@@ -39,3 +39,4 @@ fontsize: 18pt
 
 * [03: Mapping and Creating the Counts Matrix](Fall2025/tutorials/EcoGen2025_Transcriptomics3_MappingToCountsMatrix.html)
 
+* [04: Import to DESeq2 and visualize](Fall2025/tutorials/EcoGen2025_Transcriptomics4_GeneExpressionAnalysis.html)
