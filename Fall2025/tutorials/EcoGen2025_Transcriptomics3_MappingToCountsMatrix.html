@@ -284,12 +284,13 @@ solution, here is one:</p>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-r</span> <span class="at">--include</span> <span class="st">&quot;*.log&quot;</span> <span class="at">-e</span> <span class="st">&quot;Mapping rate&quot;</span> <span class="dt">\</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sed</span> <span class="at">-E</span> <span class="st">&#39;s|/logs/.*:.*Mapping rate = ([0-9.]+)%|\t\1|&#39;</span></span></code></pre></div>
-<p>The sed -E command uses a regular expression to extract just the
-numeric mapping rate from each log file. It finds the text pattern
-“Mapping rate = …%” and captures the number between the equals sign and
-the percent symbol. Everything from /logs/ through % is replaced with a
-tab and the captured number, leaving a clean, tab-separated table of
-sample names and mapping rates.</p>
+<p>The <code>sed -E</code> command uses a regular expression to extract
+just the numeric mapping rate from each log file. It finds the text
+pattern <code>“Mapping rate = …%”</code> and captures the number between
+the equals sign and the percent symbol. Everything from
+<code>/logs/</code> through <code>%</code> is replaced with a tab and
+the captured number, leaving a clean, tab-separated table of sample
+names and mapping rates.</p>
 <ul>
 <li>What is our mapping rate? Is this good/enough? What factors could
 affect mapping rate?</li>
