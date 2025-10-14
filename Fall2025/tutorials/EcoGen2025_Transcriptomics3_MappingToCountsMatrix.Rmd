@@ -1,0 +1,189 @@
+---
+title: "Transcriptomics Tutorial 3: Mapping and creating a counts matrix"
+author: "MHP"
+date: 'Fall 2025'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Map reads and quantify abundance simultaneously using [Salmon](https://www.nature.com/articles/nmeth.4197).
+2. Prepare data for import into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+
+## Mapping reads using Salmon
+
+Mapping reads using the program Salmon involves three steps and a mapping check in between. 
+
+1. Prepare the reference transcriptome by indexing
+2. Map each sample to the indexed reference transcriptome
+    - Check the mapping rate
+3. Concatenate counts from each sample (i.e., a vector of reads mapped for each transcript) into a *counts matrix* representing the full gene expression data set!
+
+### 1. Indexing the reference
+
+This step only needs to be performed once so I have done this for us. But for your records, below is the code.
+
+```bash
+#!/bin/sh
+#SBATCH --partition=general
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16G
+#SBATCH --time=1:00:00 
+#SBATCH --job-name=Salmon_index
+#SBATCH --output=/users/X/X/XXXXX/projects/eco_genomics2025/transcriptomics/mylogs/%x_%j.out
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=XXXX@uvm.edu
+
+# Echo some Slurm info
+echo "Starting Salmon index at: `date`"
+echo "Running on node: `hostname`"
+
+module purge
+
+module load gcc/13.3.0-xp3epyt salmon/1.10.2-uhrt76c
+
+# Change to the reference directory
+cd /gpfs1/cl/ecogen/pbio6800/Transcriptomics/Reference_Transcriptome
+
+# Run Salmon index
+salmon index -t trinity.trimmomatic.above500.noPhiX.fasta -i salmon_index -p 8
+```
+
+### 2. Mapping to the indexed reference transcriptome
+
+Now we each get to map our selected samples to the indexed reference transcriptome. You can find the a bash script for you to edit, `salmon_quant.sh`, here:
+`/gpfs1/cl/ecogen/pbio6800/Transcriptomics/scripts`
+
+Copy this script to your `myscripts` directory in your repo. You can open it in RStudio in VACC OOD and start editing.
+
+```bash
+#!/bin/sh
+#SBATCH --partition=general
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16G
+#SBATCH --time=1:00:00 
+#SBATCH --job-name=Salmon_mapping
+#SBATCH --output=/users/X/X/XXXXXX/projects/eco_genomics2025/transcriptomics/mylogs/%x_%j.out
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=XXX@uvm.edu
+
+
+module purge
+
+module load gcc/13.3.0-xp3epyt salmon/1.10.2-uhrt76c
+
+salmon --version
+
+# Echo some info
+echo "Starting Salmon quantification at: `date`"
+echo "Running on node: `hostname`"
+
+MYSAMP="XX"
+
+# Paths
+READ_DIR=/gpfs1/cl/ecogen/pbio6800/Transcriptomics/cleandata
+INDEX_DIR=/gpfs1/cl/ecogen/pbio6800/Transcriptomics/reference/salmon_index
+OUT_DIR=/gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant
+
+cd $READ_DIR
+
+# Loop over all samples
+for read1 in ${MYSAMP}*_R1_*.fastq.gz; do
+    sample=$(basename "$read1" | sed -E 's/_R1_.*\.fastq\.gz//')
+    
+    echo "Starting sample ${sample}"
+    read2=${READ_DIR}/${sample}_R2_$(basename "$read1" | sed -E 's/.*_R1_//')
+    # Ensure files exist
+    if [[ ! -f "$read1" || ! -f "$read2" ]]; then
+        echo "WARNING: Missing read files for ${sample}, skipping."
+        continue
+    fi
+    # Make sample-specific output folder
+    mkdir -p ${OUT_DIR}/${sample}
+    # Run Salmon quantification
+    salmon quant -i $INDEX_DIR \
+                 -l A \
+                 -1 $read1 \
+                 -2 $read2 \
+                 -p 8 \
+                 --softclip \
+                 --seqBias \
+                 --gcBias \
+                 -o ${OUT_DIR}/${sample}
+    echo "Sample ${sample} done"
+done
+
+echo "Salmon quantification completed at: `date`"
+```
+
+## Explore mapping rate
+For each sample mapped, we now have directories with several output files including a log of the run. In that log, the mapping rate (% of reads mapped with sufficient quality) is reported. We can view the contents of the file using `cat`. 
+We can also use `grep` (i.e., regular expressions) to pull out the mapping rate for all the samples. Though there's probably a more elegant solution, here is one:
+```
+grep -r --include \*.log -e 'Mapping rate'
+```
+* How could we save this output?
+
+* What if want just the sample name and mapping rate? We can use `sed` again.
+```bash
+grep -r --include "*.log" -e "Mapping rate" \
+  | sed -E 's|/logs/.*:.*Mapping rate = ([0-9.]+)%|\t\1|'
+```
+The `sed -E` command uses a regular expression to extract just the numeric mapping rate from each log file. It finds the text pattern `“Mapping rate = …%”` and captures the number between the equals sign and the percent symbol. Everything from `/logs/` through `%` is replaced with a tab and the captured number, leaving a clean, tab-separated table of sample names and mapping rates.
+
+* What is our mapping rate? Is this good/enough? What factors could affect mapping rate?
+
+
+### 3. Prepare data for import into DESeq2.
+
+#### The code below assembles all the individually mapped reads into one data matrix
+
+We provide a file list to point to just the `quant.sf` files called `salmon_results_filelist.txt`.
+
+* **NOTE: The two chunks of code below only need to be run once. I've done this for you.  **
+
+```
+cd /gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant
+
+echo "sample,path" > /gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant/samples.csv
+for dir in */; do
+  sample_name=${dir%/}
+  echo "${sample_name},/gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant/${sample_name}" >> /gpfs1/cl/ecogen/pbio6800/Transcriptomics/transcripts_quant/samples.csv
+done
+```
+
+We can each copy the samples list file `samples.csv` to your repo into `myresults`.
+
+This list of files is used to create our counts matrix in R using the `tximport` program. You can edit the script below to create your own counts matrix in your `mydata` directory.
+
+```r
+# Load libraries
+library(tximport)
+library(readr)
+
+# Path to sample table
+samples <- read.csv("/gpfs1/home/X/X/XXX/projects/eco_genomics2025/transcriptomics/myresults/samples.csv")
+
+# Make a named vector of quant.sf file paths
+files <- file.path(samples$path, "quant.sf")
+names(files) <- samples$sample
+
+# Import Salmon quantifications
+txi <- tximport(files, type = "salmon", txOut = TRUE)
+
+# Write counts to txt
+write.txt(txi$counts, "/gpfs1/home/X/X/XXX/projects/eco_genomics2025/transcriptomics/mydata/counts_matrix.txt")
+
+```
+
+You can find the **`counts_matrix.txt`** file and the **`metadata.txt`** files in the `/transcripts_quant` directory. Copy it over into your `mydata` directory within your repo.
+
+Alright! With this matrix of number of reads that mapped to each transcript, we can move to analyzing the data to test for differences in gene expression and more!
