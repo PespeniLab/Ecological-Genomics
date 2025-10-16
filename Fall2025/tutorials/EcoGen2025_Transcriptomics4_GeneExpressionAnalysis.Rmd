@@ -199,7 +199,7 @@ How else do we want to visualize the data and test hypotheses?
 
 
 
-## Let's try making groups to test specific contrasts
+# Let's make groups to test specific contrasts
 ```
 dds$line <- relevel(dds$line, ref = "control")
 dds$generation <- relevel(dds$generation, ref = "G1")
@@ -214,13 +214,13 @@ resG1_CvT <- results(dds, contrast=c("group","controlG1","treatmentG1"), alpha =
 
 summary(resG1_CvT)
 ```
-
+Reorder by significance
 ```
 resG1_CvT <- resG1_CvT[order(resG1_CvT$padj),]
 head(resG1_CvT)
 ```
 
-### Plot Individual genes
+## Plot Individual genes
 
 ```
 # Counts of specific top interaction gene! (important validatition that the normalization, model is working)
@@ -234,12 +234,12 @@ p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7)
 p
 
 ```
-# We can make an MA plot
+## We can make an MA plot
 ```
 plotMA(resG1_CvT, ylim=c(-5,5))
 ```
 
-# Heatmap of top 20 genes sorted by pvalue
+## Heatmap of top 20 genes sorted by pvalue
 
 ```
 topgenes <- head(rownames(resG1_CvT),100)
@@ -250,7 +250,101 @@ pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)
 ```
 
+##Let's make a Euler plot of shared differentially expressed genes between CvsT across generations
+Identify the DEGs in the contrast for control versus treatment for each generation
+```
+#Gen1
+resG1_CvT <- results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05)
+resG1_CvT <- resG1_CvT[order(resG1_CvT$padj),] #sort
+head(resG1_CvT)
+summary(resG1_CvT)
+
+resG1_CvT <- resG1_CvT[!is.na(resG1_CvT$padj),]
+degs_G1_CvTM <- row.names(resG1_CvT[resG1_CvT$padj < 0.05,])
+
 ```
 
+```
+#Gen2
+resG2_CvT <- results(dds, contrast=c("group","controlG2","treatmentG2"), alpha = 0.05)
+resG2_CvT <- resG2_CvT[order(resG2_CvT$padj),] #sort
+head(resG2_CvT)
+summary(resG2_CvT)
 
+resG2_CvT <- resG2_CvT[!is.na(resG2_CvT$padj),]
+degs_G2_CvTM <- row.names(resG2_CvT[resG2_CvT$padj < 0.05,])
+
+```
+```
+#Gen3
+resG3_CvT <- results(dds, contrast=c("group","controlG3","treatmentG3"), alpha = 0.05)
+resG3_CvT <- resG3_CvT[order(resG3_CvT$padj),] #sort
+head(resG3_CvT)
+summary(resG3_CvT)
+
+resG3_CvT <- resG3_CvT[!is.na(resG3_CvT$padj),]
+degs_G3_CvTM <- row.names(resG3_CvT[resG3_CvT$padj < 0.05,])
+```
+
+```
+#Gen4
+resG4_CvT <- results(dds, contrast=c("group","controlG4","treatmentG4"), alpha = 0.05)
+resG4_CvT <- resG4_CvT[order(resG4_CvT$padj),] #sort
+head(resG4_CvT)
+summary(resG4_CvT)
+
+resG4_CvT <- resG4_CvT[!is.na(resG4_CvT$padj),]
+degs_G4_CvTM <- row.names(resG4_CvT[resG4_CvT$padj < 0.05,])
+```
+
+```
+library(eulerr)
+
+# Total
+length(degs_G1_CvTM)  # 
+length(degs_G2_CvTM)  #  
+length(degs_G3_CvTM)  # 
+length(degs_G4_CvTM)  # 
+
+# Intersections
+length(intersect(degs_G1_CvTM,degs_G2_CvTM))  
+length(intersect(degs_G1_CvTM,degs_G3_CvTM)) 
+#length(intersect(degs_G1_CvTM,degs_G4_CvTM)) 
+
+length(intersect(degs_G2_CvTM,degs_G3_CvTM))  
+#length(intersect(degs_G2_CvTM,degs_G4_CvTM))  
+
+#length(intersect(degs_G3_CvTM,degs_G4_CvTM)) 
+
+# To calc number shared in all three contrasts
+int12 <- intersect(degs_G1_CvTM,degs_G2_CvTM)
+length(intersect(degs_G3_CvTM,int12)) 
+
+# Number unique
+
+ #  OA
+ #  OW 
+ #  OWA
+
+
+# G1&G2
+# G1&G3
+# G2&G3
+
+# Note that the names are important and have to be specific to line up the diagram
+fit1 <- euler(c("G1" = , "G2" = , "G3" = , "G1&G2" = , "G1&G3" = , "G2&G3" = , "G1&G2&G3" = ))
+
+
+plot(fit1,  lty = 1:3, quantities = TRUE)
+# lty changes the lines
+
+plot(fit1, quantities = TRUE, fill = "transparent",
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+ #  total G1
+ #  total G2
+ #  total G3
 ```
