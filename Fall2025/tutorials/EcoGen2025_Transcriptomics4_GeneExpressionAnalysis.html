@@ -223,8 +223,9 @@ data visualization.</p>
   theme(text = element_text(size = 20)) +
   theme(legend.title = element_blank())</code></pre>
 <p>How else do we want to visualize the data and test hypotheses?</p>
-<div id="lets-try-making-groups-to-test-specific-contrasts" class="section level2">
-<h2>Let’s try making groups to test specific contrasts</h2>
+</div>
+<div id="lets-make-groups-to-test-specific-contrasts" class="section level1">
+<h1>Let’s make groups to test specific contrasts</h1>
 <pre><code>dds$line &lt;- relevel(dds$line, ref = &quot;control&quot;)
 dds$generation &lt;- relevel(dds$generation, ref = &quot;G1&quot;)
 
@@ -237,10 +238,11 @@ resultsNames(dds)
 resG1_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG1&quot;,&quot;treatmentG1&quot;), alpha = 0.05)
 
 summary(resG1_CvT)</code></pre>
+<p>Reorder by significance</p>
 <pre><code>resG1_CvT &lt;- resG1_CvT[order(resG1_CvT$padj),]
 head(resG1_CvT)</code></pre>
-<div id="plot-individual-genes" class="section level3">
-<h3>Plot Individual genes</h3>
+<div id="plot-individual-genes" class="section level2">
+<h2>Plot Individual genes</h2>
 <pre><code># Counts of specific top interaction gene! (important validatition that the normalization, model is working)
 d &lt;-plotCounts(dds, gene=&quot;XXXXXXX&quot;, intgroup = (c(&quot;line&quot;,&quot;generation&quot;)), returnData=TRUE)
 d
@@ -252,22 +254,105 @@ p &lt;- p + stat_summary(fun = mean, geom = &quot;point&quot;, size=5, alpha=0.7
 p
 </code></pre>
 </div>
-</div>
-</div>
-<div id="we-can-make-an-ma-plot" class="section level1">
-<h1>We can make an MA plot</h1>
+<div id="we-can-make-an-ma-plot" class="section level2">
+<h2>We can make an MA plot</h2>
 <pre><code>plotMA(resG1_CvT, ylim=c(-5,5))</code></pre>
 </div>
-<div id="heatmap-of-top-20-genes-sorted-by-pvalue" class="section level1">
-<h1>Heatmap of top 20 genes sorted by pvalue</h1>
+<div id="heatmap-of-top-20-genes-sorted-by-pvalue" class="section level2">
+<h2>Heatmap of top 20 genes sorted by pvalue</h2>
 <pre><code>topgenes &lt;- head(rownames(resG1_CvT),100)
 mat &lt;- assay(vsd)[topgenes,]
 mat &lt;- mat - rowMeans(mat)
 df &lt;- as.data.frame(colData(dds)[,c(&quot;generation&quot;,&quot;line&quot;)])
 pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)</code></pre>
-<pre><code>
+<p>##Let’s make a Euler plot of shared differentially expressed genes
+between CvsT across generations Identify the DEGs in the contrast for
+control versus treatment for each generation</p>
+<pre><code>#Gen1
+resG1_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG1&quot;,&quot;treatmentG1&quot;), alpha = 0.05)
+resG1_CvT &lt;- resG1_CvT[order(resG1_CvT$padj),] #sort
+head(resG1_CvT)
+summary(resG1_CvT)
+
+resG1_CvT &lt;- resG1_CvT[!is.na(resG1_CvT$padj),]
+degs_G1_CvTM &lt;- row.names(resG1_CvT[resG1_CvT$padj &lt; 0.05,])
 </code></pre>
+<pre><code>#Gen2
+resG2_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG2&quot;,&quot;treatmentG2&quot;), alpha = 0.05)
+resG2_CvT &lt;- resG2_CvT[order(resG2_CvT$padj),] #sort
+head(resG2_CvT)
+summary(resG2_CvT)
+
+resG2_CvT &lt;- resG2_CvT[!is.na(resG2_CvT$padj),]
+degs_G2_CvTM &lt;- row.names(resG2_CvT[resG2_CvT$padj &lt; 0.05,])
+</code></pre>
+<pre><code>#Gen3
+resG3_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG3&quot;,&quot;treatmentG3&quot;), alpha = 0.05)
+resG3_CvT &lt;- resG3_CvT[order(resG3_CvT$padj),] #sort
+head(resG3_CvT)
+summary(resG3_CvT)
+
+resG3_CvT &lt;- resG3_CvT[!is.na(resG3_CvT$padj),]
+degs_G3_CvTM &lt;- row.names(resG3_CvT[resG3_CvT$padj &lt; 0.05,])</code></pre>
+<pre><code>#Gen4
+resG4_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG4&quot;,&quot;treatmentG4&quot;), alpha = 0.05)
+resG4_CvT &lt;- resG4_CvT[order(resG4_CvT$padj),] #sort
+head(resG4_CvT)
+summary(resG4_CvT)
+
+resG4_CvT &lt;- resG4_CvT[!is.na(resG4_CvT$padj),]
+degs_G4_CvTM &lt;- row.names(resG4_CvT[resG4_CvT$padj &lt; 0.05,])</code></pre>
+<pre><code>library(eulerr)
+
+# Total
+length(degs_G1_CvTM)  # 
+length(degs_G2_CvTM)  #  
+length(degs_G3_CvTM)  # 
+length(degs_G4_CvTM)  # 
+
+# Intersections
+length(intersect(degs_G1_CvTM,degs_G2_CvTM))  
+length(intersect(degs_G1_CvTM,degs_G3_CvTM)) 
+#length(intersect(degs_G1_CvTM,degs_G4_CvTM)) 
+
+length(intersect(degs_G2_CvTM,degs_G3_CvTM))  
+#length(intersect(degs_G2_CvTM,degs_G4_CvTM))  
+
+#length(intersect(degs_G3_CvTM,degs_G4_CvTM)) 
+
+# To calc number shared in all three contrasts
+int12 &lt;- intersect(degs_G1_CvTM,degs_G2_CvTM)
+length(intersect(degs_G3_CvTM,int12)) 
+
+# Number unique
+
+ #  OA
+ #  OW 
+ #  OWA
+
+
+# G1&amp;G2
+# G1&amp;G3
+# G2&amp;G3
+
+# Note that the names are important and have to be specific to line up the diagram
+fit1 &lt;- euler(c(&quot;G1&quot; = , &quot;G2&quot; = , &quot;G3&quot; = , &quot;G1&amp;G2&quot; = , &quot;G1&amp;G3&quot; = , &quot;G2&amp;G3&quot; = , &quot;G1&amp;G2&amp;G3&quot; = ))
+
+
+plot(fit1,  lty = 1:3, quantities = TRUE)
+# lty changes the lines
+
+plot(fit1, quantities = TRUE, fill = &quot;transparent&quot;,
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+ #  total G1
+ #  total G2
+ #  total G3</code></pre>
+</div>
 </div>
 </section>
 
