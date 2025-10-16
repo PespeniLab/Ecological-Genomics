@@ -154,17 +154,13 @@ dds &lt;- DESeq(dds)
 resultsNames(dds)
 # Copy the results names </code></pre>
 <p>Let’s make a PCA plot to visualize gene expression variation among
-samples. What patterns do we expect <em>a priori</em>?</p>
-<pre><code>####################################################
-
-### Check the quality of the data by sample clustering and visualization
-
-####################################################
-
-# The goal of transformation &quot;is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low.&quot;
-
-library(&quot;pheatmap&quot;)
-library(&quot;vsn&quot;)
+samples.</p>
+<p>What patterns do we expect <em>a priori</em>?</p>
+</div>
+<div id="check-the-quality-of-the-data-by-sample-clustering-and-visualization" class="section level3">
+<h3>Check the quality of the data by sample clustering and
+visualization</h3>
+<pre><code># The goal of transformation &quot;is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low.&quot;
 
 # this gives log2(n + 1)
 ntd &lt;- normTransform(dds)
@@ -173,9 +169,9 @@ meanSdPlot(assay(ntd))
 # Variance stabilizing transformation
 vsd &lt;- vst(dds, blind=FALSE)
 meanSdPlot(assay(vsd))
-
-
-sampleDists &lt;- dist(t(assay(vsd)))
+</code></pre>
+<p>Make a heatmap of the distance/dissimilarity of the samples</p>
+<pre><code>sampleDists &lt;- dist(t(assay(vsd)))
 
 library(&quot;RColorBrewer&quot;)
 sampleDistMatrix &lt;- as.matrix(sampleDists)
@@ -189,11 +185,18 @@ pheatmap(sampleDistMatrix,
 
 # Note any outliers
 
-###############################################################
-
-# PCA to visualize global gene expression patterns
-
-# first transform the data for plotting using variance stabilization
+</code></pre>
+</div>
+</div>
+<div id="make-a-cluster-tree-to-look-for-outlier-samples" class="section level1">
+<h1>Make a cluster tree to look for outlier samples</h1>
+<pre><code>sampleTree &lt;- hclust(dist(sampleDists), method=&quot;average&quot;)
+# plot
+plot(sampleTree, main=&quot;Sample clustering to detect outliers&quot;, sub=&quot;&quot;, xlab=&quot;&quot;,cex.lab=1.5, cex.axis=1.5, cex.main=2)</code></pre>
+</div>
+<div id="pca-to-visualize-global-gene-expression-patterns" class="section level1">
+<h1>PCA to visualize global gene expression patterns</h1>
+<pre><code># first transform the data for plotting using variance stabilization
 vsd &lt;- vst(dds, blind=FALSE)
 
 pcaData &lt;- plotPCA(vsd, intgroup=c(&quot;line&quot;,&quot;generation&quot;), returnData=TRUE)
@@ -203,12 +206,68 @@ ggplot(pcaData, aes(PC1, PC2, color=line, shape=generation)) +
   geom_point(size=3) +
   xlab(paste0(&quot;PC1: &quot;,percentVar[1],&quot;% variance&quot;)) +
   ylab(paste0(&quot;PC2: &quot;,percentVar[2],&quot;% variance&quot;)) + 
-  coord_fixed()
-</code></pre>
+  coord_fixed()</code></pre>
 <p>From here we can play around with colors and shapes to optomize the
 data visualization.</p>
+<pre><code>ggplot(pcaData, aes(PC1, PC2)) +
+  geom_point(size=5, stroke = 1, aes(fill=line, shape=generation, alpha = generation)) +
+  xlab(paste0(&quot;PC1: &quot;,percentVar[1],&quot;% variance&quot;)) +
+  ylab(paste0(&quot;PC2: &quot;,percentVar[2],&quot;% variance&quot;)) +
+  scale_shape_manual(values=c(21,22,23,24), labels = c(&quot;G1&quot;, &quot;G2&quot;,&quot;G3&quot;, &quot;G4&quot;))+
+  #scale_shape_manual(values=c(21,22,23,24) -&gt; circle, square, diamond, triangle
+  scale_fill_manual(values=c(&#39;#6699CC&#39;,&quot;#CC3333&quot;), labels = c(&quot;Control&quot;, &quot;Treatment&quot;))+
+  scale_alpha_manual(values = c(1.0, 0.8, 0.7, 0.3), guide = &quot;none&quot;) +
+  theme_bw() +
+  theme(legend.position = &quot;none&quot;) +
+  theme(panel.border = element_rect(color = &quot;black&quot;, fill = NA, size = 3))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())</code></pre>
 <p>How else do we want to visualize the data and test hypotheses?</p>
+<div id="lets-try-making-groups-to-test-specific-contrasts" class="section level2">
+<h2>Let’s try making groups to test specific contrasts</h2>
+<pre><code>dds$line &lt;- relevel(dds$line, ref = &quot;control&quot;)
+dds$generation &lt;- relevel(dds$generation, ref = &quot;G1&quot;)
+
+
+dds$group &lt;- factor(paste0(dds$line, dds$generation))
+design(dds) &lt;- ~ group
+dds &lt;- DESeq(dds)
+resultsNames(dds)
+
+resG1_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG1&quot;,&quot;treatmentG1&quot;), alpha = 0.05)
+
+summary(resG1_CvT)</code></pre>
+<pre><code>resG1_CvT &lt;- resG1_CvT[order(resG1_CvT$padj),]
+head(resG1_CvT)</code></pre>
+<div id="plot-individual-genes" class="section level3">
+<h3>Plot Individual genes</h3>
+<pre><code># Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d &lt;-plotCounts(dds, gene=&quot;XXXXXXX&quot;, intgroup = (c(&quot;line&quot;,&quot;generation&quot;)), returnData=TRUE)
+d
+
+p &lt;-ggplot(d, aes(x=line, y=count, color=line, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour=&quot;grey&quot;))
+p &lt;- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p &lt;- p + stat_summary(fun = mean, geom = &quot;point&quot;, size=5, alpha=0.7) 
+p
+</code></pre>
 </div>
+</div>
+</div>
+<div id="we-can-make-an-ma-plot" class="section level1">
+<h1>We can make an MA plot</h1>
+<pre><code>plotMA(resG1_CvT, ylim=c(-5,5))</code></pre>
+</div>
+<div id="heatmap-of-top-20-genes-sorted-by-pvalue" class="section level1">
+<h1>Heatmap of top 20 genes sorted by pvalue</h1>
+<pre><code>topgenes &lt;- head(rownames(resG1_CvT),100)
+mat &lt;- assay(vsd)[topgenes,]
+mat &lt;- mat - rowMeans(mat)
+df &lt;- as.data.frame(colData(dds)[,c(&quot;generation&quot;,&quot;line&quot;)])
+pheatmap(mat, annotation_col=df)
+pheatmap(mat, annotation_col=df, cluster_cols = F)</code></pre>
+<pre><code>
+</code></pre>
 </div>
 </section>
 

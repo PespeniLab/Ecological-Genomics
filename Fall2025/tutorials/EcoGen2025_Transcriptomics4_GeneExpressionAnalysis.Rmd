@@ -116,19 +116,14 @@ resultsNames(dds)
 # Copy the results names 
 ```
 
-Let's make a PCA plot to visualize gene expression variation among samples. What patterns do we expect _a priori_?
+Let's make a PCA plot to visualize gene expression variation among samples. 
 
-```
-####################################################
+What patterns do we expect _a priori_?
 
 ### Check the quality of the data by sample clustering and visualization
 
-####################################################
-
+```
 # The goal of transformation "is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low."
-
-library("pheatmap")
-library("vsn")
 
 # this gives log2(n + 1)
 ntd <- normTransform(dds)
@@ -138,7 +133,11 @@ meanSdPlot(assay(ntd))
 vsd <- vst(dds, blind=FALSE)
 meanSdPlot(assay(vsd))
 
+```
 
+Make a heatmap of the distance/dissimilarity of the samples
+
+```
 sampleDists <- dist(t(assay(vsd)))
 
 library("RColorBrewer")
@@ -153,10 +152,19 @@ pheatmap(sampleDistMatrix,
 
 # Note any outliers
 
-###############################################################
+
+```
+# Make a cluster tree to look for outlier samples
+
+```
+sampleTree <- hclust(dist(sampleDists), method="average")
+# plot
+plot(sampleTree, main="Sample clustering to detect outliers", sub="", xlab="",cex.lab=1.5, cex.axis=1.5, cex.main=2)
+```
 
 # PCA to visualize global gene expression patterns
 
+```
 # first transform the data for plotting using variance stabilization
 vsd <- vst(dds, blind=FALSE)
 
@@ -168,9 +176,81 @@ ggplot(pcaData, aes(PC1, PC2, color=line, shape=generation)) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
   coord_fixed()
-
 ```
 
 From here we can play around with colors and shapes to optomize the data visualization. 
 
+```
+ggplot(pcaData, aes(PC1, PC2)) +
+  geom_point(size=5, stroke = 1, aes(fill=line, shape=generation, alpha = generation)) +
+  xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",percentVar[2],"% variance")) +
+  scale_shape_manual(values=c(21,22,23,24), labels = c("G1", "G2","G3", "G4"))+
+  #scale_shape_manual(values=c(21,22,23,24) -> circle, square, diamond, triangle
+  scale_fill_manual(values=c('#6699CC',"#CC3333"), labels = c("Control", "Treatment"))+
+  scale_alpha_manual(values = c(1.0, 0.8, 0.7, 0.3), guide = "none") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 3))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+```
 How else do we want to visualize the data and test hypotheses?
+
+
+
+## Let's try making groups to test specific contrasts
+```
+dds$line <- relevel(dds$line, ref = "control")
+dds$generation <- relevel(dds$generation, ref = "G1")
+
+
+dds$group <- factor(paste0(dds$line, dds$generation))
+design(dds) <- ~ group
+dds <- DESeq(dds)
+resultsNames(dds)
+
+resG1_CvT <- results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05)
+
+summary(resG1_CvT)
+```
+
+```
+resG1_CvT <- resG1_CvT[order(resG1_CvT$padj),]
+head(resG1_CvT)
+```
+
+### Plot Individual genes
+
+```
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds, gene="XXXXXXX", intgroup = (c("line","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=line, y=count, color=line, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+
+```
+# We can make an MA plot
+```
+plotMA(resG1_CvT, ylim=c(-5,5))
+```
+
+# Heatmap of top 20 genes sorted by pvalue
+
+```
+topgenes <- head(rownames(resG1_CvT),100)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds)[,c("generation","line")])
+pheatmap(mat, annotation_col=df)
+pheatmap(mat, annotation_col=df, cluster_cols = F)
+```
+
+```
+
+
+```
