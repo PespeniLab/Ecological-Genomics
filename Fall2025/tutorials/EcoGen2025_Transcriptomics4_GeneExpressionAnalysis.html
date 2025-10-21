@@ -247,28 +247,70 @@ head(resG1_CvT)</code></pre>
 d &lt;-plotCounts(dds, gene=&quot;XXXXXXX&quot;, intgroup = (c(&quot;line&quot;,&quot;generation&quot;)), returnData=TRUE)
 d
 
-p &lt;-ggplot(d, aes(x=line, y=count, color=line, shape=generation)) + 
+d$generation &lt;- factor(d$generation, levels = sort(unique(d$generation)))
+
+p &lt;- ggplot(d, aes(x = generation, y = count, color = line, group = line)) +
   theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour=&quot;grey&quot;))
-p &lt;- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p &lt;- p + geom_point(position=position_jitter(w=0.2,h=0), size=3, aes(shape = line)) 
 p &lt;- p + stat_summary(fun = mean, geom = &quot;point&quot;, size=5, alpha=0.7) 
+p &lt;- p + stat_summary(fun = mean, geom = &quot;line&quot;, size = 1.5, aes(group = line), alpha = 0.8)
+p &lt;- p + scale_color_manual(values = c(&quot;control&quot; = &quot;blue&quot;, &quot;treatment&quot; = &quot;red&quot;))
 p
 </code></pre>
 </div>
 <div id="we-can-make-an-ma-plot" class="section level2">
 <h2>We can make an MA plot</h2>
+<p>Question: What is the relationship between LFC and magnitude of
+expression?</p>
 <pre><code>plotMA(resG1_CvT, ylim=c(-5,5))</code></pre>
+</div>
+<div id="we-can-make-a-volcano-plot" class="section level2">
+<h2>We can make a Volcano plot</h2>
+<p>Question: What is the relationship between LFC and significance of
+DGE?</p>
+<pre><code># Make a dataframe
+res_df &lt;- as.data.frame(resG1_CvT)
+
+# Remove NAs
+res_df &lt;- res_df[!is.na(res_df$padj), ]
+
+# Add significance column for color mapping
+res_df$significance &lt;- &quot;Not Sig&quot;
+res_df$significance[res_df$padj &lt; 0.05 &amp; res_df$log2FoldChange &gt; 0] &lt;- &quot;Up&quot;
+res_df$significance[res_df$padj &lt; 0.05 &amp; res_df$log2FoldChange &lt; 0] &lt;- &quot;Down&quot;
+
+ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj), color = significance)) +
+  geom_point(alpha = 0.7, size = 2) +
+  scale_color_manual(values = c(&quot;Up&quot; = &quot;red&quot;, &quot;Down&quot; = &quot;blue&quot;, &quot;Not Sig&quot; = &quot;grey&quot;)) +
+  geom_vline(xintercept = c(-1, 1), linetype = &quot;dashed&quot;, color = &quot;black&quot;) +
+  geom_hline(yintercept = -log10(0.05), linetype = &quot;dashed&quot;, color = &quot;black&quot;) +
+  labs(
+    title = &quot;Volcano Plot: Generation 1 (Treatment vs Control)&quot;,
+    x = expression(log[2]~Fold~Change),
+    y = expression(-log[10]~Adjusted~p~value)
+  ) +
+  theme_bw(base_size = 16) +
+  theme(legend.title = element_blank())
+
+</code></pre>
 </div>
 <div id="heatmap-of-top-20-genes-sorted-by-pvalue" class="section level2">
 <h2>Heatmap of top 20 genes sorted by pvalue</h2>
+<p>Question: For DEGs, what does gene expression variation look like
+across individual samples among treatment groups?</p>
 <pre><code>topgenes &lt;- head(rownames(resG1_CvT),100)
 mat &lt;- assay(vsd)[topgenes,]
 mat &lt;- mat - rowMeans(mat)
 df &lt;- as.data.frame(colData(dds)[,c(&quot;generation&quot;,&quot;line&quot;)])
 pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)</code></pre>
-<p>##Let’s make a Euler plot of shared differentially expressed genes
-between CvsT across generations Identify the DEGs in the contrast for
-control versus treatment for each generation</p>
+</div>
+</div>
+<div id="lets-make-plots-to-explore-differentially-expressed-genes-between-cvst-across-generations" class="section level1">
+<h1>Let’s make plots to explore differentially expressed genes between
+CvsT across generations</h1>
+<p>First step: Identify the DEGs in the contrast for control versus
+treatment for each generation</p>
 <pre><code>#Gen1
 resG1_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG1&quot;,&quot;treatmentG1&quot;), alpha = 0.05)
 resG1_CvT &lt;- resG1_CvT[order(resG1_CvT$padj),] #sort
@@ -303,6 +345,38 @@ summary(resG4_CvT)
 
 resG4_CvT &lt;- resG4_CvT[!is.na(resG4_CvT$padj),]
 degs_G4_CvTM &lt;- row.names(resG4_CvT[resG4_CvT$padj &lt; 0.05,])</code></pre>
+<div id="make-a-heatmap-of-g1-sig-genes-and-how-they-change-across-generations" class="section level3">
+<h3>Make a heatmap of G1 sig genes and how they change across
+generations</h3>
+<p>Question: How does gene expression change across generations for the
+genes that are initially differentially expressed in Generation 1
+(between different developmental temperatures, 18 vs. 22 C)</p>
+<pre><code>sig_genes_G1 &lt;- rownames(resG1_CvT[which(resG1_CvT$padj &lt; 0.05 &amp; !is.na(resG1_CvT$padj)), ])
+
+# Combine into a data frame
+lfc_mat &lt;- data.frame(
+  Gen1 = resG1_CvT[sig_genes_G1, &quot;log2FoldChange&quot;],
+  Gen2 = resG2_CvT[sig_genes_G1, &quot;log2FoldChange&quot;],
+  Gen3 = resG3_CvT[sig_genes_G1, &quot;log2FoldChange&quot;],
+  Gen4 = resG4_CvT[sig_genes_G1, &quot;log2FoldChange&quot;]
+)
+
+# Remove any rows with missing values (some genes may not be in all result tables)
+lfc_mat &lt;- na.omit(lfc_mat)
+
+pheatmap(lfc_mat,
+         scale = &quot;row&quot;,             # scales each gene’s LFCs across generations
+         color = colorRampPalette(c(&quot;blue&quot;, &quot;white&quot;, &quot;red&quot;))(50),
+         clustering_distance_rows = &quot;euclidean&quot;,
+         clustering_distance_cols = &quot;euclidean&quot;,
+         clustering_method = &quot;complete&quot;,
+         show_rownames = FALSE,
+         main = &quot;LFC (Treatment vs Control) of Sig Genes in Gen 1&quot;)</code></pre>
+</div>
+<div id="here-we-can-make-a-venn-or-euler-plot" class="section level3">
+<h3>Here we can make a Venn or Euler plot</h3>
+<p>Question: How much overlap is there between genes differentially
+expressed between treatments across generations?</p>
 <pre><code>library(eulerr)
 
 # Total

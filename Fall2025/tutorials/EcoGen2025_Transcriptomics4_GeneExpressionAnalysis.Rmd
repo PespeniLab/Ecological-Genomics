@@ -239,11 +239,48 @@ p
 
 ```
 ## We can make an MA plot
+
+Question: What is the relationship between LFC and magnitude of expression? 
+
 ```
 plotMA(resG1_CvT, ylim=c(-5,5))
 ```
 
+## We can make a Volcano plot
+
+Question: What is the relationship between LFC and significance of DGE? 
+
+```
+# Make a dataframe
+res_df <- as.data.frame(resG1_CvT)
+
+# Remove NAs
+res_df <- res_df[!is.na(res_df$padj), ]
+
+# Add significance column for color mapping
+res_df$significance <- "Not Sig"
+res_df$significance[res_df$padj < 0.05 & res_df$log2FoldChange > 0] <- "Up"
+res_df$significance[res_df$padj < 0.05 & res_df$log2FoldChange < 0] <- "Down"
+
+ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj), color = significance)) +
+  geom_point(alpha = 0.7, size = 2) +
+  scale_color_manual(values = c("Up" = "red", "Down" = "blue", "Not Sig" = "grey")) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  labs(
+    title = "Volcano Plot: Generation 1 (Treatment vs Control)",
+    x = expression(log[2]~Fold~Change),
+    y = expression(-log[10]~Adjusted~p~value)
+  ) +
+  theme_bw(base_size = 16) +
+  theme(legend.title = element_blank())
+
+
+```
+
 ## Heatmap of top 20 genes sorted by pvalue
+
+Question: For DEGs, what does gene expression variation look like across individual samples among treatment groups?
 
 ```
 topgenes <- head(rownames(resG1_CvT),100)
@@ -254,7 +291,7 @@ pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)
 ```
 
-## Let's make plots to explore differentially expressed genes between CvsT across generations
+# Let's make plots to explore differentially expressed genes between CvsT across generations
 
 First step: Identify the DEGs in the contrast for control versus treatment for each generation
 ```
@@ -303,6 +340,9 @@ degs_G4_CvTM <- row.names(resG4_CvT[resG4_CvT$padj < 0.05,])
 ```
 
 ### Make a heatmap of G1 sig genes and how they change across generations
+
+Question: How does gene expression change across generations for the genes that are initially differentially expressed in Generation 1 (between different developmental temperatures, 18 vs. 22 C)
+
 ```
 sig_genes_G1 <- rownames(resG1_CvT[which(resG1_CvT$padj < 0.05 & !is.na(resG1_CvT$padj)), ])
 
@@ -330,6 +370,8 @@ pheatmap(lfc_mat,
 
 
 ### Here we can make a Venn or Euler plot
+
+Question: How much overlap is there between genes differentially expressed between treatments across generations?
 
 ```
 library(eulerr)
