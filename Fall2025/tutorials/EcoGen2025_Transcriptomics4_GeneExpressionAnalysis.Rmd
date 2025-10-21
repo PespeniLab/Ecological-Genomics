@@ -222,6 +222,8 @@ head(resG1_CvT)
 
 ## Plot Individual genes
 
+Do significantly differentially expressed genes match expected patterns based on the contrast?
+
 ```
 # Counts of specific top interaction gene! (important validatition that the normalization, model is working)
 d <-plotCounts(dds, gene="XXXXXXX", intgroup = (c("line","generation")), returnData=TRUE)

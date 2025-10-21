@@ -243,6 +243,8 @@ summary(resG1_CvT)</code></pre>
 head(resG1_CvT)</code></pre>
 <div id="plot-individual-genes" class="section level2">
 <h2>Plot Individual genes</h2>
+<p>Do significantly differentially expressed genes match expected
+patterns based on the contrast?</p>
 <pre><code># Counts of specific top interaction gene! (important validatition that the normalization, model is working)
 d &lt;-plotCounts(dds, gene=&quot;XXXXXXX&quot;, intgroup = (c(&quot;line&quot;,&quot;generation&quot;)), returnData=TRUE)
 d
