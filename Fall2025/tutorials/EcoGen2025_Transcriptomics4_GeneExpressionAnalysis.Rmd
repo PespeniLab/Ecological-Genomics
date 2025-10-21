@@ -227,10 +227,14 @@ head(resG1_CvT)
 d <-plotCounts(dds, gene="XXXXXXX", intgroup = (c("line","generation")), returnData=TRUE)
 d
 
-p <-ggplot(d, aes(x=line, y=count, color=line, shape=generation)) + 
+d$generation <- factor(d$generation, levels = sort(unique(d$generation)))
+
+p <- ggplot(d, aes(x = generation, y = count, color = line, group = line)) +
   theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
-p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3, aes(shape = line)) 
 p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p <- p + stat_summary(fun = mean, geom = "line", size = 1.5, aes(group = line), alpha = 0.8)
+p <- p + scale_color_manual(values = c("control" = "blue", "treatment" = "red"))
 p
 
 ```
@@ -250,8 +254,9 @@ pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)
 ```
 
-##Let's make a Euler plot of shared differentially expressed genes between CvsT across generations
-Identify the DEGs in the contrast for control versus treatment for each generation
+## Let's make plots to explore differentially expressed genes between CvsT across generations
+
+First step: Identify the DEGs in the contrast for control versus treatment for each generation
 ```
 #Gen1
 resG1_CvT <- results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05)
@@ -296,6 +301,35 @@ summary(resG4_CvT)
 resG4_CvT <- resG4_CvT[!is.na(resG4_CvT$padj),]
 degs_G4_CvTM <- row.names(resG4_CvT[resG4_CvT$padj < 0.05,])
 ```
+
+### Make a heatmap of G1 sig genes and how they change across generations
+```
+sig_genes_G1 <- rownames(resG1_CvT[which(resG1_CvT$padj < 0.05 & !is.na(resG1_CvT$padj)), ])
+
+# Combine into a data frame
+lfc_mat <- data.frame(
+  Gen1 = resG1_CvT[sig_genes_G1, "log2FoldChange"],
+  Gen2 = resG2_CvT[sig_genes_G1, "log2FoldChange"],
+  Gen3 = resG3_CvT[sig_genes_G1, "log2FoldChange"],
+  Gen4 = resG4_CvT[sig_genes_G1, "log2FoldChange"]
+)
+
+# Remove any rows with missing values (some genes may not be in all result tables)
+lfc_mat <- na.omit(lfc_mat)
+
+pheatmap(lfc_mat,
+         scale = "row",             # scales each gene’s LFCs across generations
+         color = colorRampPalette(c("blue", "white", "red"))(50),
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         clustering_method = "complete",
+         show_rownames = FALSE,
+         main = "LFC (Treatment vs Control) of Sig Genes in Gen 1")
+```
+
+
+
+### Here we can make a Venn or Euler plot
 
 ```
 library(eulerr)
