@@ -10,9 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<meta name="author" content="MHP" />
 
 
-<title>Coding Tutorials</title>
+<title>Transcriptomics Tutorial 5: Functional enrichment analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,48 +47,323 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Transcriptomics Tutorial 5:
+Functional enrichment analysis</h1>
+<h4 class="author project-author">MHP</h4>
+<h4 class="date project-date">Fall 2025</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="objectives-of-this-tutorial" class="section level2">
+<h2>Objectives of this tutorial</h2>
+<ol style="list-style-type: decimal">
+<li>Understand the Gene Ontology (GO) and functional enrichment
+statistical tests.</li>
+<li>Implement a functional enrichment analysis with our data using <a href="https://bioconductor.org/packages/release/bioc/vignettes/topGO/inst/doc/topGO.pdf">TopGO</a></li>
+</ol>
+<div id="mini-lecture-on-functional-categories-and-how-to-test-for-functional-enrichment" class="section level3">
+<h3>1. Mini-lecture on functional categories and how to test for
+functional enrichment</h3>
 <ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
-</ul>
-<p><strong>Population Genomics Module</strong></p>
+<li><p>What are functional categories? How are they determined? Some
+major functional classification systems are:</p>
 <ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
+<li><a href="http://geneontology.org/">GO</a> - hierarchical terms,
+focus on gene function</li>
+<li><a href="https://www.genome.jp/kegg/">KEGG</a> - pathway
+database</li>
+<li><a href="https://pantherdb.org/">PANTHER</a> - Protein ANalysis
+THrough Evolutionary Relationships, GO &amp; pathway, but simpler
+pathways, maps genes based on orthology with closely related species, so
+good for non-model species</li>
+</ul></li>
+<li><p>Are groups of categories nested? How might that affect
+statistical test?</p></li>
+<li><p>Some major classes of statistical tests for functional enrichment
+include: Fisher’s exact test (FET), Kolmogorov Smirnov test, and
+Mann-Whitney U (aka. Wilcoxon rank sum test) – all non-parametric tests?
+<em>Hint:</em> Are gene expression data or results normally
+distributed?</p></li>
+<li><p>What are factors you should consider when wanting to test for
+functional enrichment?</p></li>
 </ul>
-<p><strong>Transcriptomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics2_VisualizeCleanVisualize.html">02:
-Trimming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics3_MappingToCountsMatrix.html">03:
-Mapping and Creating the Counts Matrix</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics4_GeneExpressionAnalysis.html">04:
-Import to DESeq2, test for DGE, and visualize</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics5_FunctionalEnrichment.html">05:
-Test for functional enrichment, GO analysis</a></p></li>
-</ul>
+</div>
+<div id="functional-enrichment-using-topgo." class="section level3">
+<h3>2. Functional enrichment using TopGO.</h3>
+<pre><code>## Set your working directory
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = &quot;/users/X/X/XXXXXX/projects/eco_genomics_2025/transcriptomics/mydata&quot;)
+
+## Import the libraries that we&#39;re likely to need in this session
+
+library(DESeq2)
+library(dplyr)
+library(tibble)
+library(topGO)
+library(GO.db)
+library(ggplot2)
+library(scales) 
+
+ 
+# Import the counts matrix
+countsTable &lt;- read.csv(&quot;counts_table.csv&quot;, header=TRUE, row.names=1)
+dim(countsTable)
+
+countsTableRound &lt;- round(countsTable) # bc DESeq2 doesn&#39;t like decimals (and Salmon outputs data with decimals)
+# Corrects the column names to match between the metadata table and the counts matrix.
+colnames(countsTableRound) &lt;- substr(colnames(countsTableRound), start=1, stop = 4)
+
+
+#import the sample description table
+conds &lt;- read.delim(&quot;metadata.txt&quot;, header=TRUE, stringsAsFactors = TRUE, row.names=1)
+
+
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds &lt;- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + line)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts &lt; 15 in more than 75% of 24 samples, so 18)
+## suggested by WGCNA on RNAseq FAQ
+
+dds &lt;- dds[rowSums(counts(dds) &gt;= 15) &gt;= 18,]
+nrow(dds) 
+# How many transcripts have at least 15 reads (a.k.a counts) in 75% of the samples
+
+# Run the DESeq model to test for differential gene expression
+
+dds$line &lt;- relevel(dds$line, ref = &quot;control&quot;)
+dds$generation &lt;- relevel(dds$generation, ref = &quot;G1&quot;)
+
+dds$group &lt;- factor(paste0(dds$line, dds$generation))
+design(dds) &lt;- ~ group
+dds &lt;- DESeq(dds)
+resultsNames(dds)
+
+
+#Gen1
+resG1_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG1&quot;,&quot;treatmentG1&quot;), alpha = 0.05)
+resG1_CvT &lt;- resG1_CvT[order(resG1_CvT$padj),] #sort
+resG1_CvT &lt;- resG1_CvT[!is.na(resG1_CvT$padj),]
+
+#Gen2
+resG2_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG2&quot;,&quot;treatmentG2&quot;), alpha = 0.05)
+resG2_CvT &lt;- resG2_CvT[order(resG2_CvT$padj),] #sort
+resG2_CvT &lt;- resG2_CvT[!is.na(resG2_CvT$padj),]
+
+#Gen3
+resG3_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG3&quot;,&quot;treatmentG3&quot;), alpha = 0.05)
+resG3_CvT &lt;- resG3_CvT[order(resG3_CvT$padj),] #sort
+resG3_CvT &lt;- resG3_CvT[!is.na(resG3_CvT$padj),]
+
+#Gen4
+resG4_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG4&quot;,&quot;treatmentG4&quot;), alpha = 0.05)
+resG4_CvT &lt;- resG4_CvT[order(resG4_CvT$padj),] #sort
+resG4_CvT &lt;- resG4_CvT[!is.na(resG4_CvT$padj),]</code></pre>
+</div>
+<div id="first-what-do-the-distributions-of-our-results-look-like" class="section level3">
+<h3>First, what do the distributions of our results look like?</h3>
+<pre><code>library(ggplot2)
+library(ggpubr)
+
+# Convert results to data frame and clean
+res_df &lt;- as.data.frame(resG1_CvT)
+res_df &lt;- res_df[!is.na(res_df$padj), ]
+
+# Calculate and add -log10(padj)
+res_df$negLog10Padj &lt;- -log10(res_df$padj)
+
+# Panel 1: padj distribution
+p1 &lt;- ggplot(res_df, aes(x = padj)) +
+  geom_histogram(bins = 50, fill = &quot;skyblue3&quot;, color = &quot;black&quot;) +
+  theme_minimal(base_size = 16) +
+  ggtitle(&quot;Adjusted p-values (padj)&quot;) +
+  xlab(&quot;padj&quot;) +
+  ylab(&quot;Count&quot;)
+
+# Panel 2: -log10(padj)
+p2 &lt;- ggplot(res_df, aes(x = negLog10Padj)) +
+  geom_histogram(bins = 50, fill = &quot;tomato3&quot;, color = &quot;black&quot;) +
+  theme_minimal(base_size = 16) +
+  ggtitle(&quot;-log10(padj)&quot;) +
+  xlab(&quot;-log10(padj)&quot;) +
+  ylab(&quot;Count&quot;)
+
+# Panel 3: Wald Statistic
+p3 &lt;- ggplot(res_df, aes(x = stat)) +
+  geom_histogram(bins = 50, fill = &quot;seagreen3&quot;, color = &quot;black&quot;) +
+  theme_minimal(base_size = 16) +
+  ggtitle(&quot;Wald Statistic&quot;) +
+  xlab(&quot;stat&quot;) +
+  ylab(&quot;Count&quot;)
+
+# Combine vertically with ggpubr
+combined_plot &lt;- ggarrange(
+  p1, p2, p3,
+  ncol = 1, nrow = 3,
+  labels = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;),  # optional panel labels
+  align = &quot;v&quot;,                # vertical alignment
+  common.legend = FALSE
+)
+
+# Show combined plot
+combined_plot</code></pre>
+<p>And what are the relationships between these metrics?</p>
+<pre><code># Panel D: Wald statistic vs -log10(padj) scatter 
+p4 &lt;- ggplot(res_df, aes(x = pvalue, y = negLog10Padj)) +
+  geom_point(alpha = 0.4, color = &quot;yellow4&quot;) + ylim(c(0,5)) +
+  theme_minimal(base_size = 8) +
+  ggtitle(&quot;P-value vs -log10(padj)&quot;) +
+  xlab(&quot;P-value&quot;) +
+  ylab(&quot;-log10(padj)&quot;) +
+  geom_hline(yintercept = -log10(0.05), linetype = &quot;dashed&quot;, color = &quot;red&quot;) +
+  geom_vline(xintercept = 0, linetype = &quot;dotted&quot;, color = &quot;black&quot;)
+
+# Panel E: Wald statistic vs -log10(padj) scatter 
+p5 &lt;- ggplot(res_df, aes(x = stat, y = negLog10Padj)) +
+  geom_point(alpha = 0.4, color = &quot;purple4&quot;) + ylim(c(0,5)) +
+  theme_minimal(base_size = 8) +
+  ggtitle(&quot;Wald Statistic vs -log10(padj)&quot;) +
+  xlab(&quot;Wald statistic&quot;) +
+  ylab(&quot;-log10(padj)&quot;) +
+  geom_hline(yintercept = -log10(0.05), linetype = &quot;dashed&quot;, color = &quot;red&quot;) +
+  geom_vline(xintercept = 0, linetype = &quot;dotted&quot;, color = &quot;black&quot;)
+
+
+combined_plot &lt;- ggarrange(
+  p4, p5,
+  ncol = 2, nrow = 1,
+  align = &quot;h&quot;
+)
+
+# Show combined plot
+combined_plot</code></pre>
+</div>
+<div id="run-top-go" class="section level3">
+<h3>Run Top GO</h3>
+<p>You’ll need the <code>Genes_GO_terms_output.tsv</code> file that maps
+each gene to GO categories for the transcriptome of our species. This
+can be found in:
+<code>/gpfs1/cl/ecogen/pbio6800/Transcriptomics/enrichment</code>. You
+can <code>cp</code> it to your <code>/mydata</code> directory.</p>
+<div id="lets-start-with-deseq2-results-object-for-gen-2-since-we-know-it-has-the-most-differentially-expressed-genes" class="section level4">
+<h4>Let’s start with DESeq2 results object for Gen 2, since we know it
+has the most differentially expressed genes</h4>
+<pre><code># Convert to data frame
+res_G2_df &lt;- as.data.frame(resG2_CvT)
+
+# Add geneID column from rownames
+res_G2_df$geneID &lt;- rownames(res_G2_df)
+res_G2_df &lt;- res_G2_df[, c(&quot;geneID&quot;, setdiff(names(res_G2_df), &quot;geneID&quot;))]
+
+# Read GO terms file (tonsa_go) provided in 
+tonsa_go &lt;- read.delim(&quot;Genes_GO_terms_output.tsv&quot;, header = TRUE) %&gt;%
+  slice(-c(1,2)) %&gt;%  # remove header rows if present
+  na.omit()  # remove missing GO annotations
+
+# Filter DEGs that have GO annotations
+res_G2_GO &lt;- res_G2_df[res_G2_df$geneID %in% tonsa_go$geneID, ]
+
+# Keep only significant DEGs 
+res_G2_GO_sig &lt;- subset(res_G2_GO, padj &lt; 0.05 &amp; abs(log2FoldChange) &gt; 1)
+
+#do the same thing to look at gen1, then you alter the tonsa_stat object and run from below
+
+# DESeq2 results object for 1st generation
+res_G1_int &lt;- results(dds_interaction, name = &quot;line_treatment_vs_control&quot;)
+
+# Convert to data frame
+res_G1_df &lt;- as.data.frame(res_G1_int)
+
+# Add geneID column from rownames
+res_G1_df$geneID &lt;- rownames(res_G1_df)
+res_G1_df &lt;- res_G1_df[, c(&quot;geneID&quot;, setdiff(names(res_G1_df), &quot;geneID&quot;))]
+
+# Filter DEGs that have GO annotations
+res_G1_GO &lt;- res_G1_df[res_G1_df$geneID %in% tonsa_go$geneID, ]
+
+# Keep only significant DEGs 
+res_G1_GO_sig &lt;- subset(res_G1_GO, padj &lt; 0.05 &amp; abs(log2FoldChange) &gt; 1)
+
+# Merge with GO annotations
+tonsa_stat &lt;- merge(res_G1_GO_sig, tonsa_go, by = &quot;geneID&quot;)
+
+# Create gene2GO list which is used in the topgo function 
+gene2GO &lt;- tonsa_go %&gt;%
+  filter(!is.na(GO) &amp; GO != &quot;&quot;) %&gt;%
+  group_by(geneID) %&gt;%
+  summarise(GO = list(unique(GO)), .groups = &quot;drop&quot;) %&gt;%
+  with(setNames(GO, geneID))
+
+# Split semicolon-separated GO terms
+gene2GO &lt;- lapply(gene2GO, function(x) unlist(strsplit(x, &quot;;&quot;)))
+
+# Create geneList for TopGO: 1 = DEG, 0 = not DEG
+all_genes &lt;- names(gene2GO)
+geneList &lt;- setNames(as.integer(all_genes %in% tonsa_stat$geneID), all_genes)
+
+#Build TopGO pipeline 
+GOdata &lt;- new(&quot;topGOdata&quot;,
+              description = &quot;G2 DEGs GO enrichment&quot;,
+              ontology = &quot;BP&quot;,
+              allGenes = geneList,
+              geneSel = function(x) x == 1,
+              nodeSize = 8,
+              annot = annFUN.gene2GO,
+              gene2GO = gene2GO)
+
+#test for enrichment 
+result &lt;- runTest(GOdata, algorithm = &quot;parentChild&quot;, statistic = &quot;fisher&quot;)
+
+# Convert results to table
+res_table &lt;- GenTable(GOdata, classicFisher = result,
+                      topNodes = length(usedGO(GOdata))) %&gt;%
+  mutate(classicFisher = as.numeric(classicFisher),
+         Annotated = as.numeric(Annotated),
+         Significant = as.numeric(Significant))
+
+#plot!
+
+# Keep GO terms with enough but not too many genes
+filtered_GO_results &lt;- res_table %&gt;%
+  filter(Annotated &gt;= 1 &amp; Annotated &lt; 250) %&gt;%  # adjust as needed
+  group_by(Term) %&gt;%
+  slice_min(classicFisher, n = 1) %&gt;%  # keep only the most significant per Term
+  ungroup() %&gt;%
+  arrange(classicFisher)
+
+
+TopGO_plot &lt;- function(df, title) {
+  df %&gt;%
+    slice_head(n = 30) %&gt;%
+    ggplot(aes(x = -log10(classicFisher),
+               y = reorder(Term, -log10(classicFisher)),
+               size = Significant,
+               color = -log10(classicFisher))) +
+    geom_point(alpha = 0.8) +
+    scale_color_gradientn(
+      colors = c(&quot;pink&quot;, &quot;orchid&quot;, &quot;purple&quot;, &quot;purple4&quot;),
+      name = &quot;-log10(p-value)&quot;
+    ) +
+    scale_size_continuous(name = &quot;# Significant Genes&quot;) +
+    xlab(&quot;-log10-classicFisher&quot;) +
+    ylab(&quot;Biological Function&quot;) +
+    ggtitle(title) +
+    theme_minimal() +
+    theme(plot.margin = margin(10, 100, 10, 10),
+          axis.text.y = element_text(size = 10, hjust = 1)) +
+    coord_cartesian(clip = &quot;off&quot;)
+}
+
+# Generate plot
+topGO_plot &lt;- TopGO_plot(filtered_GO_results, &quot;GO Enrichment for DEGs at Gen1&quot;)
+topGO_plot</code></pre>
+</div>
+</div>
 </div>
 </section>
 

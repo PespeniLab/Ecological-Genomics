@@ -1,0 +1,309 @@
+---
+title: "Transcriptomics Tutorial 5: Functional enrichment analysis"
+author: "MHP"
+date: 'Fall 2025'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Understand the Gene Ontology (GO) and functional enrichment statistical tests.
+2. Implement a functional enrichment analysis with our data using [TopGO](https://bioconductor.org/packages/release/bioc/vignettes/topGO/inst/doc/topGO.pdf)
+
+### 1. Mini-lecture on functional categories and how to test for functional enrichment
+
+* What are functional categories? How are they determined? Some major functional classification systems are:
+    * [GO](http://geneontology.org/) - hierarchical terms, focus on gene function 
+    * [KEGG](https://www.genome.jp/kegg/) - pathway database
+    * [PANTHER](https://pantherdb.org/) - Protein ANalysis THrough Evolutionary Relationships, GO & pathway, but simpler pathways, maps genes based on orthology with closely related species, so good for non-model species
+
+* Are groups of categories nested? How might that affect statistical test?
+
+*  Some major classes of statistical tests for functional enrichment include: Fisher's exact test (FET), Kolmogorov Smirnov test, and Mann-Whitney U (aka. Wilcoxon rank sum test) -- all non-parametric tests? _Hint:_ Are gene expression data or results normally distributed?
+
+* What are factors you should consider when wanting to test for functional enrichment?
+
+
+### 2. Functional enrichment using TopGO.
+
+```
+## Set your working directory
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/users/X/X/XXXXXX/projects/eco_genomics_2025/transcriptomics/mydata")
+
+## Import the libraries that we're likely to need in this session
+
+library(DESeq2)
+library(dplyr)
+library(tibble)
+library(topGO)
+library(GO.db)
+library(ggplot2)
+library(scales) 
+
+ 
+# Import the counts matrix
+countsTable <- read.csv("counts_table.csv", header=TRUE, row.names=1)
+dim(countsTable)
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+# Corrects the column names to match between the metadata table and the counts matrix.
+colnames(countsTableRound) <- substr(colnames(countsTableRound), start=1, stop = 4)
+
+
+#import the sample description table
+conds <- read.delim("metadata.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+
+
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + line)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of 24 samples, so 18)
+## suggested by WGCNA on RNAseq FAQ
+
+dds <- dds[rowSums(counts(dds) >= 15) >= 18,]
+nrow(dds) 
+# How many transcripts have at least 15 reads (a.k.a counts) in 75% of the samples
+
+# Run the DESeq model to test for differential gene expression
+
+dds$line <- relevel(dds$line, ref = "control")
+dds$generation <- relevel(dds$generation, ref = "G1")
+
+dds$group <- factor(paste0(dds$line, dds$generation))
+design(dds) <- ~ group
+dds <- DESeq(dds)
+resultsNames(dds)
+
+
+#Gen1
+resG1_CvT <- results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05)
+resG1_CvT <- resG1_CvT[order(resG1_CvT$padj),] #sort
+resG1_CvT <- resG1_CvT[!is.na(resG1_CvT$padj),]
+
+#Gen2
+resG2_CvT <- results(dds, contrast=c("group","controlG2","treatmentG2"), alpha = 0.05)
+resG2_CvT <- resG2_CvT[order(resG2_CvT$padj),] #sort
+resG2_CvT <- resG2_CvT[!is.na(resG2_CvT$padj),]
+
+#Gen3
+resG3_CvT <- results(dds, contrast=c("group","controlG3","treatmentG3"), alpha = 0.05)
+resG3_CvT <- resG3_CvT[order(resG3_CvT$padj),] #sort
+resG3_CvT <- resG3_CvT[!is.na(resG3_CvT$padj),]
+
+#Gen4
+resG4_CvT <- results(dds, contrast=c("group","controlG4","treatmentG4"), alpha = 0.05)
+resG4_CvT <- resG4_CvT[order(resG4_CvT$padj),] #sort
+resG4_CvT <- resG4_CvT[!is.na(resG4_CvT$padj),]
+```
+
+### First, what do the distributions of our results look like?
+
+```
+library(ggplot2)
+library(ggpubr)
+
+# Convert results to data frame and clean
+res_df <- as.data.frame(resG1_CvT)
+res_df <- res_df[!is.na(res_df$padj), ]
+
+# Calculate and add -log10(padj)
+res_df$negLog10Padj <- -log10(res_df$padj)
+
+# Panel 1: padj distribution
+p1 <- ggplot(res_df, aes(x = padj)) +
+  geom_histogram(bins = 50, fill = "skyblue3", color = "black") +
+  theme_minimal(base_size = 16) +
+  ggtitle("Adjusted p-values (padj)") +
+  xlab("padj") +
+  ylab("Count")
+
+# Panel 2: -log10(padj)
+p2 <- ggplot(res_df, aes(x = negLog10Padj)) +
+  geom_histogram(bins = 50, fill = "tomato3", color = "black") +
+  theme_minimal(base_size = 16) +
+  ggtitle("-log10(padj)") +
+  xlab("-log10(padj)") +
+  ylab("Count")
+
+# Panel 3: Wald Statistic
+p3 <- ggplot(res_df, aes(x = stat)) +
+  geom_histogram(bins = 50, fill = "seagreen3", color = "black") +
+  theme_minimal(base_size = 16) +
+  ggtitle("Wald Statistic") +
+  xlab("stat") +
+  ylab("Count")
+
+# Combine vertically with ggpubr
+combined_plot <- ggarrange(
+  p1, p2, p3,
+  ncol = 1, nrow = 3,
+  labels = c("A", "B", "C"),  # optional panel labels
+  align = "v",                # vertical alignment
+  common.legend = FALSE
+)
+
+# Show combined plot
+combined_plot
+```
+
+And what are the relationships between these metrics?
+
+```
+# Panel D: Wald statistic vs -log10(padj) scatter 
+p4 <- ggplot(res_df, aes(x = pvalue, y = negLog10Padj)) +
+  geom_point(alpha = 0.4, color = "yellow4") + ylim(c(0,5)) +
+  theme_minimal(base_size = 8) +
+  ggtitle("P-value vs -log10(padj)") +
+  xlab("P-value") +
+  ylab("-log10(padj)") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = 0, linetype = "dotted", color = "black")
+
+# Panel E: Wald statistic vs -log10(padj) scatter 
+p5 <- ggplot(res_df, aes(x = stat, y = negLog10Padj)) +
+  geom_point(alpha = 0.4, color = "purple4") + ylim(c(0,5)) +
+  theme_minimal(base_size = 8) +
+  ggtitle("Wald Statistic vs -log10(padj)") +
+  xlab("Wald statistic") +
+  ylab("-log10(padj)") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = 0, linetype = "dotted", color = "black")
+
+
+combined_plot <- ggarrange(
+  p4, p5,
+  ncol = 2, nrow = 1,
+  align = "h"
+)
+
+# Show combined plot
+combined_plot
+```
+
+
+### Run Top GO
+
+You'll need the `Genes_GO_terms_output.tsv` file that maps each gene to GO categories for the transcriptome of our species. This can be found in: `/gpfs1/cl/ecogen/pbio6800/Transcriptomics/enrichment`. You can `cp` it to your `/mydata` directory.
+
+#### Let's start with DESeq2 results object for Gen 2, since we know it has the most differentially expressed genes
+
+```
+# Convert to data frame
+res_G2_df <- as.data.frame(resG2_CvT)
+
+# Add geneID column from rownames
+res_G2_df$geneID <- rownames(res_G2_df)
+res_G2_df <- res_G2_df[, c("geneID", setdiff(names(res_G2_df), "geneID"))]
+
+# Read GO terms file (tonsa_go) provided in 
+tonsa_go <- read.delim("Genes_GO_terms_output.tsv", header = TRUE) %>%
+  slice(-c(1,2)) %>%  # remove header rows if present
+  na.omit()  # remove missing GO annotations
+
+# Filter DEGs that have GO annotations
+res_G2_GO <- res_G2_df[res_G2_df$geneID %in% tonsa_go$geneID, ]
+
+# Keep only significant DEGs 
+res_G2_GO_sig <- subset(res_G2_GO, padj < 0.05 & abs(log2FoldChange) > 1)
+
+#do the same thing to look at gen1, then you alter the tonsa_stat object and run from below
+
+# DESeq2 results object for 1st generation
+res_G1_int <- results(dds_interaction, name = "line_treatment_vs_control")
+
+# Convert to data frame
+res_G1_df <- as.data.frame(res_G1_int)
+
+# Add geneID column from rownames
+res_G1_df$geneID <- rownames(res_G1_df)
+res_G1_df <- res_G1_df[, c("geneID", setdiff(names(res_G1_df), "geneID"))]
+
+# Filter DEGs that have GO annotations
+res_G1_GO <- res_G1_df[res_G1_df$geneID %in% tonsa_go$geneID, ]
+
+# Keep only significant DEGs 
+res_G1_GO_sig <- subset(res_G1_GO, padj < 0.05 & abs(log2FoldChange) > 1)
+
+# Merge with GO annotations
+tonsa_stat <- merge(res_G1_GO_sig, tonsa_go, by = "geneID")
+
+# Create gene2GO list which is used in the topgo function 
+gene2GO <- tonsa_go %>%
+  filter(!is.na(GO) & GO != "") %>%
+  group_by(geneID) %>%
+  summarise(GO = list(unique(GO)), .groups = "drop") %>%
+  with(setNames(GO, geneID))
+
+# Split semicolon-separated GO terms
+gene2GO <- lapply(gene2GO, function(x) unlist(strsplit(x, ";")))
+
+# Create geneList for TopGO: 1 = DEG, 0 = not DEG
+all_genes <- names(gene2GO)
+geneList <- setNames(as.integer(all_genes %in% tonsa_stat$geneID), all_genes)
+
+#Build TopGO pipeline 
+GOdata <- new("topGOdata",
+              description = "G2 DEGs GO enrichment",
+              ontology = "BP",
+              allGenes = geneList,
+              geneSel = function(x) x == 1,
+              nodeSize = 8,
+              annot = annFUN.gene2GO,
+              gene2GO = gene2GO)
+
+#test for enrichment 
+result <- runTest(GOdata, algorithm = "parentChild", statistic = "fisher")
+
+# Convert results to table
+res_table <- GenTable(GOdata, classicFisher = result,
+                      topNodes = length(usedGO(GOdata))) %>%
+  mutate(classicFisher = as.numeric(classicFisher),
+         Annotated = as.numeric(Annotated),
+         Significant = as.numeric(Significant))
+
+#plot!
+
+# Keep GO terms with enough but not too many genes
+filtered_GO_results <- res_table %>%
+  filter(Annotated >= 1 & Annotated < 250) %>%  # adjust as needed
+  group_by(Term) %>%
+  slice_min(classicFisher, n = 1) %>%  # keep only the most significant per Term
+  ungroup() %>%
+  arrange(classicFisher)
+
+
+TopGO_plot <- function(df, title) {
+  df %>%
+    slice_head(n = 30) %>%
+    ggplot(aes(x = -log10(classicFisher),
+               y = reorder(Term, -log10(classicFisher)),
+               size = Significant,
+               color = -log10(classicFisher))) +
+    geom_point(alpha = 0.8) +
+    scale_color_gradientn(
+      colors = c("pink", "orchid", "purple", "purple4"),
+      name = "-log10(p-value)"
+    ) +
+    scale_size_continuous(name = "# Significant Genes") +
+    xlab("-log10-classicFisher") +
+    ylab("Biological Function") +
+    ggtitle(title) +
+    theme_minimal() +
+    theme(plot.margin = margin(10, 100, 10, 10),
+          axis.text.y = element_text(size = 10, hjust = 1)) +
+    coord_cartesian(clip = "off")
+}
+
+# Generate plot
+topGO_plot <- TopGO_plot(filtered_GO_results, "GO Enrichment for DEGs at Gen1")
+topGO_plot
+```
