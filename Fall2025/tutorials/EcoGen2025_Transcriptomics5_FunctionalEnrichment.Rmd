@@ -21,7 +21,7 @@ fontsize: 18pt
     * [KEGG](https://www.genome.jp/kegg/) - pathway database
     * [PANTHER](https://pantherdb.org/) - Protein ANalysis THrough Evolutionary Relationships, GO & pathway, but simpler pathways, maps genes based on orthology with closely related species, so good for non-model species
 
-* Are groups of categories nested? How might that affect statistical test?
+* Are groups of categories nested? How might that affect statistical tests?
 
 *  Some major classes of statistical tests for functional enrichment include: Fisher's exact test (FET), Kolmogorov Smirnov test, and Mann-Whitney U (aka. Wilcoxon rank sum test) -- all non-parametric tests? _Hint:_ Are gene expression data or results normally distributed?
 
