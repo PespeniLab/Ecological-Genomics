@@ -255,8 +255,9 @@ we’re testing in a functional enrichment test.</h3>
   ylab(&quot;Density&quot;) +
   ggtitle(expression(&quot;Density of &quot; * -log[10](padj)))</code></pre>
 </div>
-<div id="run-top-go" class="section level3">
-<h3>Run Top GO</h3>
+</div>
+<div id="run-topgo" class="section level2">
+<h2>Run <a href="https://bioconductor.org/packages/release/bioc/vignettes/topGO/inst/doc/topGO.pdf">TopGO</a>!</h2>
 <p>You’ll need the <code>Genes_GO_terms_output.tsv</code> file that maps
 each gene to GO categories for the transcriptome of our species. This
 can be found in:
@@ -265,7 +266,10 @@ can <code>cp</code> it to your <code>/mydata</code> directory.</p>
 <div id="lets-start-with-deseq2-results-object-for-gen-2-since-we-know-it-has-the-most-differentially-expressed-genes" class="section level4">
 <h4>Let’s start with DESeq2 results object for Gen 2, since we know it
 has the most differentially expressed genes</h4>
-<pre><code># Convert to data frame
+<pre><code>library(topGO)
+library(GO.db)
+
+# Convert to data frame
 res_G2_df &lt;- as.data.frame(resG2_CvT)
 
 # Add geneID column from rownames
@@ -277,32 +281,15 @@ tonsa_go &lt;- read.delim(&quot;Genes_GO_terms_output.tsv&quot;, header = TRUE) 
   slice(-c(1,2)) %&gt;%  # remove header rows if present
   na.omit()  # remove missing GO annotations
 
-# Filter DEGs that have GO annotations
+# Identify DEGs that have GO annotations
 res_G2_GO &lt;- res_G2_df[res_G2_df$geneID %in% tonsa_go$geneID, ]
 
 # Keep only significant DEGs 
 res_G2_GO_sig &lt;- subset(res_G2_GO, padj &lt; 0.05 &amp; abs(log2FoldChange) &gt; 1)
 
-#do the same thing to look at gen1, then you alter the tonsa_stat object and run from below
-
-# DESeq2 results object for 1st generation
-res_G1_int &lt;- results(dds_interaction, name = &quot;line_treatment_vs_control&quot;)
-
-# Convert to data frame
-res_G1_df &lt;- as.data.frame(res_G1_int)
-
-# Add geneID column from rownames
-res_G1_df$geneID &lt;- rownames(res_G1_df)
-res_G1_df &lt;- res_G1_df[, c(&quot;geneID&quot;, setdiff(names(res_G1_df), &quot;geneID&quot;))]
-
-# Filter DEGs that have GO annotations
-res_G1_GO &lt;- res_G1_df[res_G1_df$geneID %in% tonsa_go$geneID, ]
-
-# Keep only significant DEGs 
-res_G1_GO_sig &lt;- subset(res_G1_GO, padj &lt; 0.05 &amp; abs(log2FoldChange) &gt; 1)
 
 # Merge with GO annotations
-tonsa_stat &lt;- merge(res_G1_GO_sig, tonsa_go, by = &quot;geneID&quot;)
+tonsa_stat &lt;- merge(res_G2_GO_sig, tonsa_go, by = &quot;geneID&quot;)
 
 # Create gene2GO list which is used in the topgo function 
 gene2GO &lt;- tonsa_go %&gt;%
@@ -324,7 +311,7 @@ GOdata &lt;- new(&quot;topGOdata&quot;,
               ontology = &quot;BP&quot;,
               allGenes = geneList,
               geneSel = function(x) x == 1,
-              nodeSize = 8,
+              nodeSize = 5,
               annot = annFUN.gene2GO,
               gene2GO = gene2GO)
 
@@ -342,7 +329,7 @@ res_table &lt;- GenTable(GOdata, classicFisher = result,
 
 # Keep GO terms with enough but not too many genes
 filtered_GO_results &lt;- res_table %&gt;%
-  filter(Annotated &gt;= 1 &amp; Annotated &lt; 250) %&gt;%  # adjust as needed
+  filter(Annotated &gt;= 5 &amp; Annotated &lt; 500) %&gt;%  # adjust as needed
   group_by(Term) %&gt;%
   slice_min(classicFisher, n = 1) %&gt;%  # keep only the most significant per Term
   ungroup() %&gt;%
@@ -372,9 +359,8 @@ TopGO_plot &lt;- function(df, title) {
 }
 
 # Generate plot
-topGO_plot &lt;- TopGO_plot(filtered_GO_results, &quot;GO Enrichment for DEGs at Gen1&quot;)
+topGO_plot &lt;- TopGO_plot(filtered_GO_results, &quot;GO Enrichment for DEGs at Gen2&quot;)
 topGO_plot</code></pre>
-</div>
 </div>
 </div>
 </section>
