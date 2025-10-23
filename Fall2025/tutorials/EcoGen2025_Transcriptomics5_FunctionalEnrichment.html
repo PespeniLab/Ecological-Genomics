@@ -376,13 +376,15 @@ contrasts?</p>
 <h2>Can we output the enrichment results from TopGO and try <a href="http://revigo.irb.hr/">REViGO</a> like what was used in the paper
 we discuss in class today.</h2>
 <pre><code># Select only the columns REVIGO needs
-revigo_input &lt;- filtered_GO_results[, c(&quot;GO.ID&quot;, &quot;weightFisher&quot;)]
+revigo_input &lt;- filtered_GO_results[, c(&quot;GO.ID&quot;, &quot;classicFisher&quot;)]
+
+sigRes &lt;- revigo_input[as.numeric(revigo_input$classicFisher) &lt; 0.05, ]
 
 # Rename columns for clarity
-colnames(revigo_input) &lt;- c(&quot;GO.ID&quot;, &quot;pValue&quot;)
+colnames(sigRes) &lt;- c(&quot;GO.ID&quot;, &quot;pValue&quot;)
 
-# Optionally, save to CSV for upload to REVIGO
-write.csv(revigo_input, file = &quot;topGO_for_REVIGO.csv&quot;, row.names = FALSE)</code></pre>
+# Save as txt to upload to REVIGO
+write.table(sigRes, file = &quot;topGOsig_for_REVIGO.txt&quot;, sep = &quot;\t&quot;, row.names = FALSE, quote = FALSE)</code></pre>
 </div>
 </section>
 
