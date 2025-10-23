@@ -426,3 +426,127 @@ plot(fit1, quantities = TRUE, fill = "transparent",
  #  total G2
  #  total G3
 ```
+
+## Scatter plots
+
+```
+#######################################################
+#
+# Make scatter plots of copepod responses to development at 18 vs 22 C, and transgenerational effects
+#
+#######################################################
+
+#contrast G1
+resG1_CvT <- as.data.frame(results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05))
+
+#contrast G2
+resG2_CvT <- as.data.frame(results(dds, contrast=c("group","controlG2","treatmentG2"), alpha = 0.05))
+
+#contrast G3
+resG3_CvT <- as.data.frame(results(dds, contrast=c("group","controlG3","treatmentG3"), alpha = 0.05))
+
+#contrast G4
+resG4_CvT <- as.data.frame(results(dds, contrast=c("group","controlG4","treatmentG4"), alpha = 0.05))
+
+
+# Convert results to a data frame for easy plotting
+res_gen_df <- merge(resG1_CvT, resG2_CvT, resG3_CvT, resG4_CvT, by = "row.names", suffixes = c(".G1", ".G2",".G3",".G4"))
+# Set the row names and remove the Row.names column
+rownames(res_gen_df) <- res_gen_df$Row.names
+res_gen_df <- res_gen_df[, -1]  # Remove the Row.names column
+
+
+library(dplyr)
+library(tidyr)
+
+# Define color mapping logic with mutate
+res_gen_df <- res_gen_df %>%
+  mutate(fill = case_when(
+    padj.G1 < 0.05 & stat.G1 < 0 ~ "turquoise2",
+    padj.G1 < 0.05 & stat.G1 > 0 ~ "magenta1",
+    padj.G2 < 0.05 & stat.G2 < 0 ~ "blue2",
+    padj.G2 < 0.05 & stat.G2 > 0 ~ "red",
+    padj.G1 < 0.05 & padj.G2 < 0.05 ~ "purple"
+  ))
+
+# Count the number of points per fill color
+color_counts <- res_df28 %>%
+  group_by(fill) %>%
+  summarise(count = n())
+
+# Create a data frame for the label positions and counts
+label_positions <- data.frame(
+  fill = c("blue2", "magenta1","red","turquoise2"),
+  x_pos = c(1, 5, 0, -7.5),           # Set x position (adjust as needed)
+  y_pos = c(-5, 0, 9, 3)       # Set y positions (adjust for clarity)
+)
+
+# Merge the counts and positions dataframes
+label_data <- merge(color_counts, label_positions, by = "fill")
+
+
+# Make the scatter plot
+plot28 <- ggplot(res_df28, aes(x = log2FoldChange.G1, y = log2FoldChange.G2, color = fill)) +
+  geom_point(alpha = 0.8) +  # Scatter plot with transparency
+  scale_color_identity() +  # Customize colors
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey") +
+  xlim(-10,10) + ylim(-10,10) +
+  geom_text(data = label_data, aes(x = x_pos, y = y_pos, label = count, color = fill), 
+            size = 5, hjust = 0, vjust = 0) +  # Adjust hjust/vjust
+  labs(x = "Log2 Fold Change 28 vs. 18", 
+       y = "Log2 Fold Change 28 vs. 22", 
+       title = "How does response to 28 C vary by DevTemp?") +
+  theme_minimal() 
+
+
+
+
+
+# Define color mapping logic with mutate
+res_df33 <- res_df33 %>%
+  mutate(fill = case_when(
+    padj.G1 < 0.05 & stat.G1 < 0 ~ "turquoise2",
+    padj.G1 < 0.05 & stat.G1 > 0 ~ "magenta1",
+    padj.G2 < 0.05 & stat.G2 < 0 ~ "blue2",
+    padj.G2 < 0.05 & stat.G2 > 0 ~ "red",
+    padj.G1 < 0.05 & padj.G2 < 0.05 ~ "purple"
+  ))
+
+# Count the number of points per fill color
+color_counts33 <- res_df33 %>%
+  group_by(fill) %>%
+  summarise(count = n())
+
+# Create a data frame for the label positions and counts
+label_positions33 <- data.frame(
+  fill = c("blue2", "magenta1","red","turquoise2"),
+  x_pos = c(1, 5, 0, -7.5),           # Set x position (adjust as needed)
+  y_pos = c(-5, 0, 9, 3)       # Set y positions (adjust for clarity)
+)
+
+# Merge the counts and positions dataframes
+label_data33 <- merge(color_counts33, label_positions33, by = "fill")
+
+
+# Make the scatter plot
+plot33 <- ggplot(res_df33, aes(x = log2FoldChange.G1, y = log2FoldChange.G2, color = fill)) +
+  geom_point(alpha = 0.8) +  # Scatter plot with transparency
+  scale_color_identity() +  # Customize colors
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey") +
+  xlim(-10,10) + ylim(-10,10) +
+  geom_text(data = label_data33, aes(x = x_pos, y = y_pos, label = count, color = fill), 
+            size = 5, hjust = 0, vjust = 0) +  # Adjust hjust/vjust
+  labs(x = "Log2 Fold Change 33 vs. 18", 
+       y = "Log2 Fold Change 33 vs. 22", 
+       title = "How does response to 33 C vary by DevTemp?") +
+  theme_minimal() 
+
+
+library(gridExtra)
+
+combined_plot <- grid.arrange(plot28, plot33, ncol = 2)
+
+ggsave("combined_plot.png", combined_plot, width = 12, height = 6)
+```

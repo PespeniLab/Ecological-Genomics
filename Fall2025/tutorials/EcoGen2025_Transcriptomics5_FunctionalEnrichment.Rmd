@@ -308,3 +308,16 @@ topGO_plot
 ### How about for Generation 1?! 
 
 Can you run the same analysis for generation 1? Can you make a figure of two side-by-side plots for Gen 1 and Gen 2? How about all four contrasts?
+
+## Can we output the enrichment results from TopGO and try [REViGO](http://revigo.irb.hr/) like what was used in the paper we discuss in class today.
+
+```
+# Select only the columns REVIGO needs
+revigo_input <- filtered_GO_results[, c("GO.ID", "weightFisher")]
+
+# Rename columns for clarity
+colnames(revigo_input) <- c("GO.ID", "pValue")
+
+# Optionally, save to CSV for upload to REVIGO
+write.csv(revigo_input, file = "topGO_for_REVIGO.csv", row.names = FALSE)
+```

@@ -372,6 +372,18 @@ of two side-by-side plots for Gen 1 and Gen 2? How about all four
 contrasts?</p>
 </div>
 </div>
+<div id="can-we-output-the-enrichment-results-from-topgo-and-try-revigo-like-what-was-used-in-the-paper-we-discuss-in-class-today." class="section level2">
+<h2>Can we output the enrichment results from TopGO and try <a href="http://revigo.irb.hr/">REViGO</a> like what was used in the paper
+we discuss in class today.</h2>
+<pre><code># Select only the columns REVIGO needs
+revigo_input &lt;- filtered_GO_results[, c(&quot;GO.ID&quot;, &quot;weightFisher&quot;)]
+
+# Rename columns for clarity
+colnames(revigo_input) &lt;- c(&quot;GO.ID&quot;, &quot;pValue&quot;)
+
+# Optionally, save to CSV for upload to REVIGO
+write.csv(revigo_input, file = &quot;topGO_for_REVIGO.csv&quot;, row.names = FALSE)</code></pre>
+</div>
 </section>
 
 
