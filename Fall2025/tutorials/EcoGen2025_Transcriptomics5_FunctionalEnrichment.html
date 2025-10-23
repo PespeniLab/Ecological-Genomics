@@ -59,8 +59,8 @@ Functional enrichment analysis</h1>
 <div id="objectives-of-this-tutorial" class="section level2">
 <h2>Objectives of this tutorial</h2>
 <ol style="list-style-type: decimal">
-<li>Understand the Gene Ontology (GO) and functional enrichment
-statistical tests.</li>
+<li>Understand Gene Ontology (GO) and functional enrichment statistical
+tests.</li>
 <li>Implement a functional enrichment analysis with our data using <a href="https://bioconductor.org/packages/release/bioc/vignettes/topGO/inst/doc/topGO.pdf">TopGO</a></li>
 </ol>
 <div id="mini-lecture-on-functional-categories-and-how-to-test-for-functional-enrichment" class="section level3">
@@ -92,6 +92,8 @@ functional enrichment?</p></li>
 </div>
 <div id="functional-enrichment-using-topgo." class="section level3">
 <h3>2. Functional enrichment using TopGO.</h3>
+<p>First, get set up with your differential expression contrasts from
+DESeq2.</p>
 <pre><code>## Set your working directory
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = &quot;/users/X/X/XXXXXX/projects/eco_genomics_2025/transcriptomics/mydata&quot;)
@@ -105,7 +107,6 @@ library(topGO)
 library(GO.db)
 library(ggplot2)
 library(scales) 
-
  
 # Import the counts matrix
 countsTable &lt;- read.csv(&quot;counts_table.csv&quot;, header=TRUE, row.names=1)
@@ -114,7 +115,6 @@ dim(countsTable)
 countsTableRound &lt;- round(countsTable) # bc DESeq2 doesn&#39;t like decimals (and Salmon outputs data with decimals)
 # Corrects the column names to match between the metadata table and the counts matrix.
 colnames(countsTableRound) &lt;- substr(colnames(countsTableRound), start=1, stop = 4)
-
 
 #import the sample description table
 conds &lt;- read.delim(&quot;metadata.txt&quot;, header=TRUE, stringsAsFactors = TRUE, row.names=1)
@@ -165,8 +165,9 @@ resG4_CvT &lt;- results(dds, contrast=c(&quot;group&quot;,&quot;controlG4&quot;,
 resG4_CvT &lt;- resG4_CvT[order(resG4_CvT$padj),] #sort
 resG4_CvT &lt;- resG4_CvT[!is.na(resG4_CvT$padj),]</code></pre>
 </div>
-<div id="first-what-do-the-distributions-of-our-results-look-like" class="section level3">
-<h3>First, what do the distributions of our results look like?</h3>
+<div id="before-we-jump-in-what-do-the-distributions-of-our-results-look-like" class="section level3">
+<h3>Before we jump in, what do the distributions of our results look
+like?</h3>
 <pre><code>library(ggplot2)
 library(ggpubr)
 
@@ -212,7 +213,9 @@ combined_plot &lt;- ggarrange(
 
 # Show combined plot
 combined_plot</code></pre>
-<p>And what are the relationships between these metrics?</p>
+</div>
+<div id="and-what-are-the-relationships-between-these-metrics" class="section level3">
+<h3>And what are the relationships between these metrics?</h3>
 <pre><code># Panel D: Wald statistic vs -log10(padj) scatter 
 p4 &lt;- ggplot(res_df, aes(x = pvalue, y = negLog10Padj)) +
   geom_point(alpha = 0.4, color = &quot;yellow4&quot;) + ylim(c(0,5)) +
@@ -361,6 +364,12 @@ TopGO_plot &lt;- function(df, title) {
 # Generate plot
 topGO_plot &lt;- TopGO_plot(filtered_GO_results, &quot;GO Enrichment for DEGs at Gen2&quot;)
 topGO_plot</code></pre>
+</div>
+<div id="how-about-for-generation-1" class="section level3">
+<h3>How about for Generation 1?!</h3>
+<p>Can you run the same analysis for generation 1? Can you make a figure
+of two side-by-side plots for Gen 1 and Gen 2? How about all four
+contrasts?</p>
 </div>
 </div>
 </section>

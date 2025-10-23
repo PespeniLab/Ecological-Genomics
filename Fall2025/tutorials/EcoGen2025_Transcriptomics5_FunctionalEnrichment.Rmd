@@ -11,7 +11,7 @@ fontsize: 18pt
 
 ## Objectives of this tutorial
 
-1. Understand the Gene Ontology (GO) and functional enrichment statistical tests.
+1. Understand Gene Ontology (GO) and functional enrichment statistical tests.
 2. Implement a functional enrichment analysis with our data using [TopGO](https://bioconductor.org/packages/release/bioc/vignettes/topGO/inst/doc/topGO.pdf)
 
 ### 1. Mini-lecture on functional categories and how to test for functional enrichment
@@ -30,6 +30,8 @@ fontsize: 18pt
 
 ### 2. Functional enrichment using TopGO.
 
+First, get set up with your differential expression contrasts from DESeq2.
+
 ```
 ## Set your working directory
 knitr::opts_chunk$set(echo = TRUE)
@@ -44,7 +46,6 @@ library(topGO)
 library(GO.db)
 library(ggplot2)
 library(scales) 
-
  
 # Import the counts matrix
 countsTable <- read.csv("counts_table.csv", header=TRUE, row.names=1)
@@ -53,7 +54,6 @@ dim(countsTable)
 countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
 # Corrects the column names to match between the metadata table and the counts matrix.
 colnames(countsTableRound) <- substr(colnames(countsTableRound), start=1, stop = 4)
-
 
 #import the sample description table
 conds <- read.delim("metadata.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
@@ -105,7 +105,7 @@ resG4_CvT <- resG4_CvT[order(resG4_CvT$padj),] #sort
 resG4_CvT <- resG4_CvT[!is.na(resG4_CvT$padj),]
 ```
 
-### First, what do the distributions of our results look like?
+### Before we jump in, what do the distributions of our results look like?
 
 ```
 library(ggplot2)
@@ -155,7 +155,7 @@ combined_plot <- ggarrange(
 combined_plot
 ```
 
-And what are the relationships between these metrics?
+### And what are the relationships between these metrics?
 
 ```
 # Panel D: Wald statistic vs -log10(padj) scatter 
@@ -304,3 +304,7 @@ TopGO_plot <- function(df, title) {
 topGO_plot <- TopGO_plot(filtered_GO_results, "GO Enrichment for DEGs at Gen2")
 topGO_plot
 ```
+
+### How about for Generation 1?! 
+
+Can you run the same analysis for generation 1? Can you make a figure of two side-by-side plots for Gen 1 and Gen 2? How about all four contrasts?
