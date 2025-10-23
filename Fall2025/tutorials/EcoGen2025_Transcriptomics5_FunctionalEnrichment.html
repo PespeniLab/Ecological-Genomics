@@ -243,6 +243,18 @@ combined_plot &lt;- ggarrange(
 # Show combined plot
 combined_plot</code></pre>
 </div>
+<div id="lets-make-a-density-plot-with-a-rugplot-below-to-understand-what-were-testing-in-a-functional-enrichment-test." class="section level3">
+<h3>Let’s make a density plot with a rugplot below to understand what
+we’re testing in a functional enrichment test.</h3>
+<pre><code>ggplot(res_df, aes(x = negLog10Padj)) +
+  geom_density(fill = &quot;lightblue&quot;, color = &quot;blue&quot;, alpha = 0.5, linewidth = 1) + xlim(c(0,5)) +
+  geom_rug(sides = &quot;b&quot;, color = &quot;gray30&quot;, alpha = 0.5) +
+  geom_vline(xintercept = -log10(0.05), linetype = &quot;dashed&quot;, color = &quot;red&quot;) +
+  theme_minimal(base_size = 8) +
+  xlab(expression(-log[10](padj))) +
+  ylab(&quot;Density&quot;) +
+  ggtitle(expression(&quot;Density of &quot; * -log[10](padj)))</code></pre>
+</div>
 <div id="run-top-go" class="section level3">
 <h3>Run Top GO</h3>
 <p>You’ll need the <code>Genes_GO_terms_output.tsv</code> file that maps

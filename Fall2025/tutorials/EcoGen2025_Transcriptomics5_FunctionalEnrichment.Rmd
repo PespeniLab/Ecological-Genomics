@@ -188,7 +188,18 @@ combined_plot <- ggarrange(
 # Show combined plot
 combined_plot
 ```
+### Let's make a density plot with a rugplot below to understand what we're testing in a functional enrichment test.
 
+```
+ggplot(res_df, aes(x = negLog10Padj)) +
+  geom_density(fill = "lightblue", color = "blue", alpha = 0.5, linewidth = 1) + xlim(c(0,5)) +
+  geom_rug(sides = "b", color = "gray30", alpha = 0.5) +
+  geom_vline(xintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  theme_minimal(base_size = 8) +
+  xlab(expression(-log[10](padj))) +
+  ylab("Density") +
+  ggtitle(expression("Density of " * -log[10](padj)))
+```
 
 ### Run Top GO
 
