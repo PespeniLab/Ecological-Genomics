@@ -43,6 +43,6 @@ fontsize: 18pt
 
 * [05: Test for functional enrichment, GO analysis](Fall2025/tutorials/EcoGen2025_Transcriptomics5_FunctionalEnrichment.html)
 
-* [06: Weighted Gene Correlation Network Analysis (WGCNA)](Fall2025/tutorials/EcoGen2025_Transcriptomics6_CorrelationNetworkAnalysis.html)
+* [06: Weighted Gene Correlation Network Analysis (WGCNA)](Fall2025/tutorials/EcoGen2025_Transcriptomics6_CorrelationNetworkAnalyses.html)
 
 
