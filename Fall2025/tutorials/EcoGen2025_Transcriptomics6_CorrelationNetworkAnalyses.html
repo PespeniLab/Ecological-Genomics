@@ -327,6 +327,31 @@ ggplot(MEyellow_summary, aes(x=as.factor(generation), y=MEmidnightblue, color=li
   theme(panel.grid.minor.y = element_blank(), legend.position = &quot;none&quot;, plot.margin = margin(0,6,0,6))
 </code></pre>
 </div>
+<div id="lets-look-at-what-go-categories-are-present-in-any-modules-correlated-with-ult" class="section level2">
+<h2>Let’s look at what GO categories are present in any modules
+correlated with ULT</h2>
+<pre><code># Read GO terms file (tonsa_go) provided in 
+tonsa_go &lt;- read.delim(&quot;Genes_GO_terms_output.tsv&quot;, header = TRUE) %&gt;%
+  slice(-c(1,2)) %&gt;%  # remove header rows if present
+  na.omit()  # remove missing GO annotations
+
+# Choose which module to explore -- change the name here
+geneIDs_midnightblue &lt;- module.gene.mapping %&gt;% filter(`bwnet$colors` == &#39;midnightblue&#39;) %&gt;% rownames()
+
+# Filter annotation for module genes -- change the name here
+module_GO &lt;- tonsa_go[tonsa_go$geneID %in% geneIDs_midnightblue, ]
+
+go_terms &lt;- module_GO$GO
+
+# Split by semicolon and flatten
+go_split &lt;- unlist(strsplit(go_terms, &quot;;&quot;))
+
+# Get unique GO categories
+unique_go &lt;- unique(go_split)
+
+# print as a clean list
+cat(unique_go, sep = &quot;\n&quot;)</code></pre>
+</div>
 </div>
 </section>
 
