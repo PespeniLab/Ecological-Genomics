@@ -309,7 +309,7 @@ module_eigengene.metadata &lt;- merge(groups, heatmap.data, by = &#39;row.names&
 
 library(Rmisc)
 #Create a summary data frame of a particular module eigengene information
-MEyellow_summary &lt;- summarySE(module_eigengene.metadata, measurevar=&quot;MEmidnightblue&quot;, groupvars=c(&quot;generation&quot;,&quot;line&quot;))
+MEmidnightblue_summary &lt;- summarySE(module_eigengene.metadata, measurevar=&quot;MEmidnightblue&quot;, groupvars=c(&quot;generation&quot;,&quot;line&quot;))
 
 #Plot a line interaction plot of a particular module eigengene
 ggplot(MEyellow_summary, aes(x=as.factor(generation), y=MEmidnightblue, color=line, fill = line, shape = line)) +
