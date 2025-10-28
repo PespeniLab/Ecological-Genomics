@@ -10,9 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<meta name="author" content="MHP" />
 
 
-<title>Coding Tutorials</title>
+<title>Transcriptomics Tutorial 6: Weighted Gene Correlation Network Analysis (WGCNA)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,50 +47,286 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Coding Tutorials</h1>
+<h1 class="title toc-ignore project-name">Transcriptomics Tutorial 6:
+Weighted Gene Correlation Network Analysis (WGCNA)</h1>
+<h4 class="author project-author">MHP</h4>
+<h4 class="date project-date">Fall 2025</h4>
 </section>
 
 
 
 <section class="main-content">
-<p><a href="index.html">Back to main page</a></p>
-<div id="list-of-tutorials-and-scripts" class="section level1">
-<h1>List of Tutorials and scripts</h1>
-<p><strong>Intro</strong></p>
+<div id="objectives-of-this-tutorial" class="section level2">
+<h2>Objectives of this tutorial</h2>
+<ol style="list-style-type: decimal">
+<li>Understand Weighted Gene Correlation Network Analysis (WGCNA) and
+how it can be used to reduce dimentionality in complex data and identify
+genes associated with traits.</li>
+<li>Implement <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-559">WGCNA</a>
+(old school tutorial <a href="https://web.archive.org/web/20230323144343/horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/">here</a>
+and new school tutorial <a href="https://fuzzyatelin.github.io/bioanth-stats/module-F21-Group1/module-F21-Group1.html">here</a>
+and there are many YouTube videos as well).</li>
+</ol>
+</div>
+<div id="mini-lecture-on-wgcna" class="section level2">
+<h2>1. Mini-lecture on WGCNA</h2>
 <ul>
-<li><a href="Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md">GitHub
-Tutorial</a></li>
+<li>Use DESeq2 to filter and normalize gene expression data to remove
+genes with low expression and low variation across samples and remove
+outlier samples, if any.</li>
+<li>Assess co-expression: Calculate Pearson Correlation pairwise among
+expression profiles of genes.</li>
+<li>Create an adjacency matrix: Quantify the strength of the connection
+between each pair of genes. Soft thresholding: Choose an exponent (beta)
+that emphasizes strong correlations and suppresses weak ones. High
+correlations (e.g., 0.9) become stronger (e.g., 0.9^6=0.53), while weak
+correlations (e.g., 0.2) become weaker (e.g., 0.2^6 = 0.000064). This
+preserves continuous relationships without setting a cutoff (recall
+cutoff vs. continuous approaches to functional enrichment testing we
+discussed last week). Choose the right soft-thresholding power (beta)
+using the scale-free topology fit index (R^2 typically &gt; 0.8). This
+ensures the network has properties similar to real biological
+systems.</li>
+<li>Compute the Topological Overlap Matrix (TOM) to refine the network
+based on how similar the network neighborhoods are between two genes.
+This captures higher order relationships and more biologically
+meaningful clusters of genes.</li>
+<li>Detect modules of correlated/co-expressed genes across samples using
+hierarchical clustering.</li>
+<li>Test for a correlation between module eigengenes (e.g., the PC1 of
+the module’s expression matrix) and other sample metadata, e.g., other
+phenotype/trait or environmental data from the samples.</li>
+<li>Test for functional enrichment of GO categories in specific modules
+of co-expressed genes.</li>
 </ul>
-<p><strong>Population Genomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html">02:
-Triming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html">03:
-Mapping to Reference Genome</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html">04:
-Estimating Nucleotide Diversity</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html">05:
-Visualizing Diversity and Intro to Population Structure</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html">06:
-Genome scans for selection</a></p></li>
-</ul>
-<p><strong>Transcriptomics Module</strong></p>
-<ul>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics1_StudySystem.html">01:
-Intro to Study System</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics2_VisualizeCleanVisualize.html">02:
-Trimming and Cleaning Reads</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics3_MappingToCountsMatrix.html">03:
-Mapping and Creating the Counts Matrix</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics4_GeneExpressionAnalysis.html">04:
-Import to DESeq2, test for DGE, and visualize</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics5_FunctionalEnrichment.html">05:
-Test for functional enrichment, GO analysis</a></p></li>
-<li><p><a href="Fall2025/tutorials/EcoGen2025_Transcriptomics6_CorrelationNetworkAnalysis.html">06:
-Weighted Gene Correlation Network Analysis (WGCNA)</a></p></li>
-</ul>
+</div>
+<div id="run-wgcna" class="section level2">
+<h2>2. Run WGCNA</h2>
+<p>Start a new .rmd file for this analysis and create your normalized
+gene expression matrix from DESeq2.</p>
+<pre><code>## Set your working directory
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = &quot;/users/X/X/XXXXXX/projects/eco_genomics_2025/transcriptomics/mydata&quot;)
+
+## Import the libraries that we&#39;re likely to need in this session
+
+library(WGCNA)
+library(DESeq2)
+library(tidyverse)
+library(CorLevelPlot)
+library(gridExtra) 
+library(Rmisc)
+ 
+# Import the counts matrix
+countsTable &lt;- read.csv(&quot;counts_table.csv&quot;, header=TRUE, row.names=1)
+dim(countsTable)
+
+countsTableRound &lt;- round(countsTable) # bc DESeq2 doesn&#39;t like decimals (and Salmon outputs data with decimals)
+# Corrects the column names to match between the metadata table and the counts matrix.
+colnames(countsTableRound) &lt;- substr(colnames(countsTableRound), start=1, stop = 4)
+
+#import the sample description table
+conds &lt;- read.delim(&quot;metadata.txt&quot;, header=TRUE, stringsAsFactors = TRUE, row.names=1)
+
+
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds &lt;- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + line)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts &lt; 15 in more than 75% of 24 samples, so 18)
+## suggested by WGCNA on RNAseq FAQ
+
+dds &lt;- dds[rowSums(counts(dds) &gt;= 15) &gt;= 18,]
+nrow(dds) 
+
+dds$line &lt;- relevel(dds$line, ref = &quot;control&quot;)
+dds$generation &lt;- relevel(dds$generation, ref = &quot;G1&quot;)
+
+dds$group &lt;- factor(paste0(dds$line, dds$generation))
+design(dds) &lt;- ~ group
+dds &lt;- DESeq(dds)
+
+# transform the data using variance stabilization
+vsd &lt;- vst(dds, blind=FALSE)</code></pre>
+<p>Eventually, to test if any co-expressed modules that we identify are
+associated with organismal phenotype data collected, we’ll want the
+trait data (upper lethal temperature) associated with each sample in the
+<code>WGCNA_TraitData.csv</code> file. This can be found in:
+<code>/gpfs1/cl/ecogen/pbio6800/Transcriptomics/enrichment</code>. You
+can <code>cp</code> it to your <code>/mydata</code> directory.</p>
+<pre><code># Import the phenotypic data 
+
+ULT_trait &lt;- read.csv(&quot;WGCNA_TraitData.csv&quot;, 
+                      header = TRUE, 
+                      stringsAsFactors = FALSE,
+                      row.names = 1)
+                      
+# Make sure ULT_trait is a data frame
+ULT_trait &lt;- as.data.frame(ULT_trait)
+
+
+#make sure you have the varience stabilized dds object 
+
+# transform normalized counts
+norm.counts &lt;- assay(vsd) %&gt;% 
+  t()
+
+#filter to only look at the samples that we have data for 
+# Filter only samples present in norm.counts
+ULT_trait &lt;- ULT_trait[rownames(ULT_trait) %in% rownames(norm.counts), , drop = FALSE]
+
+# calculate variance for each gene
+gene_vars &lt;- apply(norm.counts, 2, var)
+
+# keep top 50% most variable genes (adjust proportion as needed)
+n_keep &lt;- floor(length(gene_vars) * 0.5) #
+high_var_genes &lt;- names(sort(gene_vars, decreasing = TRUE))[1:n_keep]
+
+# subset matrix
+norm.counts &lt;- norm.counts[, high_var_genes]</code></pre>
+</div>
+<div id="choose-a-set-of-soft-thresholding-powers" class="section level2">
+<h2>Choose a set of soft-thresholding powers</h2>
+<pre><code># Choose a set of soft-thresholding powers
+power &lt;- c(c(1:10), seq(from = 12, to = 50, by = 2)) #calculate the networks by a variety of powers
+sft &lt;- pickSoftThreshold(norm.counts, 
+                         powerVector = power,
+                         networkType = &quot;signed&quot;,
+                         verbose = 5)
+
+sft.data &lt;-sft$fitIndices
+#visualization to pick power
+
+a1 &lt;- ggplot(sft.data, aes(Power, SFT.R.sq, label = Power)) +
+  geom_point() +
+  geom_text(nudge_y = 0.1) +
+  geom_hline(yintercept = 0.8, color = &#39;red&#39;) +
+  labs(x = &#39;Power&#39;, y = &#39;Scale free topology model fit, signed R^2&#39;) +
+  theme_classic()
+
+
+a2 &lt;- ggplot(sft.data, aes(Power, mean.k., label = Power)) +
+  geom_point() +
+  geom_text(nudge_y = 0.1) +
+  labs(x = &#39;Power&#39;, y = &#39;Mean Connectivity&#39;) +
+  theme_classic()
+
+
+grid.arrange(a1, a2, ncol = 2)
+</code></pre>
+<div id="what-power-are-you-choosing-and-why" class="section level4">
+<h4>What power are you choosing and why?</h4>
+</div>
+</div>
+<div id="network-construction" class="section level1">
+<h1>Network construction</h1>
+<pre><code># convert matrix to numeric
+norm.counts[] &lt;- sapply(norm.counts, as.numeric)
+dim(norm.counts) # check dimensions: 
+soft_power &lt;- 18
+temp_cor &lt;- cor
+cor &lt;- WGCNA::cor
+
+
+# memory estimate w.r.t blocksize
+bwnet &lt;- blockwiseModules(norm.counts,
+                          maxBlockSize = 14000,
+                          TOMType = &quot;signed&quot;,
+                          power = soft_power,
+                          mergeCutHeight = 0.25,
+                          numericLabels = FALSE,
+                          randomSeed = 1234,
+                          verbose = 3)
+
+# This step takes a while so you can save it here for future work.
+save(bwnet, file = &quot;bwnet_results_WGCNA.RData&quot;)
+load(&quot;bwnet_results_WGCNA.RData&quot;) #to load the bwnet file back in 
+
+cor &lt;- temp_cor</code></pre>
+<div id="plot-the-dendrogram-of-modules" class="section level2">
+<h2>Plot the dendrogram of modules</h2>
+<pre><code>module_eigengenes &lt;- bwnet$MEs
+
+# Print out a preview
+head(module_eigengenes)
+
+# get number of genes for each module
+table(bwnet$colors)
+
+# Plot the dendrogram and the module colors before and after merging underneath
+plotDendroAndColors(bwnet$dendrograms[[1]], cbind(bwnet$unmergedColors, bwnet$colors),
+                    c(&quot;unmerged&quot;, &quot;merged&quot;),
+                    dendroLabels = FALSE,
+                    addGuide = TRUE,
+                    hang= 0.03,
+                    guideHang = 0.05)
+</code></pre>
+<p>Unmerged modules are the initial clusters of co-expressed genes
+identified from the dendrogram. Merged modules are the result of
+combining highly similar modules based on their eigengene expression
+profiles. This merging results in reduced redundancy and, ideally,
+improved biological meaningfulness.</p>
+</div>
+<div id="test-for-a-correlation-between-each-eigengene-of-each-module-and-our-ult-trait-data" class="section level2">
+<h2>Test for a correlation between each eigengene of each module and our
+ULT trait data</h2>
+<pre><code># Define numbers of genes and samples
+nSamples &lt;- nrow(norm.counts) #
+nGenes &lt;- ncol(norm.counts) #
+
+
+# correlation between module eigengenes and trait (ULT)
+module.trait.corr &lt;- cor(module_eigengenes, ULT_trait, use = &#39;p&#39;)
+module.trait.corr.pvals &lt;- corPvalueStudent(module.trait.corr, nSamples)
+
+# merge eigengenes with trait data
+heatmap.data &lt;- merge(module_eigengenes, ULT_trait, by = &quot;row.names&quot;) %&gt;%
+  column_to_rownames(var = &quot;Row.names&quot;)
+
+# automatically detect eigengene and trait columns
+eigengene_cols &lt;- grep(&quot;^ME&quot;, colnames(heatmap.data), value = TRUE)
+trait_cols &lt;- colnames(ULT_trait)
+
+# plot correlations
+CorLevelPlot(heatmap.data,
+             x = trait_cols,
+             y = eigengene_cols,
+             col = c(&quot;blue1&quot;, &quot;skyblue&quot;, &quot;white&quot;, &quot;pink&quot;, &quot;red&quot;))
+</code></pre>
+</div>
+<div id="plot-the-eigengene-values-by-treatment-and-line-conditions" class="section level2">
+<h2>Plot the eigengene values by treatment and line conditions!</h2>
+<pre><code>module.gene.mapping &lt;- as.data.frame(bwnet$colors) # assigns module membership to each gene
+module.gene.mapping %&gt;% 
+  filter(`bwnet$colors` == &#39;midnightblue&#39;) %&gt;% 
+  rownames()
+
+groups &lt;- conds[,c(1,2)]
+module_eigengene.metadata &lt;- merge(groups, heatmap.data, by = &#39;row.names&#39;)
+
+library(Rmisc)
+#Create a summary data frame of a particular module eigengene information
+MEyellow_summary &lt;- summarySE(module_eigengene.metadata, measurevar=&quot;MEmidnightblue&quot;, groupvars=c(&quot;generation&quot;,&quot;line&quot;))
+
+#Plot a line interaction plot of a particular module eigengene
+ggplot(MEyellow_summary, aes(x=as.factor(generation), y=MEmidnightblue, color=line, fill = line, shape = line)) +
+  geom_point(size=5, stroke = 1.5 ) +
+  geom_errorbar(aes(ymin=MEmidnightblue-se, ymax=MEmidnightblue+se), width=.15) +
+  geom_line(aes(color=line, group=line, linetype = line)) +
+  scale_color_manual(values = c(&#39;blue&#39;, &quot;red&quot;)) +
+  scale_shape_manual(values=c(21,23), labels = c(&quot;Ambient&quot;,&quot;22 at G1&quot;))+
+  scale_fill_manual(values=c(&#39;blue&#39;,&quot;red&quot;), labels = c(&quot;Ambient&quot;,&quot;22 at G1&quot;))+
+  xlab(&quot;Generation&quot;) +
+  theme_bw() +
+  theme(legend.position = &quot;none&quot;) +
+  theme(panel.border = element_rect(color = &quot;black&quot;, fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(panel.grid.minor.y = element_blank(), legend.position = &quot;none&quot;, plot.margin = margin(0,6,0,6))
+</code></pre>
+</div>
 </div>
 </section>
 

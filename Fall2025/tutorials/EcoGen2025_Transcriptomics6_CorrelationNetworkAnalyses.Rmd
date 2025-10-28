@@ -1,0 +1,254 @@
+---
+title: "Transcriptomics Tutorial 6: Weighted Gene Correlation Network Analysis (WGCNA)"
+author: "MHP"
+date: 'Fall 2025'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Understand Weighted Gene Correlation Network Analysis (WGCNA) and how it can be used to reduce dimentionality in complex data and identify genes associated with traits.
+2. Implement [WGCNA](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-559) (old school tutorial [here](https://web.archive.org/web/20230323144343/horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/) and new school tutorial [here](https://fuzzyatelin.github.io/bioanth-stats/module-F21-Group1/module-F21-Group1.html) and there are many YouTube videos as well).
+
+## 1. Mini-lecture on WGCNA
+
+* Use DESeq2 to filter and normalize gene expression data to remove genes with low expression and low variation across samples and remove outlier samples, if any.
+* Assess co-expression: Calculate Pearson Correlation pairwise among expression profiles of genes. 
+* Create an adjacency matrix: Quantify the strength of the connection between each pair of genes. Soft thresholding: Choose an exponent (beta) that emphasizes strong correlations and suppresses weak ones. High correlations (e.g., 0.9) become stronger (e.g., 0.9^6=0.53), while weak correlations (e.g., 0.2) become weaker (e.g., 0.2^6 = 0.000064). This preserves continuous relationships without setting a cutoff (recall cutoff vs. continuous approaches to functional enrichment testing we discussed last week). Choose the right soft-thresholding power (beta) using the scale-free topology fit index (R^2 typically > 0.8). This ensures the network has properties similar to real biological systems.
+* Compute the Topological Overlap Matrix (TOM) to refine the network based on how similar the network neighborhoods are between two genes. This captures higher order relationships and more biologically meaningful clusters of genes.
+* Detect modules of correlated/co-expressed genes across samples using hierarchical clustering.
+* Test for a correlation between module eigengenes (e.g., the PC1 of the module's expression matrix) and other sample metadata, e.g., other phenotype/trait or environmental data from the samples.
+* Test for functional enrichment of GO categories in specific modules of co-expressed genes.
+
+
+## 2. Run WGCNA
+
+Start a new .rmd file for this analysis and create your normalized gene expression matrix from DESeq2.
+
+```
+## Set your working directory
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/users/X/X/XXXXXX/projects/eco_genomics_2025/transcriptomics/mydata")
+
+## Import the libraries that we're likely to need in this session
+
+library(WGCNA)
+library(DESeq2)
+library(tidyverse)
+library(CorLevelPlot)
+library(gridExtra) 
+library(Rmisc)
+ 
+# Import the counts matrix
+countsTable <- read.csv("counts_table.csv", header=TRUE, row.names=1)
+dim(countsTable)
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+# Corrects the column names to match between the metadata table and the counts matrix.
+colnames(countsTableRound) <- substr(colnames(countsTableRound), start=1, stop = 4)
+
+#import the sample description table
+conds <- read.delim("metadata.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+
+
+#### Create a DESeq object and define the experimental design here with the tilda
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ generation + line)
+
+dim(dds)
+
+# Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of 24 samples, so 18)
+## suggested by WGCNA on RNAseq FAQ
+
+dds <- dds[rowSums(counts(dds) >= 15) >= 18,]
+nrow(dds) 
+
+dds$line <- relevel(dds$line, ref = "control")
+dds$generation <- relevel(dds$generation, ref = "G1")
+
+dds$group <- factor(paste0(dds$line, dds$generation))
+design(dds) <- ~ group
+dds <- DESeq(dds)
+
+# transform the data using variance stabilization
+vsd <- vst(dds, blind=FALSE)
+```
+
+Eventually, to test if any co-expressed modules that we identify are associated with organismal phenotype data collected, we'll want the trait data (upper lethal temperature) associated with each sample in the `WGCNA_TraitData.csv` file. This can be found in: `/gpfs1/cl/ecogen/pbio6800/Transcriptomics/enrichment`. You can `cp` it to your `/mydata` directory.
+
+
+```
+# Import the phenotypic data 
+
+ULT_trait <- read.csv("WGCNA_TraitData.csv", 
+                      header = TRUE, 
+                      stringsAsFactors = FALSE,
+                      row.names = 1)
+                      
+# Make sure ULT_trait is a data frame
+ULT_trait <- as.data.frame(ULT_trait)
+
+
+#make sure you have the varience stabilized dds object 
+
+# transform normalized counts
+norm.counts <- assay(vsd) %>% 
+  t()
+
+#filter to only look at the samples that we have data for 
+# Filter only samples present in norm.counts
+ULT_trait <- ULT_trait[rownames(ULT_trait) %in% rownames(norm.counts), , drop = FALSE]
+
+# calculate variance for each gene
+gene_vars <- apply(norm.counts, 2, var)
+
+# keep top 50% most variable genes (adjust proportion as needed)
+n_keep <- floor(length(gene_vars) * 0.5) #
+high_var_genes <- names(sort(gene_vars, decreasing = TRUE))[1:n_keep]
+
+# subset matrix
+norm.counts <- norm.counts[, high_var_genes]
+```
+
+
+## Choose a set of soft-thresholding powers
+
+```
+# Choose a set of soft-thresholding powers
+power <- c(c(1:10), seq(from = 12, to = 50, by = 2)) #calculate the networks by a variety of powers
+sft <- pickSoftThreshold(norm.counts, 
+                         powerVector = power,
+                         networkType = "signed",
+                         verbose = 5)
+
+sft.data <-sft$fitIndices
+#visualization to pick power
+
+a1 <- ggplot(sft.data, aes(Power, SFT.R.sq, label = Power)) +
+  geom_point() +
+  geom_text(nudge_y = 0.1) +
+  geom_hline(yintercept = 0.8, color = 'red') +
+  labs(x = 'Power', y = 'Scale free topology model fit, signed R^2') +
+  theme_classic()
+
+
+a2 <- ggplot(sft.data, aes(Power, mean.k., label = Power)) +
+  geom_point() +
+  geom_text(nudge_y = 0.1) +
+  labs(x = 'Power', y = 'Mean Connectivity') +
+  theme_classic()
+
+
+grid.arrange(a1, a2, ncol = 2)
+
+```
+#### What power are you choosing and why?
+
+# Network construction
+```
+# convert matrix to numeric
+norm.counts[] <- sapply(norm.counts, as.numeric)
+dim(norm.counts) # check dimensions: 
+soft_power <- 18
+temp_cor <- cor
+cor <- WGCNA::cor
+
+
+# memory estimate w.r.t blocksize
+bwnet <- blockwiseModules(norm.counts,
+                          maxBlockSize = 14000,
+                          TOMType = "signed",
+                          power = soft_power,
+                          mergeCutHeight = 0.25,
+                          numericLabels = FALSE,
+                          randomSeed = 1234,
+                          verbose = 3)
+
+# This step takes a while so you can save it here for future work.
+save(bwnet, file = "bwnet_results_WGCNA.RData")
+load("bwnet_results_WGCNA.RData") #to load the bwnet file back in 
+
+cor <- temp_cor
+```
+## Plot the dendrogram of modules
+```
+module_eigengenes <- bwnet$MEs
+
+# Print out a preview
+head(module_eigengenes)
+
+# get number of genes for each module
+table(bwnet$colors)
+
+# Plot the dendrogram and the module colors before and after merging underneath
+plotDendroAndColors(bwnet$dendrograms[[1]], cbind(bwnet$unmergedColors, bwnet$colors),
+                    c("unmerged", "merged"),
+                    dendroLabels = FALSE,
+                    addGuide = TRUE,
+                    hang= 0.03,
+                    guideHang = 0.05)
+
+```
+Unmerged modules are the initial clusters of co-expressed genes identified from the dendrogram. Merged modules are the result of combining highly similar modules based on their eigengene expression profiles. This merging results in reduced redundancy and, ideally, improved biological meaningfulness.
+
+## Test for a correlation between each eigengene of each module and our ULT trait data
+```
+# Define numbers of genes and samples
+nSamples <- nrow(norm.counts) #
+nGenes <- ncol(norm.counts) #
+
+
+# correlation between module eigengenes and trait (ULT)
+module.trait.corr <- cor(module_eigengenes, ULT_trait, use = 'p')
+module.trait.corr.pvals <- corPvalueStudent(module.trait.corr, nSamples)
+
+# merge eigengenes with trait data
+heatmap.data <- merge(module_eigengenes, ULT_trait, by = "row.names") %>%
+  column_to_rownames(var = "Row.names")
+
+# automatically detect eigengene and trait columns
+eigengene_cols <- grep("^ME", colnames(heatmap.data), value = TRUE)
+trait_cols <- colnames(ULT_trait)
+
+# plot correlations
+CorLevelPlot(heatmap.data,
+             x = trait_cols,
+             y = eigengene_cols,
+             col = c("blue1", "skyblue", "white", "pink", "red"))
+
+```
+## Plot the eigengene values by treatment and line conditions!
+```
+module.gene.mapping <- as.data.frame(bwnet$colors) # assigns module membership to each gene
+module.gene.mapping %>% 
+  filter(`bwnet$colors` == 'midnightblue') %>% 
+  rownames()
+
+groups <- conds[,c(1,2)]
+module_eigengene.metadata <- merge(groups, heatmap.data, by = 'row.names')
+
+library(Rmisc)
+#Create a summary data frame of a particular module eigengene information
+MEyellow_summary <- summarySE(module_eigengene.metadata, measurevar="MEmidnightblue", groupvars=c("generation","line"))
+
+#Plot a line interaction plot of a particular module eigengene
+ggplot(MEyellow_summary, aes(x=as.factor(generation), y=MEmidnightblue, color=line, fill = line, shape = line)) +
+  geom_point(size=5, stroke = 1.5 ) +
+  geom_errorbar(aes(ymin=MEmidnightblue-se, ymax=MEmidnightblue+se), width=.15) +
+  geom_line(aes(color=line, group=line, linetype = line)) +
+  scale_color_manual(values = c('blue', "red")) +
+  scale_shape_manual(values=c(21,23), labels = c("Ambient","22 at G1"))+
+  scale_fill_manual(values=c('blue',"red"), labels = c("Ambient","22 at G1"))+
+  xlab("Generation") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(panel.grid.minor.y = element_blank(), legend.position = "none", plot.margin = margin(0,6,0,6))
+
+```
