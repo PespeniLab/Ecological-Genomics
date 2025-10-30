@@ -42,6 +42,15 @@ Use **at least two** statistical and data visualization approaches we reviewed i
 
 - What are the specific genes and functions that underlie the inherited differences in thermal tolerance across generations? To address this question, you would ...
 
+**Since this is a more open-ended assignment,** please submit a brief write-up that includes:
+
+- **Your specific research question:** What biological, ecological, or evolutionary question are you aiming to answer?
+- **Your planned analysis and visualization strategy:** What data will you use, and how do you plan to analyze and visualize it to address your question?
+- **A creative or unique visualization idea:** Describe one visualization that goes beyond standard plots—something that helps tell your data’s story in a novel or insightful way.
+- **Anticipated challenges or areas where you might need support:** Are there any parts of the analysis, coding, or interpretation that you expect to be tricky or where you'd appreciate guidance?
+
+**Please submit this to Brightspace by Tuesday, November 4.**
+
 # Criteria:
 
 * The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.
