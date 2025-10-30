@@ -1,0 +1,111 @@
+---
+title: "Homework #2 (Transcriptomics)"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+# Homework assignment #2 -- Due by Sunday, November 09, 2025 (end of day)
+
+We’ve completed our transcriptomics module! Let's review all you've learned!
+
+* Reinforced: How to log in and move around a Unix server and the VACC OOD interface
+* Reinforced: How to write bash scripts and execute them at the command line
+* Reinforced: How to submit jobs via SLURM and sbatch to the cluster
+* Reinforced: Working with raw Illumina NGS data, from QC to read trimming to mapping to a reference transcriptome
+* Making critical experimental design considerations when using RNAsequencing - question, hypothesis, life stage, tissue, environmental conditions, replication, sequencing RNA from individuals or pools of individuals
+* Using the DESeq2 pipeline to set up models and test for differential gene expression
+* Visualizing global and gene-specific patterns of expression with: PCA, heatmaps, dot plots, bar plots, MAplots, Volcano plots, Euler plots, scatter plots
+* Testing for functional enrichment using Gene Ontology (TopGO)
+* Identifying correlated gene expression modules and testing for associations with trait data (WGCNA)
+
+Wow! That's a lot! 
+
+Throughout this module, we've explored how gene expression data provide a snapshot of an organism's physiological phenotype, shaped by both its genotype and environmental context, and how these data can be used to investigate the molecular bases of complex traits, such as variation in Upper Lethal Temperature.
+
+**What we're finding is that there are dramatic differences in gene expression in the first and second generations driven by parental environment but this fades by the third and forth generations. There's still much to learn about what types of genes are changing across the generations and how specific genes are behaving across the generations.** 
+
+## Your second homework assignment is to more fully address this question:
+
+***What are the molecular and physiological bases of the inter-generationally inherited complex trait of thermal tolerance?***
+
+Use **at least two** statistical and data visualization approaches we reviewed in class **and develop your own approach** for visualizing the data to address a specific question. This could be a type of scatter plot on a particular subset of the data or a different way to visualize GO results or something totally unique that we haven’t touched on! The assignment is to be creative and clear about your approach. Discuss your specific question and the details of the visualization you develop. The objectives of this assignment are to reinforce the transcriptomic data analysis pipeline and emphasize the creativity the can be utilized when working with genomic or transcriptomic data.
+
+**For example:** Your specific question could be:
+
+- What are the functional differences among genes differentially expressed at G1 vs. G2 vs. G3 vs. G4? To address this question, you would use DESeq2 to set up your contrasts of interest, export your results to use as input for TopGO, compare GO enrichment results using REViGO or another platform.
+
+- What genes show a significant interaction between generation and line? This question could focus on just the G1-G3 generations or all generations. To address this question, you would set up your model appropriately in DESeq2, then pull out the results for the interaction term. From there you could analyze and visualize using TopGO, dot plots, scatter plots, something of your our design.
+
+- Is there any functional enrichment in any of the correlated gene expression modules? To address this question, you would use WGCNA to identify the modules then create an output of each module to use as input for TopGO.
+
+- What are the specific genes and functions that underlie the inherited differences in thermal tolerance across generations? To address this question, you would focus on identifying and visualizing the expression patterns of specific genes across the generations. You would start with DESeq2 contrasts, then perhaps Euler plots, scatter plots, functional enrichment analysis, then specific gene selection and visualization across treatments and generations.
+
+# Criteria:
+
+* The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.
+* You may work collaboratively, but the final product and all of the writing should be your own defensible work
+* Approach the writing as a technical report based on the work you’ve done to date.  That is, write for a scientific audience using appropriate technical language and narrative style, with citations used when referring to methods or making factual assertions.
+* Your write-up should include the following essential elements:
+
+#### Background (1-2 paragraphs):
+* A brief description providing the context and motivation of the problem we’re trying to address with these data. See references in the GitHub website introduction to this module.
+* A brief background on the experiment, study species, biological samples, library prep, and sequencing strategy. The Transcriptomics Day 1 tutorial is excellent resource for this part.
+* A clear statement of the question you're trying to address.
+
+#### Bioinformatics Pipeline (~2 paragraphs):
+* Detailed description of the various steps you used for the analysis of the sequencing data.  Take it from QC assessment of the raw reads up to your tests and visualizations of differential expression. Include version numbers of programs utilized where possible.
+* This will section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done.  Include justification for using particular analysis approaches or choices as appropriate (In DESeq2, did you filter out genes that had fewer than 10 read counts per individual (on average) and why?  Or perhaps you decided to implement a more or less stringent filter -- explain if so.).
+
+#### Results (1-2 paragraphs)
+* Report your findings from the different analysis steps.  Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.  
+* You may use a max of 3 tables/figures total (not counted towards the page limit). 
+* Be sure each table/figure has a title, and a very brief legend describing its contents. Table legends go **above** tables while figure legends go **below** figures.
+* Include in your results section both “methodological” results (numbers of genes after filtration, etc.) as well as “biological” results (numbers of DEGs, estimates of log fold change, etc.).
+
+#### Conclusion (1-2 paragraphs)
+* Give your biological conclusion from the data: What did you learn from your analysis towards understanding mechanisms of resilience to warming in _Acartia tonsa_? Be sure you relate back to your motivation given in the Background section.
+* Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.
+* Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.
+* Discuss opportunities for future directions.
+
+#### References (listed on a separate page)
+* Cite papers in APA format.  Example:  
+
+*Brennan, R. S., deMayo, J. A., Dam, H. G., Finiguerra, M. B., Baumann, H., & Pespeni, M. H. (2022). Loss of transcriptional plasticity but sustained adaptive capacity after adaptation to global change conditions in a marine copepod. Nature Communications, 13(1), 1147*
+
+
+* Only include references to papers you cite in your text
+
+* Github:  Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github repo `/transcriptomics/myscripts` folder. Create a single Rmarkdown to process all your results and save in your `mydocs` folder. Have a dedicated entry in your `transcriptomic_notes.md` notebook documenting your notes for yourself about your workflow and decisions made. 
+
+
+### Guidelines and deadlines:
+
+* You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.  
+
+* Due by Sunday, November 09, 2025 (end of day)
+
+* Reminder about AI use (excerpted from the syllabus):
+
+●	Disclosure: Any AI use must be disclosed in a brief statement at the end of each assignment (e.g., “I used ChatGPT to help debug this part of my R script and to suggest alternate phrasing in paragraph 3.”).
+●	Accountability: Students are responsible for understanding and being able to explain all code and text in their assignments, whether produced by AI or not.
+●	Writing assignments: Homework and final project papers must be written by you or members of your group. AI may be used for grammar and style editing, but not for generating substantive content.
+●	Misuse: Undisclosed or excessive reliance on AI that undermines demonstration of your own learning will be considered academic misconduct.
+
+
+### Submission:
+
+* Upload your homework in doc or pdf format to the Brightspace page. 
+
+
+### Advice and hints :)
+ 
+* You do **NOT** need to run everything starting from step 1.  You can work from the counts matrix (i.e., you do not need to rerun salmon, but you should describe the process in your methods).
+
+* Make sure your plots are accurately labeled, e.g., colors, shapes, axis labels and plot titles, etc. Ask for help if you're unfamiliar with plotting in R.
+
+
+#### Reach out via email or office hours if you get stuck, and don't forget to have fun with it!
+
