@@ -36,11 +36,11 @@ Use **at least two** statistical and data visualization approaches we reviewed i
 
 - What are the functional differences among genes differentially expressed at G1 vs. G2 vs. G3 vs. G4? To address this question, you would use DESeq2 to set up your contrasts of interest, export your results to use as input for TopGO, compare GO enrichment results using REViGO or another platform.
 
-- What genes show a significant interaction between generation and line? This question could focus on just the G1-G3 generations or all generations. To address this question, you would set up your model appropriately in DESeq2, then pull out the results for the interaction term. From there you could analyze and visualize using TopGO, dot plots, scatter plots, something of your our design.
+- What genes show a significant interaction between generation and line? This question could focus on just the G1-G3 generations or all generations. To address this question, you would ...
 
-- Is there any functional enrichment in any of the correlated gene expression modules? To address this question, you would use WGCNA to identify the modules then create an output of each module to use as input for TopGO.
+- Is there any functional enrichment in any of the correlated gene expression modules? To address this question, you would ...
 
-- What are the specific genes and functions that underlie the inherited differences in thermal tolerance across generations? To address this question, you would focus on identifying and visualizing the expression patterns of specific genes across the generations. You would start with DESeq2 contrasts, then perhaps Euler plots, scatter plots, functional enrichment analysis, then specific gene selection and visualization across treatments and generations.
+- What are the specific genes and functions that underlie the inherited differences in thermal tolerance across generations? To address this question, you would ...
 
 # Criteria:
 
