@@ -10,3 +10,4 @@ fontsize: 18pt
 
 1. [Homework #1 ~ Population Genomics](Fall2025/assignments/Homework1.html)
 
+2. [Homework #2 ~ Transcriptomics](Fall2025/assignments/Homework2.html)
