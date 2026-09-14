@@ -436,6 +436,7 @@ plot(fit1, quantities = TRUE, fill = "transparent",
 #
 #######################################################
 
+# Convert results to a data frame for easy plotting
 #contrast G1
 resG1_CvT <- as.data.frame(results(dds, contrast=c("group","controlG1","treatmentG1"), alpha = 0.05))
 
@@ -449,7 +450,13 @@ resG3_CvT <- as.data.frame(results(dds, contrast=c("group","controlG3","treatmen
 resG4_CvT <- as.data.frame(results(dds, contrast=c("group","controlG4","treatmentG4"), alpha = 0.05))
 
 
-# Convert results to a data frame for easy plotting
+# Merge the four dataframes from each contrast giving each column a unique suffix associated with the contrast
+res_list <- list(resG1_CvT, resG2_CvT, resG3_CvT, resG4_CvT)
+
+res_gen_df <- Reduce(function(x, y) merge(x, y, by = "row.names"), res_list)
+rownames(res_gen_df) <- res_gen_df$Row.names
+res_gen_df$Row.names <- NULL
+
 res_gen_df <- merge(resG1_CvT, resG2_CvT, resG3_CvT, resG4_CvT, by = "row.names", suffixes = c(".G1", ".G2",".G3",".G4"))
 # Set the row names and remove the Row.names column
 rownames(res_gen_df) <- res_gen_df$Row.names
@@ -459,7 +466,7 @@ res_gen_df <- res_gen_df[, -1]  # Remove the Row.names column
 library(dplyr)
 library(tidyr)
 
-# Define color mapping logic with mutate
+# Define color mapping logic with mutate based on significance and up and down regulation, or sig. in both for just G1 and G2
 res_gen_df <- res_gen_df %>%
   mutate(fill = case_when(
     padj.G1 < 0.05 & stat.G1 < 0 ~ "turquoise2",
@@ -470,7 +477,7 @@ res_gen_df <- res_gen_df %>%
   ))
 
 # Count the number of points per fill color
-color_counts <- res_df28 %>%
+color_counts <- res_gen_df %>%
   group_by(fill) %>%
   summarise(count = n())
 
@@ -486,7 +493,7 @@ label_data <- merge(color_counts, label_positions, by = "fill")
 
 
 # Make the scatter plot
-plot28 <- ggplot(res_df28, aes(x = log2FoldChange.G1, y = log2FoldChange.G2, color = fill)) +
+plot1v2 <- ggplot(res_gen_df, aes(x = log2FoldChange.G1, y = log2FoldChange.G2, color = fill)) +
   geom_point(alpha = 0.8) +  # Scatter plot with transparency
   scale_color_identity() +  # Customize colors
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
@@ -496,15 +503,15 @@ plot28 <- ggplot(res_df28, aes(x = log2FoldChange.G1, y = log2FoldChange.G2, col
             size = 5, hjust = 0, vjust = 0) +  # Adjust hjust/vjust
   labs(x = "Log2 Fold Change 28 vs. 18", 
        y = "Log2 Fold Change 28 vs. 22", 
-       title = "How does response to 28 C vary by DevTemp?") +
+       title = "How do significantly differentially expressed genes vary between Gen 1 vs. Gen 2?") +
   theme_minimal() 
 
 
 
-
+### You can expand the code above to define color mapping for different contrasts (e.g., generation contrasts)
 
 # Define color mapping logic with mutate
-res_df33 <- res_df33 %>%
+res_df2v3 <- res_df33 %>%
   mutate(fill = case_when(
     padj.G1 < 0.05 & stat.G1 < 0 ~ "turquoise2",
     padj.G1 < 0.05 & stat.G1 > 0 ~ "magenta1",
