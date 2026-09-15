@@ -19,5 +19,3 @@ fontsize: 18pt
 
 * [01: Intro to Study System and Illumina data](Fall2026/tutorials/EcoGen2026_Transcriptomics1.html)
 
-
-**Population Genomics Module**
