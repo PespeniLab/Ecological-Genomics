@@ -12,36 +12,12 @@ fontsize: 18pt
 
 **Intro**
 
-* [GitHub Tutorial](Fall2025/tutorials/EcoGen2025_GitHub_Initial_Walkthrough.md)
-
-**Population Genomics Module**
-
-* [01: Intro to Study System](Fall2025/tutorials/EcoGen2025_PopGenomics1_StudySystem.html)
-
-* [02: Triming and Cleaning Reads](Fall2025/tutorials/EcoGen2025_PopGenomics2_trimreads.html)
-
-* [03: Mapping to Reference Genome](Fall2025/tutorials/EcoGen2025_PopGenomics3_mapping.html)
-
-* [04: Estimating Nucleotide Diversity](Fall2025/tutorials/EcoGen2025_PopGenomics4_Diversity.html)
-
-* [05: Visualizing Diversity and Intro to Population Structure](Fall2025/tutorials/EcoGen2025_PopGenomics5_PopStructure.html)
-
-* [06: Genome scans for selection](Fall2025/tutorials/EcoGen2025_PopGenomics6_Selection.html)
-
-
+* [GitHub Tutorial](Fall2026/tutorials/EcoGen2026_GitHub_Initial_Walkthrough.md)
 
 
 **Transcriptomics Module**
 
-* [01: Intro to Study System](Fall2025/tutorials/EcoGen2025_Transcriptomics1_StudySystem.html)
+* [01: Intro to Study System and Illumina data](Fall2026/tutorials/EcoGen2026_Transcriptomics1.html)
 
-* [02: Trimming and Cleaning Reads](Fall2025/tutorials/EcoGen2025_Transcriptomics2_VisualizeCleanVisualize.html)
 
-* [03: Mapping and Creating the Counts Matrix](Fall2025/tutorials/EcoGen2025_Transcriptomics3_MappingToCountsMatrix.html)
-
-* [04: Import to DESeq2, test for DGE, and visualize](Fall2025/tutorials/EcoGen2025_Transcriptomics4_GeneExpressionAnalysis.html)
-
-* [05: Test for functional enrichment, GO analysis](Fall2025/tutorials/EcoGen2025_Transcriptomics5_FunctionalEnrichment.html)
-
-* [06: Weighted Gene Correlation Network Analysis (WGCNA)](Fall2025/tutorials/EcoGen2025_Transcriptomics6_CorrelationNetworkAnalyses.html)
-
+**Population Genomics Module**
