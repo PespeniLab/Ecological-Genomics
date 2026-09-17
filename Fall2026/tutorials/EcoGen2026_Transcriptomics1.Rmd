@@ -11,10 +11,10 @@ fontsize: 18pt
 # Learning Objectives for today: 
 #### _By the end of this class, you will be able to..._
 
-1. Explain the difference between population genomics and transcriptomics.
-2. Evaluate how mapping and the "reference" differs for population genomics and transcriptomics.
-3. Conceptualize a "counts" file.
-4. Understand the work flow or "pipeline" for processing and analyzing RNAseq data.
+1. Understand the experimental design and data and questions that can be addressed with these data.
+2. Understand what a `.fastq` file is.
+3. Understand the work flow or "pipeline" for processing and analyzing RNAseq data.
+4. Conceptualize a "counts" file.
 
 #### Activities to achieve these objectives:
 1. Interactive introduction to transcriptomics and RNAseq data analysis.
