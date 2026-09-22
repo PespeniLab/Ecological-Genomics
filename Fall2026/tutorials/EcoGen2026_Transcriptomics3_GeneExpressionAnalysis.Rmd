@@ -36,7 +36,7 @@ Modules: `load ecogen-rlibs`
 ### Set up your Transcriptomics directory, copy the counts matrix to your mydata directory, set up .gitignore to ignore `/mydata`
 
 Open your `eco_genomics_2026.Rproj`.
-Make the following directories in your Transcriptomics directory: `mydata`, `myresults`, 'myscripts`
+Make the following directories in your Transcriptomics directory: `mydata`, `myresults`, `myscripts`
 We don't want to push the big, raw, unpublished countsmatrix to github for the world to see so let's add `./Transcriptomics/mydata` to the `.gitignore` file. You can open it and edit it in R by just adding the line above to the file and saving it. 
 You can now check the status on Terminal:
 ```
