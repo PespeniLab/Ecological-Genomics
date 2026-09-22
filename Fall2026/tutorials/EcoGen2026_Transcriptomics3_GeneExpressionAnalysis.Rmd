@@ -15,7 +15,7 @@ fontsize: 18pt
 1. Continue working in your `.rmd` file to keep your differential gene expression analysis notes together and annotated.
 2. Import the counts matrix into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
 3. Visualize reads and variation.
-4. Visualize global variation in gene expression using Principal Compenents Analysis (PCA).
+4. Visualize global variation in gene expression using Principal Component Analysis (PCA) and other data visualization tools.
 
 ## 0. Get set up
 
