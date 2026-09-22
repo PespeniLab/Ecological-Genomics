@@ -340,3 +340,210 @@ ggarrange(F0, F2, F4, F11, nrow = 2, ncol=2)
 
 dev.off()
 ```
+
+## 2. Explore the data with more visualizations
+
+```r
+####################################################
+
+### Check on the DE results from the DESeq command way above 
+
+####################################################
+
+resultsNames(dds)
+# [1] "Intercept"            "generation_F11_vs_F0" "generation_F2_vs_F0"  "generation_F4_vs_F0" 
+# [5] "treatment_OA_vs_AM"   "treatment_OW_vs_AM"   "treatment_OWA_vs_AM" 
+
+resAM_OWA <- results(dds, name="treatment_OWA_vs_AM", alpha=0.05)
+resAM_OWA <- resAM_OWA[order(resAM_OWA$padj),]
+head(resAM_OWA)  
+summary(resAM_OWA)
+
+
+resAM_OW <- results(dds, name="treatment_OW_vs_AM", alpha=0.05)
+resAM_OW <- resAM_OW[order(resAM_OW$padj),]
+head(resAM_OW) 
+summary(resAM_OW)
+
+# And one more... ?!
+```
+
+We can plot individual genes to see if the statistics are behaving as we expect... always good practice to look closely at the data!
+
+You can change the Trinity id name to any you choose...
+
+```r
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds, gene="TRINITY_DN29_c1_g2::TRINITY_DN29_c1_g2_i3::g.744::m.744", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "line")
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+
+```
+
+### Run another model to focus within generation F0 between treatments
+
+```r
+#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(dds)
+# [1] 130580     38
+
+# Filter 
+dds <- dds[rowSums(counts(dds) >= 15) >= 28,]
+nrow(dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+dds_sub <- subset(dds, select = generation == 'F0')
+dim(dds_sub)
+# [1] 25260    12
+
+# Perform DESeq2 analysis on the subset
+dds_sub <- DESeq(dds_sub)
+
+resultsNames(dds_sub)
+# [1] "Intercept"           "treatment_OA_vs_AM"  "treatment_OW_vs_AM"  "treatment_OWA_vs_AM"
+
+
+res_F0_OWvAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+
+res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
+head(res_F0_OWvAM)
+
+summary(res_F0_OWvAM)
+```
+
+Check individuals genes again:
+
+```r
+
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds_sub, gene="TRINITY_DN10209_c0_g2::TRINITY_DN10209_c0_g2_i3::g.33784::m.33784", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+```
+
+We can make an MA plot - what is it?
+
+```r
+plotMA(res_F0_OWvAM, ylim=c(-5,5))
+
+```
+
+We can make a heat map of the top differentially expressed genes
+```r
+########################################
+
+# Heatmap of top 20 genes sorted by pvalue
+
+library(pheatmap)
+
+# By environment
+vsd <- vst(dds_sub, blind=FALSE)
+
+topgenes <- head(rownames(res_F0_OWvAM),100)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds_sub)[,c("generation","treatment")])
+pheatmap(mat, annotation_col=df)
+pheatmap(mat, annotation_col=df, cluster_cols = F)
+
+```
+
+Finally, what's better than a Venn Diagram? A Euler Diagram! (or an "upset" or lollipop plot)
+
+```r
+
+#################################################################
+
+#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
+
+#################################################################
+
+# For OW vs AM
+res_F0_OWvAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05)
+res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
+head(res_F0_OWvAM)
+
+summary(res_F0_OWvAM)
+res_F0_OWvAM <- res_F0_OWvAM[!is.na(res_F0_OWvAM$padj),]
+degs_F0_OWvAM <- row.names(res_F0_OWvAM[res_F0_OWvAM$padj < 0.05,])
+
+# For OA vs AM
+res_F0_OAvAM <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
+res_F0_OAvAM <- res_F0_OAvAM[order(res_F0_OAvAM$padj),]
+head(res_F0_OAvAM)
+
+summary(res_F0_OAvAM)
+res_F0_OAvAM <- res_F0_OAvAM[!is.na(res_F0_OAvAM$padj),]
+degs_F0_OAvAM <- row.names(res_F0_OAvAM[res_F0_OAvAM$padj < 0.05,])
+
+# For OWA vs AM
+res_F0_OWAvAM <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
+res_F0_OWAvAM <- res_F0_OWAvAM[order(res_F0_OWAvAM$padj),]
+head(res_F0_OWAvAM)
+
+summary(res_F0_OWAvAM)
+res_F0_OWAvAM <- res_F0_OWAvAM[!is.na(res_F0_OWAvAM$padj),]
+degs_F0_OWAvAM <- row.names(res_F0_OWAvAM[res_F0_OWAvAM$padj < 0.05,])
+
+library(eulerr)
+
+# Total
+length(degs_F0_OAvAM)  # 602
+length(degs_F0_OWvAM)  # 5517 
+length(degs_F0_OWAvAM)  # 3918
+
+# Intersections
+length(intersect(degs_F0_OAvAM,degs_F0_OWvAM))  # 387, 444
+length(intersect(degs_F0_OAvAM,degs_F0_OWAvAM))  # 340, 380
+length(intersect(degs_F0_OWAvAM,degs_F0_OWvAM))  # 2585, 2743
+
+intWA <- intersect(degs_F0_OAvAM,degs_F0_OWvAM)
+length(intersect(degs_F0_OWAvAM,intWA)) # 308, 338
+
+# Number unique
+
+602-444-380+338 # 101,116 OA
+5517-444-2743+338 # 2177, 2668 OW 
+3918-380-2743+338 # 1125, 1133 OWA
+
+444-338 # 79, 106 OA & OW
+380-338 # 32, 42 OA & OWA
+2743-338 # 2277, 2405 OWA & OW
+
+
+# Note that the names are important and have to be specific to line up the diagram
+fit1 <- euler(c("OA" = 116, "OW" = 2668, "OWA" = 1133, "OA&OW" = 106, "OA&OWA" = 42, "OW&OWA" = 2405, "OA&OW&OWA" = 338))
+
+
+plot(fit1,  lty = 1:3, quantities = TRUE)
+# lty changes the lines
+
+plot(fit1, quantities = TRUE, fill = "transparent",
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+2668+2405+338+106 # 4841, 5517 total OW
+1133+2405+338+42 # 3918, total OWA
+116+42+106+338    # 602, total OA
+```

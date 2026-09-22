@@ -462,6 +462,189 @@ data visualization.</p>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(F0, F2, F4, F11, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol=</span><span class="dv">2</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
+<div id="explore-the-data-with-more-visualizations" class="section level2">
+<h2>2. Explore the data with more visualizations</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="do">### Check on the DE results from the DESeq command way above </span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] &quot;Intercept&quot;            &quot;generation_F11_vs_F0&quot; &quot;generation_F2_vs_F0&quot;  &quot;generation_F4_vs_F0&quot; </span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [5] &quot;treatment_OA_vs_AM&quot;   &quot;treatment_OW_vs_AM&quot;   &quot;treatment_OWA_vs_AM&quot; </span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>resAM_OWA <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>resAM_OWA <span class="ot">&lt;-</span> resAM_OWA[<span class="fu">order</span>(resAM_OWA<span class="sc">$</span>padj),]</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resAM_OWA)  </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(resAM_OWA)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>resAM_OW <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>resAM_OW <span class="ot">&lt;-</span> resAM_OW[<span class="fu">order</span>(resAM_OW<span class="sc">$</span>padj),]</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resAM_OW) </span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(resAM_OW)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># And one more... ?!</span></span></code></pre></div>
+<p>We can plot individual genes to see if the statistics are behaving as
+we expect… always good practice to look closely at the data!</p>
+<p>You can change the Trinity id name to any you choose…</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN29_c1_g2::TRINITY_DN29_c1_g2_i3::g.744::m.744&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>d</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;line&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<div id="run-another-model-to-focus-within-generation-f0-between-treatments" class="section level3">
+<h3>Run another model to focus within generation F0 between
+treatments</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################### MODEL NUMBER 2 - subset to focus on effect of treatment for each generation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> countsTableRound, <span class="at">colData=</span>conds, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">design=</span> <span class="sc">~</span> treatment)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] 130580     38</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter </span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[<span class="fu">rowSums</span>(<span class="fu">counts</span>(dds) <span class="sc">&gt;=</span> <span class="dv">15</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>,]</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(dds) </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset the DESeqDataSet to the specific level of the &quot;generation&quot; factor</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(dds, <span class="at">select =</span> generation <span class="sc">==</span> <span class="st">&#39;F0&#39;</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(dds_sub)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] 25260    12</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform DESeq2 analysis on the subset</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>dds_sub <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds_sub)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds_sub)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] &quot;Intercept&quot;           &quot;treatment_OA_vs_AM&quot;  &quot;treatment_OW_vs_AM&quot;  &quot;treatment_OWA_vs_AM&quot;</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="fu">order</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWvAM)</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWvAM)</span></code></pre></div>
+<p>Check individuals genes again:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="do">### Plot Individual genes </span><span class="al">###</span><span class="do"> </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Counts of specific top interaction gene! (important validatition that the normalization, model is working)</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span><span class="fu">plotCounts</span>(dds_sub, <span class="at">gene=</span><span class="st">&quot;TRINITY_DN10209_c0_g2::TRINITY_DN10209_c0_g2_i3::g.33784::m.33784&quot;</span>, <span class="at">intgroup =</span> (<span class="fu">c</span>(<span class="st">&quot;treatment&quot;</span>,<span class="st">&quot;generation&quot;</span>)), <span class="at">returnData=</span><span class="cn">TRUE</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>d</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span><span class="fu">ggplot</span>(d, <span class="fu">aes</span>(<span class="at">x=</span>treatment, <span class="at">y=</span>count, <span class="at">color=</span>treatment, <span class="at">shape=</span>generation)) <span class="sc">+</span> </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">20</span>), <span class="at">panel.grid.major=</span><span class="fu">element_line</span>(<span class="at">colour=</span><span class="st">&quot;grey&quot;</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position=</span><span class="fu">position_jitter</span>(<span class="at">w=</span><span class="fl">0.2</span>,<span class="at">h=</span><span class="dv">0</span>), <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">size=</span><span class="dv">5</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>p</span></code></pre></div>
+<p>We can make an MA plot - what is it?</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotMA</span>(res_F0_OWvAM, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>))</span></code></pre></div>
+<p>We can make a heat map of the top differentially expressed genes</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">########################################</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap of top 20 genes sorted by pvalue</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># By environment</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>vsd <span class="ot">&lt;-</span> <span class="fu">vst</span>(dds_sub, <span class="at">blind=</span><span class="cn">FALSE</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>topgenes <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">rownames</span>(res_F0_OWvAM),<span class="dv">100</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">assay</span>(vsd)[topgenes,]</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">-</span> <span class="fu">rowMeans</span>(mat)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(dds_sub)[,<span class="fu">c</span>(<span class="st">&quot;generation&quot;</span>,<span class="st">&quot;treatment&quot;</span>)])</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(mat, <span class="at">annotation_col=</span>df)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(mat, <span class="at">annotation_col=</span>df, <span class="at">cluster_cols =</span> F)</span></code></pre></div>
+<p>Finally, what’s better than a Venn Diagram? A Euler Diagram! (or an
+“upset” or lollipop plot)</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="do">#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># For OW vs AM</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="fu">order</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWvAM)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWvAM)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>res_F0_OWvAM <span class="ot">&lt;-</span> res_F0_OWvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OWvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>degs_F0_OWvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OWvAM[res_F0_OWvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co"># For OA vs AM</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> res_F0_OAvAM[<span class="fu">order</span>(res_F0_OAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OAvAM)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OAvAM)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>res_F0_OAvAM <span class="ot">&lt;-</span> res_F0_OAvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>degs_F0_OAvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OAvAM[res_F0_OAvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co"># For OWA vs AM</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> res_F0_OWAvAM[<span class="fu">order</span>(res_F0_OWAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_F0_OWAvAM)</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_F0_OWAvAM)</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>res_F0_OWAvAM <span class="ot">&lt;-</span> res_F0_OWAvAM[<span class="sc">!</span><span class="fu">is.na</span>(res_F0_OWAvAM<span class="sc">$</span>padj),]</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>degs_F0_OWAvAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_F0_OWAvAM[res_F0_OWAvAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eulerr)</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Total</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OAvAM)  <span class="co"># 602</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OWvAM)  <span class="co"># 5517 </span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_F0_OWAvAM)  <span class="co"># 3918</span></span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Intersections</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWvAM))  <span class="co"># 387, 444</span></span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWAvAM))  <span class="co"># 340, 380</span></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OWAvAM,degs_F0_OWvAM))  <span class="co"># 2585, 2743</span></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>intWA <span class="ot">&lt;-</span> <span class="fu">intersect</span>(degs_F0_OAvAM,degs_F0_OWvAM)</span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_F0_OWAvAM,intWA)) <span class="co"># 308, 338</span></span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Number unique</span></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a><span class="dv">602-444-380</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 101,116 OA</span></span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a><span class="dv">5517-444-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 2177, 2668 OW </span></span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a><span class="dv">3918-380-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 1125, 1133 OWA</span></span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a><span class="dv">444-338</span> <span class="co"># 79, 106 OA &amp; OW</span></span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a><span class="dv">380-338</span> <span class="co"># 32, 42 OA &amp; OWA</span></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a><span class="dv">2743-338</span> <span class="co"># 2277, 2405 OWA &amp; OW</span></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the names are important and have to be specific to line up the diagram</span></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">euler</span>(<span class="fu">c</span>(<span class="st">&quot;OA&quot;</span> <span class="ot">=</span> <span class="dv">116</span>, <span class="st">&quot;OW&quot;</span> <span class="ot">=</span> <span class="dv">2668</span>, <span class="st">&quot;OWA&quot;</span> <span class="ot">=</span> <span class="dv">1133</span>, <span class="st">&quot;OA&amp;OW&quot;</span> <span class="ot">=</span> <span class="dv">106</span>, <span class="st">&quot;OA&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">42</span>, <span class="st">&quot;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">2405</span>, <span class="st">&quot;OA&amp;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">338</span>))</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1,  <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">quantities =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a><span class="co"># lty changes the lines</span></span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1, <span class="at">quantities =</span> <span class="cn">TRUE</span>, <span class="at">fill =</span> <span class="st">&quot;transparent&quot;</span>,</span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a>     <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="dv">4</span>))</span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a><span class="co">#cross check</span></span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a><span class="dv">2668</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">106</span> <span class="co"># 4841, 5517 total OW</span></span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a><span class="dv">1133</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">42</span> <span class="co"># 3918, total OWA</span></span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a><span class="dv">116</span><span class="sc">+</span><span class="dv">42</span><span class="sc">+</span><span class="dv">106</span><span class="sc">+</span><span class="dv">338</span>    <span class="co"># 602, total OA</span></span></code></pre></div>
+</div>
+</div>
 </div>
 </section>
 
