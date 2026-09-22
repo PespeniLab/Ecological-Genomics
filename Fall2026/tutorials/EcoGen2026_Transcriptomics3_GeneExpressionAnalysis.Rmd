@@ -11,7 +11,8 @@ fontsize: 18pt
 
 ## Objectives of this tutorial
 
-1. Continue working in your `.rmd` file to keep your differential gene expression analysis together and annotated.
+0. Get set up with your Rstudio working environment, your repo, data files, and script.
+1. Continue working in your `.rmd` file to keep your differential gene expression analysis notes together and annotated.
 2. Import the counts matrix into [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
 3. Visualize reads and variation.
 4. Visualize global variation in gene expression using Principal Compenents Analysis (PCA).
@@ -54,6 +55,30 @@ touch ./mydata/test.txt
 git status
 ```
 If everything worked, `test.txt` should not show up in the status output.
+
+### Troubleshooting with git and best practices
+
+Generally, this should be our workflow (though you can use Rstudio rather than command line)
+```
+1. git pull
+2. Do work
+3. git status
+4. git add .
+5. git commit -m "meaningful message"
+6. git push
+```
+
+If you're having trouble, these three commands diagnose most problems.
+```
+git status
+git branch
+git remote -v
+```
+These commands show you:
+1. The current state of your working directory and what's changed.
+2. Which branch you're on - want to be on `* main`
+3. Shows where your repo is connected - you could have made an extra directory
+
 
 ### Copy the data files to your `mydata` directory
 
