@@ -17,5 +17,7 @@ fontsize: 18pt
 
 **Transcriptomics Module**
 
-* [01: Intro to Study System and Illumina data](Fall2026/tutorials/EcoGen2026_Transcriptomics1.html)
+* [Days 1 and 2: Intro to Study System and Illumina data](Fall2026/tutorials/EcoGen2026_Transcriptomics1.html)
+
+* [Day 3: Setting up our R working environment and exploring the data with DESeq2](Fall2026/tutorials/EcoGen2026_Transcriptomics3_GeneExpressionAnalysis.html)
 

@@ -10,10 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta name="author" content="MHP" />
+<meta name="author" content="Melissa H. Pespeni" />
 
 
-<title>Transcriptomics Tutorial 1: Intro to the copepod study system &amp; dataset</title>
+<title>Transcriptomics Tutorial - Days 1 and 2: Intro to the copepod study system, dataset, and working on command line</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -47,9 +47,10 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Transcriptomics Tutorial 1:
-Intro to the copepod study system &amp; dataset</h1>
-<h4 class="author project-author">MHP</h4>
+<h1 class="title toc-ignore project-name">Transcriptomics Tutorial -
+Days 1 and 2: Intro to the copepod study system, dataset, and working on
+command line</h1>
+<h4 class="author project-author">Melissa H. Pespeni</h4>
 <h4 class="date project-date">Fall 2026</h4>
 </section>
 
@@ -414,6 +415,30 @@ be represented by a single character.</em></p>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="lets-take-a-look-at-some-real-files" class="section level3">
+<h3>Let’s take a look at some real files!</h3>
+<ol style="list-style-type: decimal">
+<li>Open up VACC OpenOnDemand and initiate an RStudio session and a
+terminal window (or use Terminal from within R).</li>
+<li>Let’s learn some unix commands. Navigate to
+<code>/gpfs1/cl/ecogen/Transcriptomics/CleanData</code> using
+<code>cd</code> and <code>ll</code>. How can you tell if an object is a
+file or a directory/folder?</li>
+<li>Let’s take a peek into one of the gzipped fastq files using
+<code>zcat</code> but make sure to <em>“pipe”</em> <code>|</code> it to
+the program <code>head</code> and give <code>head</code> the parameter
+of how many lines to print with the <em>“flag”</em> <code>-n 4</code>.
+Make it a multiple of 4 so that you’re seeing all four lines of one
+<em>“read”</em>.</li>
+<li>How would you count how many reads are in a file? We could use
+<code>zcat</code> and pipe to the little program <code>wc</code> for
+“word count” and give it the flag <code>-l</code> to count the number of
+“lines”. But each read has four lines… We can use the program
+<code>awk</code> to send this number of lines value, represented by $1,
+and divide by four…</li>
+</ol>
+<pre><code>zcat sample.fastq.gz | wc -l | awk &#39;{print $1/4}&#39;</code></pre>
 </div>
 </div>
 </div>
