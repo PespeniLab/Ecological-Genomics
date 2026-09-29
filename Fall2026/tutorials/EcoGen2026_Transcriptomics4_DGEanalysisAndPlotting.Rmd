@@ -188,7 +188,7 @@ vsd <- vst(dds_F0, blind=FALSE)
 topgenes <- head(rownames(res_OWvsAM),100)
 mat <- assay(vsd)[topgenes,]
 mat <- mat - rowMeans(mat)
-df <- as.data.frame(colData(dds_F0)[,c("treatment")])
+df <- as.data.frame(colData(dds_F0)[,c("treatment", "generation")])
 pheatmap(mat, annotation_col=df)
 pheatmap(mat, annotation_col=df, cluster_cols = F)
 
