@@ -1,5 +1,5 @@
 ---
-title: "Transcriptomics Tutorial - Day 3: Gene expression analysis"
+title: "Transcriptomics Tutorial - Day 4: Differential gene expression analysis"
 author: "Melissa H. Pespeni"
 date: 'Fall 2026'
 output:
