@@ -12,8 +12,10 @@ fontsize: 18pt
 ## Objectives of this tutorial
 
 1. Analyze and visualize the counts matrix using a simplied data set (just generation F0).
+2. Understand what a contrast is. What is up- versus down-regulation?
+3. Learn how to make the various common types of differential gene expression visualizations.
 
-## 1. Explore the data with more visualizations
+## Explore the data with more visualizations
 
 ```r
 ## Set your working directory
@@ -213,29 +215,20 @@ Finally, what's better than a Venn Diagram? A Euler Diagram! (another great alte
 #################################################################
 
 # For OW vs AM
-res_OWvsAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05) # pull out the results for the contrast of interest
+res_OWvsAM <- results(dds_F0, name="treatment_OW_vs_AM", alpha=0.05) # pull out the results for the contrast of interest
 res_OWvsAM <- res_OWvsAM[order(res_OWvsAM$padj),] # order them by significance
-head(res_OWvsAM)
-
-summary(res_OWvsAM)
 res_OWvsAM <- res_OWvsAM[!is.na(res_OWvsAM$padj),] # get rid of any NAs
 degs_OWvsAM <- row.names(res_OWvsAM[res_OWvsAM$padj < 0.05,]) # make a list of significant differentially expressed genes for this contrast
 
 # For OA vs AM
-res_OAvsAM <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
+res_OAvsAM <- results(dds_F0, name="treatment_OA_vs_AM", alpha=0.05)
 res_OAvsAM <- res_OAvsAM[order(res_OAvsAM$padj),]
-head(res_OAvsAM)
-
-summary(res_OAvsAM)
 res_OAvsAM <- res_OAvsAM[!is.na(res_OAvsAM$padj),]
 degs_OAvsAM <- row.names(res_OAvsAM[res_OAvsAM$padj < 0.05,])
 
 # For OWA vs AM
-res_OWAvsAM <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
+res_OWAvsAM <- results(dds_F0, name="treatment_OWA_vs_AM", alpha=0.05)
 res_OWAvsAM <- res_OWAvsAM[order(res_OWAvsAM$padj),]
-head(res_OWAvsAM)
-
-summary(res_OWAvsAM)
 res_OWAvsAM <- res_OWAvsAM[!is.na(res_OWAvsAM$padj),]
 degs_OWAvsAM <- row.names(res_OWAvsAM[res_OWAvsAM$padj < 0.05,])
 
@@ -247,28 +240,31 @@ length(degs_OWvsAM)  # 5517
 length(degs_OWAvsAM)  # 3918
 
 # Intersections
-length(intersect(degs_OAvsAM,degs_OWvsAM))  # 387, 444
-length(intersect(degs_OAvsAM,degs_OWAvsAM))  # 340, 380
-length(intersect(degs_OWAvsAM,degs_OWvsAM))  # 2585, 2743
+length(intersect(degs_OAvsAM,degs_OWvsAM))  # 444
+length(intersect(degs_OAvsAM,degs_OWAvsAM))  # 380
+length(intersect(degs_OWAvsAM,degs_OWvsAM))  # 2743
 
+# Shared across all
 intWA <- intersect(degs_OAvsAM,degs_OWvsAM)
-length(intersect(degs_OWAvsAM,intWA)) # 308, 338
+length(intersect(degs_OWAvsAM,intWA)) # 338
 
-# Number unique
+# Number unique to each treatment
 
-602-444-380+338 # 101,116 OA
-5517-444-2743+338 # 2177, 2668 OW 
-3918-380-2743+338 # 1125, 1133 OWA
+602-444-380+338 # 116 OA
+5517-444-2743+338 # 2668 OW 
+3918-380-2743+338 # 1133 OWA
 
-444-338 # 79, 106 OA & OW
-380-338 # 32, 42 OA & OWA
-2743-338 # 2277, 2405 OWA & OW
+# Number shared in pairs of treatments
 
+444-338 # 106 OA & OW
+380-338 # 42 OA & OWA
+2743-338 # 2405 OWA & OW
 
+# Now assemble the results
 # Note that the names are important and have to be specific to line up the diagram
 fit1 <- euler(c("OA" = 116, "OW" = 2668, "OWA" = 1133, "OA&OW" = 106, "OA&OWA" = 42, "OW&OWA" = 2405, "OA&OW&OWA" = 338))
 
-
+# And make the plot!
 plot(fit1,  lty = 1:3, quantities = TRUE)
 # lty changes the lines
 
@@ -277,17 +273,21 @@ plot(fit1, quantities = TRUE, fill = "transparent",
      labels = list(font = 4))
 
 
-#cross check
-2668+2405+338+106 # 4841, 5517 total OW
-1133+2405+338+42 # 3918, total OWA
-116+42+106+338    # 602, total OA
+#cross check with above lengths of DEGS: the four values, unique, shared with one other, shared with the second other, shared across all treatments, should sum to the length of DEGs for each treatment contrast to AM
+2668+2405+338+106 # 5517 total OW
+1133+2405+338+42  # 3918 total OWA
+116+42+106+338    # 602  total OA
 ```
 
 ### An Upset plot
 
 Here's an upset plot... a bit easier
 
+**Note:** A new bit of code below! `%in%` This asks, "is this member of that group?"
+
 ```r
+
+install.packages("UpSetR")
 library(UpSetR)
 
 all_genes <- unique(c(
