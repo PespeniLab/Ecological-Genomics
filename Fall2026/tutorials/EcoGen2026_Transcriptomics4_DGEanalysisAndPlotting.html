@@ -152,10 +152,14 @@ pointer-events: auto;
 <ol style="list-style-type: decimal">
 <li>Analyze and visualize the counts matrix using a simplied data set
 (just generation F0).</li>
+<li>Understand what a contrast is. What is up- versus
+down-regulation?</li>
+<li>Learn how to make the various common types of differential gene
+expression visualizations.</li>
 </ol>
 </div>
 <div id="explore-the-data-with-more-visualizations" class="section level2">
-<h2>1. Explore the data with more visualizations</h2>
+<h2>Explore the data with more visualizations</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Set your working directory</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;~/YOUR/DIRECTORY&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -340,118 +344,116 @@ I’ve noted below.</p>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="do">#################################################################</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># For OW vs AM</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>res_OWvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>) <span class="co"># pull out the results for the contrast of interest</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>res_OWvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_F0, <span class="at">name=</span><span class="st">&quot;treatment_OW_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>) <span class="co"># pull out the results for the contrast of interest</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>res_OWvsAM <span class="ot">&lt;-</span> res_OWvsAM[<span class="fu">order</span>(res_OWvsAM<span class="sc">$</span>padj),] <span class="co"># order them by significance</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_OWvsAM)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_OWvsAM)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>res_OWvsAM <span class="ot">&lt;-</span> res_OWvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OWvsAM<span class="sc">$</span>padj),] <span class="co"># get rid of any NAs</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>degs_OWvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OWvsAM[res_OWvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,]) <span class="co"># make a list of significant differentially expressed genes for this contrast</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># For OA vs AM</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> res_OAvsAM[<span class="fu">order</span>(res_OAvsAM<span class="sc">$</span>padj),]</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_OAvsAM)</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_OAvsAM)</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> res_OAvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OAvsAM<span class="sc">$</span>padj),]</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>degs_OAvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OAvsAM[res_OAvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>res_OWvsAM <span class="ot">&lt;-</span> res_OWvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OWvsAM<span class="sc">$</span>padj),] <span class="co"># get rid of any NAs</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>degs_OWvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OWvsAM[res_OWvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,]) <span class="co"># make a list of significant differentially expressed genes for this contrast</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># For OA vs AM</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_F0, <span class="at">name=</span><span class="st">&quot;treatment_OA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> res_OAvsAM[<span class="fu">order</span>(res_OAvsAM<span class="sc">$</span>padj),]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>res_OAvsAM <span class="ot">&lt;-</span> res_OAvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OAvsAM<span class="sc">$</span>padj),]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>degs_OAvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OAvsAM[res_OAvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># For OWA vs AM</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_F0, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> res_OWAvsAM[<span class="fu">order</span>(res_OWAvsAM<span class="sc">$</span>padj),]</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> res_OWAvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OWAvsAM<span class="sc">$</span>padj),]</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>degs_OWAvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OWAvsAM[res_OWAvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co"># For OWA vs AM</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> <span class="fu">results</span>(dds_sub, <span class="at">name=</span><span class="st">&quot;treatment_OWA_vs_AM&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> res_OWAvsAM[<span class="fu">order</span>(res_OWAvsAM<span class="sc">$</span>padj),]</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res_OWAvsAM)</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_OWAvsAM)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM <span class="ot">&lt;-</span> res_OWAvsAM[<span class="sc">!</span><span class="fu">is.na</span>(res_OWAvsAM<span class="sc">$</span>padj),]</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>degs_OWAvsAM <span class="ot">&lt;-</span> <span class="fu">row.names</span>(res_OWAvsAM[res_OWAvsAM<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>,])</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eulerr)</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Total</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OAvsAM)  <span class="co"># 602</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OWvsAM)  <span class="co"># 5517 </span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OWAvsAM)  <span class="co"># 3918</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eulerr)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Total</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OAvsAM)  <span class="co"># 602</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OWvsAM)  <span class="co"># 5517 </span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(degs_OWAvsAM)  <span class="co"># 3918</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Intersections</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OAvsAM,degs_OWvsAM))  <span class="co"># 444</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OAvsAM,degs_OWAvsAM))  <span class="co"># 380</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OWAvsAM,degs_OWvsAM))  <span class="co"># 2743</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Shared across all</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>intWA <span class="ot">&lt;-</span> <span class="fu">intersect</span>(degs_OAvsAM,degs_OWvsAM)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OWAvsAM,intWA)) <span class="co"># 338</span></span>
 <span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Intersections</span></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OAvsAM,degs_OWvsAM))  <span class="co"># 387, 444</span></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OAvsAM,degs_OWAvsAM))  <span class="co"># 340, 380</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OWAvsAM,degs_OWvsAM))  <span class="co"># 2585, 2743</span></span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>intWA <span class="ot">&lt;-</span> <span class="fu">intersect</span>(degs_OAvsAM,degs_OWvsAM)</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">intersect</span>(degs_OWAvsAM,intWA)) <span class="co"># 308, 338</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Number unique to each treatment</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="dv">602-444-380</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 116 OA</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="dv">5517-444-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 2668 OW </span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="dv">3918-380-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 1133 OWA</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Number shared in pairs of treatments</span></span>
 <span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Number unique</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="dv">602-444-380</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 101,116 OA</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="dv">5517-444-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 2177, 2668 OW </span></span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="dv">3918-380-2743</span><span class="sc">+</span><span class="dv">338</span> <span class="co"># 1125, 1133 OWA</span></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="dv">444-338</span> <span class="co"># 79, 106 OA &amp; OW</span></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="dv">380-338</span> <span class="co"># 32, 42 OA &amp; OWA</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="dv">2743-338</span> <span class="co"># 2277, 2405 OWA &amp; OW</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the names are important and have to be specific to line up the diagram</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">euler</span>(<span class="fu">c</span>(<span class="st">&quot;OA&quot;</span> <span class="ot">=</span> <span class="dv">116</span>, <span class="st">&quot;OW&quot;</span> <span class="ot">=</span> <span class="dv">2668</span>, <span class="st">&quot;OWA&quot;</span> <span class="ot">=</span> <span class="dv">1133</span>, <span class="st">&quot;OA&amp;OW&quot;</span> <span class="ot">=</span> <span class="dv">106</span>, <span class="st">&quot;OA&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">42</span>, <span class="st">&quot;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">2405</span>, <span class="st">&quot;OA&amp;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">338</span>))</span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1,  <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">quantities =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="co"># lty changes the lines</span></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1, <span class="at">quantities =</span> <span class="cn">TRUE</span>, <span class="at">fill =</span> <span class="st">&quot;transparent&quot;</span>,</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>     <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="dv">4</span>))</span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="co">#cross check</span></span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="dv">2668</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">106</span> <span class="co"># 4841, 5517 total OW</span></span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="dv">1133</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">42</span> <span class="co"># 3918, total OWA</span></span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="dv">116</span><span class="sc">+</span><span class="dv">42</span><span class="sc">+</span><span class="dv">106</span><span class="sc">+</span><span class="dv">338</span>    <span class="co"># 602, total OA</span></span></code></pre></div>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="dv">444-338</span> <span class="co"># 106 OA &amp; OW</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="dv">380-338</span> <span class="co"># 42 OA &amp; OWA</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="dv">2743-338</span> <span class="co"># 2405 OWA &amp; OW</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Now assemble the results</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that the names are important and have to be specific to line up the diagram</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">euler</span>(<span class="fu">c</span>(<span class="st">&quot;OA&quot;</span> <span class="ot">=</span> <span class="dv">116</span>, <span class="st">&quot;OW&quot;</span> <span class="ot">=</span> <span class="dv">2668</span>, <span class="st">&quot;OWA&quot;</span> <span class="ot">=</span> <span class="dv">1133</span>, <span class="st">&quot;OA&amp;OW&quot;</span> <span class="ot">=</span> <span class="dv">106</span>, <span class="st">&quot;OA&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">42</span>, <span class="st">&quot;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">2405</span>, <span class="st">&quot;OA&amp;OW&amp;OWA&quot;</span> <span class="ot">=</span> <span class="dv">338</span>))</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="co"># And make the plot!</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1,  <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">quantities =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="co"># lty changes the lines</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit1, <span class="at">quantities =</span> <span class="cn">TRUE</span>, <span class="at">fill =</span> <span class="st">&quot;transparent&quot;</span>,</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>     <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">list</span>(<span class="at">font =</span> <span class="dv">4</span>))</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="co">#cross check with above lengths of DEGS: the four values, unique, shared with one other, shared with the second other, shared across all treatments, should sum to the length of DEGs for each treatment contrast to AM</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="dv">2668</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">106</span> <span class="co"># 5517 total OW</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="dv">1133</span><span class="sc">+</span><span class="dv">2405</span><span class="sc">+</span><span class="dv">338</span><span class="sc">+</span><span class="dv">42</span>  <span class="co"># 3918 total OWA</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="dv">116</span><span class="sc">+</span><span class="dv">42</span><span class="sc">+</span><span class="dv">106</span><span class="sc">+</span><span class="dv">338</span>    <span class="co"># 602  total OA</span></span></code></pre></div>
 </div>
 <div id="an-upset-plot" class="section level3">
 <h3>An Upset plot</h3>
 <p>Here’s an upset plot… a bit easier</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(UpSetR)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  degs_OAvsAM,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  degs_OWvsAM,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  degs_OWAvsAM</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>))</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>upset_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> all_genes,</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">OA =</span> all_genes <span class="sc">%in%</span> degs_OAvsAM,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">OW =</span> all_genes <span class="sc">%in%</span> degs_OWvsAM,</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">OWA =</span> all_genes <span class="sc">%in%</span> degs_OWAvsAM</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(upset_df)</span>
+<p><strong>Note:</strong> A new bit of code below! <code>%in%</code>
+This asks, “is this member of that group?”</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;UpSetR&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(UpSetR)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  degs_OAvsAM,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  degs_OWvsAM,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  degs_OWAvsAM</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>upset_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> all_genes,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">OA =</span> all_genes <span class="sc">%in%</span> degs_OAvsAM,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">OW =</span> all_genes <span class="sc">%in%</span> degs_OWvsAM,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">OWA =</span> all_genes <span class="sc">%in%</span> degs_OWAvsAM</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>deg.list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">OA  =</span> degs_OAvsAM,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">OW  =</span> degs_OWvsAM,</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">OWA =</span> degs_OWAvsAM</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="fu">upset</span>(</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromList</span>(deg.list),</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">order.by =</span> <span class="st">&quot;freq&quot;</span>,</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">mainbar.y.label =</span> <span class="st">&quot;Number of DEGs&quot;</span>,</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.x.label =</span> <span class="st">&quot;Total DEGs&quot;</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="do">####################### A bit prettier</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>data.</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="fu">upset</span>(</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromList</span>(deg.list),</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">order.by =</span> <span class="st">&quot;freq&quot;</span>,</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">main.bar.color =</span> <span class="st">&quot;grey30&quot;</span>,</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.bar.color =</span> <span class="fu">c</span>(<span class="st">&quot;#00A08A&quot;</span>, <span class="st">&quot;#CC3333&quot;</span>, <span class="st">&quot;#F2AD00&quot;</span>), <span class="co"># had to manually adjust the order</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">mainbar.y.label =</span> <span class="st">&quot;Number of DEGs&quot;</span>,</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.x.label =</span> <span class="st">&quot;Total DEGs&quot;</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(upset_df)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>deg.list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">OA  =</span> degs_OAvsAM,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">OW  =</span> degs_OWvsAM,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">OWA =</span> degs_OWAvsAM</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="fu">upset</span>(</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromList</span>(deg.list),</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">order.by =</span> <span class="st">&quot;freq&quot;</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">mainbar.y.label =</span> <span class="st">&quot;Number of DEGs&quot;</span>,</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.x.label =</span> <span class="st">&quot;Total DEGs&quot;</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="do">####################### A bit prettier</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>data.</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="fu">upset</span>(</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromList</span>(deg.list),</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">order.by =</span> <span class="st">&quot;freq&quot;</span>,</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">main.bar.color =</span> <span class="st">&quot;grey30&quot;</span>,</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.bar.color =</span> <span class="fu">c</span>(<span class="st">&quot;#00A08A&quot;</span>, <span class="st">&quot;#CC3333&quot;</span>, <span class="st">&quot;#F2AD00&quot;</span>), <span class="co"># had to manually adjust the order</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">mainbar.y.label =</span> <span class="st">&quot;Number of DEGs&quot;</span>,</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">sets.x.label =</span> <span class="st">&quot;Total DEGs&quot;</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 </div>
 </section>
