@@ -21,3 +21,4 @@ fontsize: 18pt
 
 * [Day 3: Setting up our R working environment and exploring the data with DESeq2](Fall2026/tutorials/EcoGen2026_Transcriptomics3_GeneExpressionAnalysis.html)
 
+* [Day 4: Testing for differences in gene expression with DESeq2 and visualizing results](Fall2026/tutorials/EcoGen2026_Transcriptomics4_DEGanalysisAndPlotting.html)

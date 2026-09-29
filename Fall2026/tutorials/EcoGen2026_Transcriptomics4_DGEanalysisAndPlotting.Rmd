@@ -1,0 +1,333 @@
+---
+title: "Transcriptomics Tutorial - Day 3: Gene expression analysis"
+author: "Melissa H. Pespeni"
+date: 'Fall 2026'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Analyze and visualize the counts matrix using a simplied data set (just generation F0).
+
+## 1. Explore the data with more visualizations
+
+```r
+## Set your working directory
+setwd("~/YOUR/DIRECTORY")
+
+## Import the libraries that we're likely to need in this session
+
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)  
+
+####################################################
+
+### Import our data
+
+####################################################
+
+ 
+# Import the counts matrix
+countsTable <- read.table("salmon.isoform.counts.matrix.filteredAssembly", header=TRUE, row.names=1)
+head(countsTable)
+dim(countsTable)
+
+countsTableRound <- round(countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+head(countsTableRound)
+
+#import the sample description table
+conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+head(conds)
+
+
+dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(dds)
+# [1] 130580     38
+
+# Filter 
+dds <- dds[rowSums(counts(dds) >= 15) >= 28,]
+nrow(dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+dds_F0 <- subset(dds, select = generation == 'F0')
+dim(dds_F0)
+# [1] 25260    12
+
+# Perform DESeq2 analysis on the subset
+dds_F0 <- DESeq(dds_F0)
+
+
+```
+
+Now let's look more closely at the "contrasts" - the specific comparisons run in the DESeq model, e.g., what is the difference expression between OWA vs AM treatments, "treatment_OWA_vs_AM"
+
+Take a close look at all the columns of information in the results file when you run `head`. What does each column mean?
+
+I like to copy the results of each summary (i.e., how many differentially expressed genes (DEGs) into my code)
+
+There's one contrast not yet pulled out with the DESeq2 `results` function. What's missing? You need to do it!
+```r
+
+####################################################
+
+### Check on the DE results from the DESeq 
+
+####################################################
+
+resultsNames(dds_F0)
+# [1] "Intercept"           "treatment_OA_vs_AM"  "treatment_OW_vs_AM"  "treatment_OWA_vs_AM"
+
+res_OWAvsAM <- results(dds_F0, name="treatment_OWA_vs_AM", alpha=0.05)
+res_OWAvsAM <- res_OWAvsAM[order(res_OWAvsAM$padj),]
+head(res_OWAvsAM)  
+summary(res_OWAvsAM)
+
+
+res_OWvsAM <- results(dds_F0, name="treatment_OW_vs_AM", alpha=0.05)
+res_OWvsAM <- res_OWvsAM[order(res_OWvsAM$padj),]
+head(res_OWvsAM) 
+summary(res_OWvsAM)
+
+# And one more... ?!
+```
+
+How do you interpret the different number of differentially expressed genes between the contrasts?
+
+### We can plot individual genes to see if the statistics are behaving as we expect... always good practice to look closely at the data!
+
+You can change the Trinity id name to any you choose...
+
+What's happening with the ggplot? Why do we keep redefining `p`?
+
+```r
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validatition that the normalization, model is working)
+d <-plotCounts(dds_F0, gene="TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130", intgroup = (c("treatment")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "line")
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+
+```
+
+### We can make an MA plot - what are the axes? How can it be a helpful visualization?
+
+```r
+
+plotMA(res_OWvsAM, ylim=c(-5,5))
+
+```
+
+### We can make a volcano plot - what are the axes here? How can this be a helpful visualization?
+
+```r
+volcano_df <- as.data.frame(res_OWvsAM)
+
+volcano_df <- volcano_df %>%
+  mutate(
+    sig = case_when(
+      padj < 0.05 & log2FoldChange > 1  ~ "Up",
+      padj < 0.05 & log2FoldChange < -1 ~ "Down",
+      TRUE ~ "NS"
+    )
+  )
+
+ggplot(volcano_df,
+       aes(x = log2FoldChange,
+           y = -log10(padj),
+           color = sig)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c(
+    "Down" = "steelblue",
+    "NS"   = "grey70",
+    "Up"   = "firebrick"
+  )) +
+  geom_vline(xintercept = c(-1, 1),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05),
+             linetype = "dashed") +
+  theme_classic(base_size = 14) +
+  labs(
+    x = "Log2 Fold Change",
+    y = "-Log10 Adjusted P-value",
+    color = NULL
+  )
+```
+
+In addition to the axes, what else makes the MA and volcano plots different? What helps with interpretation and visualization?
+
+### We can make a heat map of the top differentially expressed genes
+
+```r
+########################################
+
+# Heatmap of top 20 genes sorted by pvalue
+
+library(pheatmap)
+
+# By environment
+vsd <- vst(dds_F0, blind=FALSE)
+
+topgenes <- head(rownames(res_OWvsAM),100)
+mat <- assay(vsd)[topgenes,]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(dds_F0)[,c("treatment")])
+pheatmap(mat, annotation_col=df)
+pheatmap(mat, annotation_col=df, cluster_cols = F)
+
+# Can you read that? Try this... How/why is it better?
+pheatmap(mat, annotation_col=df, cluster_cols = F, show_rownames = F)
+
+
+```
+
+### Euler plot
+
+Finally, what's better than a Venn Diagram? A Euler Diagram! (another great alternative is an "upset" aka lollipop plot)
+
+**Note:** Your numbers may be different than the ones I've noted below.
+
+```r
+
+#################################################################
+
+#### PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
+
+#################################################################
+
+# For OW vs AM
+res_OWvsAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05) # pull out the results for the contrast of interest
+res_OWvsAM <- res_OWvsAM[order(res_OWvsAM$padj),] # order them by significance
+head(res_OWvsAM)
+
+summary(res_OWvsAM)
+res_OWvsAM <- res_OWvsAM[!is.na(res_OWvsAM$padj),] # get rid of any NAs
+degs_OWvsAM <- row.names(res_OWvsAM[res_OWvsAM$padj < 0.05,]) # make a list of significant differentially expressed genes for this contrast
+
+# For OA vs AM
+res_OAvsAM <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
+res_OAvsAM <- res_OAvsAM[order(res_OAvsAM$padj),]
+head(res_OAvsAM)
+
+summary(res_OAvsAM)
+res_OAvsAM <- res_OAvsAM[!is.na(res_OAvsAM$padj),]
+degs_OAvsAM <- row.names(res_OAvsAM[res_OAvsAM$padj < 0.05,])
+
+# For OWA vs AM
+res_OWAvsAM <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
+res_OWAvsAM <- res_OWAvsAM[order(res_OWAvsAM$padj),]
+head(res_OWAvsAM)
+
+summary(res_OWAvsAM)
+res_OWAvsAM <- res_OWAvsAM[!is.na(res_OWAvsAM$padj),]
+degs_OWAvsAM <- row.names(res_OWAvsAM[res_OWAvsAM$padj < 0.05,])
+
+library(eulerr)
+
+# Total
+length(degs_OAvsAM)  # 602
+length(degs_OWvsAM)  # 5517 
+length(degs_OWAvsAM)  # 3918
+
+# Intersections
+length(intersect(degs_OAvsAM,degs_OWvsAM))  # 387, 444
+length(intersect(degs_OAvsAM,degs_OWAvsAM))  # 340, 380
+length(intersect(degs_OWAvsAM,degs_OWvsAM))  # 2585, 2743
+
+intWA <- intersect(degs_OAvsAM,degs_OWvsAM)
+length(intersect(degs_OWAvsAM,intWA)) # 308, 338
+
+# Number unique
+
+602-444-380+338 # 101,116 OA
+5517-444-2743+338 # 2177, 2668 OW 
+3918-380-2743+338 # 1125, 1133 OWA
+
+444-338 # 79, 106 OA & OW
+380-338 # 32, 42 OA & OWA
+2743-338 # 2277, 2405 OWA & OW
+
+
+# Note that the names are important and have to be specific to line up the diagram
+fit1 <- euler(c("OA" = 116, "OW" = 2668, "OWA" = 1133, "OA&OW" = 106, "OA&OWA" = 42, "OW&OWA" = 2405, "OA&OW&OWA" = 338))
+
+
+plot(fit1,  lty = 1:3, quantities = TRUE)
+# lty changes the lines
+
+plot(fit1, quantities = TRUE, fill = "transparent",
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+2668+2405+338+106 # 4841, 5517 total OW
+1133+2405+338+42 # 3918, total OWA
+116+42+106+338    # 602, total OA
+```
+
+### An Upset plot
+
+Here's an upset plot... a bit easier
+
+```r
+library(UpSetR)
+
+all_genes <- unique(c(
+  degs_OAvsAM,
+  degs_OWvsAM,
+  degs_OWAvsAM
+))
+
+upset_df <- data.frame(
+  gene = all_genes,
+  OA = all_genes %in% degs_OAvsAM,
+  OW = all_genes %in% degs_OWvsAM,
+  OWA = all_genes %in% degs_OWAvsAM
+)
+
+head(upset_df)
+
+deg.list <- list(
+  OA  = degs_OAvsAM,
+  OW  = degs_OWvsAM,
+  OWA = degs_OWAvsAM
+)
+
+upset(
+  fromList(deg.list),
+  order.by = "freq",
+  mainbar.y.label = "Number of DEGs",
+  sets.x.label = "Total DEGs"
+)
+
+####################### A bit prettier
+data.
+upset(
+  fromList(deg.list),
+  order.by = "freq",
+  main.bar.color = "grey30",
+  sets.bar.color = c("#00A08A", "#CC3333", "#F2AD00"), # had to manually adjust the order
+  mainbar.y.label = "Number of DEGs",
+  sets.x.label = "Total DEGs"
+)
+
+```
+
