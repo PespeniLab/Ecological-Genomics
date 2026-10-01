@@ -312,7 +312,7 @@ GO_OWA <- run_topGO_contrast(
 
 ## Weighted Gene Correlation Network Analyses
 
-If we have time or if you want to explore on your own, [here is a script/code](WGCNA_ahud_class.R) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
+If we have time or if you want to explore on your own, [here is a script/code](Fall2026/tutorials/EcoGen2026_Transcriptomics5_WGCNA.html) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
 
 
 
