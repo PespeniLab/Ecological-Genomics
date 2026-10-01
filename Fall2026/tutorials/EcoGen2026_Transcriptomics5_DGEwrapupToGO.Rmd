@@ -292,18 +292,18 @@ run_topGO_contrast <- function(
 
 ```r
 GO_OA <- run_topGO_contrast(
-  "OAvsAM_results.csv",
-  "GO_OAvsAM_BP.csv"
+  "myresults/OAvsAM_results.csv",
+  "myresults/GO_OAvsAM_BP.csv"
 )
 
 GO_OW <- run_topGO_contrast(
-  "OWvsAM_results.csv",
-  "GO_OWvsAM_BP.csv"
+  "myresults/OWvsAM_results.csv",
+  "myresults/GO_OWvsAM_BP.csv"
 )
 
 GO_OWA <- run_topGO_contrast(
-  "OWAvsAM_results.csv",
-  "GO_OWAvsAM_BP.csv"
+  "myresults/OWAvsAM_results.csv",
+  "myresults/GO_OWAvsAM_BP.csv"
 )
 ```
 
