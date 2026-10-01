@@ -13,8 +13,8 @@ fontsize: 18pt
 
 1. Build on the analyses started in the last tutorial focused on generation F0.
     * Understand how a scatter plot can be used to compare expression responses to OW relative to OWA (each vs. AM control)
-    * Understand how gene ontology (GO) functional enrichment analysis works; perform GO analyses
-    * Understand Weighted Gene Correlation Network Analysis (WGCNA); perform WGCNA analyses
+    * Understand how gene ontology (GO) functional enrichment analysis works; perform GO analyses using [TopGO](https://bioconductor.org/packages/release/bioc/html/topGO.html)
+    * Understand Weighted Gene Correlation Network Analysis (([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/))); perform WGCNA analyses
 
 
 ## Scatter plots to compare expression responses
@@ -309,6 +309,10 @@ GO_OWA <- run_topGO_contrast(
 
 **What are ways that we could change how we're running these GO enrichment tests?**
 
+
+## Weighted Gene Correlation Network Analyses
+
+If we have time or if you want to explore on your own, [here is a script/code](WGCNA_ahud_class.R) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
 
 
 
