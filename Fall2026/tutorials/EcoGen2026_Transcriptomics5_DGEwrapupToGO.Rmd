@@ -1,0 +1,314 @@
+---
+title: "Transcriptomics Tutorial - Day 5: DGEA wrap up, GO and maybe WGCNA analyses"
+author: "Melissa H. Pespeni"
+date: 'Fall 2026'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Build on the analyses started in the last tutorial focused on generation F0.
+    * Understand how a scatter plot can be used to compare expression responses to OW relative to OWA (each vs. AM control)
+    * Understand how gene ontology (GO) functional enrichment analysis works; perform GO analyses
+    * Understand Weighted Gene Correlation Network Analysis (WGCNA); perform WGCNA analyses
+
+
+## Scatter plots to compare expression responses
+
+Building from your script from last class focused on just the F0 generation, we will pull out the results from the OW vs AM contrast and compare to the OWA vs AM contrast.
+
+_Make sure you load your libraries, import the data, filter the data, run the DESeq model, and define your results dataframes before proceeding below..._
+
+`merge` and tidyverse's `mutate` are the core functions for doing what we are about to do -> create a new data frame of the data we want to plot and create a new column of data based on the values in the data frame!
+
+```r
+#################################################################
+
+#### Scatter plot to assess how correlated are responses to OWA vs OW?
+
+#################################################################
+
+
+# Create merged data frame - need to use rownames because differences in filtering
+plot_OWA <- data.frame(
+  gene = rownames(res_OWAvsAM),
+  LFC_OWA = res_OWAvsAM$log2FoldChange,
+  padj_OWA = res_OWAvsAM$padj
+)
+
+plot_OW <- data.frame(
+  gene = rownames(res_OWvsAM),
+  LFC_OW = res_OWvsAM$log2FoldChange,
+  padj_OW = res_OWvsAM$padj
+)
+
+plot_df <- merge(plot_OWA,
+                 plot_OW,
+                 by = "gene")
+
+# Remove genes with missing LFC values
+plot_df <- plot_df %>%
+  filter(!is.na(LFC_OWA),
+         !is.na(LFC_OW))
+
+# Classify significance
+plot_df <- plot_df %>%
+  mutate(
+    SigGroup = case_when(
+      padj_OWA < 0.05 & padj_OW < 0.05 ~ "Both",
+      padj_OWA < 0.05 ~ "OWA only",
+      padj_OW < 0.05 ~ "OW only",
+      TRUE ~ "Neither"
+    )
+  )
+
+# Correlation for noting on the plot 
+r <- cor(plot_df$LFC_OWA,
+         plot_df$LFC_OW,
+         use = "complete.obs")
+         
+# Arrange the genes by significant to make the plotting easier/more interesting to see
+# ggplot plots in the order of the df, so random
+
+plot_df$SigGroup <- factor(
+  plot_df$SigGroup,
+  levels = c("Neither", "OWA only", "OW only", "Both")
+)
+
+plot_df <- plot_df %>%
+  arrange(SigGroup)
+
+# Now make the plot!
+
+ggplot(plot_df,
+       aes(x = LFC_OW,
+           y = LFC_OWA,
+           color = SigGroup)) +
+
+  geom_point(alpha = 0.6, size = 1.5) +
+
+  geom_abline(intercept = 0,
+              slope = 1,
+              linetype = "dashed",
+              color = "black") +
+
+  geom_hline(yintercept = 0,
+             color = "grey70") +
+
+  geom_vline(xintercept = 0,
+             color = "grey70") +
+
+  annotate("text",
+           x = min(plot_df$LFC_OW, na.rm = TRUE),
+           y = max(plot_df$LFC_OWA, na.rm = TRUE),
+           hjust = 0,
+           label = paste0("r = ", round(r, 3))) +
+
+  scale_color_manual(values = c(
+    "Both" = "purple",
+    "OWA only" = "#CC3333",
+    "OW only" = "#00A08A",
+    "Neither" = "grey80"
+  )) +
+
+  coord_fixed() + # forces the same scaling on x and y axes
+
+  labs(
+    x = "Log2 Fold Change: OW vs AM",
+    y = "Log2 Fold Change: OWA vs AM",
+    color = "",
+    title = "GE Responses to OW relative to OWA"
+  ) +
+
+  theme_bw(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "right"
+  )
+
+```
+
+What is Log2FoldChange? What do higher or lower values indicate?
+
+What if we wanted to change the order of the points? What would you edit? 
+
+What if we wanted to compare OA vs OWA instead of OW vs OWA? What would you edit?
+
+In the plot, what is `alpha` doing, what is `annotate` doing?
+
+### In the code above, we also used several tidyverse (dplyr) functions:
+
+We used four `dplyr` functions:
+
+* `filter()` to remove rows
+* `mutate()` to add a new variable
+* `case_when()` to classify genes into categories
+* `arrange()` to sort the rows
+
+This sequence of actions is actually a great demonstration of a typical genomics workflow:
+
+* **Filter** the data.
+* **Annotate/Classify** the genes.
+* **Order** the results.
+* **Visualize** with ggplot.
+
+
+## Let's test for functional enrichment using annotated GO categories for each gene and the TopGO program.
+
+First, you'll need two files `transcript_universe.csv` and `trinotate_annotation_GOblastx_forTopGO.txt` that you can find in our class directory, `/gpfs1/cl/biol3990/Transcriptomics/GOenrichment`, and `cp` over to your `mydata` directory  
+
+### The first step is to create the saved results files with the correct trinity ids
+
+```r
+res_OWAvsAM.df <- as.data.frame(res_OWAvsAM)
+res_OWAvsAM.df$fullID <- rownames(res_OWAvsAM.df)
+
+parts <- strsplit(res_OWAvsAM.df$fullID, "::")
+
+res_OWAvsAM.df$shortID <- sapply(
+  parts,
+  function(x) paste(x[1:2], collapse="::")
+)
+
+write.csv(
+  res_OWAvsAM.df,
+  "myresults/OWAvsAM_results.csv",
+  row.names = FALSE
+)
+```
+Repeat for:
+```r
+res_OWvsAM
+res_OAvsAM
+```
+
+Now prep to run the GO analyses:
+
+```r
+library(topGO)
+
+mappingFile <- "trinotate_annotation_GOblastx_forTopGO.txt"
+
+geneID2GO <- readMappings(
+  file = mappingFile
+)
+
+cat("Genes in GO mapping:",
+    length(geneID2GO),
+    "\n")
+```
+
+**Filter GO terms by size:**
+Why would we want to do this?
+
+```r
+allGO <- table(unlist(geneID2GO))
+
+keepTerms <- names(allGO)[
+  allGO >= 5 &
+  allGO <= 500
+]
+
+geneID2GO.filtered <- lapply(
+  geneID2GO,
+  function(x) intersect(x, keepTerms)
+)
+
+geneID2GO.filtered <- geneID2GO.filtered[
+  lengths(geneID2GO.filtered) > 0
+]
+```
+
+### Create a function to run a TopGO contrast
+Why might we want to do this?
+
+```r
+run_topGO_contrast <- function(
+    infile,
+    outfile,
+    ontology = "BP",
+    padj.cutoff = 0.05){
+
+  deseq <- read.csv(
+    infile,
+    stringsAsFactors = FALSE
+  )
+
+  deseq <- subset(
+    deseq,
+    !is.na(padj)
+  )
+
+  geneList <- factor(
+    as.integer(deseq$padj < padj.cutoff)
+  )
+
+  names(geneList) <- deseq$shortID
+
+  cat("\nGenes tested:",
+      length(geneList))
+
+  cat("\nSignificant genes:",
+      sum(geneList == 1),
+      "\n")
+
+  GOdata <- new(
+    "topGOdata",
+    ontology = ontology,
+    allGenes = geneList,
+    geneSelectionFun = function(x) x == 1,
+    annot = annFUN.gene2GO,
+    gene2GO = geneID2GO.filtered
+  )
+
+  resultWeight <- runTest(
+    GOdata,
+    algorithm = "weight01",
+    statistic = "fisher"
+  )
+
+  GOresults <- GenTable(
+    GOdata,
+    weightFisher = resultWeight,
+    orderBy = "weightFisher",
+    topNodes = 100
+  )
+
+  write.csv(
+    GOresults,
+    outfile,
+    row.names = FALSE
+  )
+
+  return(GOresults)
+}
+```
+
+### Run our TopGO function for the three different contrasts
+
+```r
+GO_OA <- run_topGO_contrast(
+  "OAvsAM_results.csv",
+  "GO_OAvsAM_BP.csv"
+)
+
+GO_OW <- run_topGO_contrast(
+  "OWvsAM_results.csv",
+  "GO_OWvsAM_BP.csv"
+)
+
+GO_OWA <- run_topGO_contrast(
+  "OWAvsAM_results.csv",
+  "GO_OWAvsAM_BP.csv"
+)
+```
+
+**What are ways that we could change how we're running these GO enrichment tests?**
+
+
+
+
