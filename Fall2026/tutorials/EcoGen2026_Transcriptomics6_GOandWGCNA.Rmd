@@ -233,7 +233,7 @@ ggplot(
 
 ## Weighted Gene Correlation Network Analyses
 
-If we have time or if you want to explore on your own, [here is a script/code](/EcoGen2026_Transcriptomics6_WGCNA.html) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
+If we have time or if you want to explore on your own, [here is a script/code](/Fall2026/tutorials/EcoGen2026_Transcriptomics6_WGCNA.html) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
 
 
 
