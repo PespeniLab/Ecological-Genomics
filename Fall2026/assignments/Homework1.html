@@ -12,7 +12,7 @@
 
 
 
-<title>Ecological Genomics (BIOL 3990) Fall 2026</title>
+<title>Homework #1 (Transcriptomics)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -46,19 +46,228 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Ecological Genomics (BIOL
-3990) Fall 2026</h1>
+<h1 class="title toc-ignore project-name">Homework #1
+(Transcriptomics)</h1>
 </section>
 
 
 
 <section class="main-content">
-<div id="homework-assignments" class="section level1">
-<h1>Homework assignments:</h1>
+<div id="homework-assignment-1-due-by-tuesday-october-13-2026-end-of-day" class="section level1">
+<h1>Homework assignment #1 – Due by Tuesday, October 13, 2026 (end of
+day)</h1>
+<p>During the last four weeks of the transcriptomics module, we’ve built
+our bioinformatic skills working with RNASeq data and used these data to
+quantify differential gene expression in the context of experimental
+evolution of the cold-adapted copepod, <em>Acartia hudsonica</em>. We
+learned the general workflow or “pipeline” for processing and analyzing
+RNAseq data.</p>
+<p><strong>In sum, we:</strong></p>
+<ul>
+<li>Learned basic bash commands to be able to log in and move around a
+Unix server and utilize the VACC OOD interface</li>
+<li>Learned about critical experimental design considerations when using
+RNAsequencing - question, hypothesis, life stage, tissue, environmental
+conditions, replication, sequencing RNA from individuals or pools of
+individuals</li>
+<li>Learned the general pipeline for processing raw Illumina data,
+assessing read quality, mapping to the reference transcriptome (or
+creating one de novo).</li>
+<li>Learned how to use DESeq2 to set up models and test for differential
+gene expression</li>
+<li>Learned how to visualize and interpret global and gene-specific
+patterns of expression with: PCA, heatmaps, dot plots, bar plots,
+MAplots, Volcano plots, Euler plots, scatter plots</li>
+<li>Tested for functional enrichment using Gene Ontology (TopGO)</li>
+<li>Identified correlated gene expression modules and testing for
+associations with trait data (WGCNA)</li>
+</ul>
+<p>Wow! That’s a lot! Now let’s reinforce that learning with this
+assignment!</p>
+<p><strong>The purpose</strong> of this assignment is twofold: 1) to
+reinforce your learning of how to analyze and interpret RNAseq data by
+giving you an independent opportunity to practice and 2) to practice
+thinking and writing like an ecological genomicist. Researchers working
+with large amounts of next generation sequence data and emerging or
+non-model organisms must carefully consider their question, the
+appropriate experimental design and sequencing approach to address the
+question, and the pathways and parameter space that can and should be
+explored to yield accurate and biologically meaningful results.</p>
+<p><strong>Skills:</strong> This assignment will help you practice the
+following skills:</p>
+<ul>
+<li>Articulate in writing the motivation for the study in general and
+your question (selected below), specifically, and biological conclusions
+that can be drawn.</li>
+<li>How to work on the linux remote server and in the R environment to
+process and analyze data.</li>
+<li>Explore important parameters/decisions and understand if/how they
+affect results.</li>
+<li>Interpret results biologically.</li>
+<li>Write in scientific narrative format typical of the discipline with
+attention to reproducibility (versions, parameters outside default,
+github notebook and scripts).</li>
+</ul>
+<p><strong>Knowledge:</strong> This assignment will reinforce your
+learning in the following important knowledge areas in the field of
+ecological genomics:</p>
+<ul>
+<li>How to assess transcriptome-wide physiological responses to
+conditions/experimental factors using RNA-sequencing.</li>
+<li>Next generation sequence data processing and visualization
+tools.</li>
+<li>Computational biology/Bioinformatics</li>
+</ul>
+<div id="questions-with-specific-tasks-choose-one-of-the-options-below" class="section level2">
+<h2><strong>Questions with specific tasks (choose <em>one</em> of the
+options below):</strong></h2>
 <ol style="list-style-type: decimal">
-<li><a href="Fall2026/assignments/Homework1.html">Homework #1 ~
-Transcriptomics</a></li>
+<li><p>How do the differences in gene expression between AM and OWA
+change across the generations (F0, F4, F11)? To address this question,
+in DESeq2 subset by generation and pull-out specific contrasts, compare
+results – number of differentially expressed genes, a Venn could be a
+good tool for visualization here. Does GO functional enrichment
+change?</p></li>
+<li><p>How do differences in gene expression between all four treatment
+groups change between F0 and F4? To address this question, in DESeq2
+subset by generation and pull-out specific contrasts comparing OA, OW,
+OWA to AM, compare results – number of differentially expressed genes, a
+Venn could be a good tool for visualization here. Do gene expression
+patterns in the OWA treatment suggest that response to the combined
+treatment is synergistic, additive, or antagonistic? Does this depend on
+generation?</p></li>
+<li><p>In WGCNA, how does the soft-power threshold selected affect
+module formation (number, size, strength of correlations, association
+with traits)? To address this question, choose 2 or 3 power thresholds,
+compare the number of modules, number of genes per module, the strength
+of correlations with traits, extra credit: test for GO functional
+enrichment for modules associated with traits.</p></li>
 </ol>
+</div>
+<div id="criteria" class="section level2">
+<h2>Criteria:</h2>
+<ul>
+<li>The main text of the write-up should be 2 pages (max) single spaced.
+Tables, figures, and references can be on separate pages.</li>
+<li>You may work collaboratively, but the final product and all of the
+writing should be your own defensible work.</li>
+<li>Approach the writing as a technical report based on the work you’ve
+done to date. That is, write for a scientific audience using appropriate
+technical language and narrative style, with citations used when
+referring to methods or making factual assertions.</li>
+</ul>
+<div id="your-write-up-should-include-the-following-essential-elements" class="section level3">
+<h3>Your write-up should include the following essential elements:</h3>
+<div id="background-1-2-paragraphs" class="section level4">
+<h4>Background (1-2 paragraphs):</h4>
+<ul>
+<li>A brief description providing the context and motivation of the
+problem we’re trying to address with these data. The deMayo <em>et
+al.</em> 2023 <em>Proc. B</em> and Brennan <em>et al.</em> 2022
+<em>Nature Communications</em> papers are excellent resources for this
+information.</li>
+<li>A brief background on the experiment, study species, biological
+samples, library prep, and sequencing strategy. The Transcriptomics Day
+1-2 tutorials are excellent resources for this part.</li>
+<li>A clear statement of the question you have chosen to address in your
+assignment. We all have appreciated when this is done in our class
+discussion papers. Now you get to do it!</li>
+</ul>
+</div>
+<div id="bioinformatics-pipeline-2-paragraphs" class="section level4">
+<h4>Bioinformatics Pipeline (~2 paragraphs):</h4>
+<ul>
+<li>Detailed description of the various steps you used for the analysis
+of the sequencing data. Take it from starting in DESeq2 (i.e., you don’t
+have to mention the mapping using Salmon but should mention the
+filtering in DESeq2)</li>
+<li>This section should demonstrate both your technical knowledge of the
+flow of the different steps in the pipeline, and your level of
+proficiency in understanding why each step was done. Include
+justification for using particular analyses or choices as appropriate
+(e.g., In DESeq2, did you filter out genes that had fewer than 10 read
+counts per individual (on average) and why? Or perhaps you decided to
+implement a more or less stringent filter – explain if so.).</li>
+</ul>
+</div>
+<div id="results-1-2-paragraphs" class="section level4">
+<h4>Results (1-2 paragraphs)</h4>
+<ul>
+<li>Report your findings from the different analysis steps. Use a
+combination of reporting results in-line in your text and summarizing
+more detailed information in tables and/or figures.<br />
+</li>
+<li>You may use a max of 5 tables/figures total (not counted towards the
+page limit).</li>
+<li>Be sure each table/figure has a title, and a very brief legend
+describing its contents. Table legends go <strong>above</strong> tables
+while figure legends go <strong>below</strong> figures.</li>
+<li>Include in your results section both “methodological” results
+(numbers of genes after filtration, etc.) as well as “biological”
+results (numbers of DEGs, estimates of log fold change, etc.).</li>
+</ul>
+</div>
+<div id="conclusion-1-2-paragraphs" class="section level4">
+<h4>Conclusion (1-2 paragraphs)</h4>
+<ul>
+<li>Give your technical and biological conclusion based on the question
+you addressed and results you generated. Consider the broader question
+of capacity for rapid evolution to global change in <em>Acartia
+hudsonica</em>.</li>
+<li>Discuss any caveats or uncertainties that should be considered when
+interpreting the biological conclusions.</li>
+<li>Discuss any methodological challenges encountered along the way that
+are relevant to your results and their interpretation.</li>
+<li>Discuss opportunities for future directions.</li>
+</ul>
+</div>
+<div id="references-listed-on-a-separate-page" class="section level4">
+<h4>References (listed on a separate page)</h4>
+<ul>
+<li><p>Cite papers in APA format. Example:<br />
+<font size="2"><em>deMayo, J. A., Brennan, R. S., Pespeni, M. H.,
+Finiguerra, M., Norton, L., Park, G., … &amp; Dam, H. G. (2023).
+Simultaneous warming and acidification limit population fitness and
+reveal phenotype costs for a marine copepod. Proceedings of the Royal
+Society B, 290(2006), 20231033.</em></font></p></li>
+<li><p>Include only references to papers cited in your text.</p></li>
+<li><p>Github: Have your github lab notebook up to date. Make sure any
+scripts used for your analysis are available in your github “myscripts”
+folder. Share a URL link to your Github page with your homework
+submission.</p></li>
+</ul>
+</div>
+</div>
+<div id="guidelines-and-deadlines" class="section level3">
+<h3>Guidelines and deadlines:</h3>
+<ul>
+<li><p>You may collaborate with each other to discuss details and share
+notes, but your write-up should be done independently and represent your
+own work.</p></li>
+<li><p>Due by Tuesday, October 13, 2026 (end of day) on Brightspace as a
+<strong>PDF</strong></p></li>
+<li><p>Reminder about AI use (excerpted from the syllabus):</p>
+<ul>
+<li>Disclosure: Any AI use must be disclosed in a brief statement at the
+end of each assignment (e.g., “I used ChatGPT to help debug this part of
+my R script and to suggest alternate phrasing in paragraph 3.”).</li>
+<li>Accountability: Students are responsible for understanding and being
+able to explain all code and text in their assignments, whether produced
+by AI or not.</li>
+<li>Writing assignments: Homework and final project papers must be
+written by you or members of your group. AI may be used for grammar and
+style editing, but not for generating substantive content.</li>
+<li>Misuse: Undisclosed or excessive reliance on AI that undermines
+demonstration of your own learning would be considered academic
+misconduct.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="reach-out-if-you-get-stuck-and-dont-forget-to-have-fun-with-it" class="section level2">
+<h2>Reach out if you get stuck, and don’t forget to have fun with
+it!</h2>
+</div>
 </div>
 </section>
 

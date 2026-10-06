@@ -1,0 +1,239 @@
+---
+title: "Transcriptomics Tutorial - Day 5: DGEA wrap up, GO and maybe WGCNA analyses"
+author: "Melissa H. Pespeni"
+date: 'Fall 2026'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+fontsize: 18pt
+---
+
+
+## Objectives of this tutorial
+
+1. Understand how gene ontology (GO) functional enrichment analysis works; perform GO analyses using [TopGO](https://bioconductor.org/packages/release/bioc/html/topGO.html)
+2. Perform and understand Weighted Gene Correlation Network Analysis (([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)))
+
+
+
+## Let's test for functional enrichment using annotated GO categories for each gene and the TopGO program.
+
+First, you'll need two files `transcript_universe.csv` and `trinotate_annotation_GOblastx_forTopGO.txt` that you can find in our class directory, `/gpfs1/cl/biol3990/Transcriptomics/GOenrichment`, and `cp` over to your `mydata` directory  
+
+### The first step is to create the saved results files with the correct trinity ids
+
+```r
+res_OWAvsAM.df <- as.data.frame(res_OWAvsAM)
+res_OWAvsAM.df$fullID <- rownames(res_OWAvsAM.df)
+
+parts <- strsplit(res_OWAvsAM.df$fullID, "::")
+
+res_OWAvsAM.df$shortID <- sapply(
+  parts,
+  function(x) paste(x[1:2], collapse="::")
+)
+
+write.csv(
+  res_OWAvsAM.df,
+  "myresults/OWAvsAM_results.csv",
+  row.names = FALSE
+)
+```
+Repeat for:
+```r
+res_OWvsAM
+res_OAvsAM
+```
+
+Now prep to run the GO analyses:
+
+```r
+library(topGO)
+
+mappingFile <- "trinotate_annotation_GOblastx_forTopGO.txt"
+
+geneID2GO <- readMappings(
+  file = mappingFile
+)
+
+cat("Genes in GO mapping:",
+    length(geneID2GO),
+    "\n")
+```
+
+**Filter GO terms by size:**
+Why would we want to do this?
+
+```r
+allGO <- table(unlist(geneID2GO))
+
+keepTerms <- names(allGO)[
+  allGO >= 5 &
+  allGO <= 500
+]
+
+geneID2GO.filtered <- lapply(
+  geneID2GO,
+  function(x) intersect(x, keepTerms)
+)
+
+geneID2GO.filtered <- geneID2GO.filtered[
+  lengths(geneID2GO.filtered) > 0
+]
+```
+
+### Create a function to run a TopGO contrast
+Why might we want to do this?
+
+```r
+run_topGO_contrast <- function(
+    infile,
+    outfile,
+    ontology = "BP",
+    padj.cutoff = 0.05){
+
+  deseq <- read.csv(
+    infile,
+    stringsAsFactors = FALSE
+  )
+
+  deseq <- subset(
+    deseq,
+    !is.na(padj)
+  )
+
+  geneList <- factor(
+    as.integer(deseq$padj < padj.cutoff)
+  )
+
+  names(geneList) <- deseq$shortID
+
+  cat("\nGenes tested:",
+      length(geneList))
+
+  cat("\nSignificant genes:",
+      sum(geneList == 1),
+      "\n")
+
+  GOdata <- new(
+    "topGOdata",
+    ontology = ontology,
+    allGenes = geneList,
+    geneSelectionFun = function(x) x == 1,
+    annot = annFUN.gene2GO,
+    gene2GO = geneID2GO.filtered
+  )
+
+  resultWeight <- runTest(
+    GOdata,
+    algorithm = "weight01",
+    statistic = "fisher"
+  )
+
+  GOresults <- GenTable(
+    GOdata,
+    weightFisher = resultWeight,
+    orderBy = "weightFisher",
+    topNodes = 100
+  )
+
+  write.csv(
+    GOresults,
+    outfile,
+    row.names = FALSE
+  )
+
+  return(GOresults)
+}
+```
+
+### Run our TopGO function for the three different contrasts
+
+```r
+GO_OA <- run_topGO_contrast(
+  "myresults/OAvsAM_results.csv",
+  "myresults/GO_OAvsAM_BP.csv"
+)
+
+GO_OW <- run_topGO_contrast(
+  "myresults/OWvsAM_results.csv",
+  "myresults/GO_OWvsAM_BP.csv"
+)
+
+GO_OWA <- run_topGO_contrast(
+  "myresults/OWAvsAM_results.csv",
+  "myresults/GO_OWAvsAM_BP.csv"
+)
+```
+
+**What are ways that we could change how we're running these GO enrichment tests?**
+
+**_Hint:_** Are _adjusted p-values_ the only gene-level metric that we can use to quantify how much or significantly a gene is differentially expressed? In some ways, using just the _p-values_ or _log2 fold change_ could be better.
+
+
+### Make a bubble plot of the top 10 GO categories
+
+```r
+
+# Read TopGO results
+go <- read.csv(
+  "myresults/GO_OWAvsAM_BP.csv",
+  stringsAsFactors = FALSE
+)
+
+# Convert p-values to numeric
+go$weightFisher <- gsub("^<\\s*", "", go$weightFisher)
+
+go$weightFisher <- as.numeric(go$weightFisher)
+
+# Convert counts to numeric
+go$Significant <- as.numeric(go$Significant)
+
+# Create -log10(p)
+go$minusLogP <- -log10(go$weightFisher)
+
+# Keep top 10 GO terms
+go_top10 <- go %>%
+  arrange(weightFisher) %>%
+  slice(1:10)
+
+# Order terms for plotting
+go_top10$Term <- factor(
+  go_top10$Term,
+  levels = rev(go_top10$Term)
+)
+
+# Bubble plot
+ggplot(
+  go_top10,
+  aes(
+    x = minusLogP,
+    y = Term
+  )
+) +
+  geom_point(
+    aes(
+      size = Significant,
+      color = minusLogP
+    )
+  ) +
+  scale_color_viridis_c() +
+  theme_bw(base_size = 14) +
+  labs(
+    title = "Top GO Terms: OWA vs AM",
+    x = expression(-logp),
+    y = "GO Term",
+    color = expression(-logp),
+    size = "Significant\nGenes"
+  )
+
+
+```
+
+
+## Weighted Gene Correlation Network Analyses
+
+If we have time or if you want to explore on your own, [here is a script/code](Fall2026/tutorials/EcoGen2026_Transcriptomics5_WGCNA.html) for running ([WGCNA](https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/)) with these data!
+
+
+
