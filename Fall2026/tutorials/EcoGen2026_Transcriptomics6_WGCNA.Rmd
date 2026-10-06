@@ -11,7 +11,11 @@ fontsize: 18pt
 
 ## Objectives of this code is to identify correlated sets of genes (aka modules) and test for a relationship between traits and modules
 
-You can copy this whole chunk of code into a new script perhaps titled `Ahud_WGCNA.R`. Update you working directory and pathes to files!
+When you launch RStudio this time, you'll want to request *2 cores* and *32 GB* of memory as WGCNA is very memory intensive.
+
+You'll need to copy over the _A. hudsonica_ trait data collected by Dr. deMayo in the deMayo et al. 2022 _Proc. B_ paper. You can use Terminal in RStudio or open VACC Shell Access and `cp` from `/users/m/p/mpespeni/hudsonica/countsmatrix` to your `Transcriptomics/mydata` directory.
+
+You can copy this whole chunk of code into a new script perhaps titled `Ahud_WGCNA.R`. Update you working directory and paths to files!
 
 ```r
 ## Set your working directory
@@ -96,6 +100,9 @@ ggplot(pca.dat, aes(PC1, PC2)) +
   geom_text(label = rownames(pca.dat)) +
   labs(x = paste0('PC1: ', pca.var.percent[1], ' %'),
        y = paste0('PC2: ', pca.var.percent[2], ' %'))
+       
+# All of our samples look good; the genes that don't look good shouldn't cluster well and 
+# should end up in the "grey", catch all module for uncorrelated genes.
 
 # 3. Normalization ----------------------------------------------------------------------
 
@@ -178,9 +185,9 @@ bwnet <- blockwiseModules(norm.counts,
 # cut height results in fewer, larger modules, while a lower cut height leads to more, 
 # smaller modules.
 
-saveRDS(bwnet, file = "bwnet.rds")
+saveRDS(bwnet, file = "mydata/bwnet.rds")
 
-bwnet <- readRDS("bwnet.rds")
+bwnet <- readRDS("mydata/bwnet.rds")
 
 cor <- temp_cor
 
