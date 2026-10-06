@@ -11,7 +11,7 @@ fontsize: 18pt
 
 ## Objectives of this code is to identify correlated sets of genes (aka modules) and test for a relationship between traits and modules
 
-When you launch RStudio this time, you'll want to request *2 cores* and *32 GB* of memory as WGCNA is very memory intensive.
+When you launch RStudio this time, you'll want to request *2 cores* and *64 GB* of memory as WGCNA is very memory intensive.
 
 You'll need to copy over the _A. hudsonica_ trait data collected by Dr. deMayo in the deMayo et al. 2022 _Proc. B_ paper. You can use Terminal in RStudio or open VACC Shell Access and `cp` from `/users/m/p/mpespeni/hudsonica/countsmatrix` to your `Transcriptomics/mydata` directory.
 
@@ -191,6 +191,12 @@ bwnet <- readRDS("mydata/bwnet.rds")
 
 cor <- temp_cor
 
+```
+
+This step above takes a really long time and a lot of memory - this is the creation/assignment of all of the modules. If it doesn't finish within 3 minutes of class, please copy the file I placed in `/gpfs1/cl/biol3990/Transcriptomics/WGCNA` called `bwnet.rds`.
+
+```r
+
 
 # 5. Module Eigengenes ---------------------------------------------------------
 module_eigengenes <- bwnet$MEs
@@ -316,7 +322,7 @@ t_norm.counts_purple <- t_norm.counts %>%
 t_norm.counts_purple <- t_norm.counts_purple - rowMeans(t_norm.counts_purple)
 df <- as.data.frame(colData(dds)[,c("Generation","treatment")])
 
-#blue to purple color scheme
+#blue to yellow heatmap color scheme; plot purple module genes
 paletteLength <- 50
 myColor <- colorRampPalette(c("dodgerblue", "white", "yellow"))(paletteLength)
 myBreaks <- c(seq(min(t_norm.counts_purple), 0, length.out=ceiling(paletteLength/2) + 1), 
@@ -336,7 +342,7 @@ t_norm.counts_yellow <- t_norm.counts %>%
 t_norm.counts_yellow <- t_norm.counts_yellow - rowMeans(t_norm.counts_yellow)
 df <- as.data.frame(colData(dds)[,c("generation","treatment")]) # Change generation (values) to Generations (categories)
 
-#blue to purple color scheme
+#blue to yellow heatmap color scheme; yellow module
 paletteLength <- 50
 myColor <- colorRampPalette(c("dodgerblue", "white", "yellow"))(paletteLength)
 myBreaks <- c(seq(min(t_norm.counts_yellow), 0, length.out=ceiling(paletteLength/2) + 1), 
@@ -402,3 +408,5 @@ write.csv(
 )
 
 ```
+
+Now you can add and edit code to run TopGO to test for functional enrichment within the genes of the yellow module! Or you code edit the code above to test for functional enrichment for any module you find interesting. Go back to the correlation heatmap to see which modules might be interesting based on their correlations with specific traits.
