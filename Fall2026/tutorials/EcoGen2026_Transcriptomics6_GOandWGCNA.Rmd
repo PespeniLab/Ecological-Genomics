@@ -18,9 +18,11 @@ fontsize: 18pt
 
 ## Let's test for functional enrichment using annotated GO categories for each gene and the TopGO program.
 
-First, you'll need two files `transcript_universe.csv` and `trinotate_annotation_GOblastx_forTopGO.txt` that you can find in our class directory, `/gpfs1/cl/biol3990/Transcriptomics/GOenrichment`, and `cp` over to your `mydata` directory  
+First, you'll need two files `transcript_universe.csv` and `trinotate_annotation_GOblastx_forTopGO.txt` that you can find in our class directory, `/gpfs1/cl/biol3990/Transcriptomics/GOenrichment`, and `cp` over to your `mydata` directory. You can use Terminal from within RStudio OOD (Tools -> Terminal) or from OOD, open Clusters -> VACC Shell Access.
 
-### The first step is to create the saved results files with the correct trinity ids
+You can build on your previous DESeq2 script from F0 that has all your results from each contrast with AM.
+
+### The first step is to create the saved results files with the abbreviated trinity ids
 
 ```r
 res_OWAvsAM.df <- as.data.frame(res_OWAvsAM)
@@ -35,7 +37,7 @@ res_OWAvsAM.df$shortID <- sapply(
 
 write.csv(
   res_OWAvsAM.df,
-  "myresults/OWAvsAM_results.csv",
+  "myresults/F0_OWAvsAM_results.csv",
   row.names = FALSE
 )
 ```
@@ -50,7 +52,7 @@ Now prep to run the GO analyses:
 ```r
 library(topGO)
 
-mappingFile <- "trinotate_annotation_GOblastx_forTopGO.txt"
+mappingFile <- "mydata/trinotate_annotation_GOblastx_forTopGO.txt"
 
 geneID2GO <- readMappings(
   file = mappingFile
@@ -151,20 +153,21 @@ run_topGO_contrast <- function(
 
 ```r
 GO_OA <- run_topGO_contrast(
-  "myresults/OAvsAM_results.csv",
-  "myresults/GO_OAvsAM_BP.csv"
+  "myresults/F0_OAvsAM_results.csv",
+  "myresults/GO_F0_OAvsAM_BP.csv"
 )
 
 GO_OW <- run_topGO_contrast(
-  "myresults/OWvsAM_results.csv",
-  "myresults/GO_OWvsAM_BP.csv"
+  "myresults/F0_OWvsAM_results.csv",
+  "myresults/GO_F0_OWvsAM_BP.csv"
 )
 
 GO_OWA <- run_topGO_contrast(
-  "myresults/OWAvsAM_results.csv",
-  "myresults/GO_OWAvsAM_BP.csv"
+  "myresults/F0_OWAvsAM_results.csv",
+  "myresults/GO_F0_OWAvsAM_BP.csv"
 )
 ```
+Take a peak at your GO results files!
 
 **What are ways that we could change how we're running these GO enrichment tests?**
 
@@ -173,11 +176,13 @@ GO_OWA <- run_topGO_contrast(
 
 ### Make a bubble plot of the top 10 GO categories
 
+Let's visualize the top categories for the OWA results. You can choose to change the code to do more than 10 categories or to look at the results of a different contrast. Compare your plots with your neighbors! Don't forget to edit the title of your plot if you change the contrast!
+
 ```r
 
 # Read TopGO results
 go <- read.csv(
-  "myresults/GO_OWAvsAM_BP.csv",
+  "myresults/GO_F0_OWAvsAM_BP.csv",
   stringsAsFactors = FALSE
 )
 
@@ -229,7 +234,7 @@ ggplot(
 
 
 ```
-
+**Save your plot and run for all three contrasts. How do the results compare?**
 
 ## Weighted Gene Correlation Network Analyses
 

@@ -163,10 +163,14 @@ for each gene and the TopGO program.</h2>
 <code>trinotate_annotation_GOblastx_forTopGO.txt</code> that you can
 find in our class directory,
 <code>/gpfs1/cl/biol3990/Transcriptomics/GOenrichment</code>, and
-<code>cp</code> over to your <code>mydata</code> directory</p>
-<div id="the-first-step-is-to-create-the-saved-results-files-with-the-correct-trinity-ids" class="section level3">
-<h3>The first step is to create the saved results files with the correct
-trinity ids</h3>
+<code>cp</code> over to your <code>mydata</code> directory. You can use
+Terminal from within RStudio OOD (Tools -&gt; Terminal) or from OOD,
+open Clusters -&gt; VACC Shell Access.</p>
+<p>You can build on your previous DESeq2 script from F0 that has all
+your results from each contrast with AM.</p>
+<div id="the-first-step-is-to-create-the-saved-results-files-with-the-abbreviated-trinity-ids" class="section level3">
+<h3>The first step is to create the saved results files with the
+abbreviated trinity ids</h3>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM.df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res_OWAvsAM)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>res_OWAvsAM.df<span class="sc">$</span>fullID <span class="ot">&lt;-</span> <span class="fu">rownames</span>(res_OWAvsAM.df)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -179,7 +183,7 @@ trinity ids</h3>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  res_OWAvsAM.df,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/OWAvsAM_results.csv&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/F0_OWAvsAM_results.csv&quot;</span>,</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Repeat for:</p>
@@ -188,7 +192,7 @@ trinity ids</h3>
 <p>Now prep to run the GO analyses:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(topGO)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mappingFile <span class="ot">&lt;-</span> <span class="st">&quot;trinotate_annotation_GOblastx_forTopGO.txt&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mappingFile <span class="ot">&lt;-</span> <span class="st">&quot;mydata/trinotate_annotation_GOblastx_forTopGO.txt&quot;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>geneID2GO <span class="ot">&lt;-</span> <span class="fu">readMappings</span>(</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> mappingFile</span>
@@ -281,19 +285,20 @@ this?</p>
 <div id="run-our-topgo-function-for-the-three-different-contrasts" class="section level3">
 <h3>Run our TopGO function for the three different contrasts</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>GO_OA <span class="ot">&lt;-</span> <span class="fu">run_topGO_contrast</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/OAvsAM_results.csv&quot;</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_OAvsAM_BP.csv&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/F0_OAvsAM_results.csv&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_F0_OAvsAM_BP.csv&quot;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>GO_OW <span class="ot">&lt;-</span> <span class="fu">run_topGO_contrast</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/OWvsAM_results.csv&quot;</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_OWvsAM_BP.csv&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/F0_OWvsAM_results.csv&quot;</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_F0_OWvsAM_BP.csv&quot;</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>GO_OWA <span class="ot">&lt;-</span> <span class="fu">run_topGO_contrast</span>(</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/OWAvsAM_results.csv&quot;</span>,</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_OWAvsAM_BP.csv&quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/F0_OWAvsAM_results.csv&quot;</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_F0_OWAvsAM_BP.csv&quot;</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Take a peak at your GO results files!</p>
 <p><strong>What are ways that we could change how we’re running these GO
 enrichment tests?</strong></p>
 <p><strong><em>Hint:</em></strong> Are <em>adjusted p-values</em> the
@@ -304,10 +309,15 @@ better.</p>
 </div>
 <div id="make-a-bubble-plot-of-the-top-10-go-categories" class="section level3">
 <h3>Make a bubble plot of the top 10 GO categories</h3>
+<p>Let’s visualize the top categories for the OWA results. You can
+choose to change the code to do more than 10 categories or to look at
+the results of a different contrast. Compare your plots with your
+neighbors! Don’t forget to edit the title of your plot if you change the
+contrast!</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Read TopGO results</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>go <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_OWAvsAM_BP.csv&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;myresults/GO_F0_OWAvsAM_BP.csv&quot;</span>,</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
@@ -357,6 +367,8 @@ better.</p>
 <span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="st">&quot;Significant</span><span class="sc">\n</span><span class="st">Genes&quot;</span></span>
 <span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
+<p><strong>Save your plot and run for all three contrasts. How do the
+results compare?</strong></p>
 </div>
 </div>
 <div id="weighted-gene-correlation-network-analyses" class="section level2">
