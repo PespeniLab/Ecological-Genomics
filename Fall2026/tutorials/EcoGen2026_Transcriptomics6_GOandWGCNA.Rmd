@@ -1,5 +1,5 @@
 ---
-title: "Transcriptomics Tutorial - Day 5: DGEA wrap up, GO and maybe WGCNA analyses"
+title: "Transcriptomics Tutorial - Days 5 and 6: DGEA wrap up, GO and maybe WGCNA analyses"
 author: "Melissa H. Pespeni"
 date: 'Fall 2026'
 output:
