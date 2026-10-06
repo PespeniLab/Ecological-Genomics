@@ -9,7 +9,7 @@ fontsize: 18pt
 ---
 
 
-## Objectives of this code is to identify correlated sets of genes (aka modules) and test for a relationship between traits and modules
+## Objectives of this code are to identify correlated sets of genes (aka modules) and test for a relationship between traits and modules
 
 When you launch RStudio this time, you'll want to request *2 cores* and *64 GB* of memory as WGCNA is very memory intensive.
 
