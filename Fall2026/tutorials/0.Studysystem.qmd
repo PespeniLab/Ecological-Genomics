@@ -1,0 +1,123 @@
+---
+title: "Study System"
+subtitle: "Population genomics · Background"
+author: "Daniel Sadler"
+date: last-modified
+date-format: "D MMMM YYYY"
+editor: visual
+number-sections: true
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "Contents"
+    title-block-banner: true
+    code-copy: true
+    code-overflow: scroll
+    highlight-style: github
+    embed-resources: true
+    smooth-scroll: true
+  typst:
+    toc: true
+    toc-depth: 2
+    papersize: us-letter
+    margin:
+      x: 2.2cm
+      y: 2.2cm
+    fontsize: 10.5pt
+    include-in-header:
+      text: |
+        #show table: set par(justify: false)
+---
+
+
+# Our Study system
+
+We study evolutionary biology of marine species, understanding adaptive potential of key taxa under global change. Melissa has mainly focused on the purple sea urchin (*Strongylocentrotus purpuratus*), a foundational species in both the subtidal and the intertidal.
+
+In this class we are going to expand beyond our beloved purple sea urchin to other intertidal taxa, in fact we recently were awarded a grant entitled "**Integrating Genomics, Physiology, and Ecology to Predict Intertidal Ecosystem Resilience**" where we will integrate genomic data across over ten intertidal taxa across 15 sites on the west coast of America.
+
+As part of this class we are going to start some of this analysis! What you are doing is not simply reanalysing data but we are running analyses on data we have yet to see the results!
+
+As part of the project we will be using already archived data from the sequence read archive (SRA), a large repository where scientists store all their genomic data. Specifically we are going to focus in the tutorial on the owl limpet (*Lottia gigantia*) an endangered rocky shore limpet (below)
+
+![](/Images/Lottia_gigantea.jpg)
+
+For your group project you will also have the option to analyse the red abalone (*Haliotis rufenscens*) or the purple sea urchin if you choose.
+
+## *Lottia gigantea (the owl limpet)*
+
+**What is an owl limpet?**
+
+An owl limpet is a species of sea snail within the limpet family found on wave exposed rocky shore habitats on the Pacific coast of America from Baja California, Mexico to Northern California. It is a key grazer of algae whilst being prey for the black oyster catcher and also humans much to their detriment.
+
+In fact populations of the owl limpet are becoming smaller due to size-selective harvest from humans, as the largest are harvested first (analogous to fisheries induced evolution). This is particularly problematic for owl limpets as they are synchronous hermaphrodites which means they start of male and become females as they become larger. So removing large individuals can skew sex-ratio reducing fecundity of populations. Taken toghether this makes an owl limpet an important organism to understand their population dynamics, genomics being one of the tools we can do this!
+
+::: {.callout-note title="Learning more about owl limpets"}
+See the NPS website for more details on the owl limpet <https://www.nps.gov/cabr/blogs/species-spotlight-owl-limpet-lottia-gigantea.htm>
+:::
+
+We will focus first on Lottia gigantea using data originally published here: \<[**doi.org/10.1111/gcb.17414**](https://doi.org/10.1111/gcb.17414)\> in a paper entitled " \*\***Pushed waves, trailing edges, and extreme events: Eco-evolutionary dynamics of a geographic range shift in the owl limpet, *Lottia gigantea***\*\*" where the authors examined how climatic variation have influenced range shifts in the owl limpet which increased in abundance during the 2014-16 marine heatwave events in NE Pacific. They used whole genome sequencing across 19 populations along the Pacific coast of America from the Baja Californian peninsula to the new expanded range around Bodega bay.
+
+![](Images/Screenshot%202026-10-05%20at%2015.43.41.png)
+
+| Site name         | Latitude | Longitude | Date sampled | Individuals sequenced |
+|:------------------|---------:|----------:|:------------:|----------------------:|
+| Kruse Ranch       |    38.59 |   -123.35 |   01/30/21   |                    30 |
+| Fort Ross         |    38.52 |   -123.27 |   12/12/20   |                    30 |
+| Bodega            |    38.32 |   -123.08 |   11/29/20   |                    30 |
+| Dillon Beach      |    38.26 |   -122.97 |   11/12/20   |                    30 |
+| Hopkins           |    36.62 |   -121.90 |   01/13/22   |                    30 |
+| China Rock        |    36.61 |   -121.96 |   01/12/22   |                    30 |
+| Soberanes Point   |    36.45 |   -121.93 |   06/26/21   |                    30 |
+| Vandenberg        |    34.75 |   -120.63 |   06/30/21   |                    30 |
+| Government Point  |    34.44 |   -120.45 |   11/15/21   |                    30 |
+| Carpinteria       |    34.39 |   -119.51 |   11/16/21   |                    30 |
+| Willows Anchorage |    33.96 |   -119.75 |   11/17/21   |                    30 |
+| Intake Pipes      |    33.45 |   -118.49 |   11/30/21   |                    30 |
+| Shark Harbor      |    33.39 |   -118.48 |   12/02/21   |                    30 |
+| Scripps           |    32.87 |   -117.25 |   11/05/21   |                    30 |
+| Cabrillo          |    32.67 |   -117.24 |   11/01/21   |                    30 |
+| Punta Baja        |    29.95 |   -115.81 |   01/04/22   |                    19 |
+| Santa Rosaliita   |    28.65 |   -114.25 |   02/24/21   |                    29 |
+| Bahía Tortugas    |    27.69 |   -114.89 |   02/26/21   |                    29 |
+| Bahía Asunción    |    27.13 |   -114.30 |   02/25/21   |                    27 |
+| **Total**         |          |           |              |               **554** |
+
+
+
+::: {.callout-tip title="Question"}
+Why do you think they used whole genome sequencing?
+:::
+
+::: {.callout-tip title="Question"}
+Using this dataset what analyses do you think we can use to understand population structure and the influence of environmental variation?
+:::
+
+::: {.callout-tip title="Question"}
+What environmental variables do you think affect the owl limpet?
+:::
+
+::: {.callout-tip title="Question"}
+Based on your knowledge of transcriptomics, what analyses and visuals might be useful here?
+:::
+
+
+## The greater question we are asking
+
+Our research group will be leading a project answering the question "What will our coastal ecosystems look like under future climate change?" Specifically, we are going to analyse 10+ species across 15+ sites on the Pacific coast of the USA (Primarily California and Oregon). We aim to collect genomic data for these individuals and assess their spatial genomic structure and ultimately use genomic forecasting techniques to predict maladaptation in these populations and species.
+
+As we are all well aware, species are but one note within a larger symphony that make up a community. As such we aim to integrate these species into a greater framework by integrating their ecology and genomics. We aim to combine genomic data, abundance data, climate data, and species interaction matrices to understand future vulnerability of an entire ecosystem across a latitudinal cline, a metric we dub "ecosystem offset".
+
+In this module we will be analysing one facet of this ultimate goal by completing the following:
+
+::: {.callout-note title="Aims of the module"}
+- Work with and manipulate a VCF file
+- Write and submit jobs to the VACC
+- Compare the genomic structure of populations
+- Assess the genomic diversity of populations
+- Identify signatures of selection across the genome
+- Use genomic offset to predict future maladaptation
+:::

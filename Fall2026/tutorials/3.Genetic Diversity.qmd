@@ -1,0 +1,538 @@
+---
+title: "Genetic diversity"
+subtitle: "Population genomics · Class 3"
+author: "Daniel Sadler"
+date: last-modified
+date-format: "D MMMM YYYY"
+editor: visual
+number-sections: true
+engine: knitr
+execute:
+  eval: false
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "Contents"
+    title-block-banner: true
+    code-copy: true
+    code-overflow: scroll
+    highlight-style: github
+    embed-resources: true
+    smooth-scroll: true
+  pdf:
+    toc: true
+    toc-depth: 2
+    papersize: letter
+    geometry:
+      - margin=2.2cm
+    fontsize: 11pt
+    linestretch: 1.15
+    colorlinks: true
+    highlight-style: github
+    include-in-header:
+      text: |
+        \usepackage{newunicodechar}
+        \newunicodechar{≥}{\ensuremath{\geq}}
+        \newunicodechar{≤}{\ensuremath{\leq}}
+        \newunicodechar{≈}{\ensuremath{\approx}}
+        \newunicodechar{−}{\ensuremath{-}}
+        \newunicodechar{→}{\ensuremath{\rightarrow}}
+        \newunicodechar{₁}{\textsubscript{1}}
+        \newunicodechar{₀}{\textsubscript{0}}
+        \newunicodechar{π}{\ensuremath{\pi}}
+        \newunicodechar{θ}{\ensuremath{\theta}}
+        \definecolor{headingblue}{HTML}{1F5FA8}
+        \addtokomafont{disposition}{\color{headingblue}}
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breaksymbolleft={},commandchars=\\\{\}}
+        \makeatletter\@secpenalty=0\makeatother
+---
+
+::: {.callout-note title="Learning objectives"}
+By the end of this class you should be able to:
+
+- explain what nucleotide diversity (π), Tajima's *D* and heterozygosity measure, and what can bias them
+- calculate π and Tajima's *D* in windows along the genome with `vcftools`, for all samples together and for each population
+- estimate each individual's heterozygosity and inbreeding coefficient (*F*)
+- compare diversity among populations and along the genome in R
+:::
+
+::: {.callout-tip title="Before you start"}
+You will need:
+
+- 1% subset of our VCF (with no MAF filtering) `Lottia_gigantea_biallelic_sub0.01.vcf.gz`to practise the commands on
+- the sample metadata file, `sample_metadata.csv`, from Class 2
+- the results from the full VCF, which I've already generated for you (they're in the shared class folder)
+:::
+
+# Genetic diversity
+
+Genetic diversity is the raw material for evolution, the more diversity a population has, the greater adaptive potential the population has. Diversity is also closely tied to a population's long-term effective size (*N*~e~), i.e., genetic population as opposed to actual census demographic counts (*N*~c~). Genetic diversity of a population can tells u about the population's history.
+
+Genetic diversity varies at three levels:
+
+- **Among species.** Species that produce huge numbers of small offspring, as many marine invertebrates do (as the owl limpet does!), tend to have high genetic diversity.
+- **Among populations.** Smaller, more isolated or recently founded populations (for example at the edge of a specie's range) tend to have less genetic diversity (though there are exceptions).
+- **Across the genome.** Selection and variation in recombination rate create regions of unusually low or high genetic diversity across the genome.
+
+Today we will use three measures:
+
+| Measure | What it tells us |
+|------------------------|-----------------------------------------------|
+| Nucleotide diversity (π) | The average number of differences per base between two copies of the genome |
+| Tajima's D | Whether a population has an excess of rare variants (*D* \< 0) or an excess of common variants (*D* \> 0) than expected under neutrality (*D* = 0) |
+| Heterozygosity (*H*~O~) | How heterozygous each individual is, and whether that is more (or less) than expected from its population's allele frequencies |
+
+# Setting up
+
+Make a folder for today's work and point the programme to your VCF, for coding along, use the randomly subsetted VCF.
+
+```{bash}
+mkdir -p ~/path/to/my/files/PopulationGenomics/GeneticDiversity
+cd ~/path/to/my/files/PopulationGenomics/GeneticDiversity
+
+module load vcftools
+vcftools --version   # note the version in your notebook
+
+# the 1% subset from Class 1 (make sure this is the right path!)
+DATA_DIR=~/path/to/my/files/PopulationGenomics/
+VCF=$DATA_DIR/Lottia_gigantea_biallelic_sub0.01_noMAF.vcf.gz
+
+```
+
+::: {.callout-note title="Practise on the subset"}
+vcftools reads through the whole VCF every time we run it, so on the full data each command takes a long time. In class we practice on the 1% subset (I have already ran the commands on the full data for later).
+
+The numbers from the subset are **not** meaningful, though. It has only 1% of the SNPs, so π comes out roughly 100 times too small and most windows have too few SNPs for a reliable Tajima's *D*. Use the full results when you interpret anything!
+:::
+
+## A population map
+
+vcftools calculates statistics for whichever individuals we give it with `--keep`, which takes a file with one sample ID per line. To get statistics for each population, we need one of these files per population
+
+First, make a **population map** from the metadata, with two tab-separated columns: the sample ID and its site.
+
+```{bash}
+# check which columns hold the sample ID and the site
+head sample_metadata.csv
+
+# skip the header line (tail -n +2), keep columns 1 and 2 (cut),
+# and swap the comma between them for a tab (tr)
+tail -n +2 sample_metadata.csv | cut -d ',' -f 1,2 | tr ',' '\t' > popmap.txt
+head popmap.txt
+```
+
+Then write one file per site, listing the IDs of that site's individuals:
+
+```{bash}
+mkdir -p pops
+
+# take each site name once (cut column 2, then sort -u), and for each one
+# write the IDs of its individuals (column 1) to pops/SITE.txt
+cut -f 2 popmap.txt | sort -u | while read -r POP; do
+    awk -v pop="$POP" -F '\t' '$2 == pop {print $1}' popmap.txt > pops/${POP}.txt
+done
+
+# how many individuals are there per site?
+wc -l pops/*.txt
+```
+
+| Code | What it does |
+|-----------------------------|-------------------------------------------|
+| `cut -f 2 popmap.txt` | Takes column 2 (the site) of the population map |
+| `sort -u` | Sorts the site names and keeps each one once (`-u` = unique) |
+| `while read -r POP; do … done` | Reads the site names one at a time into the variable `POP`, and runs the commands between `do` and `done` for each |
+| `awk -v pop="$POP"` | Passes our variable into awk, where it is called `pop` |
+| `-F '\t'` | Tells awk the columns are separated by tabs |
+| `'$2 == pop {print $1}'` | For every line whose 2nd column (site) matches, print the 1st column (sample ID) |
+
+::: {.callout-warning title="IDs must match the VCF exactly"}
+If the IDs in your `--keep` file don't match the sample names in the VCF, vcftools doesn't stop with an error. It just quietly keeps no populations! Always check the line in its output that says `After filtering, kept 20 out of 553 Individuals` (or similar) and make sure the number kept is what you expect.
+:::
+
+::: {.callout-note title="A note on `awk` "}
+AWK (named for its creators surnames, not some fun pun this time) is a text processing language built into unix specifically designed for data extraction and has its own mini language!
+:::
+
+# Nucleotide diversity (π)
+
+Nucleotide diversity (π), is the average number of differences per base between two randomly chosen copies of the genome in a population. For example, π = 0.005 means that two copies differ at about 1 in every 200 bases. Every individual carries two copies of the genome, so π is also the heterozygosity per base we would expect if the population mated at random. Nucleotide diversity also assumes neutrality (Natural selection violates this by increasing/decreasing diversity at sites).
+
+We often calculate π in **windows** along the genome. These windows don't overlap: each one starts where the last one ended. (`--window-pi-step` lets you make them overlap, remember our sliding windows from lass class!)
+
+Here we will use 10kb windows across the entire genome for an initial look.
+
+## All samples together
+
+```{bash}
+vcftools --gzvcf $VCF --window-pi 10000 --out all
+head all.windowed.pi
+```
+
+| Column                 | Contains                                      |
+|------------------------|-----------------------------------------------|
+| `CHROM`                | The scaffold                                  |
+| `BIN_START`, `BIN_END` | The start and end base position of the window |
+| `N_VARIANTS`           | The number of SNPs in the window              |
+| `PI`                   | Nucleotide diversity in the window            |
+
+## Each population
+
+Now we can loop over our population files and calculate π for each site in turn, we dont want to do this manually as we have alot of populations, so loop saves us time and coding space.
+
+```{bash}
+WINDOW=10000
+mkdir -p pi
+
+for KEEP in pops/*.txt; do
+    POP=$(basename $KEEP .txt)   # e.g. pops/BOD.txt -> BOD
+    echo "== $POP =="
+    vcftools --gzvcf $VCF \
+        --keep $KEEP \
+        --window-pi $WINDOW \
+        --out pi/$POP
+done
+
+###check the files exist and its how many you expect
+ls pi
+ls -l pi | wc -l 
+```
+
+`for KEEP in pops/*.txt` runs the loop once for each file in the `pops` folder. `basename` strips the folder and the `.txt` ending from the file name to give us the site name, which we use to name the output.
+
+::: {.callout-warning title="Why vcftools π is only approximate"}
+vcftools calculates π for a window by adding up the differences at each SNP and dividing by the window length. That has some consequences:
+
+- **Missing bases count as invariant.** Our VCF only contains SNPs, so vcftools assumes every other base in the window was sequenced and identical in everyone. Bases that were never sequenced, or were filtered out, are counted as invariant, which affects the calculation of nucleotide diversity.
+- **Short scaffolds.** Windows on scaffolds shorter than 10 kb are still divided by 10,000, so their π is too low too. Our reference has a lot of short scaffolds.
+- **Empty windows are left out.** Windows with no SNPs don't appear in the output, rather than being reported as π = 0, so averaging the windows overestimates π.
+
+So treat vcftools π as a relative measure. Comparing populations from the same VCF is reasonable, as long as they have similar amounts of missing data, but don't compare the values with other studies. To estimate π properly you need a VCF that also includes the invariant sites (an "all-sites" VCF) and a program such as [pixy](https://pixy.readthedocs.io), which only counts the bases that were actually genotyped. Pixy is what we tend to use, but its a little fiddly as it uses a conda environment and we arent going to go into that.
+:::
+
+::: {.callout-tip title="Question"}
+Compare the average π across all samples (`all.windowed.pi`) with the average for each site. Which is higher, and why?
+:::
+
+# Tajima's *D*
+
+Tajima's *D* compares two estimates of genetic diversity to test for divergence from neutrality across the genome.
+
+- **π**, the average number of differences between pairs of sequences. Variants at intermediate frequency contribute the most to π.
+- **Watterson's θ** (θ~W~), based on the number of variable sites. Every variant counts the same here, however rare it is.
+
+*D* is the difference between the two (π − θ~W~), scaled by its standard deviation. Rare variants raise θ~W~ much more than they raise π.
+
+The formula is:
+
+![](images/TajD.png){fig-align="center"}
+
+| Tajima's *D* | The population has... | Possible causes |
+|------------------|---------------------------|---------------------------|
+| ≈ 0 | The allele frequencies we expect | Neutral evolution at a constant population size |
+| Negative | An excess of **rare** variants | Population expansion; a recent selective sweep (positive selection); purifying selection |
+| Positive | An excess of **intermediate-frequency** variants | Population decline (a bottleneck); balancing selection |
+
+Demography and selection can push *D* in the same direction, so how do we tell them apart? Demography affects the whole genome, whereas selection affects particular regions. A shift in *D* across the whole genome (most windows positive, say) points to demography. Windows that stand out from the rest of the genome are candidates for selection.
+
+You'll often see \|*D*\| \> 2 used as a rule of thumb for significance, but that relies on assumptions that rarely hold for genome-wide sequencing data. *D* is best used as a relative measure: compare windows and populations that were processed in the same way, and look for windows that are outliers compared with the rest of the genome.
+
+::: {.callout-warning title="Tajima's D needs the rare variants"}
+*D* depends on the balance of rare and common variants, so anything that removes rare variants pushes *D* upwards. That includes minor allele frequency (MAF) filters and low coverage, where rare variants are easily missed. For Tajima's *D*, use a VCF without a MAF filter, and compare windows and populations with each other rather than reading too much into the absolute values.
+:::
+
+## All samples together
+
+```{bash}
+vcftools --gzvcf $VCF --TajimaD 10000 --out all
+head all.Tajima.D
+```
+
+| Column | Contains |
+|--------------------|----------------------------------------------------|
+| `CHROM` | The scaffold |
+| `BIN_START` | The start of the window. Careful: this counts from 0, unlike the π output, which counts from 1! |
+| `N_SNPS` | The number of SNPs in the window |
+| `TajimaD` | Tajima's *D* for the window (`nan` if it can't be calculated) |
+
+Windows with only a handful of SNPs give very unreliable values of *D*, so when we plot we will only keep windows with at least 5 SNPs.
+
+## Each population
+
+```{bash}
+WINDOW=10000
+mkdir -p tajD
+
+for KEEP in pops/*.txt; do
+    POP=$(basename $KEEP .txt)
+    echo "== $POP =="
+    vcftools --gzvcf $VCF \
+        --keep $KEEP \
+        --TajimaD $WINDOW \
+        --out tajD/$POP
+done
+
+ls tajD
+```
+
+::: {.callout-warning title="Watch your backslashes"}
+If you split a command over several lines, every line except the last must end with `\`. Miss one and bash treats the next line as a new command. For example, without the `\` after `--TajimaD $WINDOW`, vcftools never sees `--out`, so it writes every population to the default file `out.Tajima.D`, each one overwriting the last. Then bash complains `--out: command not found`.
+:::
+
+::: {.callout-tip title="Question"}
+Is Tajima's *D* higher for all samples together, or within each site? Look back at the table above, why might that be?
+:::
+
+
+# Heterozygosity
+
+- **Observed heterozygosity (*H*~O~)** is the proportion of sites at which an individual is heterozygous.
+- **Expected heterozygosity (*H*~E~)** is the proportion we would expect if the population mated at random (Hardy–Weinberg equilibrium): 2*pq* at each site, where *p* and *q* are the allele frequencies.
+- The **inbreeding coefficient** compares the two: *F* = 1 − *H*~O~ / *H*~E~. *F* = 0 means an individual is as heterozygous as expected, *F* \> 0 means less heterozygous, and *F* \< 0 means more.
+
+| *F* | Possible causes |
+|---------------------|---------------------------------------------------|
+| Positive (too few heterozygotes) | Inbreeding (mating between relatives); genotyping errors, especially at low coverage, where heterozygotes are miscalled as homozygotes |
+| Negative (too many heterozygotes) | Mating between divergent populations; mapping errors, where reads from duplicated regions (paralogs) pile up on one locus and look like heterozygotes in everyone |
+
+## All samples together
+
+```{bash}
+vcftools --gzvcf $VCF --het --out all
+head all.het
+```
+
+| Column | Contains |
+|--------------------|----------------------------------------------------|
+| `INDV` | The sample ID |
+| `O(HOM)` | The number of sites at which the individual is homozygous (observed) |
+| `E(HOM)` | The number of homozygous sites expected under Hardy–Weinberg equilibrium |
+| `N_SITES` | The number of sites with a genotype for this individual |
+| `F` | The inbreeding coefficient |
+
+There's no column for observed heterozygosity, but we can calculate it: *H*~O~ = (`N_SITES` − `O(HOM)`) / `N_SITES`. We'll do this in R later.
+
+
+## Each population
+
+When we run all samples together, the expected heterozygosity comes from the allele frequencies of *everyone*. Running each population separately means the metrics are measured relative to an individual's own population:
+
+```{bash}
+mkdir -p het
+
+for KEEP in pops/*.txt; do
+    POP=$(basename $KEEP .txt)
+    echo "== $POP =="
+    vcftools --gzvcf $VCF \
+        --keep $KEEP \
+        --het \
+        --out het/$POP
+done
+```
+
+::: callout-note
+When run on one population, vcftools only uses the sites that are variable *within that population*, so `N_SITES` differs between populations. Use the all-samples run to compare *H*~O~ between individuals, and the per-population runs for *F*.
+:::
+
+::: {.callout-warning title="Low coverage hides heterozygotes"}
+At a heterozygous site, each read comes from one of the two alleles at random, like tossing a coin. With 3 reads, the chance that they all come from the same allele is 2 × (½)^3^ = 25%, so about a quarter of heterozygotes look homozygous. With 10 reads, the chance drops to 2 × (½)^10^ ≈ 0.2%.
+
+Variant callers use more information than this, but the problem remains: at low coverage, *H*~O~ is underestimated and *F* is overestimated, and individuals with lower depth look less heterozygous than they really are.
+
+So, with low coverage data its often better to use other metrics (e.g., nucleotide diversity) as we cant confidently call heterozygotes.
+:::
+
+# Plotting in R
+
+::: callout-note
+The subset results are scaled down and noisy, so to see the real patterns, copy the results I generated from the full VCF. They are found at  `/gpfs1/cl/biol3990/PopulationGenomics/diversity/`
+:::
+
+Open R or switch to console if in R studio.
+
+```{r}
+library(tidyverse)
+
+setwd("~/my/directory/path/PopulationGenomics")
+
+meta <- read_csv("sample_metadata.csv")
+
+# one latitude per site, so we can order the sites north to south
+sites <- meta %>%
+  group_by(Site) %>%
+  summarise(Latitude = mean(Latitude))
+
+```
+
+## Nucleotide diversity
+
+Each population's results are in a separate file, so we read them all in and stack them into one table, taking the site name from the file name:
+
+```{r}
+# the files to read: pi/BOD.windowed.pi, pi/PGR.windowed.pi, ...
+pi_files <- list.files("pi", pattern = "windowed.pi$", full.names = TRUE)
+
+pi <- pi_files %>%
+  # name each file by its site, e.g. "pi/BOD.windowed.pi" -> "BOD"
+  set_names(str_remove(basename(pi_files), fixed(".windowed.pi"))) %>%
+  # read every file and stack them, putting the names in a new column, Site
+  map_dfr(read_tsv, .id = "Site", show_col_types = FALSE) %>%
+  left_join(sites, by = "Site") %>%
+  mutate(Site = fct_reorder(Site, -Latitude))
+
+# summarise pi for each site
+pi_summary <- pi %>%
+  group_by(Site, Latitude) %>%
+  summarise(n_windows = n(),
+            mean_pi   = mean(PI),
+            median_pi = median(PI),
+            .groups = "drop")
+pi_summary
+```
+
+```{r}
+pi_plot <- ggplot(pi, aes(Site, PI, fill = Site)) +
+  geom_boxplot(outlier.size = 0.5) +
+  scale_fill_viridis_d(end = 0.9) +
+  labs(x = "Population (north to south)", y = "Nucleotide diversity (pi) per 10 kb window") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ggsave("myresults/pi_by_site.png", plot = pi_plot, width = 7, height = 4)
+
+# does diversity change with latitude?
+pi_lat_plot <- ggplot(pi_summary, aes(Latitude, mean_pi, colour = Site)) +
+  geom_point(size = 3) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = "Latitude (°N)", y = "Mean nucleotide diversity (pi)", colour = "Site (north to south)") +
+  theme_bw()
+
+ggsave("myresults/pi_vs_latitude.png", plot = pi_lat_plot, width = 6, height = 4)
+```
+
+## Tajima's *D*
+
+```{r}
+taj_files <- list.files("tajD", pattern = "Tajima.D$", full.names = TRUE)
+
+tajd <- taj_files %>%
+  set_names(str_remove(basename(taj_files), fixed(".Tajima.D"))) %>%
+  # vcftools writes "nan" when D can't be calculated, so treat that as missing (NA)
+  map_dfr(read_tsv, .id = "Site", na = c("", "NA", "nan", "-nan"),
+          show_col_types = FALSE) %>%
+  filter(N_SNPS >= 5) %>%   # drop windows with too few SNPs to be reliable
+  left_join(sites, by = "Site") %>%
+  mutate(Site = fct_reorder(Site, -Latitude))
+
+tajd %>%
+  group_by(Site) %>%
+  summarise(n_windows = n(),
+            mean_D    = mean(TajimaD, na.rm = TRUE),
+            median_D  = median(TajimaD, na.rm = TRUE))
+
+tajd_plot <- ggplot(tajd, aes(Site, TajimaD, fill = Site)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_violin() +
+  geom_boxplot(width = 0.15, fill = "white", outlier.shape = NA) +
+  scale_fill_viridis_d(end = 0.9) +
+  labs(x = "Site (north to south)", y = "Tajima's D per 10 kb window") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ggsave("myresults/tajimasD_by_site.png", plot = tajd_plot, width = 7, height = 4)
+```
+
+## Diversity along the genome
+
+Finally, let's look at how π varies along one scaffold. We'll pick the scaffold with the most windows:
+
+```{r}
+top_scaffold <- pi %>%
+  count(CHROM, sort = TRUE) %>%
+  slice(1) %>%
+  pull(CHROM)
+
+scan_plot <- pi %>%
+  filter(CHROM == top_scaffold) %>%
+  ggplot(aes(BIN_START / 1e6, PI, colour = Site)) +
+  geom_line() +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = paste(top_scaffold, "position (Mb)"), y = "Nucleotide diversity (pi)",
+       colour = "Site (north to south)") +
+  theme_bw()
+
+ggsave("myresults/pi_along_scaffold.png", plot = scan_plot, width = 9, height = 4)
+```
+
+
+## Heterozygosity
+
+```{r}
+het_all <- read_tsv("all.het", show_col_types = FALSE) %>%
+  # rename the columns with brackets in their names, which are awkward to type
+  rename(ID = INDV, O_HOM = `O(HOM)`, E_HOM = `E(HOM)`) %>%
+  mutate(Ho = (N_SITES - O_HOM) / N_SITES) %>%
+  left_join(meta, by = "ID") %>%
+  mutate(Site = fct_reorder(Site, -Latitude))
+
+# check every individual matched the metadata: this should print 0
+sum(is.na(het_all$Site))
+
+ho_plot <- ggplot(het_all, aes(Site, Ho, colour = Site)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.6) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = "Site (north to south)", y = "Observed heterozygosity at SNPs") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ggsave("myresults/Ho_by_site.png", plot = ho_plot, width = 7, height = 4)
+```
+
+Now compare each individual's *F* from the all-samples run (pooled) with *F* from its own population's run (within):
+
+```{r}
+het_files <- list.files("het", pattern = "het$", full.names = TRUE)
+
+het_pop <- het_files %>%
+  set_names(str_remove(basename(het_files), fixed(".het"))) %>%
+  map_dfr(read_tsv, .id = "Site", show_col_types = FALSE) %>%
+  select(ID = INDV, F_within = F)
+
+f_compare <- het_all %>%
+  select(ID, Site, F_pooled = F) %>%
+  left_join(het_pop, by = "ID")
+
+f_compare %>%
+  group_by(Site) %>%
+  summarise(mean_F_pooled = mean(F_pooled), mean_F_within = mean(F_within))
+
+f_plot <- ggplot(f_compare, aes(F_within, F_pooled, colour = Site)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +   # the 1:1 line
+  geom_point(alpha = 0.7) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = "F within its own site", y = "F with all samples pooled",
+       colour = "Site (north to south)") +
+  theme_bw()
+f_plot
+
+ggsave("myresults/F_pooled_vs_within.png", plot = f_plot, width = 6, height = 5)
+```
+
+::: {.callout-tip title="Questions"}
+1.  Which sites are the most and least diverse? Is there a pattern with latitude, and does it fit with what you saw in the PCA and ADMIXTURE results?
+2.  Is Tajima's *D* mostly positive or mostly negative at each site? What might that suggest about the populations' histories? What else could explain it?
+3.  Are most points in the *F* plot above or below the 1:1 line?
+4.  Do any individuals have unusually low heterozygosity? What could cause that, biologically or technically?
+:::
+
+# Exercises
+
+1.  Re-run π and Tajima's *D* with 50 kb windows. How do the distributions change? What do you gain and lose with bigger windows?
+
+2.  Running the per-population loops on the full VCF takes a long time. Can you write a batch job to run it on the full data? 
+
+3.  For a challenge, read the pixy documentation. What would be needed to generate pi data here?

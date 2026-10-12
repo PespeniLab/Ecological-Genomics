@@ -1,0 +1,609 @@
+---
+title: "Population structure"
+subtitle: "Population genomics · Class 2"
+author: "Daniel Sadler"
+date: last-modified
+date-format: "D MMMM YYYY"
+editor: visual
+number-sections: true
+engine: knitr
+execute:
+  eval: false
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "Contents"
+    title-block-banner: true
+    code-copy: true
+    code-overflow: scroll
+    highlight-style: github
+    embed-resources: true
+    smooth-scroll: true
+  pdf:
+    toc: true
+    toc-depth: 2
+    papersize: letter
+    geometry:
+      - margin=2.2cm
+    fontsize: 11pt
+    linestretch: 1.15
+    colorlinks: true
+    highlight-style: github
+    include-in-header:
+      text: |
+        \usepackage{newunicodechar}
+        \newunicodechar{≥}{\ensuremath{\geq}}
+        \newunicodechar{≤}{\ensuremath{\leq}}
+        \newunicodechar{≈}{\ensuremath{\approx}}
+        \newunicodechar{−}{\ensuremath{-}}
+        \newunicodechar{→}{\ensuremath{\rightarrow}}
+        \newunicodechar{₁}{\textsubscript{1}}
+        \newunicodechar{₀}{\textsubscript{0}}
+        \definecolor{headingblue}{HTML}{1F5FA8}
+        \addtokomafont{disposition}{\color{headingblue}}
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breaksymbolleft={},commandchars=\\\{\}}
+        \makeatletter\@secpenalty=0\makeatother
+---
+
+::: {.callout-note title="Learning objectives"}
+By the end of this class you should be able to:
+
+- explain what linkage disequilibrium (LD) is and why we prune it before looking at population structure
+- LD-prune a VCF with `plink`
+- run a principal component analysis (PCA) with `plink` and plot it in R
+- run ADMIXTURE across a range of *K* and use cross-validation to choose which values to look at
+- interpret PCA and ADMIXTURE plots, and recognise their common pitfalls
+:::
+
+::: {.callout-tip title="Before you start"}
+You will need:
+
+- the full VCF from last class, `Lottia_gigantea_biallelic.vcf.gz`
+- the sample metadata file, `sample_metadata.csv`, which has one row per individual and the columns `ID`, `Site`, `Latitude` and `Longitude`. Copy it into the folder you will work in today (we set this up in @sec-setup)
+:::
+
+# Population structure
+
+One of the core aims of population genetics is to understand how genetic variation is distributed across space and time. Are individuals from different sites genetically distinct, or is everyone part of one big, well-mixed population (i.e., panmixia)? **Population structure** arises when individuals do not mate at random across the whole species range, for example because of limited dispersal, geographic barriers or local adaptation.
+
+We can describe population structure with many tools, including PCA, *F*~ST~ and the genetic diversity statistics you may remember from Genetics class. Today we use the two most common first looks at genome-wide data:
+
+| Method | What it does |
+|------------------------|------------------------------------------------|
+| PCA | Summarises genome-wide genotype variation into a few axes and plots each individual on them |
+| ADMIXTURE | Estimates the proportion of each individual's genome that comes from each of *K* ancestral populations |
+
+## Principal component analysis (PCA)
+
+Each of our individuals has a genotype at thousands of SNPs, so each one is a point in a space with thousands of dimensions, far too many to look at. PCA finds new axes through this space, the **principal components** (PCs), that capture as much of the variation as possible. PC1 explains the most variation, PC2 the next most, and so on, and each PC is uncorrelated with the ones before it. Plotting individuals on the first few PCs gives a two-dimensional picture of the data in which genetically similar individuals sit close together.
+
+PCA is usually the first thing we do with a new VCF, both to look for population structure and to spot outliers, such as mislabelled or contaminated samples, close relatives, or individuals with poor-quality data.
+
+## Linkage disequilibrium and pruning
+
+**Linkage disequilibrium (LD)** is the non-random association of alleles at different loci. SNPs that are close together on a chromosome tend to be inherited together, so their genotypes are correlated. We measure LD between two SNPs with **r²**, which runs from 0 (the two SNPs are independent) to 1 (they are perfectly correlated, so knowing the genotype at one tells you the genotype at the other).
+
+Before PCA and ADMIXTURE we **prune** (or thin) our SNPs so that the ones we keep are roughly independent of each other:
+
+- **PCA** does not formally assume independent SNPs, but if one region contains many SNPs in high LD (for example a region of low recombination, or a chromosomal inversion), the same signal gets counted many times over. That one region can then dominate a PC, which ends up describing a feature of one part of the genome rather than genome-wide population structure.
+- **ADMIXTURE** assumes the SNPs are in linkage equilibrium.
+- Fewer SNPs also means everything runs faster!
+
+::: {.callout-note title="What does it look like when LD drives a PC?"}
+A classic sign is a PC that splits individuals into three tight groups regardless of where they were sampled. This is sometimes a large inversion: the two homozygous arrangements and the heterozygotes. 
+:::
+
+We will use `plink` for both the pruning and the PCA.
+
+::: {.callout-note title="Fun fact"}
+PLINK isn't a forced backronym like many of the programs we use. The name refers to linkage analysis, with the "P" standing for population genetics.
+:::
+
+::: {.callout-warning title="plink was built for human data"}
+PLINK was written for human genetics, so it expects things our data don't have: chromosomes numbered 1–22 plus X, Y and MT, named SNPs, family IDs and sexes. We will add a few options to work around these.
+:::
+
+# Linkage pruning
+
+## Setting up {#sec-setup}
+
+First, make a folder for today's work and move into it. 
+
+Then store the location of the VCF in a **variable**, so we don't have to type the full path every time:
+
+```{bash}
+mkdir -p ~/path/to/my/directory/PopulationGenomics/Population structure 
+
+# where the VCF lives (make sure this is the right path!)
+DATA_DIR=/path/to/my/directory/PopulationGenomics
+VCF=$DATA_DIR/Lottia_gigantea_biallelic.vcf.gz
+
+# check the variable holds what you expect, and that the file is really there
+echo $VCF
+ls -lh $VCF
+```
+
+::: {.callout-note title="Using variables in bash"}
+- No spaces around the `=` when you set a variable: `VCF=file.vcf.gz` works, `VCF = file.vcf.gz` doesn't.
+- Put a `$` in front of the name to use it (`$VCF`). Without the `$`, bash treats `VCF` as plain text.
+- Variables only last for your current session. If you log out, open a new terminal or submit a batch job, you need to set them again.
+
+Using `$VCF` instead of the full path keeps our commands short, and if the file ever moves we only need to change one line, which makes the pipeline easier to repeat.
+:::
+
+::: {.callout-warning title="Never name a variable PATH"}
+`PATH` is a special variable: it is the list of folders bash searches for programs. If you overwrite it, bash can no longer find commands like `ls`, `awk` or `plink` and you will get `command not found` errors. If this happens, log out and back in to reset it. Pick your own descriptive names instead (e.g. `DATA_DIR`); by convention we write them in capitals.
+:::
+
+## Pruning with plink
+
+Load plink and check the version. We need **PLINK 1.9**: PLINK 2.0 (`plink2`) changed a lot of the syntax, and not all of the commands below will work with it.
+
+```{bash}
+module load plink
+plink --version   # note the version in your notebook
+
+plink --vcf $VCF --double-id --allow-extra-chr \
+    --set-missing-var-ids @:# \
+    --indep-pairwise 50 10 0.2 \
+    --out Lg_LD_0.2
+```
+
+The `\` at the end of a line tells bash that the command continues on the next line. It must be the very last character on the line, with no spaces after it.
+
+Let's run through what we asked plink to do. `plink --help` lists every option, and `plink --help indep-pairwise` gives the manual for just one.
+
+| Option | What it does |
+|-----------------------------|-------------------------------------------|
+| `--vcf $VCF` | The input VCF |
+| `--double-id` | plink expects a family ID and an individual ID for every sample, as it was built for pedigree data. We don't have families, so this uses the sample name as both |
+| `--allow-extra-chr` | plink expects human chromosome names (1–22, X, Y, MT). This tells it to accept other names, like our scaffolds (e.g. `KB201661.1`) |
+| `--set-missing-var-ids @:#` | Human SNPs usually have names (rs IDs). Ours don't (the ID column is `.`), so this names each SNP `scaffold:position` (`@` = chromosome, `#` = position), e.g. `KB201661.1:333` |
+| `--indep-pairwise 50 10 0.2` | The pruning itself: a window of **50 SNPs**, moved along **10 SNPs** at a time, removing SNPs until no pair in the window has **r² \> 0.2** |
+| `--out Lg_LD_0.2` | The prefix for the output files |
+
+::: {.callout-note title="How does a sliding window work?"}
+We calculate a statistic in a window, slide the window along by the step size, and repeat until we reach the end of the chromosome. In @fig-window the window is 10 SNPs wide and moves 2 SNPs at each step. Using windows means we only compare SNPs that are close together, where LD is strongest, rather than every possible pair of SNPs in the genome.
+
+For pruning, plink calculates r² between every pair of SNPs in the window. Whenever a pair has r² above the threshold it removes one of them, and it keeps going until no such pairs remain.
+
+The window size is a number of SNPs unless you add `kb` to define it in kilobases instead. plink then wants a step size of 1, e.g. `--indep-pairwise 50kb 1 0.2`.
+:::
+
+![A sliding window analysis with a window of 10 and a step of 2.](Images/Slidingwindow.png){#fig-window fig-align="center"}
+
+Pruning doesn't remove anything from the VCF itself. It writes out lists of which SNPs to keep and which to drop:
+
+| File | Contents |
+|-------------------------|-----------------------------------------------|
+| `Lg_LD_0.2.prune.in` | IDs of the SNPs to **keep** (LD pruned data) |
+| `Lg_LD_0.2.prune.out` | IDs of the SNPs to **remove** (SNPs in LD > 0.2) |
+| `Lg_LD_0.2.log` | Everything plink printed to the screen. Check here how many SNPs and samples were read in |
+| `Lg_LD_0.2.nosex` | The samples with no sex information, which is all of ours. plink expects sexes for human data, so you can ignore this file |
+
+```{bash}
+# how many SNPs did we keep and remove?
+wc -l Lg_LD_0.2.prune.in Lg_LD_0.2.prune.out
+```
+
+::: callout-note
+plink numbers our scaffolds internally, so its messages talk about "chromosome 27", "chromosome 28" and so on rather than using the scaffold names. This doesn't change anything.
+:::
+
+::: {.callout-tip title="Questions"}
+1.  A good way to understand code is to break it. What happens if you leave out `--allow-extra-chr`? What does the error say?
+2.  Why do you think we use sliding windows?
+3.  How many SNPs did we keep, and how many did we remove?
+4.  What happens to the number of SNPs kept if you change the r² threshold to 0.1 or 0.5? (Change the `--out` name too, so you don't overwrite your files!)
+5.  What other options could you use for LD pruning? Look up `--indep` and `--indep-pairphase` in the plink manual.
+:::
+
+# PCA
+
+## Running the PCA
+
+Now we run the PCA on just the SNPs we kept:
+
+```{bash}
+plink --vcf $VCF --double-id --allow-extra-chr --set-missing-var-ids @:# \
+    --extract Lg_LD_0.2.prune.in \
+    --make-bed --pca --out Lg_LD_0.2
+```
+
+The first four options are the same as before. The new ones are:
+
+| Option | What it does |
+|-----------------------------|-------------------------------------------|
+| `--extract Lg_LD_0.2.prune.in` | Only use the SNPs listed in this file, i.e. our pruned set |
+| `--make-bed` | Also save the pruned data in plink's binary format (`.bed`, `.bim`, `.fam`), which we need for ADMIXTURE |
+| `--pca` | Run the PCA. By default plink calculates the first 20 PCs; add a number to change this, e.g. `--pca 10` |
+
+This produces:
+
+| File | Contents |
+|-------------------------|-----------------------------------------------|
+| `Lg_LD_0.2.eigenvec` | The PCA results: one row per individual, with its family ID, individual ID, then its score on PC1 to PC20 |
+| `Lg_LD_0.2.eigenval` | The eigenvalue of each PC: how much of the variation it captures |
+| `Lg_LD_0.2.bed` | The genotypes of the pruned SNPs, stored in a compressed binary format. You can't read it as text, and it isn't the same thing as a BED file of genome intervals! |
+| `Lg_LD_0.2.bim` | One row per SNP: scaffold, SNP ID, genetic distance (0 = unknown), position, and the two alleles |
+| `Lg_LD_0.2.fam` | One row per individual: family ID, individual ID, father, mother, sex and phenotype (0 or -9 = unknown) |
+
+Each row of the `.eigenvec` file holds an individual's **eigenvector** values, i.e. its coordinates on each PC, which are what we plot. The **eigenvalues** tell us how much of the variation each PC captures. Take a quick look:
+
+```{bash}
+# first 3 individuals, first 4 PCs (cut -f keeps only the columns we ask for)
+head -n 3 Lg_LD_0.2.eigenvec | cut -d " " -f 1-6
+cat Lg_LD_0.2.eigenval
+```
+
+## Plotting the PCA in R
+
+::: {.callout-note title="Switching between Unix and R"}
+There are two ways to do this part of the class:
+
+1.  **RStudio:** switch between the Terminal tab (for bash) and the Console (for R).
+2.  **The command line:** load R and start it in your terminal:
+
+``` bash
+module load Rtidyverse/4.4.1
+R
+```
+
+This opens R in your terminal, without all the bells and whistles of RStudio. Type `q()` to quit and get back to bash.
+
+Whichever you use, R needs to be working in the folder with your plink output. Check where it is with `getwd()` and change it with `setwd()`.
+:::
+
+First load the packages we will use. Let's keep it simple with just the tidyverse:
+
+```{r}
+library(tidyverse)
+
+setwd("~/my/directory/path/PopulationGenomics")   # the folder with your plink output
+```
+
+Now read in the PCA results from plink:
+
+```{r}
+# the .eigenvec file has no column names, so col_names = FALSE (they become X1, X2, ...)
+pca <- read_table("Lg_LD_0.2.eigenvec", col_names = FALSE)
+
+# the .eigenval file is just a list of numbers, so scan() reads it into a vector
+eigenval <- scan("Lg_LD_0.2.eigenval")
+
+# columns 1 and 2 are the family and individual IDs, which are identical
+# thanks to --double-id, so drop column 2 (remember: [rows, columns])
+pca <- pca[, -2]
+
+# rename the columns: the first is the sample ID, the rest are PC1, PC2, ...
+# paste0() joins text and numbers, e.g. paste0("PC", 1:3) gives "PC1" "PC2" "PC3"
+names(pca)[1] <- "ID"
+names(pca)[2:ncol(pca)] <- paste0("PC", 1:(ncol(pca) - 1))
+
+head(pca)
+```
+
+### How much variation does each PC explain?
+
+First let's see how much of the variation each PC explains. This helps us decide how many PCs are worth looking at.
+
+```{r}
+# convert the eigenvalues to a percentage variance explained (pve)
+pve <- data.frame(PC = seq_along(eigenval),
+                  pve = eigenval / sum(eigenval) * 100)
+
+# make a folder for our figures
+dir.create("myresults/PCA", recursive = TRUE, showWarnings = FALSE)
+
+pve_plot <- ggplot(pve, aes(PC, pve)) +
+  geom_col() +
+  labs(x = "Principal component", y = "Percentage variance explained") +
+  theme_bw()
+pve_plot
+
+ggsave("myresults/PCA/variance_0.2.png", plot = pve_plot, width = 6, height = 4)
+```
+
+This is called a **scree plot**. Look for the point where the bars level off: PCs beyond that point are mostly noise. In genomic data each PC usually explains only a small percentage of the variation, because most variation across the genome is neutral and differs between individuals rather than between populations.
+
+### The PCA plot
+
+To colour the PCA by site we need to join it to our sample metadata. Joining matches the rows of the two tables using the `ID` column, so the IDs in `sample_metadata.csv` must match the sample names in the VCF exactly.
+
+```{r}
+meta <- read_csv("sample_metadata.csv")
+pca <- left_join(pca, meta, by = "ID")
+
+# check every individual matched a row in the metadata: this should print 0
+sum(is.na(pca$Site))
+
+# order the sites from north to south, so the legend follows the coast
+pca <- pca %>% mutate(Site = fct_reorder(Site, -Latitude))
+
+# axis labels with the % variance explained, e.g. "PC1 (4.2%)"
+pc1_lab <- paste0("PC1 (", round(pve$pve[1], 1), "%)")
+pc2_lab <- paste0("PC2 (", round(pve$pve[2], 1), "%)")
+
+pca_plot <- ggplot(pca, aes(PC1, PC2, colour = Site)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_colour_viridis_d(end = 0.9) +
+  labs(x = pc1_lab, y = pc2_lab, colour = "Site (north to south)") +
+  theme_bw()
+pca_plot
+
+ggsave("myresults/PCA/LG_PCA_0.2.png", plot = pca_plot, width = 8, height = 6)
+```
+
+::: {.callout-tip title="Reading a PCA plot"}
+Each point is one individual, and individuals that are close together are genetically similar. Ask yourself:
+
+- Do individuals cluster by site, or do the sites overlap?
+- Is there a gradient, for example from north to south along PC1?
+- Are there any individuals far away from everyone else? Why?
+
+**Remember** that PC axes have no units and their direction is arbitrary: a plot flipped left to right means exactly the same thing.
+:::
+
+### Is there a pattern with latitude?
+
+To plot PC1 and PC2 against latitude side by side, we first reshape the data with `pivot_longer()`. Instead of one column per PC, we get one row per individual per PC, which lets `facet_wrap()` give each PC its own panel:
+
+```{r}
+lat_plot <- pca %>%
+  select(ID, Site, Latitude, PC1, PC2) %>% ##Select columnns to use
+  pivot_longer(c(PC1, PC2), names_to = "PC", values_to = "score") %>%
+  ggplot(aes(Latitude, score, colour = Site)) +
+  geom_point(size = 2, alpha = 0.6) +
+  facet_wrap(~PC, ncol = 1, scales = "free_y") + ##plots PC1 and PC2 seperately
+  scale_colour_viridis_d(end = 0.9) + 
+  labs(x = "Latitude (°N)", y = "PC score", colour = "Site (north to south)") +
+  theme_bw()
+lat_plot
+
+ggsave("myresults/PCA/PC_vs_latitude_0.2.png", plot = lat_plot, width = 8, height = 6)
+```
+
+### Bonus: a map of our sites
+
+We can also map our sites and put the map next to the PCA (might be useful for your project!). `map_data()` needs the `maps` package to be installed (we don't need to load it with `library()`), and `patchwork` lets us combine ggplots. If either isn't installed, run `install.packages(c("maps", "patchwork"))` first.
+
+```{r}
+library(patchwork)
+
+world <- map_data("world")
+sites <- pca %>% distinct(Site, Latitude, Longitude)
+
+map_plot <- ggplot() +
+  geom_polygon(data = world, aes(long, lat, group = group),
+               fill = "grey90", colour = "grey60") +
+  geom_point(data = sites, aes(Longitude, Latitude, colour = Site), size = 3) +
+  scale_colour_viridis_d(end = 0.9) +
+  # zoom to our sites, with a 2-degree margin all round
+  coord_quickmap(xlim = range(sites$Longitude) + c(-2, 2),
+                 ylim = range(sites$Latitude) + c(-2, 2)) +
+  labs(x = "Longitude", y = "Latitude", colour = "Site (north to south)") +
+  theme_bw()
+map_plot
+
+# with patchwork, + puts plots side by side
+# we hide the map's legend, as the PCA's legend already shows the sites
+map_pca <- map_plot + theme(legend.position = "none") + pca_plot
+map_pca
+
+ggsave("myresults/PCA/map_and_PCA_0.2.png", plot = map_pca, width = 12, height = 5)
+```
+
+# ADMIXTURE
+
+ADMIXTURE takes a model-based approach to population structure. It assumes our individuals descend from *K* ancestral populations, each with its own allele frequencies, and estimates the proportion of each individual's genome that comes from each of them (its **ancestry proportions**). It uses the same model as the program STRUCTURE but is much faster.
+
+We don't know the true *K*, so we run ADMIXTURE for a range of values and use **cross-validation** to see which ones fit the data best.
+
+## Preparing the input
+
+**STOP!!** Do not run this on the full VCF! ADMIXTURE takes a long time to run even with batchjobs, so I have already done this for you! If you would like to follow along you can try this on your randomly subsetted data and only do *K* = 1-3
+
+ADMIXTURE only accepts chromosome names that are integers (another program built with human data in mind!). Given our scaffold names, it stops with the error `Invalid chromosome code! Use integers.` ADMIXTURE doesn't use SNP positions, so we can simply set the chromosome column of the `.bim` file to `0` for every SNP:
+
+```{bash}
+# keep a copy of the original .bim file (only run this line once! see below)
+cp Lg_LD_0.2.bim Lg_LD_0.2.bim.orig
+
+# read the original, replace column 1 (the chromosome) with 0, and write the new .bim
+# OFS="\t" keeps the columns tab-separated
+awk 'BEGIN{OFS="\t"} {$1="0"; print}' Lg_LD_0.2.bim.orig > Lg_LD_0.2.bim
+
+# compare before and after
+head -n 3 Lg_LD_0.2.bim.orig
+head -n 3 Lg_LD_0.2.bim
+```
+
+::: {.callout-warning title="Why only once?"}
+After the first run, `Lg_LD_0.2.bim` already has 0s in it. Running the `cp` again would overwrite your backup of the original scaffold names with the edited version. (If you re-run the PCA step, plink makes a fresh `.bim` with scaffold names, so then you can safely run both lines again.)
+:::
+
+## Running ADMIXTURE
+
+We run ADMIXTURE once for each value of *K* from 1 to 10, using a `for` loop:
+
+```{bash}
+module load admixture
+
+INPUT="Lg_LD_0.2.bed"
+K_MIN=1
+K_MAX=10
+THREADS=1   # we can increase this when running as a batch job
+
+# start with an empty results file (>> below adds to the end of a file,
+# so without this, re-running the loop would add duplicate rows)
+rm -f cv_errors.tsv
+
+for K in $(seq ${K_MIN} ${K_MAX}); do
+    admixture --cv -j${THREADS} "${INPUT}" ${K} | tee "admixture_K${K}.out"
+    CV=$(grep "CV error" "admixture_K${K}.out" | awk '{print $NF}')
+    echo -e "${K}\t${CV}" >> cv_errors.tsv
+done
+```
+
+Here is what each part does:
+
+| Code | What it does |
+|-----------------------------|-------------------------------------------|
+| `for K in $(seq 1 10); do … done` | A **for loop**: run the commands between `do` and `done` once for each value of `K`. `seq` prints the numbers 1 to 10 |
+| `admixture … "${INPUT}" ${K}` | Run ADMIXTURE on our pruned data, assuming `K` ancestral populations |
+| `--cv` | Cross-validation (5-fold by default): ADMIXTURE hides a fifth of the genotypes, fits the model to the rest, and checks how well it predicts the hidden ones, repeating this five times. A lower CV error means the model predicts the data better |
+| `-j${THREADS}` | How many threads (CPUs) to use |
+| `tee "admixture_K${K}.out"` | Takes ADMIXTURE's output through the pipe and shows it on screen *and* saves a copy to a file |
+| `grep "CV error"` | Finds the line in that file that looks like `CV error (K=2): 0.52745` |
+| `awk '{print $NF}'` | Keeps only the last field of that line, the error itself (`NF` is the number of fields, so `$NF` is the last one) |
+| `echo -e "${K}\t${CV}" >> cv_errors.tsv` | Adds a line with *K* and its CV error (separated by a tab, `\t`) to the end of `cv_errors.tsv` |
+
+For each *K*, ADMIXTURE writes two files:
+
+- `Lg_LD_0.2.K.Q`: the **ancestry proportions**, with one row per individual (in the same order as the `.fam` file) and one column per ancestral population. Each row adds up to 1.
+- `Lg_LD_0.2.K.P`: the allele frequency of each SNP in each ancestral population.
+
+### Running it as a batch job
+
+With all our samples, this loop can take a few hours, so it's better to run it as a batch job with more CPUs (see Class 1). I have already done this for you.
+
+```{bash}
+#!/bin/bash
+#SBATCH --job-name=admixture
+#SBATCH --partition=general
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --output=./logs/%x.%j.out
+#SBATCH --error=./logs/%x.%j.err
+#SBATCH --mail-type=END
+#SBATCH --mail-user=NETID@uvm.edu
+
+cd ~/popgen/class2
+module load admixture
+
+INPUT="Lg_LD_0.2.bed"
+THREADS=${SLURM_CPUS_PER_TASK}   # use as many threads as CPUs we asked for
+
+rm -f cv_errors.tsv
+for K in $(seq 1 10); do
+    admixture --cv -j${THREADS} "${INPUT}" ${K} | tee "admixture_K${K}.out"
+    CV=$(grep "CV error" "admixture_K${K}.out" | awk '{print $NF}')
+    echo -e "${K}\t${CV}" >> cv_errors.tsv
+done
+```
+
+## Choosing *K*
+
+Now back to R to visualise! 
+
+Lets copy over the files we need:
+
+```{bash}
+cp /gpfs1/cl/biol3990/PopulationGenomics/admixture* /path/to/my/directory/PopulationGenomics
+```
+
+Now, let's look at the cross-validation errors first:
+
+```{r}
+library(tidyverse)
+
+dir.create("myresults/ADMIXTURE", recursive = TRUE, showWarnings = FALSE)
+
+cv <- read_tsv("cv_errors.tsv", col_names = c("K", "CV_error"))
+
+cv_plot <- ggplot(cv, aes(K, CV_error)) +
+  geom_line() +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = cv$K) +
+  labs(x = "K (number of ancestral populations)", y = "Cross-validation error") +
+  theme_bw()
+cv_plot
+
+ggsave("myresults/ADMIXTURE/cv_error.png", plot = cv_plot, width = 6, height = 4)
+```
+
+Look for the *K* with the lowest CV error, or the point where the curve flattens out.
+
+::: {.callout-warning title="Don't over-interpret K"}
+- ADMIXTURE always finds *K* clusters, even when there is no real structure. Continuous variation, such as isolation by distance along a coastline, gets chopped into arbitrary clusters, and individuals in between look "admixed".
+- The *K* with the lowest CV error is the model that best predicts the data. That isn't necessarily the true number of populations.
+- Uneven sampling matters: sites with many samples tend to get a cluster of their own.
+- So look at several values of *K* rather than just the "best" one, and check that the results agree with your PCA.
+:::
+
+## Plotting ancestry proportions
+
+The `.Q` files have no sample IDs: row 1 is the first individual in the `.fam` file, row 2 the second, and so on. So we take the IDs from column 2 of the `.fam` file. We then read the results for *K* = 1 to 5 and stack them into one table, so that we can plot them together:
+
+```{r}
+fam  <- read_table("Lg_LD_0.2.fam", col_names = FALSE)
+meta <- read_csv("sample_metadata.csv")
+
+# a function that reads the .Q file for one value of K and reshapes it
+# into one row per individual per cluster
+read_q <- function(K) {
+  q <- read_table(paste0("Lg_LD_0.2.", K, ".Q"), col_names = FALSE)
+  names(q) <- paste0("Cluster", 1:K)
+  q %>%
+    mutate(ID = fam$X2, K = K) %>%
+    pivot_longer(starts_with("Cluster"), names_to = "Cluster", values_to = "Ancestry")
+}
+
+# map_dfr() runs read_q() for each K and binds the results together row-wise
+# (change 2:5 to look at other values of K)
+q_all <- map_dfr(1:5, read_q) %>%
+  left_join(meta, by = "ID") %>%
+  # order sites north to south, as in the PCA plots
+  mutate(Site = fct_reorder(Site, -Latitude),
+         K = paste0("K = ", K))
+
+# check every individual matched the metadata: this should print 0
+sum(is.na(q_all$Site))
+
+admix_plot <- ggplot(q_all, aes(ID, Ancestry, fill = Cluster)) +
+  geom_col(width = 1) +
+  facet_grid(K ~ Site, scales = "free_x", space = "free_x") +
+  scale_y_continuous(expand = c(0, 0), breaks = c(0, 0.5, 1)) +
+  labs(x = NULL, y = "Ancestry proportion") +
+  theme_minimal() +
+  theme(axis.text.x     = element_blank(),         # too many sample names to read
+        panel.grid      = element_blank(),
+        panel.spacing.x = unit(0.1, "lines"),      # thin gap between sites
+        panel.spacing.y = unit(0.8, "lines"),      # gap between values of K
+        strip.text.x    = element_text(angle = 90, hjust = 0),
+        legend.position = "none")
+admix_plot
+
+ggsave("myresults/ADMIXTURE/admixture_K1-5.png", plot = admix_plot,
+       width = 12, height = 7)
+```
+
+Each vertical bar is one individual, and its colours show the proportion of its genome assigned to each of the *K* ancestral populations.
+
+::: callout-note
+Cluster numbers aren't consistent between runs. "Cluster 1" at *K* = 3 isn't necessarily the same ancestral population as "Cluster 1" at *K* = 4, so the colours can swap between rows.
+:::
+
+::: {.callout-tip title="Questions"}
+1.  Which *K* has the lowest CV error? Does the CV curve have a clear minimum?
+2.  As *K* increases, which sites split off first?
+3.  Do the ADMIXTURE results agree with your PCA? For example, does the first split (*K* = 2) follow PC1?
+:::
+
+# Exercises
+
+1.  Can you run the pruning and PCA as a batch job? (Remember to set your variables inside the script!)
+
+2.  Re-run the pruning and PCA with r² thresholds of 0.1 and 0.5. Does the PCA change?
+
+3.  Is it ever woth running a PCA on raw data without LD pruning?
+
+4. Why might we expect population structure with latitude?
+
+
