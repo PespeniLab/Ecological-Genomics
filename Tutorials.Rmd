@@ -26,3 +26,8 @@ fontsize: 18pt
 * [Day 5: Wrap up testing for differences in gene expression and visualization and test for GO enrichment](Fall2026/tutorials/EcoGen2026_Transcriptomics5_DGEwrapupToGO.html)
 
 * [Day 6: Test for GO enrichment and identify correlated gene expression modules](Fall2026/tutorials/EcoGen2026_Transcriptomics6_GOandWGCNA.html)
+
+**Population Genomics Module**
+
+* [Section 1: Introduction to the study system](Fall2026/tutorials/Studysystem.html)
+* [Section 2: Working with a VCF](Fall2026/tutorials/VCFnewqmd.html)
