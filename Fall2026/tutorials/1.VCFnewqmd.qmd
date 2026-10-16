@@ -120,7 +120,7 @@ cp /gpfs1/cl/biol3990/PopulationGenomics/VCF/*.vcf* /path/to/my/directory/Popula
 VCFs are usually compressed with `bgzip` (hence `.vcf.gz`) because they are often very large. `zcat` decompresses the file and sends it to the screen, and `head` keeps only the first 20 lines:
 
 ``` bash
-zcat Lottia_gigantea_biallelic.vcf.gz | head -n 20
+zcat Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 20
 ```
 
 You will mostly see a stream of `##contig` lines (long lines have been shortened with `...` here):
@@ -158,7 +158,7 @@ module load bcftools
 bcftools --version   # record the versions you use in your methods
 bcftools -h          # -h or --help usually gets you the manual
 
-bcftools head Lottia_gigantea_biallelic.vcf.gz
+bcftools head Lottia_gigantea_pl_flt3.renamed.vcf.gz
 ```
 
 ::: {.callout-note title="Accessing the manual"}
@@ -168,7 +168,7 @@ A quick note on finding the manual for software, sometimes `-h` wont work as it 
 Again we get a big string of contig lines. Let's pipe (`|`) the output into `grep` to remove them:
 
 ``` bash
-bcftools head Lottia_gigantea_biallelic.vcf.gz | grep -v "##contig="
+bcftools head Lottia_gigantea_pl_flt3.renamed.vcf.gz | grep -v "##contig="
 ```
 
 ::: {.callout-note title="grep"}
@@ -178,14 +178,14 @@ bcftools head Lottia_gigantea_biallelic.vcf.gz | grep -v "##contig="
 Better. Now you can see how the file was made and what each field means. Each `##INFO` and `##FORMAT` line defines one of the tags used in the body of the file:
 
 ``` bash
-bcftools view -h Lottia_gigantea_biallelic.vcf.gz | grep "^##INFO"
-bcftools view -h Lottia_gigantea_biallelic.vcf.gz | grep "^##FORMAT"
+bcftools view -h Lottia_gigantea_pl_flt3.renamed.vcf.gz | grep "^##INFO"
+bcftools view -h Lottia_gigantea_pl_flt3.renamed.vcf.gz | grep "^##FORMAT"
 ```
 
 `bcftools` also writes every command it runs into the header (in lines containing `Command=`), so you can often reconstruct how a file was made and filtered:
 
 ``` bash
-bcftools view -h Lottia_gigantea_biallelic.vcf.gz | grep "Command="
+bcftools view -h Lottia_gigantea_pl_flt3.renamed.vcf.gz | grep "Command="
 ```
 
 ## The VCF columns
@@ -213,10 +213,10 @@ After `FORMAT` there is a long stream of names, e.g. `BOD08`, `BOD09`. What do y
 The VCF also stores our sample names, which we can list with `bcftools query -l`:
 
 ``` bash
-bcftools query -l Lottia_gigantea_biallelic.vcf.gz
+bcftools query -l Lottia_gigantea_pl_flt3.renamed.vcf.gz
 
 # count the samples by piping into wc -l (counts lines)
-bcftools query -l Lottia_gigantea_biallelic.vcf.gz | wc -l
+bcftools query -l Lottia_gigantea_pl_flt3.renamed.vcf.gz | wc -l
 ```
 
 ::: {.callout-tip title="Question"}
@@ -229,16 +229,16 @@ Let's look at the first few SNPs to see what our data look like. The `-H` option
 
 ``` bash
 # just the first record
-bcftools view -H Lottia_gigantea_biallelic.vcf.gz | head -n 1
+bcftools view -H Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 1
 
 # the first 5 records; less -S stops long lines wrapping (press q to exit)
-bcftools view -H Lottia_gigantea_biallelic.vcf.gz | head -n 5 | less -S
+bcftools view -H Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 5 | less -S
 
 # -v selects variant types: here SNPs only
-bcftools view -H -v snps Lottia_gigantea_biallelic.vcf.gz | head -n 5 | less -S
+bcftools view -H -v snps Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 5 | less -S
 
 # what do you notice when we ask for indels?
-bcftools view -H -v indels Lottia_gigantea_biallelic.vcf.gz | head -n 5 | less -S
+bcftools view -H -v indels Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 5 | less -S
 ```
 
 ::: {.callout-warning title="Always limit the output"}
@@ -289,13 +289,13 @@ To count the SNPs in a VCF we can pipe (`|`) our `bcftools` output into `wc -l`.
 Because the VCF is compressed with `bgzip`, `bcftools` can jump straight to a region of interest without reading the whole file, using the `-r` option with `chromosome:start-end`. This needs an index file (`.csi` or `.tbi`) next to the VCF; if there isn't one, `bcftools index` will make it, (I have already generated the index for you)
 
 ``` bash
-ls Lottia_gigantea_biallelic.vcf.gz*   # is there a .csi or .tbi index?
+ls Lottia_gigantea_pl_flt3.renamed.vcf.gz*   # is there a .csi or .tbi index?
 
 # all SNPs between positions 8,000 and 9,000 on scaffold KB201661.1
-bcftools view -H -r KB201661.1:8000-9000 Lottia_gigantea_biallelic.vcf.gz
+bcftools view -H -r KB201661.1:8000-9000 Lottia_gigantea_pl_flt3.renamed.vcf.gz
 
 # for a large region, pipe into head
-bcftools view -H -r KB201661.1:8000-9000 Lottia_gigantea_biallelic.vcf.gz \
+bcftools view -H -r KB201661.1:8000-9000 Lottia_gigantea_pl_flt3.renamed.vcf.gz \
     | head -n 5
 ```
 
@@ -306,7 +306,7 @@ bcftools view -H -r KB201661.1:8000-9000 Lottia_gigantea_biallelic.vcf.gz \
 ``` bash
 # scaffold, position, alleles and every individual's genotype for the first 5 SNPs
 bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' \
-    Lottia_gigantea_biallelic.vcf.gz | head -n 5
+    Lottia_gigantea_pl_flt3.renamed.vcf.gz | head -n 5
 ```
 
 # Summary statistics with vcftools
@@ -314,9 +314,9 @@ bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n' \
 Switching gears, let's get some basic statistics from our VCF using `vcftools`. To save time in class we will use a subset containing a random 1% of the variants, which you can also use for many of the downstream analyses yourself. The subset was made like this (you don't need to run it):
 
 ``` bash
-bcftools view Lottia_gigantea_biallelic.vcf.gz \
+bcftools view Lottia_gigantea_pl_flt3.renamed.vcf.gz \
     | vcfrandomsample -r 0.01 \
-    | bgzip -c > Lottia_gigantea_biallelic_sub0.01.vcf.gz
+    | bgzip -c > Lottia_gigantea_flt3_sub0.01.vcf.gz
 ```
 
 Now calculate the proportion of missing data and the mean depth for each individual:
@@ -325,10 +325,10 @@ Now calculate the proportion of missing data and the mean depth for each individ
 module load vcftools
 
 # proportion of missing genotypes per individual -> missing_data.imiss
-vcftools --gzvcf Lottia_gigantea_biallelic_sub0.01.vcf.gz --missing-indv --out missing_data
+vcftools --gzvcf Lottia_gigantea_flt3_sub0.01.vcf.gz --missing-indv --out missing_data
 
 # mean depth per individual -> depth_data.idepth
-vcftools --gzvcf Lottia_gigantea_biallelic_sub0.01.vcf.gz --depth --out depth_data
+vcftools --gzvcf Lottia_gigantea_flt3_sub0.01.vcf.gz --depth --out depth_data
 ```
 
 In `missing_data.imiss`, the `F_MISS` column is the proportion of sites with a missing genotype for each individual; in `depth_data.idepth`, `MEAN_DEPTH` is each individual's average read depth. Individuals with lots of missing data or very low depth can distort the population structure analyses we will run next, so it is worth plotting these in R:
@@ -336,16 +336,27 @@ In `missing_data.imiss`, the `F_MISS` column is the proportion of sites with a m
 ``` r
 library(ggplot2)
 
-imiss  <- read.delim("missing_data.imiss")
-idepth <- read.delim("depth_data.idepth")
+##REPLACE WITH YOUR OWN PATH##
+setwd("/users/d/s/dsadler1/scratch/EcolGenom2026/PopulationGenomics26")
 
-ggplot(imiss, aes(x = F_MISS)) +
+##Notice here the mydata sub directory!
+imiss  <- read.delim("mydata/missing_data.imiss")
+idepth <- read.delim("mydata/depth_data.idepth")
+
+p1<-ggplot(imiss, aes(x = F_MISS)) +
   geom_histogram(bins = 30) +
   labs(x = "Proportion of missing genotypes", y = "Number of individuals")
 
-ggplot(idepth, aes(x = MEAN_DEPTH)) +
+p2<-ggplot(idepth, aes(x = MEAN_DEPTH)) +
   geom_histogram(bins = 30) +
   labs(x = "Mean depth", y = "Number of individuals")
+  
+###REPLACE WITH YOUR PATH TO MY RESULTS
+OUTDIR="/users/d/s/dsadler1/scratch/EcolGenom2026/PopulationGenomics26/myresults"
+
+ggsave(p1, file = paste0(OURDIR,"/missing_data.png"))
+ggsave(p2, file = paste0(OURDIR,"/depth_data.png"))
+
 ```
 
 # Your first batch job
@@ -372,6 +383,8 @@ A batch script is a normal bash script with a header of `#SBATCH` lines telling 
 | `#SBATCH --mail-type=ALL` | Emails you when the job starts and finishes; use `END` to only hear when it finishes |
 | `#SBATCH --mail-user=NETID@uvm.edu` | The email address to send these to (use your own!) |
 
+You can use your favourite text editor to create this script, I use `nano` from command line, others use `vim`. Or use a text editor on your own computer e.g., BBedit or Notepad++, or just create a .txt file on Rstudio! The last option might be the easiest for this class.
+
 Save the following as `vcf_stats.sh`:
 
 ``` bash
@@ -387,10 +400,19 @@ Save the following as `vcf_stats.sh`:
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=NETID@uvm.edu
 
+module load gcc
 module load vcftools
 
-vcftools --gzvcf Lottia_gigantea_biallelic.vcf.gz --missing-indv --out missing_data
-vcftools --gzvcf Lottia_gigantea_biallelic.vcf.gz --depth --out depth_data
+##set your path to where the data is, change to your own path!!
+INDIR="/users/d/s/dsadler1/scratch/EcolGenom2026/PopulationGenomics26/mydata"
+##set your path to where the data will be stored, change to your own path!!
+OUTDIR="/users/d/s/dsadler1/scratch/EcolGenom2026/PopulationGenomics26/myresults"
+
+##change to directory where data is
+cd $INDIR
+##change out directory to where the results will go
+vcftools --gzvcf Lottia_gigantea_pl_flt3.renamed.vcf.gz --missing-indv --out $OUTDIR/missing_data
+vcftools --gzvcf Lottia_gigantea_pl_flt3.renamed.vcf.gz --depth --out $OUTDIR/depth_data
 ```
 
 Then submit and keep an eye on it:
