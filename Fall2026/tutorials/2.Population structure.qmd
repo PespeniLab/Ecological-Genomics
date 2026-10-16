@@ -62,8 +62,12 @@ By the end of this class you should be able to:
 ::: {.callout-tip title="Before you start"}
 You will need:
 
-- the full VCF from last class, `Lottia_gigantea_biallelic.vcf.gz`
+- the full VCF from last class, `Lottia_gigantea_pl_flt3.renamed.vcf.gz`
 - the sample metadata file, `sample_metadata.csv`, which has one row per individual and the columns `ID`, `Site`, `Latitude` and `Longitude`. Copy it into the folder you will work in today (we set this up in @sec-setup)
+
+remember the command is `cp` <`target directory>/<target file`> <`my directory/mydata`> 
+
+Code in carrots <> should be changed accordingly. Sample metadata is at: `/gpfs1/cl/biol3990/PopulationGenomics/sample_metadata.csv`
 :::
 
 # Population structure
@@ -116,15 +120,19 @@ First, make a folder for today's work and move into it.
 Then store the location of the VCF in a **variable**, so we don't have to type the full path every time:
 
 ```{bash}
-mkdir -p ~/path/to/my/directory/PopulationGenomics/Population structure 
+##We should start organising our results file a bit, lets make a sub directory called PopulationStructure
+mkdir -p ~/path/to/my/directory/PopulationGenomics/myresults/PopulationStructure 
 
 # where the VCF lives (make sure this is the right path!)
-DATA_DIR=/path/to/my/directory/PopulationGenomics
-VCF=$DATA_DIR/Lottia_gigantea_biallelic.vcf.gz
+DATA_DIR=/path/to/my/directory/PopulationGenomics/mydata
+VCF=$DATA_DIR/Lottia_gigantea_pl_flt3.renamed.vcf.gz
 
 # check the variable holds what you expect, and that the file is really there
 echo $VCF
 ls -lh $VCF
+
+cd $DATA_DIR
+pwd ##check you are in the right place
 ```
 
 ::: {.callout-note title="Using variables in bash"}
@@ -263,7 +271,7 @@ First load the packages we will use. Let's keep it simple with just the tidyvers
 ```{r}
 library(tidyverse)
 
-setwd("~/my/directory/path/PopulationGenomics")   # the folder with your plink output
+setwd("~/my/directory/path/PopulationGenomics/mydata")   # the folder with your plink output
 ```
 
 Now read in the PCA results from plink:
@@ -297,7 +305,6 @@ pve <- data.frame(PC = seq_along(eigenval),
                   pve = eigenval / sum(eigenval) * 100)
 
 # make a folder for our figures
-dir.create("myresults/PCA", recursive = TRUE, showWarnings = FALSE)
 
 pve_plot <- ggplot(pve, aes(PC, pve)) +
   geom_col() +
@@ -305,7 +312,9 @@ pve_plot <- ggplot(pve, aes(PC, pve)) +
   theme_bw()
 pve_plot
 
-ggsave("myresults/PCA/variance_0.2.png", plot = pve_plot, width = 6, height = 4)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(pve_plot, file=paste0(OUTDIR, "/variance_0.2.png"), width = 6, height = 4)
 ```
 
 This is called a **scree plot**. Look for the point where the bars level off: PCs beyond that point are mostly noise. In genomic data each PC usually explains only a small percentage of the variation, because most variation across the genome is neutral and differs between individuals rather than between populations.
@@ -333,9 +342,10 @@ pca_plot <- ggplot(pca, aes(PC1, PC2, colour = Site)) +
   scale_colour_viridis_d(end = 0.9) +
   labs(x = pc1_lab, y = pc2_lab, colour = "Site (north to south)") +
   theme_bw()
-pca_plot
 
-ggsave("myresults/PCA/LG_PCA_0.2.png", plot = pca_plot, width = 8, height = 6)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(pca_plot, file = paste0(OUTDIR, "/Lg_0.2_pca.png"), width = 8, height = 6)
 ```
 
 ::: {.callout-tip title="Reading a PCA plot"}
@@ -361,10 +371,12 @@ lat_plot <- pca %>%
   facet_wrap(~PC, ncol = 1, scales = "free_y") + ##plots PC1 and PC2 seperately
   scale_colour_viridis_d(end = 0.9) + 
   labs(x = "Latitude (°N)", y = "PC score", colour = "Site (north to south)") +
-  theme_bw()
-lat_plot
+  theme_bw()+
+  coord_flip()
 
-ggsave("myresults/PCA/PC_vs_latitude_0.2.png", plot = lat_plot, width = 8, height = 6)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(lat_plot, file = paste0(OUTDIR, "/Lg_0.2_pca_latitude.png"), width = 8, height = 6)
 ```
 
 ### Bonus: a map of our sites
@@ -372,7 +384,7 @@ ggsave("myresults/PCA/PC_vs_latitude_0.2.png", plot = lat_plot, width = 8, heigh
 We can also map our sites and put the map next to the PCA (might be useful for your project!). `map_data()` needs the `maps` package to be installed (we don't need to load it with `library()`), and `patchwork` lets us combine ggplots. If either isn't installed, run `install.packages(c("maps", "patchwork"))` first.
 
 ```{r}
-library(patchwork)
+library(patchwork) ##combined plots
 
 world <- map_data("world")
 sites <- pca %>% distinct(Site, Latitude, Longitude)
@@ -387,14 +399,15 @@ map_plot <- ggplot() +
                  ylim = range(sites$Latitude) + c(-2, 2)) +
   labs(x = "Longitude", y = "Latitude", colour = "Site (north to south)") +
   theme_bw()
-map_plot
 
 # with patchwork, + puts plots side by side
 # we hide the map's legend, as the PCA's legend already shows the sites
 map_pca <- map_plot + theme(legend.position = "none") + pca_plot
 map_pca
 
-ggsave("myresults/PCA/map_and_PCA_0.2.png", plot = map_pca, width = 12, height = 5)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(map_pca, file = paste0(OUTDIR, "/Lg_0.2_pca_map.png"), width = 8, height = 6)
 ```
 
 # ADMIXTURE
@@ -513,7 +526,7 @@ Now, let's look at the cross-validation errors first:
 ```{r}
 library(tidyverse)
 
-dir.create("myresults/ADMIXTURE", recursive = TRUE, showWarnings = FALSE)
+setwd("~/my/directory/path/PopulationGenomics/mydata")   # the folder with your plink output
 
 cv <- read_tsv("cv_errors.tsv", col_names = c("K", "CV_error"))
 
@@ -523,12 +536,15 @@ cv_plot <- ggplot(cv, aes(K, CV_error)) +
   scale_x_continuous(breaks = cv$K) +
   labs(x = "K (number of ancestral populations)", y = "Cross-validation error") +
   theme_bw()
-cv_plot
 
-ggsave("myresults/ADMIXTURE/cv_error.png", plot = cv_plot, width = 6, height = 4)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(cv_plot, file = paste0(OUTDIR, "/cv_error.png"), width = 6, height = 4)
+
 ```
 
 Look for the *K* with the lowest CV error, or the point where the curve flattens out.
+
 
 ::: {.callout-warning title="Don't over-interpret K"}
 - ADMIXTURE always finds *K* clusters, even when there is no real structure. Continuous variation, such as isolation by distance along a coastline, gets chopped into arbitrary clusters, and individuals in between look "admixed".
@@ -578,10 +594,11 @@ admix_plot <- ggplot(q_all, aes(ID, Ancestry, fill = Cluster)) +
         panel.spacing.y = unit(0.8, "lines"),      # gap between values of K
         strip.text.x    = element_text(angle = 90, hjust = 0),
         legend.position = "none")
-admix_plot
 
-ggsave("myresults/ADMIXTURE/admixture_K1-5.png", plot = admix_plot,
-       width = 12, height = 7)
+OUTDIR="~/my/directory/path/PopulationGenomics/myresults/PopulationStructure"
+
+ggsave(admix_plot, file = paste0(OUTDIR, "/admixture_K1-5.png"), width = 12, height = 7)
+
 ```
 
 Each vertical bar is one individual, and its colours show the proportion of its genome assigned to each of the *K* ancestral populations.

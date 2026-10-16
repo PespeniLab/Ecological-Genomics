@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Daniel Sadler">
-<meta name="dcterms.date" content="2026-10-11">
+<meta name="dcterms.date" content="2026-10-16">
 
 <title>Population structure</title>
 <style>
@@ -2225,7 +2225,7 @@ vertical-align: -.125em;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">11 October 2026</p>
+        <p class="date">16 October 2026</p>
       </div>
     </div>
     
@@ -2314,9 +2314,11 @@ vertical-align: -.125em;
 <div class="callout-body-container callout-body">
 <p>You will need:</p>
 <ul>
-<li>the full VCF from last class, <code>Lottia_gigantea_biallelic.vcf.gz</code></li>
+<li>the full VCF from last class, <code>Lottia_gigantea_pl_flt3.renamed.vcf.gz</code></li>
 <li>the sample metadata file, <code>sample_metadata.csv</code>, which has one row per individual and the columns <code>ID</code>, <code>Site</code>, <code>Latitude</code> and <code>Longitude</code>. Copy it into the folder you will work in today (we set this up in <a href="#sec-setup" class="quarto-xref">Section 2.1</a>)</li>
 </ul>
+<p>remember the command is <code>cp</code> &lt;<code>target directory&gt;/&lt;target file</code>&gt; &lt;<code>my directory/mydata</code>&gt;</p>
+<p>Code in carrots &lt;&gt; should be changed accordingly. Sample metadata is at: <code>/gpfs1/cl/biol3990/PopulationGenomics/sample_metadata.csv</code></p>
 </div>
 </div>
 <section id="population-structure" class="level1" data-number="1">
@@ -2408,15 +2410,19 @@ vertical-align: -.125em;
 <p>First, make a folder for today’s work and move into it.</p>
 <p>Then store the location of the VCF in a <strong>variable</strong>, so we don’t have to type the full path every time:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/path/to/my/directory/PopulationGenomics/Population structure </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># where the VCF lives (make sure this is the right path!)</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">DATA_DIR</span><span class="op">=</span>/path/to/my/directory/PopulationGenomics</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">VCF</span><span class="op">=</span><span class="va">$DATA_DIR</span>/Lottia_gigantea_biallelic.vcf.gz</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># check the variable holds what you expect, and that the file is really there</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$VCF</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> <span class="va">$VCF</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">##We should start organising our results file a bit, lets make a sub directory called PopulationStructure</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/path/to/my/directory/PopulationGenomics/myresults/PopulationStructure </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># where the VCF lives (make sure this is the right path!)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">DATA_DIR</span><span class="op">=</span>/path/to/my/directory/PopulationGenomics/mydata</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">VCF</span><span class="op">=</span><span class="va">$DATA_DIR</span>/Lottia_gigantea_pl_flt3.renamed.vcf.gz</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># check the variable holds what you expect, and that the file is really there</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$VCF</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> <span class="va">$VCF</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$DATA_DIR</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span> <span class="co">##check you are in the right place</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Using variables in bash">
 <div class="callout-header d-flex align-content-center">
@@ -2702,7 +2708,7 @@ Note
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;~/my/directory/path/PopulationGenomics&quot;</span>)   <span class="co"># the folder with your plink output</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;~/my/directory/path/PopulationGenomics/mydata&quot;</span>)   <span class="co"># the folder with your plink output</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now read in the PCA results from plink:</p>
 <div class="cell">
@@ -2732,15 +2738,16 @@ Note
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pve =</span> eigenval <span class="sc">/</span> <span class="fu">sum</span>(eigenval) <span class="sc">*</span> <span class="dv">100</span>)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># make a folder for our figures</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;myresults/PCA&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>pve_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pve, <span class="fu">aes</span>(PC, pve)) <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Principal component&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Percentage variance explained&quot;</span>) <span class="sc">+</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>pve_plot</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/PCA/variance_0.2.png&quot;</span>, <span class="at">plot =</span> pve_plot, <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>pve_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pve, <span class="fu">aes</span>(PC, pve)) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Principal component&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Percentage variance explained&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>pve_plot</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(pve_plot, <span class="at">file=</span><span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/variance_0.2.png&quot;</span>), <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This is called a <strong>scree plot</strong>. Look for the point where the bars level off: PCs beyond that point are mostly noise. In genomic data each PC usually explains only a small percentage of the variation, because most variation across the genome is neutral and differs between individuals rather than between populations.</p>
 </section>
@@ -2766,9 +2773,10 @@ Note
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_d</span>(<span class="at">end =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> pc1_lab, <span class="at">y =</span> pc2_lab, <span class="at">colour =</span> <span class="st">&quot;Site (north to south)&quot;</span>) <span class="sc">+</span></span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>pca_plot</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/PCA/LG_PCA_0.2.png&quot;</span>, <span class="at">plot =</span> pca_plot, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(pca_plot, <span class="at">file =</span> <span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/Lg_0.2_pca.png&quot;</span>), <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Reading a PCA plot">
 <div class="callout-header d-flex align-content-center">
@@ -2802,17 +2810,19 @@ Note
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>PC, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span> <span class="do">##plots PC1 and PC2 seperately</span></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_d</span>(<span class="at">end =</span> <span class="fl">0.9</span>) <span class="sc">+</span> </span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Latitude (°N)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;PC score&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Site (north to south)&quot;</span>) <span class="sc">+</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>lat_plot</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/PCA/PC_vs_latitude_0.2.png&quot;</span>, <span class="at">plot =</span> lat_plot, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(lat_plot, <span class="at">file =</span> <span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/Lg_0.2_pca_latitude.png&quot;</span>), <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="bonus-a-map-of-our-sites" class="level3" data-number="3.2.4">
 <h3 data-number="3.2.4" class="anchored" data-anchor-id="bonus-a-map-of-our-sites"><span class="header-section-number">3.2.4</span> Bonus: a map of our sites</h3>
 <p>We can also map our sites and put the map next to the PCA (might be useful for your project!). <code>map_data()</code> needs the <code>maps</code> package to be installed (we don’t need to load it with <code>library()</code>), and <code>patchwork</code> lets us combine ggplots. If either isn’t installed, run <code>install.packages(c(&quot;maps&quot;, &quot;patchwork&quot;))</code> first.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork) <span class="do">##combined plots</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>world <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">&quot;world&quot;</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>sites <span class="ot">&lt;-</span> pca <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(Site, Latitude, Longitude)</span>
@@ -2827,14 +2837,15 @@ Note
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ylim =</span> <span class="fu">range</span>(sites<span class="sc">$</span>Latitude) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Longitude&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Latitude&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Site (north to south)&quot;</span>) <span class="sc">+</span></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>map_plot</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># with patchwork, + puts plots side by side</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co"># we hide the map&#39;s legend, as the PCA&#39;s legend already shows the sites</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>map_pca <span class="ot">&lt;-</span> map_plot <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span> pca_plot</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>map_pca</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/PCA/map_and_PCA_0.2.png&quot;</span>, <span class="at">plot =</span> map_pca, <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># with patchwork, + puts plots side by side</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># we hide the map&#39;s legend, as the PCA&#39;s legend already shows the sites</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>map_pca <span class="ot">&lt;-</span> map_plot <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span> pca_plot</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>map_pca</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(map_pca, <span class="at">file =</span> <span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/Lg_0.2_pca_map.png&quot;</span>), <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -2988,7 +2999,7 @@ Note
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;myresults/ADMIXTURE&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;~/my/directory/path/PopulationGenomics/mydata&quot;</span>)   <span class="co"># the folder with your plink output</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>cv <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;cv_errors.tsv&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;K&quot;</span>, <span class="st">&quot;CV_error&quot;</span>))</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -2998,9 +3009,10 @@ Note
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> cv<span class="sc">$</span>K) <span class="sc">+</span></span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;K (number of ancestral populations)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Cross-validation error&quot;</span>) <span class="sc">+</span></span>
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>cv_plot</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/ADMIXTURE/cv_error.png&quot;</span>, <span class="at">plot =</span> cv_plot, <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(cv_plot, <span class="at">file =</span> <span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/cv_error.png&quot;</span>), <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Look for the <em>K</em> with the lowest CV error, or the point where the curve flattens out.</p>
 <div class="callout callout-style-default callout-warning callout-titled" title="Don&#39;t over-interpret K">
@@ -3062,10 +3074,10 @@ Note
 <span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.spacing.y =</span> <span class="fu">unit</span>(<span class="fl">0.8</span>, <span class="st">&quot;lines&quot;</span>),      <span class="co"># gap between values of K</span></span>
 <span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text.x    =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">0</span>),</span>
 <span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>admix_plot</span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;myresults/ADMIXTURE/admixture_K1-5.png&quot;</span>, <span class="at">plot =</span> admix_plot,</span>
-<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>OUTDIR<span class="ot">=</span><span class="st">&quot;~/my/directory/path/PopulationGenomics/myresults/PopulationStructure&quot;</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(admix_plot, <span class="at">file =</span> <span class="fu">paste0</span>(OUTDIR, <span class="st">&quot;/admixture_K1-5.png&quot;</span>), <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Each vertical bar is one individual, and its colours show the proportion of its genome assigned to each of the <em>K</em> ancestral populations.</p>
 <div class="callout callout-style-default callout-note callout-titled">
