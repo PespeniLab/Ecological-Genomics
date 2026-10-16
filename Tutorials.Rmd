@@ -33,5 +33,5 @@ fontsize: 18pt
 
 * [Section 2: Working with a VCF](Fall2026/tutorials/1.VCFnewqmd.html)
 
-* [Section 3: Population Structure](Fall2026/tutorials/2.Population structure.html)
+* [Section 3: Population Structure](Fall2026/tutorials/2.Populationstructure.html)
 
