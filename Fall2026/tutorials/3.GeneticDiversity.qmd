@@ -63,9 +63,10 @@ By the end of this class you should be able to:
 ::: {.callout-tip title="Before you start"}
 You will need:
 
-- 1% subset of our VCF (with no MAF filtering) `Lottia_gigantea_biallelic_sub0.01.vcf.gz`to practise the commands on
-- the sample metadata file, `sample_metadata.csv`, from Class 2
-- the results from the full VCF, which I've already generated for you (they're in the shared class folder)
+- 1% subset of our VCF `Lottia_gigantea_flt3_sub0.01.vcf.gz`to practise the commands on
+- 1% subset of our VCF (with no MAF filtering) `Lottia_gigantea_pl_flt3_noMAF_sub0.01.vcf.gz`for Tajima's D
+- the sample metadata file, `sample_metadata.csv`, from Section 2
+- the results from the full VCF, which I've already generated for you.
 :::
 
 # Genetic diversity
@@ -88,18 +89,18 @@ Today we will use three measures:
 
 # Setting up
 
-Make a folder for today's work and point the programme to your VCF, for coding along, use the randomly subsetted VCF.
+Point to the folder for today's work and point the programme to your VCF, for coding along, use the **randomly subsetted** VCF. We can also make a new directory within my results.
 
 ```{bash}
-mkdir -p ~/path/to/my/files/PopulationGenomics/GeneticDiversity
-cd ~/path/to/my/files/PopulationGenomics/GeneticDiversity
+cd ~/path/to/my/files/PopulationGenomics/mydata
 
 module load vcftools
 vcftools --version   # note the version in your notebook
 
 # the 1% subset from Class 1 (make sure this is the right path!)
-DATA_DIR=~/path/to/my/files/PopulationGenomics/
-VCF=$DATA_DIR/Lottia_gigantea_biallelic_sub0.01_noMAF.vcf.gz
+# We will assign our data directory and VCF now so we dont have to move around to find this. We will now call #$VCF when needed
+DATA_DIR=~</path/to/my/files>/PopulationGenomics/mydata ###remember change whats in the <>
+VCF=$DATA_DIR/Lottia_gigantea_pl_flt3_noMAF_sub0.01.vcf.gz
 
 ```
 
@@ -122,13 +123,13 @@ head sample_metadata.csv
 # skip the header line (tail -n +2), keep columns 1 and 2 (cut),
 # and swap the comma between them for a tab (tr)
 tail -n +2 sample_metadata.csv | cut -d ',' -f 1,2 | tr ',' '\t' > popmap.txt
-head popmap.txt
+head popmap.txt ##check it looks correct
 ```
 
 Then write one file per site, listing the IDs of that site's individuals:
 
 ```{bash}
-mkdir -p pops
+mkdir -p pops ##makes subfolder in mydata (where you should be, if unsure use pwd)
 
 # take each site name once (cut column 2, then sort -u), and for each one
 # write the IDs of its individuals (column 1) to pops/SITE.txt
@@ -168,9 +169,15 @@ Here we will use 10kb windows across the entire genome for an initial look.
 ## All samples together
 
 ```{bash}
-vcftools --gzvcf $VCF --window-pi 10000 --out all
-head all.windowed.pi
+mkdir -p pi ##make subdirectory for pi data
+vcftools --gzvcf $VCF --window-pi 10000 --out pi/all
+head pi/all.windowed.pi
+##
+rm pi/all*
+
 ```
+
+You should have a file with `.pi` ending that contains the following:
 
 | Column                 | Contains                                      |
 |------------------------|-----------------------------------------------|
@@ -184,8 +191,7 @@ head all.windowed.pi
 Now we can loop over our population files and calculate π for each site in turn, we dont want to do this manually as we have alot of populations, so loop saves us time and coding space.
 
 ```{bash}
-WINDOW=10000
-mkdir -p pi
+WINDOW=10000 ###we can change this but keep the code teh same to test multiple window sizes
 
 for KEEP in pops/*.txt; do
     POP=$(basename $KEEP .txt)   # e.g. pops/BOD.txt -> BOD
@@ -198,7 +204,7 @@ done
 
 ###check the files exist and its how many you expect
 ls pi
-ls -l pi | wc -l 
+ls -l pi/*.pi | wc -l 
 ```
 
 `for KEEP in pops/*.txt` runs the loop once for each file in the `pops` folder. `basename` strips the folder and the `.txt` ending from the file name to give us the site name, which we use to name the output.
@@ -247,8 +253,17 @@ You'll often see \|*D*\| \> 2 used as a rule of thumb for significance, but that
 ## All samples together
 
 ```{bash}
-vcftools --gzvcf $VCF --TajimaD 10000 --out all
-head all.Tajima.D
+cd $DATA_DIR #lets make sure we are still in mydata
+mkdir -p TajD
+
+#this time we need to use the rare alleles too
+VCF2=Lottia_gigantea_pl_flt3_noMAF_sub0.01.vcf.gz
+echo $VCF2 ##check its the right VCF
+
+vcftools --gzvcf $VCF2 --TajimaD 10000 --out TajD/all
+head TajD/all.Tajima.D
+##lets remove this 
+rm TajD/all* 
 ```
 
 | Column | Contains |
@@ -264,7 +279,6 @@ Windows with only a handful of SNPs give very unreliable values of *D*, so when 
 
 ```{bash}
 WINDOW=10000
-mkdir -p tajD
 
 for KEEP in pops/*.txt; do
     POP=$(basename $KEEP .txt)
@@ -272,10 +286,10 @@ for KEEP in pops/*.txt; do
     vcftools --gzvcf $VCF \
         --keep $KEEP \
         --TajimaD $WINDOW \
-        --out tajD/$POP
+        --out TajD/$POP
 done
 
-ls tajD
+ls TajD
 ```
 
 ::: {.callout-warning title="Watch your backslashes"}
@@ -301,8 +315,14 @@ Is Tajima's *D* higher for all samples together, or within each site? Look back 
 ## All samples together
 
 ```{bash}
-vcftools --gzvcf $VCF --het --out all
-head all.het
+cd $DATA_DIR 
+mkdir -p het
+
+###note back to the normal VCF, use echo to check
+vcftools --gzvcf $VCF --het --out het/all
+head het/all.het
+##lets remove this 
+rm het/all* 
 ```
 
 | Column | Contains |
@@ -321,7 +341,6 @@ There's no column for observed heterozygosity, but we can calculate it: *H*~O~ =
 When we run all samples together, the expected heterozygosity comes from the allele frequencies of *everyone*. Running each population separately means the metrics are measured relative to an individual's own population:
 
 ```{bash}
-mkdir -p het
 
 for KEEP in pops/*.txt; do
     POP=$(basename $KEEP .txt)
@@ -356,13 +375,16 @@ Open R or switch to console if in R studio.
 ```{r}
 library(tidyverse)
 
-setwd("~/my/directory/path/PopulationGenomics")
+setwd("~</my/directory/path>/PopulationGenomics/mydata")
+
+##we want to output results to myresults
+OUTDIR="~</my/directory/path>/PopulationGenomics/myresults"
 
 meta <- read_csv("sample_metadata.csv")
 
 # one latitude per site, so we can order the sites north to south
 sites <- meta %>%
-  group_by(Site) %>%
+  group_by(Population) %>%
   summarise(Latitude = mean(Latitude))
 
 ```
@@ -379,13 +401,13 @@ pi <- pi_files %>%
   # name each file by its site, e.g. "pi/BOD.windowed.pi" -> "BOD"
   set_names(str_remove(basename(pi_files), fixed(".windowed.pi"))) %>%
   # read every file and stack them, putting the names in a new column, Site
-  map_dfr(read_tsv, .id = "Site", show_col_types = FALSE) %>%
-  left_join(sites, by = "Site") %>%
-  mutate(Site = fct_reorder(Site, -Latitude))
+  map_dfr(read_tsv, .id = "Population", show_col_types = FALSE) %>%
+  left_join(sites, by = "Population") %>%
+  mutate(Site = fct_reorder(Population, Latitude))
 
 # summarise pi for each site
 pi_summary <- pi %>%
-  group_by(Site, Latitude) %>%
+  group_by(Population, Latitude) %>%
   summarise(n_windows = n(),
             mean_pi   = mean(PI),
             median_pi = median(PI),
@@ -394,38 +416,48 @@ pi_summary
 ```
 
 ```{r}
-pi_plot <- ggplot(pi, aes(Site, PI, fill = Site)) +
-  geom_boxplot(outlier.size = 0.5) +
-  scale_fill_viridis_d(end = 0.9) +
-  labs(x = "Population (north to south)", y = "Nucleotide diversity (pi) per 10 kb window") +
-  theme_bw() +
-  theme(legend.position = "none")
 
-ggsave("myresults/pi_by_site.png", plot = pi_plot, width = 7, height = 4)
+dir.create(paste0(OUTDIR,"/pi"))
+
+pi_plot <- ggplot(pi, aes(Site, PI, fill = Site)) +
+  geom_violin(scale = "width", linewidth = 0.5, colour = NA) +
+  geom_boxplot(width = 0.15, outlier.shape = NA, linewidth = 0.3) +
+  scale_fill_viridis_d(end = 0.9) +
+  scale_y_log10() +
+  labs(x = "Population", y = "log10(Nucleotide diversity)") +
+  theme_classic() +
+  theme(legend.position = "none") + 
+  coord_flip()
+
+ggsave(paste0(OUTDIR, "/pi/pi_by_site.png"), plot = pi_plot, width = 6, height = 6)
 
 # does diversity change with latitude?
-pi_lat_plot <- ggplot(pi_summary, aes(Latitude, mean_pi, colour = Site)) +
-  geom_point(size = 3) +
-  scale_colour_viridis_d(end = 0.9) +
-  labs(x = "Latitude (°N)", y = "Mean nucleotide diversity (pi)", colour = "Site (north to south)") +
-  theme_bw()
+pi_lat_plot <- ggplot(pi_summary, aes(Latitude, mean_pi)) +
+  geom_point(size = 4, shape =21, fill = "cadetblue2", stroke =1.5) +
+  labs(x = "Latitude (°N)", y = "Nucleotide diversity", colour = "Site") +
+  theme_classic()+
+  theme(legend.position = "none")
+  coord_flip()
 
-ggsave("myresults/pi_vs_latitude.png", plot = pi_lat_plot, width = 6, height = 4)
+ggsave(paste0(OUTDIR, "/pi/pi_vs_latitude.png"), plot = pi_lat_plot, width = 7, height = 7)
 ```
 
 ## Tajima's *D*
 
 ```{r}
-taj_files <- list.files("tajD", pattern = "Tajima.D$", full.names = TRUE)
+dir.create(paste0(OUTDIR,"/TajD"))
+
+
+taj_files <- list.files("TajD", pattern = "Tajima.D$", full.names = TRUE)
 
 tajd <- taj_files %>%
   set_names(str_remove(basename(taj_files), fixed(".Tajima.D"))) %>%
   # vcftools writes "nan" when D can't be calculated, so treat that as missing (NA)
-  map_dfr(read_tsv, .id = "Site", na = c("", "NA", "nan", "-nan"),
+  map_dfr(read_tsv, .id = "Population", na = c("", "NA", "nan", "-nan"),
           show_col_types = FALSE) %>%
   filter(N_SNPS >= 5) %>%   # drop windows with too few SNPs to be reliable
-  left_join(sites, by = "Site") %>%
-  mutate(Site = fct_reorder(Site, -Latitude))
+  left_join(sites, by = "Population") %>%
+  mutate(Site = fct_reorder(Population, Latitude))
 
 tajd %>%
   group_by(Site) %>%
@@ -438,11 +470,12 @@ tajd_plot <- ggplot(tajd, aes(Site, TajimaD, fill = Site)) +
   geom_violin() +
   geom_boxplot(width = 0.15, fill = "white", outlier.shape = NA) +
   scale_fill_viridis_d(end = 0.9) +
-  labs(x = "Site (north to south)", y = "Tajima's D per 10 kb window") +
-  theme_bw() +
-  theme(legend.position = "none")
+  labs(x = "Site", y = "Tajima's D") +
+  theme_classic() +
+  theme(legend.position = "none")+
+  coord_flip()
 
-ggsave("myresults/tajimasD_by_site.png", plot = tajd_plot, width = 7, height = 4)
+ggsave(paste0(OUTDIR, "/TajD/tajimasD_by_site.png"), plot = tajd_plot, width = 4, height = 7)
 ```
 
 ## Diversity along the genome
@@ -458,69 +491,91 @@ top_scaffold <- pi %>%
 scan_plot <- pi %>%
   filter(CHROM == top_scaffold) %>%
   ggplot(aes(BIN_START / 1e6, PI, colour = Site)) +
-  geom_line() +
+  geom_line(alpha=0.3) +
   scale_colour_viridis_d(end = 0.9) +
-  labs(x = paste(top_scaffold, "position (Mb)"), y = "Nucleotide diversity (pi)",
-       colour = "Site (north to south)") +
+  labs(x = paste(top_scaffold, "position (Mb)"), y = "Nucleotide diversity",
+       colour = "Site") +
   theme_bw()
 
-ggsave("myresults/pi_along_scaffold.png", plot = scan_plot, width = 9, height = 4)
+ggsave(paste0(OUTDIR, "/pi/pi_along_scaffold.png"), plot = scan_plot, width = 12, height = 6)
 ```
 
 
 ## Heterozygosity
 
+Now lets compare observed heterozygosity and F across the populations
+
 ```{r}
-het_all <- read_tsv("all.het", show_col_types = FALSE) %>%
-  # rename the columns with brackets in their names, which are awkward to type
+dir.create(paste0(OUTDIR, "/He"))
+
+het_files <- list.files("het", pattern = "het$", full.names = TRUE)
+
+het_all <- read_tsv(het_files, id = "file", show_col_types = FALSE) %>%
   rename(ID = INDV, O_HOM = `O(HOM)`, E_HOM = `E(HOM)`) %>%
-  mutate(Ho = (N_SITES - O_HOM) / N_SITES) %>%
+  mutate(
+    Pop = tools::file_path_sans_ext(basename(file)),  # e.g. het/SiteA.het -> SiteA
+    Ho  = (N_SITES - O_HOM) / N_SITES
+  ) %>%
+  select(-file) %>%
   left_join(meta, by = "ID") %>%
   mutate(Site = fct_reorder(Site, -Latitude))
 
-# check every individual matched the metadata: this should print 0
-sum(is.na(het_all$Site))
 
-ho_plot <- ggplot(het_all, aes(Site, Ho, colour = Site)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.15, alpha = 0.6) +
-  scale_colour_viridis_d(end = 0.9) +
-  labs(x = "Site (north to south)", y = "Observed heterozygosity at SNPs") +
-  theme_bw() +
+##lets make one of my favuorite types of plots (raincloud)
+
+library(ggdist)
+#install.packages("ggdist")
+
+
+ho_plot <- ggplot(het_all, aes(Site, Ho, fill = Site)) +
+  geom_jitter(width = 0.05, alpha = 0.6, shape = 21, stroke =1.5) +
+  geom_violin(alpha = 0.6) +
+  geom_boxplot(width = 0.15, fill = "white", outlier.shape = NA, alpha =0.5) +
+  scale_fill_viridis_d(end = 0.9) +
+  labs(x = "", y = "Observed heterozygosity") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle=45, hjust =1))+
   theme(legend.position = "none")
 
-ggsave("myresults/Ho_by_site.png", plot = ho_plot, width = 7, height = 4)
+
+ggsave(paste0(OUTDIR, "/het/Ho_by_site.png"), plot = ho_plot, width = 4, height = 12)
+
+
+ho_plot <- ggplot(het_all, aes(x = Site, y = Ho, fill = Site)) +
+  geom_jitter(width = 0.05, height = 0, shape = 21, stroke = 0.8, alpha = 0.6, size = 1.4) +
+  geom_boxplot(width = 0.12, fill = "white", outlier.shape = NA, alpha = 0.5,
+               position = position_nudge(x = 0.25)) +
+  ggdist::stat_halfeye(
+    adjust = 0.5, width = 0.6, justification = -0.5,
+    .width = 0, point_colour = NA, alpha = 0.7
+  ) +
+  scale_fill_viridis_d(end = 0.9) +
+  coord_flip() +
+  labs(x = "", y = "Observed heterozygosity") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+ggsave(paste0(OUTDIR, "/het/Ho_by_site.png"), plot = ho_plot, width = 5, height = 8)
+
+
+F_plot <- ggplot(het_all, aes(x = Site, y = F, fill = Site)) +
+  geom_jitter(width = 0.05, height = 0, shape = 21, stroke = 0.8, alpha = 0.6, size = 1.4) +
+  geom_boxplot(width = 0.12, fill = "white", outlier.shape = NA, alpha = 0.5,
+               position = position_nudge(x = 0.25)) +
+  ggdist::stat_halfeye(
+    adjust = 0.5, width = 0.6, justification = -0.5,
+    .width = 0, point_colour = NA, alpha = 0.7
+  ) +
+  scale_fill_viridis_d(end = 0.9) +
+  coord_flip() +
+  labs(x = "", y = "F Coefficient") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+ggsave(paste0(OUTDIR, "/het/F_by_site.png"), plot = F_plot, width = 5, height = 8)
+
 ```
 
-Now compare each individual's *F* from the all-samples run (pooled) with *F* from its own population's run (within):
-
-```{r}
-het_files <- list.files("het", pattern = "het$", full.names = TRUE)
-
-het_pop <- het_files %>%
-  set_names(str_remove(basename(het_files), fixed(".het"))) %>%
-  map_dfr(read_tsv, .id = "Site", show_col_types = FALSE) %>%
-  select(ID = INDV, F_within = F)
-
-f_compare <- het_all %>%
-  select(ID, Site, F_pooled = F) %>%
-  left_join(het_pop, by = "ID")
-
-f_compare %>%
-  group_by(Site) %>%
-  summarise(mean_F_pooled = mean(F_pooled), mean_F_within = mean(F_within))
-
-f_plot <- ggplot(f_compare, aes(F_within, F_pooled, colour = Site)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +   # the 1:1 line
-  geom_point(alpha = 0.7) +
-  scale_colour_viridis_d(end = 0.9) +
-  labs(x = "F within its own site", y = "F with all samples pooled",
-       colour = "Site (north to south)") +
-  theme_bw()
-f_plot
-
-ggsave("myresults/F_pooled_vs_within.png", plot = f_plot, width = 6, height = 5)
-```
 
 ::: {.callout-tip title="Questions"}
 1.  Which sites are the most and least diverse? Is there a pattern with latitude, and does it fit with what you saw in the PCA and ADMIXTURE results?
@@ -533,6 +588,6 @@ ggsave("myresults/F_pooled_vs_within.png", plot = f_plot, width = 6, height = 5)
 
 1.  Re-run π and Tajima's *D* with 50 kb windows. How do the distributions change? What do you gain and lose with bigger windows?
 
-2.  Running the per-population loops on the full VCF takes a long time. Can you write a batch job to run it on the full data? 
+2.  Running the per-population loops on the full VCF takes a long time. Can you write a batch job to run these analyses on the full data? 
 
 3.  For a challenge, read the pixy documentation. What would be needed to generate pi data here?
