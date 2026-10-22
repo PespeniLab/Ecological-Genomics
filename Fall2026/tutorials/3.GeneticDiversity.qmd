@@ -283,7 +283,7 @@ WINDOW=10000
 for KEEP in pops/*.txt; do
     POP=$(basename $KEEP .txt)
     echo "== $POP =="
-    vcftools --gzvcf $VCF \
+    vcftools --gzvcf $VCF2 \
         --keep $KEEP \
         --TajimaD $WINDOW \
         --out TajD/$POP

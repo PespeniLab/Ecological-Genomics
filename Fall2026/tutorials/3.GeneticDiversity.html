@@ -2688,7 +2688,7 @@ vertical-align: -.125em;
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> KEEP <span class="kw">in</span> pops/<span class="pp">*</span>.txt<span class="kw">;</span> <span class="cf">do</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">POP</span><span class="op">=</span><span class="va">$(</span><span class="fu">basename</span> <span class="va">$KEEP</span> .txt<span class="va">)</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;== </span><span class="va">$POP</span><span class="st"> ==&quot;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">vcftools</span> <span class="at">--gzvcf</span> <span class="va">$VCF</span> <span class="dt">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">vcftools</span> <span class="at">--gzvcf</span> <span class="va">$VCF2</span> <span class="dt">\</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">--keep</span> <span class="va">$KEEP</span> <span class="dt">\</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">--TajimaD</span> <span class="va">$WINDOW</span> <span class="dt">\</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">--out</span> TajD/<span class="va">$POP</span></span>
