@@ -1,0 +1,870 @@
+---
+title: "Signatures of Selection"
+subtitle: "Population genomics · Class 4"
+author: "Daniel Sadler"
+date: last-modified
+date-format: "D MMMM YYYY"
+editor: visual
+number-sections: true
+engine: knitr
+execute:
+  eval: false
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "Contents"
+    title-block-banner: true
+    code-copy: true
+    code-overflow: scroll
+    highlight-style: github
+    embed-resources: true
+    smooth-scroll: true
+  pdf:
+    toc: true
+    toc-depth: 2
+    papersize: letter
+    geometry:
+      - margin=2.2cm
+    fontsize: 11pt
+    linestretch: 1.15
+    colorlinks: true
+    highlight-style: github
+    include-in-header:
+      text: |
+        \usepackage{newunicodechar}
+        \newunicodechar{≥}{\ensuremath{\geq}}
+        \newunicodechar{≤}{\ensuremath{\leq}}
+        \newunicodechar{≈}{\ensuremath{\approx}}
+        \newunicodechar{−}{\ensuremath{-}}
+        \newunicodechar{→}{\ensuremath{\rightarrow}}
+        \newunicodechar{₁}{\textsubscript{1}}
+        \newunicodechar{₀}{\textsubscript{0}}
+        \definecolor{headingblue}{HTML}{1F5FA8}
+        \addtokomafont{disposition}{\color{headingblue}}
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breaksymbolleft={},commandchars=\\\{\}}
+        \makeatletter\@secpenalty=0\makeatother
+---
+
+::: {.callout-note title="Learning objectives"}
+By the end of this class you should be able to:
+
+- Explain what is meant by a *signature of selection*, and why genome scans look for **outliers** against a neutral genomic background
+- Calculate genome-wide and windowed pairwise *F*~ST~ with `vcftools`, and plot an *F*~ST~ genome scan in R
+
+Extra material:
+
+- Use `BayPass` as an advanced tool to identify regions of selection: estimate population structure, find SNPs that are more differentiated than that structure predicts (*XtX*), and test whether allele frequencies track the environment
+:::
+
+## Signatures of selection {#sec-concepts}
+
+Because an adaptive variant hitches a ride with the surrounding loci (genetic hitchhiking), it leaves a distinct fingerprint across the chromosome.
+
+Among the key things we look for in population genomics are **signatures of selection**: patterns in DNA sequence data that natural selection leaves behind when it changes the frequency of an allele. We will see if we can identify signals of selection indicative of **local adaptation**.
+
+### What does selection look like in the genome?
+
+Depending on the type and age of selection, several signatures can be left behind:
+
+| Signature | How we measure it |
+|------------------------------------|------------------------------------|
+| Loss of genetic diversity around the selected site | Nucleotide diversity ($\pi$), heterozygosity |
+| Excess of rare variants after a selective sweep | Negative Tajima's *D* |
+| **Allele frequencies that differ more between populations than expected** | ***F***~**ST**~**, *XtX*** |
+| **Allele frequencies that track an environmental gradient** | **Genotype–environment association (Bayes factors)** |
+
+The last two are the most direct evidence for local adaptation. If populations live in different environments (for example, warmer and cooler sites along a coastline), selection can push allele frequencies in different directions in different places, so the loci involved become more differentiated than the rest of the genome.
+
+### Looking for outliers
+
+Most of the genome is assumed to evolve neutrally. Genetic drift and gene flow act on *every* locus in the same way, so together they set a genome-wide **background** level of differentiation among populations. Selection, in contrast, acts on particular loci. Loci under divergent selection should therefore sit in the **upper tail** of the genome-wide distribution of differentiation.
+
+This is the logic of a **genome-wide selection scan**:
+
+1.  Calculate a statistic (e.g. *F*~ST~) for every SNP, or every window of SNPs, across the genome.
+2.  Treat the genome-wide distribution of that statistic as the (mostly neutral) expectation.
+3.  Identify the SNPs or windows as outliers from the background as **candidates** for selection.
+
+::: {.callout-warning title="Outliers are candidates, not proof"}
+Genome scans are good at producing lists of candidate regions, and just as good at producing false positives. Keep these points in mind for the whole class:
+
+- **Demography can mimic selection.** Isolation by distance, range expansions and bottlenecks all make the neutral distribution of *F*~ST~ wider than simple models assume. Programmes such as *BayPass* can correct for this.
+
+- **Low diversity inflates *F*~ST~.** *F*~ST~ is a *relative* measure: anything that lowers diversity within populations (low recombination, background selection) raises *F*~ST~.
+
+- **Multiple testing.** With 100,000 SNPs, a cut-off of *p* \< 0.05 would flag about 5,000 SNPs by chance alone, we need to correct for multiple testing (e.g., FDR)
+
+- **Polygenic adaptation is hard to see.** Traits controlled by many genes of small effect can adapt through small shifts in allele frequency at many loci, none of which looks like an outlier.
+:::
+
+## Set-up {#sec-setup}
+
+### Files for today
+
+| File | What it contains |
+|------------------------------------|------------------------------------|
+| `Lottia_gigantea_flt3_sub0.01.vcf.gz` | The filtered, sub-sampled VCF we have used since Class 1 |
+| `popmap.txt` | Population map: two tab-separated columns, **no header**: sample ID and population |
+| `sample_metadata.csv` | sample metadata we have used in previous sections |
+| `Lottia_site_env.txt` | One row per population, tab-separated, **with a header**: `pop`, `latitude` and `sst` (mean sea surface temperature, °C) |
+
+```{bash}
+cd </users/d/s/dsadler1/PopulationGenomics/mydata>
+##lets call it DIR for ease
+DIR=</users/d/s/dsadler1/PopulationGenomics/mydata>
+
+#check you have the data needed from last week
+ll
+```
+
+It is worth checking that the sample IDs in the popmap match the IDs in the VCF *exactly* (capitals, underscores and any suffixes all matter), sometimes the IDs can end up with extra stuff e.g., filepaths.
+
+```{bash}
+# sample IDs from the VCF header line (#CHROM ...), one per line
+zgrep -m 1 "^#CHROM" Lottia_gigantea_flt3_sub0.01.vcf.gz | cut -f 10- | tr '\t' '\n' > vcf_samples.txt
+wc -l vcf_samples.txt #should be 553
+head vcf_samples.txt # is it as expected?
+
+```
+
+### One file of sample IDs per population
+
+As with last section, `vcftools` needs a separate text file for each population that lists the IDs of the individuals in it, one per line. You should have these saved in `pops` from the genetic diversity class, if not, the code is below:
+
+```{bash}
+mkdir -p pops
+
+for pop in $(cut -f2 popmap.txt | sort -u); do
+  awk -F '\t' -v p="${pop}" '$2 == p {print $1}' popmap.txt > pops/${pop}.txt
+done
+
+ls pops/
+```
+
+## Part A: *F*~ST~ genome scans {#sec-fst}
+
+### What is *F*~ST~?
+
+An important measure of population divergence is *F*~ST~ (the fixation index). *F*~ST~ asks how much of the total genetic variation is due to differences *between* populations.
+
+*F*~ST~ is calculated as:
+
+$$F_{ST} = \frac{H_T - H_S}{H_T}$$
+
+*F*~ST~ ranges from 0 (no genetic differentiation between the populations, i.e., panmixia) to 1 (complete fixation, i.e. very genetically divergent populations).
+
+::: {.callout-tip title="A quick worked example"}
+At one SNP, the alternative allele has a frequency of 0.1 in population 1 and 0.9 in population 2.
+
+- Within populations: $2 \times 0.1 \times 0.9 = 0.18$ in both, so $H_S = 0.18$
+- Pooled: the average frequency is 0.5, so $H_T = 2 \times 0.5 \times 0.5 = 0.5$
+- $F_{ST} = (0.5 - 0.18) / 0.5 = 0.64$
+:::
+
+Today, and commonly used is the Weir & Cockerham (1984) estimator implemented in VCFtools, which corrects for the number of individuals sampled and the number of populations.
+
+VCFtools therefore has a couple of quirks:
+
+- Because it corrects for sampling, single SNPs can have small **negative** *F*~ST~ values. These are estimates of an *F*~ST~ close to zero. Treat them as approximately zero, but **do not delete them or set them to zero** before averaging, because that biases the average upwards.
+
+- A SNP that is not variable in either of the two populations has no variation to partition, so its *F*~ST~ is undefined (NA in the output).
+
+Many marine invertebrates have planktonic larvae that can disperse between sites, so genome-wide *F*~ST~ among their populations is often low (in purple sea urchins its essentially zero). A low background makes any regions that *do* stand out all the more interesting.
+
+### Genome-wide *F*~ST~ between two populations
+
+We start with two populations, lets use two populations we think may be quite diverged based on the PCA and Admixture evidence; the most southern and the most northern sites Bahía Asunción (ASU) and Kruse Ranch (KRU).
+
+```{bash}
+##first make sure you are in the right directory
+## should be </users/d/s/dsadler1/PopulationGenomics/mydata>
+cd $DIR
+
+###load vcftools
+module load gcc
+module load vcftools
+###remember to note versions
+###lets do the usual assigning of VCF:
+VCF=$DIR/Lottia_gigantea_flt3_sub0.01.vcf.gz
+POP1=ASU     # This can be any population, but lets do most southern ...
+POP2=KRU     # ... and most northern.
+
+mkdir -p fst #lets make a FST directory 
+
+###Ok now lets run vcftools 
+vcftools --gzvcf ${VCF} \
+  --weir-fst-pop pops/${POP1}.txt \
+  --weir-fst-pop pops/${POP2}.txt \
+  --out fst/${POP1}_vs_${POP2} \
+  2> fst/${POP1}_vs_${POP2}.log ##prints what would be displayed in the terminal to summarise mean FST
+
+grep "Fst estimate" fst/${POP1}_vs_${POP2}.log
+head fst/${POP1}_vs_${POP2}.weir.fst
+```
+
+::: {.callout-tip title="Questions"}
+1. Remember to use the `echo` command for sanity checks, how might this be used here?
+2. How can you check other options for fst in vcftools?
+3. How does 2> differ from >>?
+:::
+
+::: {.callout-important title="Three things that commonly go wrong"}
+- Our VCF is compressed (`.vcf.gz`), so we need `--gzvcf`. Given `--vcf`, VCFtools stops with the error `Filename ends in '.gz'. Shouldn't you be using --gzvcf or --gzdiff?`
+- `--weir-fst-pop` takes the **name of a file** listing the individuals in one population (one ID per line), not the name of a population.
+- VCFtools prints its log, including the genome-wide *F*~ST~, to the screen rather than to a file. `2> file.log` saves that log so we can read it later.
+:::
+
+The log reports two genome-wide estimates:
+
+- **Mean *F*~ST~**: the average of the per-SNP *F*~ST~ values.
+- **Weighted *F*~ST~**: the variance among populations summed across all SNPs, divided by the total variance summed across all loci. This is the better genome-wide estimate to use as it has corrected for sample size.
+
+The `.weir.fst` file has one line per SNP, with the columns `CHROM` (chromosome), `POS` (position) and `WEIR_AND_COCKERHAM_FST` (*F*~ST~ value).
+
+### Genome-wide *F*~ST~ between all pairs of populations
+
+A loop calculates the genome-wide *F*~ST~ for every pair and collects the results in one table. Dont worry about the complexities of the code too much, this is pulled from other work, and is just an efficient way to run through many of the contrasts. 
+
+```{bash}
+##
+POPS=( $(cut -f2 popmap.txt | sort -u) ) ##f extracts column, 2 extracts second column, sort -u keeps only unique values (i.e., gives you one row per pop)
+mkdir -p fst/pairwise
+echo -e "pop1\tpop2\tmean_fst\tweighted_fst" > fst/pairwise_fst_summary.txt #makes empty txt file headed as pop1 etc
+
+for (( i=0; i<${#POPS[@]}; i++ )); do ### starts at first row
+  for (( j=i+1; j<${#POPS[@]}; j++ )); do ###starts at second row 
+    p1=${POPS[$i]} ##i allocated to p1 (first pairwise)
+    p2=${POPS[$j]} ##j allocated to p2 (second pairwise)
+    vcftools --gzvcf ${VCF} \
+      --weir-fst-pop pops/${p1}.txt \
+      --weir-fst-pop pops/${p2}.txt \
+      --out fst/pairwise/${p1}_vs_${p2} \
+      2> fst/pairwise/${p1}_vs_${p2}.log ##same vcftools code as above but looped through
+    mean=$(grep "mean Fst" fst/pairwise/${p1}_vs_${p2}.log | awk '{print $NF}') ##extracts the mean FST through each loop using grep
+    weighted=$(grep "weighted Fst" fst/pairwise/${p1}_vs_${p2}.log | awk '{print $NF}') ##also the weighted
+    echo -e "${p1}\t${p2}\t${mean}\t${weighted}" >> fst/pairwise_fst_summary.txt ###adds each loop result to the txt file
+  done
+done ##note two done's as we have a for loop within a for loop!
+
+
+column -t fst/pairwise_fst_summary.txt
+```
+
+Now we can look at the results in R.
+
+```{r}
+library(tidyverse)
+
+setwd("</users/d/s/dsadler1/PopulationGenomics/mydata>")
+###point to your results folder
+OUTDIR="</users/d/s/dsadler1/PopulationGenomics/myresults>"
+
+env <- read_csv("sample_metadata.csv")
+pw  <- read_tsv("fst/pairwise_fst_summary.txt")
+
+# order the populations from south to north
+env <- env %>%
+  distinct(Population, Latitude, Longitude)
+pop_order <- env$Population[order(env$Latitude)]
+
+# add each pair in both directions so the heatmap is symmetrical
+pw_both <- bind_rows(pw, select(pw, pop1 = pop2, pop2 = pop1, mean_fst, weighted_fst)) %>%
+  mutate(pop1 = factor(pop1, levels = pop_order),
+         pop2 = factor(pop2, levels = pop_order))
+
+ggplot(pw_both, aes(x = pop1, y = pop2, fill = weighted_fst)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = round(weighted_fst, 3)), size = 2.5) +
+  scale_fill_gradient(low = "white", high = "red4", name = "Weighted\nFST") +
+  labs(x = NULL, y = NULL,
+       title = "Genome-wide pairwise FST (populations ordered south to north)") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(paste0(OUTDIR,"/pairwise_fst_heatmap.png"), width = 7, height = 6)
+```
+
+::: {.callout-tip title="Questions"}
+1. Check what your data looks like when you load them, what are the different ways to do that? How would we see the number of entries?
+2.How might we order them north to south?
+3.Can you make a plot with only half the triangle? This may take some data wrangling.
+:::
+
+Does differentiation increase with the geographic distance between populations?
+
+```{r}
+pw_dist <- pw %>%
+  left_join(select(env, Population, lat1 = Latitude), by = c("pop1" = "Population")) %>%
+  left_join(select(env, Population, lat2 = Latitude), by = c("pop2" = "Population")) %>%
+  mutate(lat_diff = abs(lat1 - lat2))
+
+ggplot(pw_dist, aes(x = lat_diff, y = weighted_fst)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", se = FALSE, colour = "grey40") +
+  labs(x = "Difference in latitude (degrees)", y = "Weighted FST",
+       title = "Isolation by distance?") +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/fst_vs_distance.png"), width = 5, height = 4)
+```
+
+If *F*~ST~ increases with distance, the populations show **isolation by distance**: neighbouring populations exchange more migrants than distant ones. (Difference in latitude is only a rough proxy for distance along the coast which comes with a whole suite of problems, how do you measure a coastline accurately?). Isolation by distance is one of the demographic patterns that inflate false positives in simple *F*~ST~  scans, and it is exactly the kind of structure that BayPass accounts for in Part B.
+
+### Scanning the genome in windows
+
+A genome-wide *F*~ST~ is a single number. To find *where* in the genome populations are unusually different, we need *F*~ST~ along the genome. Single-SNP estimates are can be noisy with low sample size whereby a SNP can show high *F*~ST~ just because of which individuals happened to be sampled, here we have good coverage but it is still often useful to do windowed approaches. Averaging over **windows** of neighbouring SNPs smooths out this noise and matches the expectation that hitchhiking affects a whole region rather than a single base.
+
+```{bash}
+###lets use the example two populations again.
+##remember you assigned VCF and POP1/2 earlier, check above if needed
+vcftools --gzvcf ${VCF} \
+  --weir-fst-pop pops/${POP1}.txt \
+  --weir-fst-pop pops/${POP2}.txt \
+  --fst-window-size 10000 \
+  --fst-window-step 10000 \
+  --out fst/${POP1}_vs_${POP2}_FST_10kb \
+  2> fst/${POP1}_vs_${POP2}_FST_10kb.log
+
+head fst/${POP1}_vs_${POP2}_10k.windowed.weir.fst
+```
+
+
+`--fst-window-size` sets the window length in base pairs. `--fst-window-step` sets how far the window moves each time; making the step equal to the size gives non-overlapping windows, and a smaller step gives overlapping "sliding" windows.
+
+| Column | Meaning |
+|------------------------------------|------------------------------------|
+| `CHROM` | Scaffold (or chromosome) |
+| `BIN_START`, `BIN_END` | Start and end of the window (bp) |
+| `N_VARIANTS` | Number of SNPs in the window |
+| `WEIGHTED_FST` | *F*~ST~ for the window as a ratio of averages |
+| `MEAN_FST` | Average of the per-SNP *F*~ST~ values in the window (unweighted) |
+
+::: {.callout-tip title="How big should a window be?"}
+That depends on how many SNPs fall in each window. Our VCF has been sub-sampled (`sub0.01`), so SNPs are sparse, and a window that contains only one or two SNPs is just as noisy as a single SNP. We may want to drop windows with no or little SNPs, if that removes most windows, increase the window size (for example to 50 kb).
+:::
+
+### Plotting the scan and finding outlier windows
+
+```{r}
+##in case you closed R
+OUTDIR="</users/d/s/dsadler1/PopulationGenomics/myresults>"
+
+pop1 <- "ASU"   #the same two populations as in the bash code
+pop2 <- "KRU"
+
+fst_win <- read_tsv(paste0("fst/", pop1, "_vs_", pop2, "_10k.windowed.weir.fst"))
+
+```
+
+The *L. gigantea* reference genome is made up of many scaffolds. To plot the whole genome on one x-axis we lay the scaffolds end to end. This small helper function does that; we will reuse it in Part B. Again dont worry too much about what the code is line by line.
+
+```{r}
+# Helper: turn (scaffold, position) into a position along the whole genome by laying the scaffolds end to end, in the order in which they appear in the data.
+add_genome_pos <- function(df) {
+  scaffolds <- df %>% 
+    group_by(CHROM) %>% ##group by CHROM
+    summarise(length = max(POS)) %>% ## length = max position within a chromosome
+    arrange(match(CHROM, unique(df$CHROM))) %>% ##make sure each is unique, arranged
+    mutate(offset = cumsum(as.numeric(length)) - length, ###cumulatively number (helps with labels)
+           shade  = factor(row_number() %% 2))    ##value for alternating colour 
+  df %>%
+    left_join(scaffolds, by = "CHROM") %>% ##join this data by given data with CHROM
+    mutate(genome_pos = offset + POS) ###cumalative genome pos 
+}
+
+fst_win <- fst_win %>%
+  mutate(POS = (BIN_START + BIN_END) / 2) %>% 
+  add_genome_pos() ## this is our new function
+```
+
+Now we can plot the scan and mark the windows in the top 1% of the *F*~ST~ distribution:
+
+```{r}
+# empirical outlier threshold: the top 1% of windows
+fst_cut <- quantile(fst_win$WEIGHTED_FST, probs = 0.99)
+fst_cut
+
+fst_win <- mutate(fst_win, outlier = WEIGHTED_FST >= fst_cut)
+
+ggplot(fst_win, aes(x = genome_pos / 1e6, y = WEIGHTED_FST)) +
+  geom_point(aes(colour = shade), size = 0.8) +
+  geom_point(data = filter(fst_win, outlier), colour = "red", size = 1.2) +
+  geom_hline(yintercept = fst_cut, linetype = "dashed") +
+  scale_colour_manual(values = c("grey35", "grey70"), guide = "none") +
+  labs(x = "Position along the genome (Mb; scaffolds end to end)",
+       y = "Weighted FST (10-kb windows)",
+       title = paste(pop1, "vs", pop2)) +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/fst_scan_", pop1, "_vs_", pop2, ".png"), width = 10, height = 4)
+```
+
+We can then save the outliers to a table.
+
+```{r}
+fst_outliers <- fst_win %>%
+  filter(outlier) %>%
+  arrange(desc(WEIGHTED_FST)) %>%
+  select(CHROM, BIN_START, BIN_END, N_VARIANTS, WEIGHTED_FST)
+
+head(fst_outliers, 10)
+write_tsv(fst_outliers, paste0("fst/", pop1, "_vs_", pop2, "_FST_10kb_outliers.txt"))
+```
+
+::: {.callout-warning title="Is the top 1% 'significant'?"}
+No. By definition, 1% of windows are always in the top 1%, whether or not any of them are under selection. An empirical cut-off like this *ranks* candidates; it is not a statistical test. We can use permutations to generate confident outliers, repeating FST many times. Methods such as OutFLANK estimate the neutral distribution of *F*~ST~ so that outliers can be given *p*-values, and BayPass uses *PODs* to generate outliers.
+:::
+
+### Zooming in on the top window 
+
+How do the individual SNPs behave in and around the most differentiated window? We can use the per-SNP *F*~ST~ file we made earlier:
+
+```{r}
+top <- slice_max(fst_win, WEIGHTED_FST, n = 1, with_ties = FALSE)
+top ##top window only
+
+snp_fst <- read_tsv(paste0("fst/pairwise/", pop1, "_vs_", pop2, ".weir.fst"),
+                    col_types = "cid", na = c("", "NA", "nan", "-nan"))
+
+zoom <- snp_fst %>%
+  filter(CHROM == top$CHROM,
+         POS > top$BIN_START - 100000,
+         POS < top$BIN_END + 100000,
+         !is.na(WEIR_AND_COCKERHAM_FST))   # drop SNPs that vary in neither population
+
+ggplot(zoom, aes(x = POS / 1e6, y = WEIR_AND_COCKERHAM_FST)) +
+  annotate("rect", xmin = top$BIN_START / 1e6, xmax = top$BIN_END / 1e6,
+           ymin = -Inf, ymax = Inf, fill = "red", alpha = 0.15) +
+  geom_point(alpha = 0.6) +
+  labs(x = paste(top$CHROM, "position (Mb)"), y = "Per-SNP FST",
+       title = "Per-SNP FST around the top window (shaded)") +
+  theme_classic()
+
+ggsave(paste0(OUTDIR, "/fst_zoom_top_window.png"), width = 7, height = 4)
+```
+
+
+### Exercises for part A
+
+1.  How many outlier windows are there? Are any of them next to each other?
+2.  Repeat the window scan with `--fst-window-size 50000 --fst-window-step 50000` (and a new `--out` name). Do the same regions stand out?
+3.  Repeat the scan for two **neighbouring** populations. How do the genome-wide *F*~ST~ and the outlier windows change?
+4.  Look up nucleotide diversity ($\pi$) and Tajima's *D* for the top outlier windows in each of the two populations. A selective sweep in one population predicts low $\pi$ and negative *D* in that population only. Can you see this? 
+5. For a real challenge, try and save the weighted FST of the windowed approach and plot your own Fst heatmap, and run it as a batchjob!
+
+
+## Part B: BayPass {#sec-baypass}
+
+
+**STOP!!** Do not run any of these scripts! For this class, we will start from the output of the BayPass model to see what a GEA looks like and produces. But you should know how it is produced, especially if you want to incoporate it into your project. 
+
+
+### Why go beyond pairwise *F*~ST~?
+
+Pairwise *F*~ST~ scans are simple and intuitive, but they have three limitations:
+
+1.  **They use two populations at a time.** With many populations there are many possible pairs , each giving a different scan, and it is not obvious which to trust.
+2.  **They ignore the shared history of the populations.** Neighbouring populations along a coastline exchange more migrants and so are more similar to each other than distant ones are (as we saw in the pairwise *F*~ST~ heatmap, and in the PCA in Class 2). This structure makes the neutral distribution of *F*~ST~ wider than a scan assumes, which produces false positives (Lotterhos & Whitlock 2014).
+3.  **They show *that* a locus is differentiated, but not *why*.** which of course is a very difficult question to answer, but we can start untangling the evidence with GEAs for example.
+
+**BayPass** tackles all three. It uses Bayesian analyses to run genome scans where it outputs:
+
+1.  $\Omega$ (Omega): the (scaled) covariance matrix of allele frequencies among the populations (you may have seen something similar as genetic relatedness matrices) It summarises the shared demographic history of the populations, allowing us to correct for any effects of demography on genomic structure.
+
+2.  ***XtX***: for each SNP, a measure of differentiation across *all* populations at once, **after accounting for** $\Omega$. You can think of it as an *F*~ST~-like statistic that has demography been corrected for.
+
+It can Further output **Bayes factors** for an association between each SNP's allele frequencies and an environmental variable such as sea surface temperature (or other variables through contrast models, for example, I have previously used it to identify outliers between size-selected lines of fish), again accounting for $\Omega$. This is a **genotype–environment association** (GEA) model.
+
+### Prepare the BayPass input files
+
+BayPass does not read VCF files. Instead it needs **allele counts for each population**: for every SNP, how many copies of each of the two alleles were seen in each population. VCFtools can produce these with `--counts2`, run once per population with `--keep`:
+
+```{bash}
+#cd </users/d/s/dsadler1/PopulationGenomics/mydata>
+cd $DIR
+VCF=Lottia_gigantea_flt3_sub0.01.vcf.gz
+
+mkdir -p baypass
+
+for pop in $(cut -f2 popmap.txt | sort -u); do
+  vcftools --gzvcf ${VCF} \
+    --keep pops/${pop}.txt \
+    --min-alleles 2 --max-alleles 2 \
+    --counts2 \
+    --out baypass/${pop} \
+    2> baypass/${pop}.counts.log
+done
+
+ls baypass/
+head -n 5 baypass/${POP1}.frq.count     # POP1 is the population you chose in Part A
+```
+
+Each `.frq.count` file has the columns `CHROM`, `POS`, `N_ALLELES`, `N_CHR` (the number of allele copies genotyped in that population, i.e. 2 × the number of individuals with data) and then the counts of the reference and alternative alleles. `--min-alleles 2 --max-alleles 2` keeps only biallelic SNPs, because BayPass can only handle two alleles per SNP. Because we ran the same VCF for every population, every file lists the same SNPs in the same order. That matters, because next we paste the files side by side in R:
+
+```{r}
+library(tidyverse)
+
+setwd("~</path/to/my/files>/PopulationGenomics/mydata")
+
+popmap <- read_tsv("popmap.txt", col_names = c("sample", "pop"), col_types = "cc")
+pops <- sort(unique(popmap$pop))
+pops
+
+# read the allele counts for one population
+read_counts <- function(pop) {
+  read_tsv(file.path("baypass", paste0(pop, ".frq.count")),
+           skip = 1,
+           col_names = c("CHROM", "POS", "N_ALLELES", "N_CHR", "COUNT_REF", "COUNT_ALT"),
+           col_types = "ciiiii")
+}
+counts <- lapply(pops, read_counts)
+names(counts) <- pops
+
+# safety check: every file must list the same SNPs in the same order
+for (p in pops) {
+  stopifnot(identical(counts[[p]]$CHROM, counts[[1]]$CHROM),
+            identical(counts[[p]]$POS, counts[[1]]$POS))
+}
+
+# BayPass format: one row per SNP and two columns (REF and ALT counts) per population
+geno <- do.call(cbind, lapply(counts, function(x) cbind(x$COUNT_REF, x$COUNT_ALT)))
+snps <- select(counts[[1]], CHROM, POS)
+dim(geno)
+
+snps <- snps[keep, ] %>% mutate(MRK = row_number())   # BayPass numbers SNPs by row (MRK)
+
+write.table(geno, "baypass/Lottia.baypass.geno",
+            quote = FALSE, row.names = FALSE, col.names = FALSE)
+write_tsv(snps, "baypass/Lottia.baypass.snps.txt")
+writeLines(pops, "baypass/Lottia.baypass.pops.txt")
+
+```
+
+Finally, the environmental data. BayPass wants **one row per covariate and one column per population**, with the populations in the same order as in the allele-count file:
+
+```{r}
+covariates <- c("lat", "thetao_mean")   # columns of Lottia_site_env.txt to test
+
+env <- read_csv("pop_level_biooracle.csv")
+env <- env[match(pops, env$pop), ]   # put the populations in the same order as the geno file
+stopifnot(identical(env$pop, pops))
+
+write.table(t(env[, covariates]), "baypass/Lottia.baypass.env",
+            quote = FALSE, row.names = FALSE, col.names = FALSE)
+writeLines(covariates, "baypass/Lottia.baypass.covariates.txt")
+```
+
+Back in the terminal, have a look at what we made:
+
+```{bash}
+head -n 3 baypass/Lottia.baypass.geno      # one row per SNP, 2 columns per population
+cat baypass/Lottia.baypass.pops.txt        # the population order
+cat baypass/Lottia.baypass.env             # one row per covariate, one column per population
+```
+
+### Run BayPass
+
+BayPass is run with the program `g_baypass`. It uses Markov chain Monte Carlo (MCMC), so it takes much longer than VCFtools (days to weeks for the full data!), and we run it as a job on the cluster.
+
+BayPass will definitely require a batchjob
+
+```{bash}
+#!/bin/bash
+#SBATCH -J BayPassrun
+#SBATCH --cpus-per-task=1
+#SBATCH -N 1 # on one node
+#SBATCH -t 30:00:00 
+#SBATCH --mem 60G 
+#SBATCH -p general
+#SBATCH --mail-type=END
+#SBATCH --mail-user=daniel.sadler@uvm.edu
+#SBATCH -e errors_%A_%a.txt
+#SBATCH -o output_%A_%a.txt
+
+BAYPASS=/users/d/s/dsadler1/programmes/baypass_public-master/sources/./g_baypass 
+
+$BAYPASS \
+  -gfile baypass/Lottia.baypass.geno \
+  -efile baypass/Lottia.baypass.env \
+  -outprefix baypass/Lottia_bp \
+  -nthreads ${SLURM_CPUS_PER_TASK} \
+  -seed 1234
+
+#to run: sbatch run_baypass.sh
+#to check: squeue -u $USER
+```
+
+| Option | What it does |
+|------------------------------------|------------------------------------|
+| `-gfile` | The allele counts per population that we just made |
+| `-efile` | The environmental covariates. This switches on the association test; covariates are scaled to a mean of 0 and a variance of 1 by default |
+| `-outprefix` | Prefix for all output files |
+| `-nthreads` | Number of CPU threads to use (here, the number of CPUs requested from SLURM) |
+| `-seed` | Seed for the random number generator. The same seed reproduces a run exactly |
+
+With `-efile`, a single run estimates $\Omega$, calculates *XtX* for every SNP and tests every SNP against every covariate. Read the next section while the job runs.
+
+### How BayPass works (read while it runs)
+
+$\Omega$: what shared history predicts. At neutral SNPs, the way allele frequencies vary among populations is governed by the populations' shared history: populations that exchange many migrants, or that split recently, drift together. BayPass learns this pattern from all of the SNPs and stores it in $\Omega$. You can think of $\Omega$ as the neutral expectation of *which populations should look alike*.
+
+***XtX*****: does this SNP fit that expectation?** For each SNP, BayPass measures how far the allele frequencies in the populations are from the across-population average frequency, in "units" set by $\Omega$. A neutral SNP varies among populations in the way $\Omega$ predicts. A SNP with very different frequencies in populations that $\Omega$ says should be similar gets a high *XtX*.
+
+- Under neutrality, the calibrated statistic *XtX*\* (column `XtXst` in the output) is expected to follow a $\chi^2$ distribution with as many degrees of freedom as there are populations. Its average is therefore close to the number of populations, and BayPass converts it into a *p*-value (Olazcuaga et al. 2020).
+- **High *XtX*** means more differentiated than shared history predicts, making the SNP a candidate for divergent (local) selection. **Unusually low *XtX*** means more *similar* than expected, a candidate for balancing selection. BayPass's *p*-values are two-sided, so they flag both.
+
+**Bayes factors: does this SNP track the environment?** For each SNP and each covariate, BayPass compares a model in which the SNP's allele frequencies change with the covariate against a model in which they do not, again accounting for $\Omega$. The evidence is given as a Bayes factor (BF) in decibans: BF(dB) = 10 × log~10~(BF). A BF above 20 dB (i.e. BF \> 100) is "decisive" evidence on Jeffreys' (1961) scale, which is the threshold used in the BayPass manual.
+
+::: {.callout-note title="For the curious: the XtX formula" collapse="true"}
+For SNP $i$, let $\boldsymbol{\alpha}_i$ be the vector of its allele frequencies in the populations and $\pi_i$ its across-population (ancestral) allele frequency. (Careful: this $\pi_i$ is an allele frequency, not nucleotide diversity.) Then
+
+$$XtX_i = \frac{(\boldsymbol{\alpha}_i - \pi_i \mathbf{1})^\top \, \boldsymbol{\Omega}^{-1} \, (\boldsymbol{\alpha}_i - \pi_i \mathbf{1})}{\pi_i (1 - \pi_i)}$$
+
+The denominator standardises for allele frequency (a SNP at 50% can vary more among populations than one at 5%), and $\boldsymbol{\Omega}^{-1}$ discounts the differences that shared history already explains. BayPass averages this quantity over the MCMC samples (Günther & Coop 2013; Gautier 2015).
+:::
+
+### $\Omega$: BayPass's view of population structure {#sec-omega}
+
+First check that the job has finished:
+
+```{bash}
+squeue -u $USER                          
+ls baypass/Lottia_bp_*
+```
+
+| Output file | Contents |
+|------------------------------------|------------------------------------|
+| `Lottia_bp_mat_omega.out` | $\Omega$ (posterior mean): one row and one column per population |
+| `Lottia_bp_summary_pi_xtx.out` | One row per SNP: *XtX*, *XtX*\* (`XtXst`) and its *p*-value as `log10(1/pval)` |
+| `Lottia_bp_summary_betai_reg.out` | One row per SNP per covariate, including the Bayes factor `BF(dB)` |
+| `Lottia_bp_summary_pij.out` | Estimated allele frequency of every SNP in every population |
+| `Lottia_bp_baypass.log` | The log of the run, including how long it took |
+
+$\Omega$ is a covariance matrix, which is easier to read once it is converted into a correlation matrix:
+
+```{r}
+library(tidyverse)
+
+OUTDIR="/gpfs2/scratch/dsadler1/EcolGenom2026/Selection/myresults"
+
+setwd("~</path/to/my/files>/PopulationGenomics/mydata")
+
+pops <- readLines("baypass/Lottia.baypass.pops.txt")
+npop <- length(pops)
+
+env <- read_csv("pop_level_biooracle.csv")
+pop_order<-env$pop[order(env$lat)]
+
+omega <- as.matrix(read.table("baypass/Lottia_bp_mat_omega.out"))
+dimnames(omega) <- list(pops, pops)
+
+omega_cor <- cov2cor(omega)
+round(omega_cor, 2)
+
+omega_tree <- hclust(as.dist(1 - omega_cor), method = "average")
+
+### we are not using ggplot so it is saved in a different way:
+png(paste0(OUTDIR,"/baypass_omega_tree.png"), width = 1800, height = 1200, res = 300)
+plot(omega_tree, main = "Populations clustered by BayPass Omega", xlab = "", sub = "")
+dev.off()
+```
+
+```{r}
+
+omega_df <- as.data.frame(as.table(omega_cor)) %>%
+  rename(pop1 = Var1, pop2 = Var2, correlation = Freq) %>%
+  mutate(pop1 = factor(pop1, levels = pop_order),
+         pop2 = factor(pop2, levels = pop_order))
+
+###if you get any errors for visuals, try dev.off()
+ggplot(omega_df, aes(x = pop1, y = pop2, fill = correlation)) +
+  geom_tile(colour = "white") +
+  scale_fill_gradient2(low = "cadetblue", mid = "white", high = "red4",
+                       midpoint = 0, limits = c(-1, 1)) +
+  labs(x = NULL, y = NULL,
+       title = "BayPass Omega as correlations (psouth to north)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(paste0(OUTDIR,"/baypass_omega.png"), width = 7, height = 6)
+```
+
+Do the populations group geographically? Compare the $\Omega$ heatmap and tree with the PCA and ADMIXTURE results from Class 2, and with the pairwise *F*~ST~ heatmap from Part A. They are different methods, so they should tell a broadly similar story about population structure.
+
+### *XtX*\*: SNPs that are more differentiated than expected
+
+```{r}
+snps <- read_tsv("baypass/Lottia.baypass.snps.txt")
+
+xtx <- read.table("baypass/Lottia_bp_summary_pi_xtx.out", header = TRUE, check.names = FALSE) %>%
+  rename(log10_p = `log10(1/pval)`) %>%
+  left_join(snps, by = "MRK") %>%
+  mutate(pval      = 10^(-log10_p),          # back-transform then adjust
+         qval      = p.adjust(pval, method = "BH"),
+         log10_FDR_q = -log10(qval))
+
+head(xtx)
+
+```
+
+Before trusting the *p*-values, look at their distribution:
+
+```{r}
+ggplot(xtx, aes(x = pval)) +
+  geom_histogram(breaks = seq(0, 1, by = 0.025), fill = "grey60", colour = "white") +
+  labs(x = "p-value", y = "no. of SNPs") +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/baypass_xtx_pvalues.png"), width = 5, height = 4)
+```
+
+
+With tens of thousands of tests we need to correct for multiple testing. We use a **false discovery rate** (FDR) of 5%  of the SNPs we call outliers, we expect about 5% to be false positives. 
+
+
+```{r}
+xtx <- xtx %>%
+  mutate(outlier = log10_FDR_q > -log10(0.05)) %>%
+  add_genome_pos()     ##recall above if reloaded R
+
+sum(xtx$outlier)                           
+###add sig line
+fdr_line <- xtx %>%
+  filter(log10_FDR_q > -log10(0.05)) %>%
+  summarise(y = min(log10_FDR_q)) %>%
+  pull(y)
+
+ggplot(xtx, aes(x = genome_pos / 1e6, y = log10_FDR_q)) +
+  geom_point(aes(colour = shade), size = 0.6) +
+  geom_point(data=subset(xtx, log10_FDR_q > -log10(0.05)), colour = "red4", size = 1) +
+  geom_hline(yintercept = fdr_line, linetype = "dashed", colour = "red") +
+  scale_colour_manual(values = c("grey20", "grey80"), guide = "none") +
+  labs(x = "Genome pos (Mb)",
+       y = "-log10(p)") +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/baypass_xtx_scan.png"), width = 10, height = 5)
+```
+
+```{r}
+xtx_outliers <- xtx %>%
+  filter(outlier) %>%
+  arrange(desc(log10_FDR_q)) %>%
+  select(MRK, CHROM, POS, M_XtX, XtXst, pval, qval)
+
+head(xtx_outliers, 10)
+write_tsv(xtx_outliers, "baypass/Lottia_bp_xtx_outliers.txt")
+```
+
+This is a simplified version of getting significant outliers for BayPass, we use simulated "pseudo-observed data" (PODs) or local score corrections (but this is beyond the course, if you are interested in this for your project we can go over this.)
+
+
+### Genotype–environment association
+
+```{r}
+covariates <- readLines("baypass/Lottia.baypass.covariates.txt")
+
+bf <- read.table("baypass/Lottia_bp_summary_betai_reg.out", header = TRUE, check.names = FALSE) %>%
+  rename(BF_dB = `BF(dB)`) %>%
+  mutate(covariate = covariates[COVARIABLE]) %>%
+  left_join(snps, by = "MRK") %>%
+  add_genome_pos()
+
+bf %>%
+  group_by(covariate) %>%
+  summarise(n_decisive = sum(BF_dB > 20))
+
+ggplot(bf, aes(x = genome_pos / 1e6, y = BF_dB)) +
+  geom_point(aes(colour = shade), size = 0.6) +
+  geom_point(data = filter(bf, BF_dB > 20), colour = "red", size = 1) +
+  geom_hline(yintercept = 20, linetype = "dashed") +
+  facet_wrap(~ covariate, ncol = 1) +
+  scale_colour_manual(values = c("grey35", "grey70"), guide = "none") +
+  labs(x = "Genome pos (Mb)",
+       y = "Bayes factor (dB)") +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/baypass_bf_scan.png"), width = 10, height = 6)
+```
+
+Bayes factor is a way of determining significance of a variable, specifically using Jeffrey's scale:
+
+| BF score | Significance |
+|------------------------------------|------------------------------------|
+| < 0 | Negative |
+| 0-5 | Barely worth mentioning |
+| 5-10  | Substantial |
+| 10-15 | Strong |
+| 15-20 | Very strong |
+| 20+ | Decisive |
+
+
+What does an association actually look like? Let's plot the allele frequencies of the SNP with the strongest association with sea surface temperature:
+
+
+```{r}
+geno <- as.matrix(read.table("baypass/Lottia.baypass.geno"))
+
+top_snp <- bf %>%
+  filter(covariate == "thetao_mean") %>%
+  slice_max(BF_dB, n = 1, with_ties = FALSE)
+top_snp
+
+counts <- geno[top_snp$MRK, ]
+ref <- counts[seq(1, length(counts), by = 2)]
+alt <- counts[seq(2, length(counts), by = 2)]
+
+top_freq <- tibble(pop = pops, alt_freq = alt / (ref + alt)) %>%
+  left_join(env, by = "pop")
+
+ggplot(top_freq, aes(x = thetao_mean, y = alt_freq, label = pop)) +
+  geom_point(size = 3) +
+  geom_text(vjust = -1, size = 3) +
+  ylim(0, 1) +
+  labs(x = "Mean sea surface temperature (C)", y = "Allele Frequency",
+       title = paste0("Top SST-associated SNP: ", top_snp$CHROM, ":", top_snp$POS)) +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/baypass_top_sst_snp.png"), width = 5, height = 4)
+
+##lets repeat with lat
+
+top_snp <- bf %>%
+  filter(covariate == "lat") %>%
+  slice_max(BF_dB, n = 1, with_ties = FALSE)
+top_snp
+
+counts <- geno[top_snp$MRK, ]
+ref <- counts[seq(1, length(counts), by = 2)]
+alt <- counts[seq(2, length(counts), by = 2)]
+
+top_freq <- tibble(pop = pops, alt_freq = alt / (ref + alt)) %>%
+  left_join(env, by = "pop")
+
+ggplot(top_freq, aes(x = lat, y = alt_freq, label = pop)) +
+  geom_point(size = 3) +
+  geom_text(vjust = -1, size = 3) +
+  ylim(0, 1) +
+  labs(x = "Mean sea surface temperature (C)", y = "Allele Frequency",
+       title = paste0("Top Latitude-associated SNP: ", top_snp$CHROM, ":", top_snp$POS)) +
+  theme_classic()
+
+ggsave(paste0(OUTDIR,"/baypass_top_lat_snp.png"), width = 5, height = 4)
+
+
+```
+
+What do these patterns suggest?
+
+That's all folks! We have now gone through a whistlestop tour through VCF wrangling, population structure, genetic diversity, and selection scans. Welcome to population genomics!
+
+### Exercises (Part B)
+
+1.  Try running BayPass yourself on another environmental variable
+2.  Are there more or fewer *XtX*\* outliers than *F*~ST~ outlier windows? Why might the numbers differ?
+3.  How many SNPs show decisive associations with sea surface temperature, and how many with latitude? Is there any overlap?
+

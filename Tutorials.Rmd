@@ -37,3 +37,5 @@ fontsize: 18pt
 
 * [Section 4: Genetic Diversity](Fall2026/tutorials/3.GeneticDiversity.html)
 
+* [Section 5: Signatures of Selection](Fall2026/tutorials/4.SignaturesOfSelection.html)
+

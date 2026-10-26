@@ -506,7 +506,7 @@ ggsave(paste0(OUTDIR, "/pi/pi_along_scaffold.png"), plot = scan_plot, width = 12
 Now lets compare observed heterozygosity and F across the populations
 
 ```{r}
-dir.create(paste0(OUTDIR, "/He"))
+dir.create(paste0(OUTDIR, "/het"))
 
 het_files <- list.files("het", pattern = "het$", full.names = TRUE)
 
