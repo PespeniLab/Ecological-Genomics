@@ -107,15 +107,20 @@ Genome scans are good at producing lists of candidate regions, and just as good 
 
 | File | What it contains |
 |------------------------------------|------------------------------------|
-| `Lottia_gigantea_flt3_sub0.01.vcf.gz` | The filtered, sub-sampled VCF we have used since Class 1 |
-| `popmap.txt` | Population map: two tab-separated columns, **no header**: sample ID and population |
+| `Lottia_gigantea_flt3_sub0.01.vcf.gz` | The filtered, sub-sampled VCF we have used since Section 1 |
+| `popmap.txt` | Population map: sample ID and population |
 | `sample_metadata.csv` | sample metadata we have used in previous sections |
-| `Lottia_site_env.txt` | One row per population, tab-separated, **with a header**: `pop`, `latitude` and `sst` (mean sea surface temperature, °C) |
+| `pop_level_biooracle.csv` | Environmental data from BioOracle |
 
 ```{bash}
-cd </users/d/s/dsadler1/PopulationGenomics/mydata>
+
+##change to your directory
+cd </users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>
 ##lets call it DIR for ease
-DIR=</users/d/s/dsadler1/PopulationGenomics/mydata>
+DIR=</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>
+
+###copy files across, at this stage should just be pop_level_biooracle.csv
+cp /gpfs1/cl/biol3990/PopulationGenomics/Selection/pop_level_biooracle.csv $DIR
 
 #check you have the data needed from last week
 ll
@@ -181,7 +186,7 @@ We start with two populations, lets use two populations we think may be quite di
 
 ```{bash}
 ##first make sure you are in the right directory
-## should be </users/d/s/dsadler1/PopulationGenomics/mydata>
+## should be </users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>
 cd $DIR
 
 ###load vcftools
@@ -259,9 +264,9 @@ Now we can look at the results in R.
 ```{r}
 library(tidyverse)
 
-setwd("</users/d/s/dsadler1/PopulationGenomics/mydata>")
+setwd("</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>")
 ###point to your results folder
-OUTDIR="</users/d/s/dsadler1/PopulationGenomics/myresults>"
+OUTDIR="</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/myresults>"
 
 env <- read_csv("sample_metadata.csv")
 pw  <- read_tsv("fst/pairwise_fst_summary.txt")
@@ -351,7 +356,7 @@ That depends on how many SNPs fall in each window. Our VCF has been sub-sampled 
 
 ```{r}
 ##in case you closed R
-OUTDIR="</users/d/s/dsadler1/PopulationGenomics/myresults>"
+OUTDIR="</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>"
 
 pop1 <- "ASU"   #the same two populations as in the bash code
 pop2 <- "KRU"
@@ -508,7 +513,7 @@ Each `.frq.count` file has the columns `CHROM`, `POS`, `N_ALLELES`, `N_CHR` (the
 ```{r}
 library(tidyverse)
 
-setwd("~</path/to/my/files>/PopulationGenomics/mydata")
+setwd("</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>")
 
 popmap <- read_tsv("popmap.txt", col_names = c("sample", "pop"), col_types = "cc")
 pops <- sort(unique(popmap$pop))
@@ -646,12 +651,19 @@ ls baypass/Lottia_bp_*
 
 $\Omega$ is a covariance matrix, which is easier to read once it is converted into a correlation matrix:
 
+OK now its time for you to join in!
+
+```{bash}
+cp /gpfs1/cl/biol3990/PopulationGenomics/Selection/BayPass/* $DIR
+```
+
+
 ```{r}
 library(tidyverse)
 
-OUTDIR="/gpfs2/scratch/dsadler1/EcolGenom2026/Selection/myresults"
+OUTDIR="</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/myresults>"
 
-setwd("~</path/to/my/files>/PopulationGenomics/mydata")
+setwd("</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydata>")
 
 pops <- readLines("baypass/Lottia.baypass.pops.txt")
 npop <- length(pops)
