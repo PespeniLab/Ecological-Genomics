@@ -334,7 +334,7 @@ vcftools --gzvcf ${VCF} \
   --out fst/${POP1}_vs_${POP2}_FST_10kb \
   2> fst/${POP1}_vs_${POP2}_FST_10kb.log
 
-head fst/${POP1}_vs_${POP2}_10k.windowed.weir.fst
+head fst/${POP1}_vs_${POP2}_FST_10kb.windowed.weir.fst
 ```
 
 
@@ -361,7 +361,7 @@ OUTDIR="</users/d/s/dsadler1/projects/eco_genomics_2026/PopulationGenomics/mydat
 pop1 <- "ASU"   #the same two populations as in the bash code
 pop2 <- "KRU"
 
-fst_win <- read_tsv(paste0("fst/", pop1, "_vs_", pop2, "_10k.windowed.weir.fst"))
+fst_win <- read_tsv(paste0("fst/", pop1, "_vs_", pop2, "FST_10kb.windowed.weir.fst"))
 
 ```
 
@@ -709,17 +709,26 @@ Do the populations group geographically? Compare the $\Omega$ heatmap and tree w
 
 ### *XtX*\*: SNPs that are more differentiated than expected
 
+With tens of thousands of tests we need to correct for multiple testing. We use a **false discovery rate** (FDR) correction, here we are simplifying it by looking at only the top 0.01%
+
+
 ```{r}
 snps <- read_tsv("baypass/Lottia.baypass.snps.txt")
 
-xtx <- read.table("baypass/Lottia_bp_summary_pi_xtx.out", header = TRUE, check.names = FALSE) %>%
-  rename(log10_p = `log10(1/pval)`) %>%
-  left_join(snps, by = "MRK") %>%
-  mutate(pval      = 10^(-log10_p),          # back-transform then adjust
-         qval      = p.adjust(pval, method = "BH"),
-         log10_FDR_q = -log10(qval))
+snps$MRK<-rownames(snps)
+snps$MRK<-as.numeric(snps$MRK)
 
-head(xtx)
+npop <- 19
+
+xtx <- read.table("baypass/Lottia_bp_summary_pi_xtx.out", header = TRUE, check.names = FALSE) %>%
+  left_join(snps, by = "MRK") %>%
+  mutate(lp_high   = pchisq(XtXst, npop, lower.tail = FALSE, log.p = TRUE),   #
+         lp_low    = pchisq(XtXst, npop, lower.tail = TRUE,  log.p = TRUE),   
+         direction = if_else(lp_high < lp_low, "high", "low"),
+         log10_p   = -(pmin(lp_high, lp_low) + log(2)) / log(10),             
+         pval      = 10^(-log10_p),
+         qval      = p.adjust(pval, method = "BH"))
+
 
 ```
 
@@ -735,28 +744,34 @@ ggsave(paste0(OUTDIR,"/baypass_xtx_pvalues.png"), width = 5, height = 4)
 ```
 
 
-With tens of thousands of tests we need to correct for multiple testing. We use a **false discovery rate** (FDR) of 5%  of the SNPs we call outliers, we expect about 5% to be false positives. 
-
 
 ```{r}
+##same helper tool as earlier with FST
+add_genome_pos <- function(df) {
+  scaffolds <- df %>% 
+    group_by(CHROM) %>% ##group by CHROM
+    summarise(length = max(POS)) %>% ## length = max position within a chromosome
+    arrange(match(CHROM, unique(df$CHROM))) %>% ##make sure each is unique, arranged
+    mutate(offset = cumsum(as.numeric(length)) - length, ###cumulatively number (helps with labels)
+           shade  = factor(row_number() %% 2))    ##value for alternating colour 
+  df %>%
+    left_join(scaffolds, by = "CHROM") %>% ##join this data by given data with CHROM
+    mutate(genome_pos = offset + POS) ###cumalative genome pos 
+}
+
+
 xtx <- xtx %>%
-  mutate(outlier = log10_FDR_q > -log10(0.05)) %>%
   add_genome_pos()     ##recall above if reloaded R
 
 sum(xtx$outlier)                           
-###add sig line
-fdr_line <- xtx %>%
-  filter(log10_FDR_q > -log10(0.05)) %>%
-  summarise(y = min(log10_FDR_q)) %>%
-  pull(y)
 
-ggplot(xtx, aes(x = genome_pos / 1e6, y = log10_FDR_q)) +
-  geom_point(aes(colour = shade), size = 0.6) +
-  geom_point(data=subset(xtx, log10_FDR_q > -log10(0.05)), colour = "red4", size = 1) +
-  geom_hline(yintercept = fdr_line, linetype = "dashed", colour = "red") +
+threshold <- quantile(xtx$qval, 0.001)   # top 0.1% (smallest q)
+
+ggplot(xtx, aes(genome_pos / 1e6, -log10(qval))) +
+  geom_point(aes(colour = shade), size = 0.4) +
+  geom_hline(yintercept = -log10(threshold), linetype = "dashed", colour = "red") +
   scale_colour_manual(values = c("grey20", "grey80"), guide = "none") +
-  labs(x = "Genome pos (Mb)",
-       y = "-log10(p)") +
+  labs(x = "Genome pos (Mb)", y = "-log10(q)") +
   theme_classic()
 
 ggsave(paste0(OUTDIR,"/baypass_xtx_scan.png"), width = 10, height = 5)
@@ -764,8 +779,8 @@ ggsave(paste0(OUTDIR,"/baypass_xtx_scan.png"), width = 10, height = 5)
 
 ```{r}
 xtx_outliers <- xtx %>%
-  filter(outlier) %>%
-  arrange(desc(log10_FDR_q)) %>%
+  filter(qval < threshold) %>%
+  arrange(desc(qval)) %>%
   select(MRK, CHROM, POS, M_XtX, XtXst, pval, qval)
 
 head(xtx_outliers, 10)
@@ -861,7 +876,7 @@ ggplot(top_freq, aes(x = lat, y = alt_freq, label = pop)) +
   geom_point(size = 3) +
   geom_text(vjust = -1, size = 3) +
   ylim(0, 1) +
-  labs(x = "Mean sea surface temperature (C)", y = "Allele Frequency",
+  labs(x = "Latitude", y = "Allele Frequency",
        title = paste0("Top Latitude-associated SNP: ", top_snp$CHROM, ":", top_snp$POS)) +
   theme_classic()
 

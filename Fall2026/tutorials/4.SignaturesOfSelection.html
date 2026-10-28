@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Daniel Sadler">
-<meta name="dcterms.date" content="2026-10-26">
+<meta name="dcterms.date" content="2026-10-28">
 
 <title>Signatures of Selection</title>
 <style>
@@ -2364,7 +2364,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">26 October 2026</p>
+        <p class="date">28 October 2026</p>
       </div>
     </div>
     
@@ -2789,7 +2789,7 @@ window.Quarto = {
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--out</span> fst/<span class="va">${POP1}</span>_vs_<span class="va">${POP2}</span>_FST_10kb <span class="dt">\</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span><span class="op">&gt;</span> fst/<span class="va">${POP1}</span>_vs_<span class="va">${POP2}</span>_FST_10kb.log</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> fst/<span class="va">${POP1}</span>_vs_<span class="va">${POP2}</span>_10k.windowed.weir.fst</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> fst/<span class="va">${POP1}</span>_vs_<span class="va">${POP2}</span>_FST_10kb.windowed.weir.fst</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>--fst-window-size</code> sets the window length in base pairs. <code>--fst-window-step</code> sets how far the window moves each time; making the step equal to the size gives non-overlapping windows, and a smaller step gives overlapping “sliding” windows.</p>
 <table class="caption-top table">
@@ -2849,7 +2849,7 @@ window.Quarto = {
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>pop1 <span class="ot">&lt;-</span> <span class="st">&quot;ASU&quot;</span>   <span class="co">#the same two populations as in the bash code</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>pop2 <span class="ot">&lt;-</span> <span class="st">&quot;KRU&quot;</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fst_win <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="fu">paste0</span>(<span class="st">&quot;fst/&quot;</span>, pop1, <span class="st">&quot;_vs_&quot;</span>, pop2, <span class="st">&quot;_10k.windowed.weir.fst&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fst_win <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="fu">paste0</span>(<span class="st">&quot;fst/&quot;</span>, pop1, <span class="st">&quot;_vs_&quot;</span>, pop2, <span class="st">&quot;FST_10kb.windowed.weir.fst&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The <em>L. gigantea</em> reference genome is made up of many scaffolds. To plot the whole genome on one x-axis we lay the scaffolds end to end. This small helper function does that; we will reuse it in Part B. Again dont worry too much about what the code is line by line.</p>
 <div class="cell">
@@ -3236,17 +3236,23 @@ window.Quarto = {
 </section>
 <section id="xtx-snps-that-are-more-differentiated-than-expected" class="level3" data-number="4.6">
 <h3 data-number="4.6" class="anchored" data-anchor-id="xtx-snps-that-are-more-differentiated-than-expected"><span class="header-section-number">4.6</span> <em>XtX</em>*: SNPs that are more differentiated than expected</h3>
+<p>With tens of thousands of tests we need to correct for multiple testing. We use a <strong>false discovery rate</strong> (FDR) correction, here we are simplifying it by looking at only the top 0.01%</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>snps <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;baypass/Lottia.baypass.snps.txt&quot;</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>xtx <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;baypass/Lottia_bp_summary_pi_xtx.out&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>, <span class="at">check.names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">log10_p =</span> <span class="st">`</span><span class="at">log10(1/pval)</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(snps, <span class="at">by =</span> <span class="st">&quot;MRK&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pval      =</span> <span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span>log10_p),          <span class="co"># back-transform then adjust</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">qval      =</span> <span class="fu">p.adjust</span>(pval, <span class="at">method =</span> <span class="st">&quot;BH&quot;</span>),</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">log10_FDR_q =</span> <span class="sc">-</span><span class="fu">log10</span>(qval))</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(xtx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>snps<span class="sc">$</span>MRK<span class="ot">&lt;-</span><span class="fu">rownames</span>(snps)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>snps<span class="sc">$</span>MRK<span class="ot">&lt;-</span><span class="fu">as.numeric</span>(snps<span class="sc">$</span>MRK)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>npop <span class="ot">&lt;-</span> <span class="dv">19</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>xtx <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;baypass/Lottia_bp_summary_pi_xtx.out&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>, <span class="at">check.names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(snps, <span class="at">by =</span> <span class="st">&quot;MRK&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lp_high   =</span> <span class="fu">pchisq</span>(XtXst, npop, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>, <span class="at">log.p =</span> <span class="cn">TRUE</span>),   <span class="co">#</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">lp_low    =</span> <span class="fu">pchisq</span>(XtXst, npop, <span class="at">lower.tail =</span> <span class="cn">TRUE</span>,  <span class="at">log.p =</span> <span class="cn">TRUE</span>),   </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">direction =</span> <span class="fu">if_else</span>(lp_high <span class="sc">&lt;</span> lp_low, <span class="st">&quot;high&quot;</span>, <span class="st">&quot;low&quot;</span>),</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">log10_p   =</span> <span class="sc">-</span>(<span class="fu">pmin</span>(lp_high, lp_low) <span class="sc">+</span> <span class="fu">log</span>(<span class="dv">2</span>)) <span class="sc">/</span> <span class="fu">log</span>(<span class="dv">10</span>),             </span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">pval      =</span> <span class="dv">10</span><span class="sc">^</span>(<span class="sc">-</span>log10_p),</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">qval      =</span> <span class="fu">p.adjust</span>(pval, <span class="at">method =</span> <span class="st">&quot;BH&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Before trusting the <em>p</em>-values, look at their distribution:</p>
 <div class="cell">
@@ -3257,34 +3263,41 @@ window.Quarto = {
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">paste0</span>(OUTDIR,<span class="st">&quot;/baypass_xtx_pvalues.png&quot;</span>), <span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>With tens of thousands of tests we need to correct for multiple testing. We use a <strong>false discovery rate</strong> (FDR) of 5% of the SNPs we call outliers, we expect about 5% to be false positives.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>xtx <span class="ot">&lt;-</span> xtx <span class="sc">%&gt;%</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">outlier =</span> log10_FDR_q <span class="sc">&gt;</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_genome_pos</span>()     <span class="do">##recall above if reloaded R</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(xtx<span class="sc">$</span>outlier)                           </span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="do">###add sig line</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>fdr_line <span class="ot">&lt;-</span> xtx <span class="sc">%&gt;%</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(log10_FDR_q <span class="sc">&gt;</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">y =</span> <span class="fu">min</span>(log10_FDR_q)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(y)</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(xtx, <span class="fu">aes</span>(<span class="at">x =</span> genome_pos <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">y =</span> log10_FDR_q)) <span class="sc">+</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> shade), <span class="at">size =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data=</span><span class="fu">subset</span>(xtx, log10_FDR_q <span class="sc">&gt;</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>)), <span class="at">colour =</span> <span class="st">&quot;red4&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> fdr_line, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;grey20&quot;</span>, <span class="st">&quot;grey80&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Genome pos (Mb)&quot;</span>,</span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;-log10(p)&quot;</span>) <span class="sc">+</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">paste0</span>(OUTDIR,<span class="st">&quot;/baypass_xtx_scan.png&quot;</span>), <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">##same helper tool as earlier with FST</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>add_genome_pos <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  scaffolds <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(CHROM) <span class="sc">%&gt;%</span> <span class="do">##group by CHROM</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">length =</span> <span class="fu">max</span>(POS)) <span class="sc">%&gt;%</span> <span class="do">## length = max position within a chromosome</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">match</span>(CHROM, <span class="fu">unique</span>(df<span class="sc">$</span>CHROM))) <span class="sc">%&gt;%</span> <span class="do">##make sure each is unique, arranged</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">offset =</span> <span class="fu">cumsum</span>(<span class="fu">as.numeric</span>(length)) <span class="sc">-</span> length, <span class="do">###cumulatively number (helps with labels)</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">shade  =</span> <span class="fu">factor</span>(<span class="fu">row_number</span>() <span class="sc">%%</span> <span class="dv">2</span>))    <span class="do">##value for alternating colour </span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(scaffolds, <span class="at">by =</span> <span class="st">&quot;CHROM&quot;</span>) <span class="sc">%&gt;%</span> <span class="do">##join this data by given data with CHROM</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">genome_pos =</span> offset <span class="sc">+</span> POS) <span class="do">###cumalative genome pos </span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>xtx <span class="ot">&lt;-</span> xtx <span class="sc">%&gt;%</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_genome_pos</span>()     <span class="do">##recall above if reloaded R</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(xtx<span class="sc">$</span>outlier)                           </span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="fu">quantile</span>(xtx<span class="sc">$</span>qval, <span class="fl">0.001</span>)   <span class="co"># top 0.1% (smallest q)</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(xtx, <span class="fu">aes</span>(genome_pos <span class="sc">/</span> <span class="fl">1e6</span>, <span class="sc">-</span><span class="fu">log10</span>(qval))) <span class="sc">+</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> shade), <span class="at">size =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="sc">-</span><span class="fu">log10</span>(threshold), <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;grey20&quot;</span>, <span class="st">&quot;grey80&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Genome pos (Mb)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;-log10(q)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">paste0</span>(OUTDIR,<span class="st">&quot;/baypass_xtx_scan.png&quot;</span>), <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>xtx_outliers <span class="ot">&lt;-</span> xtx <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outlier) <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(log10_FDR_q)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(qval <span class="sc">&lt;</span> threshold) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(qval)) <span class="sc">%&gt;%</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(MRK, CHROM, POS, M_XtX, XtXst, pval, qval)</span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(xtx_outliers, <span class="dv">10</span>)</span>
@@ -3402,7 +3415,7 @@ window.Quarto = {
 <span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">vjust =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Mean sea surface temperature (C)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Allele Frequency&quot;</span>,</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Latitude&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Allele Frequency&quot;</span>,</span>
 <span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">&quot;Top Latitude-associated SNP: &quot;</span>, top_snp<span class="sc">$</span>CHROM, <span class="st">&quot;:&quot;</span>, top_snp<span class="sc">$</span>POS)) <span class="sc">+</span></span>
 <span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
 <span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a></span>
