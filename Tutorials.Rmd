@@ -39,3 +39,5 @@ fontsize: 18pt
 
 * [Section 5: Signatures of Selection](Fall2026/tutorials/4.SignaturesOfSelection.html)
 
+* [Section 6: Genes and gene ontology](Fall2026/tutorials/5.Genes.html)
+

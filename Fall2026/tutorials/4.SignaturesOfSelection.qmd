@@ -713,7 +713,7 @@ With tens of thousands of tests we need to correct for multiple testing. We use 
 
 
 ```{r}
-snps <- read_tsv("baypass/Lottia.baypass.snps.txt")
+snps <- read_tsv("baypass_full/Lottia.baypass.snps.txt")
 
 snps$MRK<-rownames(snps)
 snps$MRK<-as.numeric(snps$MRK)
@@ -795,7 +795,7 @@ This is a simplified version of getting significant outliers for BayPass, we use
 ```{r}
 covariates <- readLines("baypass/Lottia.baypass.covariates.txt")
 
-bf <- read.table("baypass/Lottia_bp_summary_betai_reg.out", header = TRUE, check.names = FALSE) %>%
+bf <- read.table("baypass_full/Lottia_bp_summary_betai_reg.out", header = TRUE, check.names = FALSE) %>%
   rename(BF_dB = `BF(dB)`) %>%
   mutate(covariate = covariates[COVARIABLE]) %>%
   left_join(snps, by = "MRK") %>%

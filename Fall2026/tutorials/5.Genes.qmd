@@ -1,0 +1,458 @@
+---
+title: "Genes and Gene Ontology"
+subtitle: "Population genomics · Class 5"
+author: "Daniel Sadler"
+date: last-modified
+date-format: "D MMMM YYYY"
+editor: visual
+number-sections: true
+engine: knitr
+execute:
+  eval: false
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "Contents"
+    title-block-banner: true
+    code-copy: true
+    code-overflow: scroll
+    highlight-style: github
+    embed-resources: true
+    smooth-scroll: true
+  pdf:
+    toc: true
+    toc-depth: 2
+    papersize: letter
+    geometry:
+      - margin=2.2cm
+    fontsize: 11pt
+    linestretch: 1.15
+    colorlinks: true
+    highlight-style: github
+    include-in-header:
+      text: |
+        \usepackage{newunicodechar}
+        \newunicodechar{≥}{\ensuremath{\geq}}
+        \newunicodechar{≤}{\ensuremath{\leq}}
+        \newunicodechar{≈}{\ensuremath{\approx}}
+        \newunicodechar{−}{\ensuremath{-}}
+        \newunicodechar{→}{\ensuremath{\rightarrow}}
+        \newunicodechar{₁}{\textsubscript{1}}
+        \newunicodechar{₀}{\textsubscript{0}}
+        \newunicodechar{π}{\ensuremath{\pi}}
+        \newunicodechar{θ}{\ensuremath{\theta}}
+        \definecolor{headingblue}{HTML}{1F5FA8}
+        \addtokomafont{disposition}{\color{headingblue}}
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breaksymbolleft={},commandchars=\\\{\}}
+        \makeatletter\@secpenalty=0\makeatother
+---
+
+::: {.callout-note title="Learning objectives"}
+By the end of this class you should be able to:
+
+- Identify Gene Ontology (GO) terms that are over-represented among genes containing outlier SNPs, using `topGO`
+- Identify the genes near outlier SNPs, and the type of change each SNP makes (gene types), using `SnpEff` output
+- Bring together our results so far to start building a story
+:::
+
+::: {.callout-tip title="Before you start"}
+You will need:
+
+- Everything saved in the `GeneOntology` folder (listed in @sec-setup)
+- Your plots generated so far (Sections 2–4)
+- The R package `topGO` (see @sec-setup for installing `topGO`)
+:::
+
+
+## From outlier SNPs to genes {#sec-concepts}
+
+In Section 4 we found SNPs that are more differentiated among populations than their demographic predicts *per se* (high *XtX*\*), and SNPs whose allele frequencies track the environment (high Bayes factors). On their own, these are just positions on the genome. 
+
+Today we are going to run through what is often the last stage in population genomics, what is that gene under selection doing! And what doe it all mean!
+
+### Genes in a non-model genome
+
+For a non-model species like *L. gigantea*, almost all functional information is inferred by sequence similarity to genes in better-studied species. Many genes have no close, well-studied relative, so databases list them only as "hypothetical protein", as higher resolution reference genomes become available, and more functional studies are performed, we can distinguish these genes further.
+
+### The Gene Ontology
+
+The **Gene Ontology (GO)** is a shared vocabulary of terms that describe what genes do, we already covered these in Trascnriptomics. 
+
+There are three main groups of GO terms:
+
+| Ontology | Abbreviation | Describes | Example term |
+|---------------------|-----------------|-----------------|-----------------|
+| Biological process | BP | The larger biological programme a gene contributes to | response to heat (GO:0009408) |
+| Molecular function | MF | What the gene product does at the molecular level | ATP binding (GO:0005524) |
+| Cellular component | CC | Where in the cell the gene product is found | cytoplasm (GO:0005737) |
+
+GO terms form a hierarchy, from specific "child" terms to broad "parent" terms. A gene annotated with a specific term is automatically counted in all of that term's parents.
+
+For example:
+
+> response to heat (GO:0009408) → response to temperature stimulus (GO:0009266) → response to abiotic stimulus (GO:0009628) → response to stimulus (GO:0050896) → biological_process (GO:0008150)
+
+
+### Is a GO term over-represented among our genes?
+
+A **GO enrichment** (or over-representation) test asks are our candidate genes annotated with a particular GO term more often than we would expect by chance, given all the genes we *could* have found? 
+
+::: {.callout-tip title="A quick worked example"}
+Suppose 2,000 genes with GO terms contain at least one tested SNP (the **gene universe**), 40 of them are candidate genes, and 30 of the 2,000 are annotated with *response to heat*.
+
+|                 | In *response to heat* | Not in the term | Total |
+|-----------------|:---------------------:|:---------------:|:-----:|
+| Candidate genes |           4           |       36        |  40   |
+| Other genes     |          26           |      1,934      | 1,960 |
+| Total           |          30           |      1,970      | 2,000 |
+
+- **Expected** number of candidates in the term by chance: $40 \times 30 / 2{,}000 = 0.6$
+- **Observed**: 4 candidates, about 7 times more than expected
+- Fisher's exact test (one-sided): $p \approx 0.003$
+
+topGO reports exactly these quantities: **Annotated** (30, genes in the universe with the term), **Significant** (4, candidate genes with the term) and **Expected** (0.6).
+:::
+
+::: {.callout-warning title="Things that can bias an enrichment test"}
+
+- **The universe matters.** The comparison must be with genes that *could* have been candidates: genes containing at least one SNP that was actually tested. Using every gene in the genome, including genes without tested SNPs, changes what counts as "expected".
+- **Gene length.** Longer genes contain more SNPs, so they are more likely to contain an outlier SNP by chance. GO terms dominated by long genes can then look enriched even when nothing about their function is special.
+- **Neighbouring genes.** A single selected region can contain several related genes, for example copies of a duplicated gene family that sit side by side. They share GO terms, so one event can look like strong enrichment.
+- **Many tests.** Hundreds of terms are tested. The topGO authors do not correct weight01 p-values for multiple testing, because the tests depend on each other, and suggest reading them as not affected by multiple testing in the usual way. Even so, treat p-values between 0.01 and 0.05 as weak evidence, and give more weight to terms that contain several candidate genes.
+
+:::
+
+### What SnpEff tells us about a SNP
+
+**SnpEff** compares each SNP with the gene models and predicts its effect: whether it is between genes, close to a gene, in an intron, or in the coding sequence, and if so whether it changes the protein. Each effect has a predicted impact. 
+
+
+These are the effects you are most likely to see:
+
+
+| Effect | Where the SNP is, or what it does | Impact |
+|--------------------------|-----------------------------|-----------------|
+| `intergenic_region` | Between genes. The gene column names both neighbouring genes, e.g. `GENE1-GENE2` | MODIFIER |
+| `upstream_gene_variant` | Up to 5 kb before the start of a gene | MODIFIER |
+| `downstream_gene_variant` | Up to 5 kb after the end of a gene | MODIFIER |
+| `intron_variant` | In an intron (non-coding region) | MODIFIER |
+| `5_prime_UTR_variant`, `3_prime_UTR_variant` | In the untranslated parts of the mRNA | MODIFIER |
+| `synonymous_variant` | In the coding sequence, the codon changes but the amino acid does not | LOW |
+| `splice_region_variant` | Close to an exon–intron boundary | LOW |
+| `missense_variant` | In the coding sequence, the amino acid changes | MODERATE |
+| `stop_gained`, `stop_lost`, `start_lost` | Creates or removes a stop or start codon | HIGH |
+
+Two things to keep in mind:
+
+- **One SNP can have several effects**, one for each nearby gene and transcript. SnpEff lists them all, highest impact first, and our file keeps only the first one using programmes like `SNPsift`. Within the same impact class, an `upstream_gene_variant` for one gene can be listed before an `intron_variant` for another, so a SNP that sits inside one gene can appear in our file as "upstream" of its neighbour.
+
+- **Most outlier SNPs will not change a protein.** Most of the genome is non-coding, many adaptive changes probably alter how genes are regulated rather than the protein itself, and many outlier SNPs are just linked to (hitchhiking with) the variant that is actually under selection. A missense outlier is a good candidate, but it is still a candidate.
+
+## Set-up {#sec-setup}
+
+### Files for today
+
+| File | What it contains | 
+|-----------------------|----------------------------|----------------------|
+| `Lottia_bp_xtx_outliers.txt` | Significant outliers from XtX analysis | 
+| `envoutliers.txt` | SNPs with **decisive** environmental associations (BF \> 20 dB) | 
+| `lottia_snp2gene_genic.tsv` | Every SNP that sits inside a gene |
+| `lottia_gene2GO.map` | One gene per line mapped to GO term | 
+| `outlier_gene_effects.tsv` | The SnpEff effect of each outlier SNP | 
+
+
+
+::: {.callout-note title="Installing topGO"}
+`topGO` is a Bioconductor package, so it is installed with `BiocManager` rather than `install.packages()`. You only need to do this once:
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("topGO")
+```
+:::
+
+## Part A: Gene Ontology enrichment with topGO {#sec-go}
+
+### Read in the gene-to-GO map
+
+```{r}
+library(tidyverse)
+library(topGO)
+#if (!require("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install("topGO")
+
+#outliers detected by XtX scan 
+outlier_file <- "Lottia_bp_xtx_outliers.txt"  
+
+##map gene to GO terms
+map_file      <- "lottia_gene2GO.map"         
+###region of genes 
+snp2gene_file <- "lottia_snp2gene_genic.tsv" 
+
+###read in GO terms 
+gene2GO <- readMappings(map_file)
+length(gene2GO)          # how many genes have at least one GO term?
+gene2GO[1:2]             # what does an entry look like?
+```
+
+`readMappings()` turns the map file into a list with one entry per gene, each holding that gene's GO terms.
+
+### The gene universe
+
+The gene universe is every gene that is within the experiment.
+
+```{r}
+
+
+##creating the gene universe - all genes in experiment 
+snp2gene <- read.delim(snp2gene_file, header = FALSE,
+                       col.names = c("CHROM", "POS", "GeneId"))
+universe <- unique(snp2gene$GeneId)
+length(universe)
+
+mean(universe %in% names(gene2GO))    # proportion of universe genes with GO terms
+
+```
+
+### Candidate genes
+
+```{r}
+
+## Genes that contain at least one outlier SNP.
+outliers   <- read.table(outlier_file, header = TRUE)
+hits       <- merge(outliers[, c("CHROM", "POS")], snp2gene, by = c("CHROM", "POS"))
+candidates <- unique(hits$GeneId)
+
+##how many candiate genes do we have?
+cat("Outlier SNPs:", nrow(outliers),
+    "| outlier SNPs inside genes:", nrow(unique(hits[, c("CHROM", "POS")])),
+    "| candidate genes:", length(candidates), "\n")
+```
+
+
+### Tell topGO which genes are interesting
+
+topGO needs a factor that covers the whole universe, 1 for candidate genes, 0 for the background.
+
+```{r}
+geneList <- factor(as.integer(universe %in% candidates), levels = c(0, 1))
+names(geneList) <- universe
+table(geneList)
+```
+
+### Build the topGO object
+
+```{r}
+## nodeSize = 10 ignores GO terms with fewer than 10 annotated genes (we can add a max here if we have very broad terms)
+GOdata <- new("topGOdata",
+              ontology = "BP", ##biological processes, what about other options?
+              allGenes = geneList,
+              annot    = annFUN.gene2GO,
+              gene2GO  = gene2GO,
+              nodeSize = 10)
+GOdata   # read this summary: how many genes/candidates actually have GO terms?
+
+```
+
+Note that `nodeSize = 10` removes GO terms with fewer than 10 annotated genes, which would otherwise give unstable results, we can also filter for upper limits if we start getting very broad terms.
+
+### Test for enrichment
+
+```{r}
+## test for enrichment 
+## Fisher's exact test asks: are candidates over-represented in this term compared with the universe?
+## 'weight01' accounts for the GO hierarchy: if a specific child term explains the signal, its broad parent terms are down-weighted.
+result <- runTest(GOdata, algorithm = "weight01", statistic = "fisher")
+result
+```
+
+### The results table
+
+```{r}
+##results table 
+## Annotated   = universe genes in the term
+## Significant = candidate genes in the term
+## Expected    = candidates expected by chance
+res <- GenTable(GOdata, weight01 = result, orderBy = "weight01",
+                topNodes = 50, numChar = 1000)
+res$p <- as.numeric(sub("< ", "", res$weight01))   
+head(res, 10)
+
+
+##write our outliers
+write.csv(res, "topGO_BP_xtx.csv", row.names = FALSE)
+```
+
+`topNodes = min(50, ...)` asks for the top 50 terms, or all of them if fewer than 50 were tested
+
+### Which candidate genes are in the top term?
+
+```{r}
+
+## Which candidate genes are in the top term?
+top_term <- res$GO.ID[1]
+intersect(genesInTerm(GOdata, top_term)[[1]], sigGenes(GOdata))
+
+```
+
+
+### Plot the enriched terms
+
+```{r}
+
+## GeneRatio = candidate genes in the term / all candidates with GO terms
+plot_df <- subset(res, p < 0.05)
+if (nrow(plot_df) == 0) {
+  message("No terms with p < 0.05 - plotting the top 15 anyway (none significant)")
+  plot_df <- head(res, 15)
+}
+plot_df <- head(plot_df, 20)
+plot_df$GeneRatio <- plot_df$Significant / numSigGenes(GOdata)
+plot_df$logP      <- -log10(plot_df$p)
+## wrap long GO term names over two lines so the text doesn't dominate the plot
+plot_df$Label <- vapply(plot_df$Term, function(t) paste(strwrap(t, width = 40), collapse = "\n"),
+                        character(1))
+plot_df$Label <- reorder(plot_df$Label, plot_df$GeneRatio)
+
+p1 <- ggplot(plot_df, aes(x = Label, y = GeneRatio, size = Significant, fill = logP)) +
+  geom_segment(aes(y = 0, yend = GeneRatio, x = Label, xend = Label),
+               colour = "lightblue", linewidth = 1.5, alpha = 0.5) +
+  geom_point(shape = 21, alpha = 0.8, colour = "black") +
+  coord_flip() +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 4)) +
+  theme_bw(base_size = 12) +
+  theme(axis.text.y = element_text(colour = "black", lineheight = 0.9),
+        plot.title.position = "plot",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  scale_fill_gradientn(colours = c("#2b83ba", "#fdae61", "#d7191c"),
+                       name = "-log10(p value)") +
+  scale_size(range = c(3, 10), name = "Count") +
+  ylab("Gene Ratio") + xlab("")
+
+
+ggsave("topGO_BP_.png", p1,
+       width = 9, height = max(4, 1 + 0.42 * nrow(plot_df)), dpi = 300)
+```
+
+### Exercises
+
+1.  From the `GOdata` summary: what proportion of the universe genes, and of the candidate genes, have GO terms? How does this limit what we can conclude?
+2.  Re-run the analysis with `ontology = "MF"` and then `ontology = "CC"` (change the output file names too). Do the three ontologies tell a consistent story?
+3.  Re-run the test with `algorithm = "classic"` and compare the top 10 terms with the weight01 results. Which broad parent terms appear with `classic`, and why?
+4.  Use the environmental outliers as candidates instead, for example only SNPs associated with temperature. Replace the line that reads `outliers` with the code below and re-run everything after it. Are the enriched terms the same as for *XtX*\*?
+
+
+
+## Part B: SnpEff and gene types {#sec-snpeff}
+
+### Annotate the environmental outliers
+
+```{r}
+library(tidyverse)
+
+env<-read.table("envoutliers.txt", header = T)
+head(env)
+
+geneanno<-read.table("outlier_gene_effects.tsv")
+
+head(geneanno)
+
+names(geneanno) <- c("CHROM", "POS", "GeneID", "Annotation")
+
+envanno<- env %>% left_join(geneanno, by = c("CHROM", "POS"))
+
+envanno %>% filter(!is.na(Annotation)) ->envanno
+```
+
+Note that the `GeneID` of an `intergenic_region` names the two genes on either side of the SNP (e.g. `GENE1-GENE2`).
+
+### Which types of change are the outlier SNPs?
+
+```{r}
+
+ggplot(aes(x = Annotation, fill = Annotation), data = envanno) + 
+    geom_bar(stat = "count")+
+    theme_classic()+
+    theme(legend.position = "none")+
+    coord_flip()+
+    scale_fill_brewer(palette = "Set3")+
+    facet_wrap(~covariate)
+
+
+ggsave("annocount.png", width =8, height =6)
+## the same numbers as a table
+envanno %>% count(covariate, Annotation) %>% arrange(covariate, desc(n))
+```
+
+### The most strongly associated SNPs
+
+```{r}
+envanno %>% filter(covariate == "lat") %>% arrange(desc(BF_dB)) %>% head()
+envanno %>% filter(covariate == "thetao_mean") %>% arrange(desc(BF_dB)) %>% head()
+
+```
+
+### What do our genes do?
+
+We can check what our genes correspond to on NCBI Gene (<https://www.ncbi.nlm.nih.gov/gene/>) by searching for the gene ID. But you may notice we don't get much, as we have a poorly annotated reference genome; many *L. gigantea* genes are listed only as "hypothetical protein". 
+
+When that happens we can:
+
+1.  Get the protein sequence of the gene (from its NCBI record, or from UniProt).
+2.  Search it against well-studied proteins with BLASTp (<https://blast.ncbi.nlm.nih.gov/>)
+3.  Look for known protein domains, for example in InterPro (<https://www.ebi.ac.uk/interpro/>).
+
+
+### Exercises
+
+1.  What proportion of the environmental outlier SNPs change the protein (`missense_variant`, `stop_gained` and so on)? Is that surprising?
+2.  Make the same bar plot for the *XtX*\* outliers
+3.  Can you find the function of the top five candidate genes?
+
+
+## Part C: Bringing it all together {#sec-story}
+
+### What do we have?
+
+So what do we have? Use your plots and notes from every class to fill in the last column.
+
+|   | Analysis | Question it answers | Your result |
+|----------------|----------------|-------------------|----------------------|
+| **Population structure** | PCA | Do individuals cluster by site or region? |  |
+|  | ADMIXTURE | How many genetic groups are there, and are individuals of mixed ancestry? |  |
+| **Genetic diversity and signatures of selection** | $\pi$ and heterozygosity | Which populations are more or less diverse? |  |
+|  | Tajima's D | Are there regions of positive and/or balancing selection? |  |
+|  | *F*~ST~ | How different are the populations, and which regions stand out? |  |
+|  | BayPass *XtX*\* | Which SNPs are more differentiated than the populations demography alone predicts? |  |
+| **Genotype × environment associations** | BayPass covariate model (*BF*) | Which SNPs are associated with latitudinal or temperature differences? |  |
+| **Genes of interest** | Gene types (SnpEff) | Where are the outlier SNPs relative to genes, and what is there potential function? |  |
+|  | Gene Ontology | Are the candidate genes enriched for particular functions? |  |
+
+### Building the story
+
+So how does it all fit together to make a story? A good population genomics story moves from the whole genome to individual genes, and is honest at every step about how strong the evidence is. 
+
+We can ask ourselves: 
+
+1.  **What are our populations?** Is there population structure, and does it follow geography? or do we have panmixia?
+2.  **What is their evolutionary history?** Do the populations differ in genetic diversity? Does Tajima's D suggest evidence of selective sweeps? 
+3.  **Where in the genome do they differ more than expected?** 
+4.  **Which of these differences track the environment?** Does temperature have an effect?
+5.  **What genes are there, and what might they do?**
+6.  **How sure are we?** Which results could be explained by demography, low diversity, chance or even sequencing error rather than selection?
+7.  **What would we do next!?**
+
+### Exercise
+
+1.  Think about what the story is with these data
+2.  Choose the **one figure** from the course that best supports your main point, and explain why.
+3.  Name the **one caveat** that most weakens your story, and say what would address it.
+]
+
