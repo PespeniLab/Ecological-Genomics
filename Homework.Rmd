@@ -9,3 +9,5 @@ fontsize: 18pt
 # Homework assignments:
 
 1. [Homework #1 ~ Transcriptomics](Fall2026/assignments/Homework1.html)
+
+2. [Homework #2 ~ Transcriptomics](Fall2026/assignments/Homework2.html)

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Homework #2 (Population Genomics)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="Homework2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Homework2_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Homework2_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Homework2_files/libs/quarto-html/popper.min.js"></script>
+<script src="Homework2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Homework2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Homework2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Homework2_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Homework2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Homework2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Homework2_files/libs/bootstrap/bootstrap-3a47433b04ef61c89d063a4156f822a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Homework #2 (Population Genomics)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p># Homework assignment #2 – Due by Monday, November 9th, 2026 (end of day)</p>
+<p>That’s all for population genomics!</p>
+<p><strong>In sum, we:</strong></p>
+<ul>
+<li>Learned how to work with Bash and submit batch jobs on the VACC</li>
+<li>Learned how to wrangle a VCF and to get basic summary statistics</li>
+<li>Learned why we do population genomics and how it can be implemented for studies</li>
+<li>Assessed population structure across a latitudinal gradient with PCA and ADMIXTURE</li>
+<li>Identified patterns in genetic diversity across the genome</li>
+<li>Identified signatures of selection using FST and BayPass</li>
+<li>Used genotype-envionment associations to identify variables driving selection</li>
+<li>Identified what genes are in outlier regions and what GO terms they correspond to (TopGO)</li>
+</ul>
+<p><strong>The purpose</strong> of this assignment is twofold: 1) to reinforce your learning of how to analyze and interpret population genomic data by giving you an independent opportunity to practice and as with homework one, 2) to practice thinking and writing like an ecological genomicist. Researchers working with large amounts of next generation sequence data and emerging or non-model organisms must carefully consider their question, the appropriate experimental design and sequencing approach to address the question, and the pathways and parameter space that can and should be explored to yield accurate and biologically meaningful results.</p>
+<p><strong>Skills:</strong> This assignment will help you practice the following skills:</p>
+<ul>
+<li>Articulate in writing the motivation for the study in general and your question (selected below), specifically, and biological conclusions that can be drawn.</li>
+<li>How to work on the linux remote server and in the R environment to process and analyze data.</li>
+<li>Explore important parameters/decisions and understand if/how they affect results.</li>
+<li>Interpret results biologically.</li>
+<li>Write in scientific narrative format typical of the discipline with attention to reproducibility (versions, parameters outside default, github notebook and scripts).</li>
+</ul>
+<p><strong>Knowledge:</strong> This assignment will reinforce your learning in the following important knowledge areas in the field of ecological genomics:</p>
+<ul>
+<li>How to assess genome-wide patterns of selection and architectural changes in the genome using whole-genome sequencing data</li>
+<li>Next generation sequence data processing and visualization tools.</li>
+<li>Computational biology/Bioinformatics</li>
+</ul>
+<section id="questions-with-specific-tasks-choose-one-of-the-options-below" class="level2">
+<h2 class="anchored" data-anchor-id="questions-with-specific-tasks-choose-one-of-the-options-below"><strong>Questions with specific tasks (choose <em>one</em> of the options below):</strong></h2>
+<ol type="1">
+<li><p>How are environmental variables influencing selection in L. gigantea, pick two of the following covariate results from BayPass: SSTmax, pHmin, O2mean or Chlorophyll mean (These files are in <code>BayPassHomework</code>). What genes might be under selection?</p></li>
+<li><p>Choose two populations to contrast (perhaps the most northern and most southern populations), Using a 100kb window, are there any differences in genetic diversity across the genome between populations (choose pi or He but explain why) ? Is there any overlap in these regions with XtX outliers and/or FST outliers? What could explain differences in genetic diversity or lack therefore of?</p></li>
+<li><p>Rerun PC and ADMIXTURE on data for a less strict LD threshold, what is the population structure now? How many PC components do you think you should use, how much variation do they explain? Is it supported by ADMIXTURE? Is the population structure supported by any other metrics (e.g., genetic diversity)?</p></li>
+</ol>
+</section>
+<section id="criteria" class="level2">
+<h2 class="anchored" data-anchor-id="criteria">Criteria:</h2>
+<ul>
+<li>The main text of the write-up should be 2 pages (max) single spaced. Tables, figures, and references can be on separate pages.</li>
+<li>You may work collaboratively, but the final product and all of the writing should be your own defensible work.</li>
+<li>Approach the writing as a technical report based on the work you’ve done to date. That is, write for a scientific audience using appropriate technical language and narrative style, with citations used when referring to methods or making factual assertions.</li>
+</ul>
+<section id="your-write-up-should-include-the-following-essential-elements" class="level3">
+<h3 class="anchored">Your write-up should include the following essential elements:</h3>
+<section id="background-1-2-paragraphs" class="level4">
+<h4 class="anchored" data-anchor-id="background-1-2-paragraphs">Background (1-2 paragraphs):</h4>
+<ul>
+<li>A brief description providing the context and motivation of the problem we’re trying to address with these data.</li>
+<li>A brief background on the experiment, study species, biological samples, library prep, and sequencing strategy. The Population genomics section one and two are excellent resources for this part.</li>
+<li>A clear statement of the question you have chosen to address in your assignment. We all have appreciated when this is done in our class discussion papers. Now you get to do it!</li>
+</ul>
+</section>
+<section id="bioinformatics-pipeline-2-paragraphs" class="level4">
+<h4 class="anchored" data-anchor-id="bioinformatics-pipeline-2-paragraphs">Bioinformatics Pipeline (~2 paragraphs):</h4>
+<ul>
+<li>Detailed description of the various steps you used for the analysis of the sequencing data. Take it from VCF step onwards.</li>
+<li>This section should demonstrate both your technical knowledge of the flow of the different steps in the pipeline, and your level of proficiency in understanding why each step was done. Include justification for using particular analyses or choices as appropriate.</li>
+</ul>
+</section>
+<section id="results-1-2-paragraphs" class="level4">
+<h4 class="anchored" data-anchor-id="results-1-2-paragraphs">Results (1-2 paragraphs)</h4>
+<ul>
+<li>Report your findings from the different analysis steps. Use a combination of reporting results in-line in your text and summarizing more detailed information in tables and/or figures.<br>
+</li>
+<li>You may use a max of 5 tables/figures total (not counted towards the page limit).</li>
+<li>Be sure each table/figure has a title, and a very brief legend describing its contents. Table legends go <strong>above</strong> tables while figure legends go <strong>below</strong> figures.</li>
+<li>Include in your results section both “methodological” results (number of outliers for example) as well as “biological” results (for example this GO term means x y and z).</li>
+</ul>
+</section>
+<section id="conclusion-1-2-paragraphs" class="level4">
+<h4 class="anchored" data-anchor-id="conclusion-1-2-paragraphs">Conclusion (1-2 paragraphs)</h4>
+<ul>
+<li>Give your technical and biological conclusion based on the question you addressed and results you generated. Consider the broader question of environmental effects on <em>Lottia gigantea</em></li>
+<li>Discuss any caveats or uncertainties that should be considered when interpreting the biological conclusions.</li>
+<li>Discuss any methodological challenges encountered along the way that are relevant to your results and their interpretation.</li>
+<li>Discuss opportunities for future directions.</li>
+</ul>
+</section>
+<section id="references-listed-on-a-separate-page" class="level4">
+<h4 class="anchored">References (listed on a separate page)</h4>
+<ul>
+<li><p>Cite papers in APA format. Example:<br>
+<font size="2"><em>deMayo, J. A., Brennan, R. S., Pespeni, M. H., Finiguerra, M., Norton, L., Park, G., … &amp; Dam, H. G. (2023). Simultaneous warming and acidification limit population fitness and reveal phenotype costs for a marine copepod. Proceedings of the Royal Society B, 290(2006), 20231033.</em></font></p>
+<ul>
+<li><p>Include only references to papers cited in your text.</p></li>
+<li><p>Github: Have your github lab notebook up to date. Make sure any scripts used for your analysis are available in your github “myscripts” folder. Share a URL link to your Github page with your homework submission.</p></li>
+</ul>
+<h3 id="guidelines-and-deadlines" class="anchored">Guidelines and deadlines:</h3>
+<ul>
+<li><p>You may collaborate with each other to discuss details and share notes, but your write-up should be done independently and represent your own work.</p></li>
+<li><p>Due by Monday, November 9, 2026 (end of day) on Brightspace as a <strong>PDF</strong></p>
+<ul>
+<li><p>Reminder about AI use (excerpted from the syllabus):</p></li>
+<li><p>Disclosure: Any AI use must be disclosed in a brief statement at the end of each assignment (e.g., “I used ChatGPT to help debug this part of my R script and to suggest alternate phrasing in paragraph 3.”).</p></li>
+</ul></li>
+<li><p>Accountability: Students are responsible for understanding and being able to explain all code and text in their assignments, whether produced by AI or not.</p></li>
+<li><p>Writing assignments: Homework and final project papers must be written by you or members of your group. AI may be used for grammar and style editing, but not for generating substantive content.</p></li>
+<li><p>Misuse: Undisclosed or excessive reliance on AI that undermines demonstration of your own learning would be considered academic misconduct.</p></li>
+</ul>
+<h2 id="reach-out-if-you-get-stuck-and-dont-forget-to-have-fun-with-it" class="anchored" data-anchor-id="references-listed-on-a-separate-page">Reach out if you get stuck, and don’t forget to have fun with it!</h2></li>
+</ul>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
