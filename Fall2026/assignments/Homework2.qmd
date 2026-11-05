@@ -6,7 +6,7 @@ output:
 fontsize: 18pt
 ---
 
-\# Homework assignment #2 -- Due by Monday, November 9th, 2026 (end of day)
+\# Homework assignment #2 -- Due by Thursday, November 12th, 2026 (end of day)
 
 That's all for population genomics!
 
