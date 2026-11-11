@@ -1,13 +1,15 @@
 ---
-title: "Ecological Genomics (BIOL 3990) Fall 2026"
+title: "Intro to Ecological Genomics (BIOL 3990) - Fall 2026"
 output:
   prettydoc::html_pretty:
     theme: cayman
 fontsize: 18pt
 ---
 
-# Homework assignments:
+# Assignments:
 
 1. [Homework #1 ~ Transcriptomics](Fall2026/assignments/Homework1.html)
 
 2. [Homework #2 ~ Population genomics](Fall2026/assignments/Homework2.html)
+
+3. [Group projects](Fall2026/assignments/GroupProjects_2026.html)
